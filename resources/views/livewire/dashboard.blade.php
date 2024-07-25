@@ -1,3 +1,3 @@
 <div>
-    Hello................... I am It Dashboard
+    Hello................... I am IT Dashboard
 </div>

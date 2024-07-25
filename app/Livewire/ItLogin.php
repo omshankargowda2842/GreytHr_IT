@@ -71,9 +71,9 @@ class ItLogin extends Component
             // $this->showLoader = true;
 
             if (Auth::guard('it')->attempt(['it_emp_id' => $this->form['emp_id'], 'password' => $this->form['password']])) {
-                return redirect()->route('dashboard');
+                return redirect()->route('requests');
             } elseif (Auth::guard('it')->attempt(['email' => $this->form['emp_id'], 'password' => $this->form['password']])) {
-                return redirect()->route('dashboard');
+                return redirect()->route('requests');
             }  else {
                 $this->error = "Invalid ID or Password. Please try again.";
             }
@@ -95,7 +95,6 @@ class ItLogin extends Component
             $this->error = "An unexpected error occurred. Please try again.";
         }
     }
-
 
     public function resetForm()
     {

@@ -2,6 +2,7 @@
 
 use App\Livewire\Dashboard;
 use App\Livewire\ItLogin;
+use App\Livewire\RequestProcess;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,5 +31,6 @@ Route::middleware(['auth:it'])->group(function () {
     Route::prefix('it')->group(function () {
         //like this  Route: /hr/hello
                 Route::get('/hello', Dashboard::class)->name('hello');
+                Route::get('/itrequest',RequestProcess::class)->name('requests');
     });
 });
