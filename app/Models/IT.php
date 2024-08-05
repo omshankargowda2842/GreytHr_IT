@@ -13,18 +13,16 @@ class IT extends Authenticatable
     protected $table = 'i_t'; // Adjust the table name accordingly
 
     protected $fillable = [
-        'it_emp_id','image',
-        'company_id', 'employee_name', 'designation', 'skills',
-        'experience_years', 'education', 'certifications', 'date_of_birth',
-        'address', 'phone_number', 'email', 'company_email', 'bio', 'linkedin_profile','password',
-        'github_profile', 'salary', 'is_active'
+        'it_emp_id','image','emp_id',
+         'employee_name',
+        'date_of_birth',
+        'phone_number', 'email','password','is_active'
     ];
 
-    protected $casts = [
-        'date_of_birth' => 'date',
-        'salary' => 'decimal:2',
-        'is_active' => 'boolean',
-    ];
+    public function employeeDetails()
+    {
+        return $this->belongsTo(EmployeeDetails::class, 'emp_id', 'emp_id');
+    }
 
     public function com()
     {

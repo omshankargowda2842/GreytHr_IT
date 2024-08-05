@@ -16,31 +16,19 @@ return new class extends Migration
             $table->id();
             $table->string('it_emp_id')->nullable()->default(null)->unique();
             $table->string('employee_name');
-            $table->string('image');
-            $table->string('company_id');
-            $table->string('designation');
-            $table->string('skills');
-            $table->integer('experience_years');
-            $table->string('education');
-            $table->string('certifications');
-            $table->date('date_of_birth');
-            $table->string('address');
-            $table->string('phone_number');
-            $table->string('email')->unique();
-            $table->string('company_email');
-            $table->text('bio');
-            $table->string('linkedin_profile')->nullable();
-            $table->string('github_profile')->nullable();
-            $table->decimal('salary', 10, 2);
+            $table->string('emp_id');
+            $table->binary('image')->nullable();
+            $table->date('date_of_birth')->nullable();
+            $table->string('phone_number')->unique()->nullable();
+            $table->string('email')->unique()->nullable();
             $table->boolean('is_active')->default(true);
-            $table->string('password');
-
-            $table->foreign('company_id')
-                ->references('company_id') // Assuming the primary key of the companies table is 'id'
-                ->on('companies')
+            $table->string('password')->nullable();
+            $table->foreign('emp_id')
+                ->references('emp_id')
+                ->on('employee_details')
                 ->onDelete('restrict')
                 ->onUpdate('cascade');
-            $table->timestamps();
+
         });
         $triggerSQL = <<<SQL
         CREATE TRIGGER generate_it_emp_id BEFORE INSERT ON i_t FOR EACH ROW
@@ -51,7 +39,7 @@ return new class extends Migration
                 SET @max_id := IFNULL((SELECT MAX(CAST(SUBSTRING(it_emp_id, 3) AS UNSIGNED)) + 1 FROM i_t), 100000);
 
                 -- Increment the max_id and assign it to the new bill_number
-                SET NEW.it_emp_id = CONCAT('IT', LPAD(@max_id, 6, '0'));
+                SET NEW.it_emp_id = CONCAT('IT-', LPAD(@max_id, 6, '0'));
             END IF;
         END;
     SQL;
@@ -64,6 +52,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('_i_t');
+        Schema::dropIfExists('i_t');
     }
 };

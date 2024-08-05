@@ -23,7 +23,6 @@ return new class extends Migration
             $table->string('file_path')->nullable(); // Path to attached file (nullable)
             $table->string('cc_to')->nullable(); // CC to field (nullable)
             $table->string('status')->default('Recent'); // CC to field (nullable)
-            $table->enum('selected_equipment',['keyboard', 'mouse', 'monitor','headset']); 
             $table->enum('priority', ['High', 'Medium', 'Low']); // Priority field with enum values 
             $table->timestamps();
 

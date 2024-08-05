@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('emp_id');
             $table->string('swipe_time');
             $table->string('in_or_out');
+            $table->string('is_regularised')->nullable();
             $table->foreign('emp_id')
             ->references('emp_id')
             ->on('employee_details')

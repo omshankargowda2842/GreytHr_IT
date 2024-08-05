@@ -9,13 +9,13 @@ use Illuminate\Notifications\Notifiable;
 class SalaryRevision extends Model
 {
     use HasFactory;
-    protected $table = 'salary_revisions'; // Set the table name if it's not the default "salary_revisions"
+    // protected $table = 'salary_revisions'; // Set the table name if it's not the default "salary_revisions"
 
-    protected $primaryKey = 'emp_id'; // Set the primary key if it's not "id"
+    // protected $primaryKey = 'emp_id'; // Set the primary key if it's not "id"
 
-    public $incrementing = false; // Set to false to indicate that "emp_id" is not auto-incrementing
+    // public $incrementing = false; // Set to false to indicate that "emp_id" is not auto-incrementing
 
-    protected $keyType = 'string'; // Set the data type for the primary key
+    // protected $keyType = 'string'; // Set the data type for the primary key
 
     protected $fillable = [
         'emp_id',
@@ -62,7 +62,6 @@ class SalaryRevision extends Model
 
     public function calculateHRA()
     {
-
         return ($this->basic * 0.4); // 40% of basic as HRA
     }
 

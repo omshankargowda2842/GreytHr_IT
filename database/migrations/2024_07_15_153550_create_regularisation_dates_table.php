@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('regularisation_new1s', function (Blueprint $table) {
+        Schema::create('regularisation_dates', function (Blueprint $table) {
             $table->id();
             $table->string('emp_id');
             $table->json('regularisation_entries');
@@ -39,6 +39,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('regularisation_new1s');
+        Schema::dropIfExists('regularisation_dates');
     }
 };

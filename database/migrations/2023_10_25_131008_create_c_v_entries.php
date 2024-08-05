@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('city');
             $table->string('address');
             $table->date('date_of_birth');
-            $table->string('image');
+            $table->binary('image');
             $table->text('technical_skills');
             $table->text('summary');
             $table->text('languages');

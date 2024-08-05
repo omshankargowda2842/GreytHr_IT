@@ -15,14 +15,14 @@ return new class extends Migration
             $table->id();
             $table->string('emp_id');
             $table->string('company_id');
-            $table->string('name');
+            $table->string('name')->nullable();
             $table->string('people_id');
-            $table->string('profile');
-            $table->string('contact_details');
-            $table->string('category');
-            $table->string('location');
-            $table->string('joining_date');
-            $table->string('date_of_birth');
+            $table->string('profile')->nullable();
+            $table->string('contact_details')->nullable();
+            $table->string('category')->nullable();
+            $table->string('location')->nullable();
+            $table->string('joining_date')->nullable();
+            $table->string('date_of_birth')->nullable();
             $table->string('starred_status')->default('starred');
             $table->unique(['emp_id', 'people_id']);
 

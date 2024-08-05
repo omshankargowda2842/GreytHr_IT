@@ -12,15 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('comments', function (Blueprint $table) {
-                      $table->id();
-    
-                      $table->string('emp_id');
-                      $table->string('first_name');
-                      $table->string('last_name');
-                      $table->string('comment');
-                    
-           
+        $table->id();
+        $table->string('card_id');
+        $table->string('emp_id')->nullable();
+        $table->string('hr_emp_id')->nullable();
+        $table->string('comment');
+        $table->foreign('emp_id')
+        ->references('emp_id')
+        ->on('employee_details')
+        ->onDelete('restrict')
+        ->onUpdate('cascade');
             $table->timestamps();
+        
         });
     }
 

@@ -11,20 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('companies', function (Blueprint $table) {
-            $table->string('company_id')->primary(); // Primary key
-            $table->string('company_name');
+        Schema::create('clients', function (Blueprint $table) {
+            $table->string('client_id')->primary(); // Primary key
+            $table->string('client_name');
             $table->string('hr_name');
-            $table->string('company_address1');
-            $table->string('company_address2');
-            $table->date('company_registration_date');
-            $table->string('company_logo');
+            $table->string('client_address1');
+            $table->string('client_address2');
+            $table->date('client_registration_date');
+            $table->string('client_logo')->nullable();
             $table->string('password');
             $table->string('contact_email');
             $table->string('contact_phone');
-            $table->timestamps(); // Created_at and updated_at columns
+            $table->timestamps();
         });
-
     }
 
     /**
@@ -32,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('companies');
+        Schema::dropIfExists('clients');
     }
 };

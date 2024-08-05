@@ -14,18 +14,19 @@ return new class extends Migration
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
             $table->string('emp_id');
-            $table->string('task_name');
+            $table->string('task_name')->nullable();
             $table->string('assignee');
-            $table->enum('priority', ['High', 'Medium', 'Low']); 
+            $table->enum('priority', ['High', 'Medium', 'Low']);
             $table->string('due_date');
-            $table->string('tags'); 
-            $table->string('followers');
-            $table->string('subject');
-            $table->text('description');
+            $table->string('tags')->nullable();
+            $table->string('client_id')->nullable();
+            $table->string('project_name')->nullable();
+            $table->string('followers')->nullable();
+            $table->string('subject')->nullable();
+            $table->text('description')->nullable();
             $table->string('file_path')->nullable();
             $table->string('status')->default('Open'); // CC to field (nullable)
             $table->timestamps();
-
             $table->foreign('emp_id')
                 ->references('emp_id')
                 ->on('employee_details')

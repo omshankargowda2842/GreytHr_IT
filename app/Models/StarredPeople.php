@@ -28,6 +28,6 @@ class StarredPeople extends Model
     ];
     public function emp()
     {
-        return $this->belongsTo(EmployeeDetails::class, 'emp_id', 'emp_id');
+        return $this->belongsTo(EmployeeDetails::class, 'people_id', 'emp_id');
     }
 }

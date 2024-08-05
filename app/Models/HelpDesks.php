@@ -16,3 +16,4 @@ class HelpDesks extends Model
         return $this->belongsTo(EmployeeDetails::class, 'emp_id', 'emp_id');
     }
 }
+    
