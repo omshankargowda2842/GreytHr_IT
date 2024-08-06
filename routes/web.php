@@ -1,7 +1,9 @@
 <?php
 
 use App\Livewire\Dashboard;
+use App\Livewire\ItAddMember;
 use App\Livewire\ItLogin;
+use App\Livewire\ItMembers;
 use App\Livewire\RequestProcess;
 use Illuminate\Support\Facades\Route;
 
@@ -32,5 +34,7 @@ Route::middleware(['auth:it'])->group(function () {
         //like this  Route: /hr/hello
                 Route::get('/hello', Dashboard::class)->name('hello');
                 Route::get('/itrequest',RequestProcess::class)->name('requests');
+                Route::get('/it-AddMember',ItAddMember::class)->name('it-AddMember');
+
     });
 });

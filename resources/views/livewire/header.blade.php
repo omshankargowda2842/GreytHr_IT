@@ -10,12 +10,15 @@
                     <label class="tabs" for="">Favorites</label>
                     <label class="tabs" for="">History</label>
                     <label class="tabs" for="">Workspaces</label>
+                    <label class="tabs" for="" wire:click='addMember'>Add Member</label>
                 </div>
             </div>
             <div class="profilesection">
                 <a class="notify" href=""><i class="fa-regular fa-bell"></i></a>
                 <h6 class="profile" class="profile">XS</h6>
+
             </div>
+            @livewire('logOut')
         </nav>
     </div>
 
