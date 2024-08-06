@@ -16,18 +16,19 @@ return new class extends Migration
             $table->id();
             $table->string('it_emp_id')->nullable()->default(null)->unique();
             $table->string('employee_name');
-            $table->string('emp_id');
             $table->binary('image')->nullable();
+            $table->string('emp_id')->nullable();
             $table->date('date_of_birth')->nullable();
-            $table->string('phone_number')->unique()->nullable();
-            $table->string('email')->unique()->nullable();
+            $table->string('phone_number')->nullable();
+            $table->string('email')->unique();
             $table->boolean('is_active')->default(true);
-            $table->string('password')->nullable();
-            $table->foreign('emp_id')
-                ->references('emp_id')
+            $table->timestamps();
+                $table->foreign('emp_id')
+                ->references('emp_id') // Assuming the primary key of the companies table is 'id'
                 ->on('employee_details')
                 ->onDelete('restrict')
                 ->onUpdate('cascade');
+            $table->string('password')->nullable();
 
         });
         $triggerSQL = <<<SQL

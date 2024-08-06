@@ -2,8 +2,12 @@
 
 namespace App\Livewire;
 
+use App\Models\HelpDesks;
+use App\Models\IT;
 use Illuminate\Http\Client\Request;
 use Livewire\Component;
+use Illuminate\Support\Facades\Log;
+use function Termwind\render;
 
 class RequestProcess extends Component
 {
@@ -12,155 +16,44 @@ class RequestProcess extends Component
     public $viewingDetails = false;
     public $assignTo;
     public $comments;
+    public $remarks =[];
     public $request;
     public $selectedRequest;
     public $showOverview = false;
     public $attachments;
     public $currentRequestId;
+    public $activeCount;
+    public $pendingCount;
+    public $closedCount;
+
+
 
 
     protected $rules = [
         'request.assignTo' => 'required',
         'comments' => 'required',
         'request.status' => 'required',
+        'remarks' => 'required',
+        'selectedStatus' => 'required',
+        'selectedAssigne' => 'required',
     ];
+
 
     public function setActiveTab($tab)
     {
 
         $this->activeTab = $tab;
+        $this->viewingDetails = false;
+        $this->selectedStatus = '';
+        $this->selectedAssigne = '';
+        $this->updateCounts();
     }
 
     public function mount()
     {
-        $this->requests = [
-            [
-                'id' => 1,
-                'requested_by' => 'Kiran',
-                'category' => 'IT Support',
-                'subject' => 'Computer not working',
-                'description' => 'The computer in the main office is not turning on.',
-                'distributor' => 'ABC Tech',
-                'mobile' => '123-456-7890',
-                'mailbox' => 'kiran@example.com',
-                'attach_files' => [
-                    'https://www.sawanonlinebookstore.com/zubyheet/2021/12/BAbur.jpg',
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsIz4qZKTOplGKCIt860B8HP3mTBMZGACNFg&s',
-                    'https://static.gettyimages.com/display-sets/creative-landing/images/GettyImages-1907862843.jpg'
-                    // Add more image URLs as needed
-                ],
-                'cc_to' => 'manager@example.com',
-                'priority' => 'High',
-                'select_equipment' => 'Desktop Computer',
-                'status' => 'Completed'
-            ],
-
-            [
-                'id' => 2,
-                'requested_by' => 'Emily',
-                'category' => 'Admin Services',
-                'subject' => 'Office Supplies Order',
-                'description' => 'Requesting a replenishment of office supplies for the marketing department.',
-                'distributor' => 'Office Supplies Plus',
-                'mobile' => '987-654-3210',
-                'mailbox' => 'emily@example.com',
-                'attach_files' => [
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQnhoHDIbSi0WJkzGYr6wemnCS2OzSRkhokmA&s',
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqGK3diR3Zi-mnOXEaj-3ewmFyRYVxGzVzZw&s',
-                    'https://buffer.com/library/content/images/size/w1200/2023/10/free-images.jpg',
-                    // Add more document URLs as needed
-                ],
-                'cc_to' => 'supervisor@example.com',
-                'priority' => 'Medium',
-                'select_equipment' => 'Office Supplies',
-                'status' => 'Completed'
-            ],
-
-            [
-                'id' => 3,
-                'requested_by' => 'Kiran Kumar',
-                'category' => 'IT Support',
-                'subject' => 'Computer not working',
-                'description' => 'The computer in the main office is not turning on.',
-                'distributor' => 'ABC Tech',
-                'mobile' => '123-456-7890',
-                'mailbox' => 'kiran@example.com',
-                'attach_files' => [
-                    'https://static.vecteezy.com/system/resources/thumbnails/034/038/529/small_2x/sustainable-development-and-green-business-based-on-renewable-energy-concepts-ai-generated-photo.jpg',
-                    'https://tinypng.com/images/social/website.jpg',
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQrpZEneLh1WL_0kpeQEvbvHipkPx22W2hKMg&s',
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQrpZEneLh1WL_0kpeQEvbvHipkPx22W2hKMg&s'
-
-                ],
-                'cc_to' => 'manager@example.com',
-                'priority' => 'High',
-                'select_equipment' => 'Desktop Computer',
-                'status' => 'inProgress'
-            ],
-
-            [
-                'id' => 4,
-                'requested_by' => 'Bhargav Kumar',
-                'category' => 'Admin Team',
-                'subject' => 'Computer working',
-                'description' => 'The computer in the main office is not turning on.',
-                'distributor' => 'ABC Tech',
-                'mobile' => '123-456-7890',
-                'mailbox' => 'kiran@example.com',
-                'attach_files' => [
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCcZgzHS5HS02nxVXYM-ZV7LxuHqbUNdCj8A&s',
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTufTC6mDEMp7zh4lgLIOFGTQnp4qjswpH6w&s',
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQrpZEneLh1WL_0kpeQEvbvHipkPx22W2hKMg&s'
-                    // Add more image URLs as needed
-                ],
-                'cc_to' => 'manager@example.com',
-                'priority' => 'High',
-                'select_equipment' => 'Desktop Computer',
-                'status' => 'inProgress'
-            ],
-
-            [
-                'id' => 5,
-                'requested_by' => 'Bhargav Kumar',
-                'category' => 'Admin Team',
-                'subject' => 'Computer working',
-                'description' => 'The computer in the main office is not turning on.',
-                'distributor' => 'ABC Tech',
-                'mobile' => '123-456-7890',
-                'mailbox' => 'kiran@example.com',
-                'attach_files' => [
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCcZgzHS5HS02nxVXYM-ZV7LxuHqbUNdCj8A&s',
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTufTC6mDEMp7zh4lgLIOFGTQnp4qjswpH6w&s',
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQrpZEneLh1WL_0kpeQEvbvHipkPx22W2hKMg&s'
-                    // Add more image URLs as needed
-                ],
-                'cc_to' => 'manager@example.com',
-                'priority' => 'High',
-                'select_equipment' => 'Desktop Computer',
-                'status' => 'inProgress'
-            ],
-            [
-                'id' => 6,
-                'requested_by' => 'Bhargav Kumar',
-                'category' => 'Admin Team',
-                'subject' => 'Computer working',
-                'description' => 'The computer in the main office is not turning on.',
-                'distributor' => 'ABC Tech',
-                'mobile' => '123-456-7890',
-                'mailbox' => 'kiran@example.com',
-                'attach_files' => [
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCcZgzHS5HS02nxVXYM-ZV7LxuHqbUNdCj8A&s',
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTufTC6mDEMp7zh4lgLIOFGTQnp4qjswpH6w&s',
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQrpZEneLh1WL_0kpeQEvbvHipkPx22W2hKMg&s'
-                    // Add more image URLs as needed
-                ],
-                'cc_to' => 'manager@example.com',
-                'priority' => 'High',
-                'select_equipment' => 'Desktop Computer',
-                'status' => 'Completed'
-            ],
-           
-        ];
+        $this->selectedStatus = '';
+        $this->selectedAssigne = '';
+        $this->updateCounts();
     }
 
 
@@ -169,7 +62,6 @@ class RequestProcess extends Component
         $request = collect($this->requests)->firstWhere('id', $requestId);
         $this->attachments = explode(',', $request['attach_files']);
     }
-
 
     public function getInProgressRequestsProperty()
     {
@@ -185,10 +77,12 @@ class RequestProcess extends Component
         });
     }
 
+
     public function viewDetails($index)
     {
-        $this->request = $this->requests[$index] ?? null;
+        $this->selectedRequest = $this->forIT->where('status', 'Open')->values()->get($index);
         $this->viewingDetails = true;
+        $this->currentRequestId = $this->selectedRequest->id;
     }
 
 
@@ -201,42 +95,223 @@ class RequestProcess extends Component
     public function closeDetails()
     {
         $this->viewingDetails = false;
+        $this->mount();
         // $this->selectedRequest = true;
     }
 
-    public function updated($field)
+    public function redirectBasedOnStatus()
     {
-        $this->validateOnly($field);
-        // $this->debounce('save', function () {
-        //     $this->save();
-        // });
-        $this->save();
+
+        $this->validate([
+            'selectedStatus' => 'required',
+
+            'selectedAssigne' => 'required',
+        ], [
+            'selectedStatus.required' => 'Status is required.',
+            'selectedAssigne.required' => 'Assign to is required.',
+        ]);
+
+
+        if ($this->selectedStatus === 'Pending') {
+
+            $this->setActiveTab('pending');
+
+        } elseif ($this->selectedStatus === 'Completed') {
+
+            $this->setActiveTab('closed');
+
+        }
+        $this->reset(['selectedStatus', 'selectedAssigne']);
+        $this->resetErrorBag();
+        $this->updateCounts();
     }
 
-    public function save()
-    {
-        $this->validate();
-        $request = Request::find($this->selectedRequest['id']);
-        $request->assign_to = $this->assignTo;
-        $request->comments = $this->comments;
-        $request->status = $this->selectedRequest['status'];
-        $request->save();
 
-        $this->reset(['assignTo', 'comments', 'selectedRequest']);
+
+
+    public function pendingForDesks($taskId)
+    {
+        $task = HelpDesks::find($taskId);
+
+        if ($task) {
+            $task->update(['status' => 'Pending']);
+            session()->flash('message', 'Status saved successfully');
+        }
+        $this->updateCounts();
     }
 
 
+    public function openForDesks($taskId)
+    {
+        $task = HelpDesks::find($taskId);
+
+        if ($task) {
+            $task->update(['status' => 'Completed']);
+            session()->flash('message', 'Status Closed successfully');
+        }
+        $this->updateCounts();
+    }
+    public $error = '';
+    public $loading = false;
+    public function closeForDesks($taskId)
+    {
+        $this->loading = true;
+        sleep(3);
+        $task = HelpDesks::find($taskId);
+        try {
+        if ($task) {
+            $task->update(['status' => 'Open']);
+            session()->flash('message', 'Status Reopened successfully');
+        }
+    }catch (\Exception $e) {
+        // Handle exception
+        $this->error = "An unexpected error occurred. Please try again.";
+    } finally {
+        $this->loading = false;
+
+    }
+        $this->updateCounts();
+    }
+
+
+    public $selectedStatus;
+
+    public function updateStatus($taskId)
+    {
+        $this->validateOnly('selectedStatus');
+        $this->resetErrorBag('selectedStatus');
+        $task = HelpDesks::find($taskId);
+
+        if ($task && $this->selectedStatus) {
+            $task->update(['status' => $this->selectedStatus]);
+            if ($this->selectedStatus === 'Pending') {
+                session()->flash('statusMessage', 'Status has been set to Pending');
+            } elseif ($this->selectedStatus === 'Completed') {
+                session()->flash('statusMessage', 'Status has been set to Completed');
+            } else {
+                session()->flash('statusMessage', 'Status Updated successfully');
+            }
+        }
+    }
+
+
+    public $selectedAssigne;
+
+
+    public function updateAssigne($taskId)
+    {
+        $this->validateOnly('selectedAssigne');
+        $this->resetErrorBag('selectedAssigne');
+
+        $task = HelpDesks::find($taskId);
+
+        if ($task  && $this->selectedAssigne) {
+            $task->update(['assign_to' => $this->selectedAssigne]);
+            // session()->flash('message', 'Status Reopened successfully');
+        }
+    }
+
+
+
+
+    public function postComment($taskId)
+    {
+        $task = HelpDesks::find($taskId);
+
+        if ($task && $this->comments) {
+
+            $task->update(['active_comment' => $this->comments]);
+            session()->flash('commentMessage', 'Comment posted successfully');
+        }
+    }
+
+
+    public function postRemarks($taskId)
+    {
+        $remarks = $this->remarks[$taskId] ?? '';
+        $task = HelpDesks::find($taskId);
+
+        if ($task) {
+            $task->update(['inprogress_remarks' => $remarks]);
+            // $task->update(['inprogress_remarks' => $this->remarks]);
+            session()->flash('message', 'Comment posted successfully');
+        }
+    }
+
+
+    public function updateCounts()
+    {
+        $this->activeCount = HelpDesks::where('status', 'Open')
+            ->whereIn('category', [
+                'Request For IT', 'Distribution List Request', 'New Laptop',
+                'New Distribution Request', 'New Mailbox Request', 'Devops Access Request',
+                'New ID Card', 'MMS Request', 'Desktop Request', 'N/A'
+            ])->count();
+
+        $this->pendingCount = HelpDesks::where('status', 'Pending')
+            ->whereIn('category', [
+                'Request For IT', 'Distribution List Request', 'New Laptop',
+                'New Distribution Request', 'New Mailbox Request', 'Devops Access Request',
+                'New ID Card', 'MMS Request', 'Desktop Request', 'N/A'
+            ])->count();
+
+        $this->closedCount = HelpDesks::where('status', 'Completed')
+            ->count();
+    }
+
+
+
+    public $forIT;
+    public $itData;
     public function render()
     {
-        // $selectedRequest = $this->requests[$this->selectedIndex] ?? null;
-        return view('livewire.request-process', [
 
+        $this->itData = IT::with('empIt')->get();
+
+        $companyId = auth()->guard('it')->user()->company_id;
+        $this->forIT = HelpDesks::with('emp')
+            ->whereHas('emp', function ($query) use ($companyId) {
+                $query->where('company_id', $companyId);
+            })
+            ->orderBy('created_at', 'desc')
+            ->whereIn('category', ['Request For IT', 'Distribution List Request', 'New Laptop', 'New Distribution Request', 'New Mailbox Request', 'Devops Access Request', 'New ID Card', 'MMS Request', 'Desktop Request', 'N/A'])
+            ->get();
+
+
+
+        if ($this->activeTab == 'active') {
+            $this->forIT = HelpDesks::with('emp')
+                ->where('status', 'Open')
+                ->orderBy('created_at', 'desc')
+                ->whereIn('category', ['Request For IT', 'Distribution List Request', 'New Laptop', 'New Distribution Request', 'New Mailbox Request', 'Devops Access Request', 'New ID Card', 'MMS Request', 'Desktop Request', 'N/A'])
+                ->get();
+
+        } elseif ($this->activeTab == 'pending') {
+            $this->forIT = HelpDesks::with('emp')
+                ->where('status', 'Pending')
+                ->orderBy('created_at', 'desc')
+                ->whereIn('category', ['Request For IT', 'Distribution List Request', 'New Laptop', 'New Distribution Request', 'New Mailbox Request', 'Devops Access Request', 'New ID Card', 'MMS Request', 'Desktop Request', 'N/A'])
+
+                ->get();
+        } elseif ($this->activeTab == 'closed') {
+            $this->forIT = HelpDesks::with('emp')
+                ->where('status', 'Completed')
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        return view('livewire.request-process', [
+            'activeCount' => $this->activeCount,
+            'pendingCount' => $this->pendingCount,
+            'closedCount' => $this->closedCount,
             'ClosedRequests' => $this->ClosedRequests,
             'inProgressRequests' => $this->inProgressRequests,
             'viewingDetails' => $this->viewingDetails,
             'requests' => $this->requests,
             'activeTab' => $this->activeTab,
 
+
         ]);
+
     }
 }

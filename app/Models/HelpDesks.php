@@ -8,8 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class HelpDesks extends Model
 {
     use HasFactory;
+    protected $primaryKey="id";
+    protected $table="help_desks";
     protected $fillable=[
-        'emp_id', 'category', 'subject', 'description', 'file_path', 'cc_to', 'priority','status','mail','mobile','distributor_name','selected_equipment'
+        'id',
+        'emp_id', 'category', 'subject', 'description', 'file_path', 'cc_to','active_comment','inprogress_remarks','assign_to','priority','status','mail','mobile','distributor_name','selected_equipment'
      ];
     public function emp()
     {

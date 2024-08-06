@@ -10,4 +10,8 @@ class Header extends Component
     {
         return view('livewire.header');
     }
+
+    public function addMember(){
+        return redirect()->route('it-AddMember');
+    }
 }

@@ -47,4 +47,9 @@
             'skill_set',
 
         ];
+
+        public function personalInfo()
+        {
+            return $this->hasOne(EmpPersonalInfo::class, 'emp_id', 'emp_id');
+        }
     }
