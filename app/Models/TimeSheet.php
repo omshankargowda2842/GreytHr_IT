@@ -9,7 +9,7 @@ class TimeSheet extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'emp_id',t
+        'emp_id',
         'start_date',
         'end_date',
         'time_sheet_type',
