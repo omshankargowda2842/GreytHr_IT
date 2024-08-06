@@ -48,8 +48,33 @@ class ItLogin extends Component
     public $verify_error = '';
     public $pass_change_error = '';
     protected $messages = [
-        'form.emp_id.required' => 'ID/Mail is required.',
+        'form.emp_id.required' => 'ID / Mail is required.',
         'form.password.required' => 'Password is required.',
+        'newPassword.required' => 'New Password is required.',
+        'newPassword.min' => 'New Password should be at least 8 characters.',
+        'newPassword.max' => 'New Password should not exceed 50 characters.',
+        'newPassword.regex' => 'New Password must contain at least one uppercase letter and one special character, and one digit.',
+        'newPassword_confirmation.required' => 'Confirm Password is required.',
+        'newPassword_confirmation.same' => 'New Password and Confirm Password should be same.',
+        'email.required_without' => 'Email is required.',
+        'dob.required' => 'Date of Birth is required.',
+        'email.email' => 'Please enter a valid email.',
+    ];
+    protected $forgotPasswordRules =  [
+        'email' => ['nullable', 'email', 'required_without:company_email'],
+        'company_email' => ['nullable', 'email', 'required_without:email'],
+        'dob' => ['required', 'date'],
+    ];
+    protected $passwordRules = [
+        'newPassword' => [
+            'required',
+            'min:8',
+            'max:50',
+            'regex:/[A-Z]/',
+            'regex:/[!@#$%^&*(),.?":{}|<>]/',
+            'regex:/[0-9]/'
+        ],
+        'newPassword_confirmation' => 'required|same:newPassword',
     ];
 
     public function jobs()
@@ -62,6 +87,10 @@ class ItLogin extends Component
     }
     public function itLogin()
     {
+        // Manually trim the input values
+        $this->form['emp_id'] = trim($this->form['emp_id']);
+        $this->form['password'] = trim($this->form['password']);
+
         $this->validate([
             "form.emp_id" => 'required',
             "form.password" => "required"
@@ -70,7 +99,7 @@ class ItLogin extends Component
         try {
             // $this->showLoader = true;
 
-            if (Auth::guard('it')->attempt(['it_emp_id' => $this->form['emp_id'], 'password' => $this->form['password']])) {
+            if (Auth::guard('it')->attempt(['it_emp_id' => $this->form['emp_id'] , 'password' => $this->form['password']])) {
                 return redirect()->route('requests');
             } elseif (Auth::guard('it')->attempt(['email' => $this->form['emp_id'], 'password' => $this->form['password']])) {
                 return redirect()->route('requests');
@@ -83,6 +112,7 @@ class ItLogin extends Component
             $this->error = "There was a problem with your input. Please check and try again.";
         } catch (\Illuminate\Database\QueryException $e) {
             // Handle database errors
+
             $this->showLoader = false;
             $this->error = "We are experiencing technical difficulties. Please try again later.";
         } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
@@ -132,7 +162,6 @@ class ItLogin extends Component
     }
     public function verifyEmailAndDOB()
     {
-
         $this->validate([
             'email' => ['nullable', 'email', 'required_without:company_email'],
             'company_email' => ['nullable', 'email', 'required_without:email'],
@@ -154,17 +183,17 @@ class ItLogin extends Component
             // $user = EmployeeDetails::where(function ($query) use ($email) {
             //     $query->where('email', $email)
             //         ->orWhere('company_email', $email);
-            // })->where('date_of_birth', $this->dob)->first();
+            // })->where('dob', $this->dob)->first();
 
             // Search for the user in HR table
-            $userInHR = IT::where(function ($query) use ($email) {
+            $userInIT = IT::where(function ($query) use ($email) {
                 $query->where('email', $email)
                     ->orWhere('company_email', $email);
             })->where('date_of_birth', $this->dob)->first();
 
 
             // Combine the results of all queries
-            $user =  $userInHR;
+            $user =  $userInIT;
             if ($user) {
                 $this->verified = true;
                 if ($this->verified) {
@@ -185,6 +214,7 @@ class ItLogin extends Component
             // Handle database errors
             //$this->showErrorModal = true;
             // $this->addError('email', 'We are experiencing technical difficulties. Please try again later.');
+            Log::error('Error approving leave: ' . $e->getMessage());
             $this->verify_error = 'We are experiencing technical difficulties. Please try again later.';
         } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
             // Handle server errors
@@ -231,17 +261,18 @@ class ItLogin extends Component
                 // })->first();
 
                 // Search for the user in HR table
-                $userInHR = IT::where(function ($query) use ($email) {
+                $userInIT = IT::where(function ($query) use ($email) {
                     $query->where('email', $email)
                         ->orWhere('company_email', $email);
                 })->first();
 
 
                 // Combine the results of all queries
-                $user = $userInHR ;
+                $user = $userInIT ;
 
 
                 if ($user) {
+
                     // Update the user's password in the database
                     $user->update(['password' => bcrypt($this->newPassword)]);
                     $this->passwordChangedModal = true;
@@ -263,22 +294,40 @@ class ItLogin extends Component
         } catch (ValidationException $e) {
             // Handle validation errors
             // $this->passwordChangedModal = false;
+            Log::error('Error approving leave: ' . $e->getMessage());
             $this->pass_change_error = 'There was a problem with your input. Please check and try again.';
         } catch (\Illuminate\Database\QueryException $e) {
             // Handle database errors
             // $this->passwordChangedModal = false;
+            Log::error('Error approving leave: ' . $e->getMessage());
             $this->pass_change_error = 'We are experiencing technical difficulties. Please try again later.';
         } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
             // Handle server errors
             // $this->passwordChangedModal = false;
+            Log::error('Error approving leave: ' . $e->getMessage());
             $this->pass_change_error = 'There is a server error. Please try again later.';
         } catch (\Exception $e) {
             // Handle general errors
             //$this->passwordChangedModal = false;
+            Log::error('Error approving leave: ' . $e->getMessage());
             $this->pass_change_error = 'An unexpected error occurred. Please try again.';
         }
     }
 
+    public function validateField($field)
+    {
+        if (in_array($field, ['email', 'company_email', 'dob'])) {
+            $this->validateOnly($field, $this->forgotPasswordRules);
+        } elseif (in_array($field, ['newPassword', 'newPassword_confirmation'])) {
+            $this->validateOnly($field, $this->passwordRules);
+        } else {
+            $this->validateOnly($field, $this->rules);
+        }
+    }
+    public function forgotPassword()
+    {
+        $this->verify_error = '';
+    }
 
     public function render()
     {
