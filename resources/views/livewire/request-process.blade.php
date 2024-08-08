@@ -397,6 +397,20 @@
                             @endforeach
 
                         </div>
+
+                        @else
+                        <div class="req-requestnotfound" >
+                            <td colspan="20" class="req-td-norecords">
+
+                                <div>
+                                    <img src="{{ asset('images/Closed.webp') }}" alt="No Records"
+                                        class="req-img-norecords">
+
+                                    <h3 class="req-head-norecords">No requests found
+                                    </h3>
+                                </div>
+                            </td>
+                     </div>
                         @endif
                         @endif
                     </div>
