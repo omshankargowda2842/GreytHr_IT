@@ -30,12 +30,33 @@ class ItAddMember extends Component
     public $dateFromDatabase;
     public $imageData;
 
+
     public function mount()
     {
         $this->itMembers = EmployeeDetails::where('sub_dept_id', '9915')->get();
         $this->itRelatedEmye =IT ::all();
 
     }
+
+    protected $rules = [
+        'employeeName' => 'required|string|max:255',
+        'employeeId' => 'required',
+        'phoneNumber' => 'required|numeric',
+        'email' => 'required|email',
+        'dateOfBirth' => 'required|date',
+    ];
+
+    protected $messages = [
+        'employeeName.required' => 'Employee name is required.',
+        'employeeId.required' => 'Employee ID is required.',
+
+        'phoneNumber.required' => 'Phone number is required.',
+        'email.required' => 'Email is required.',
+        'dateOfBirth.required' => 'Date of birth is required.',
+    ];
+
+
+
 
     public function showAddItMember()
     {
@@ -51,9 +72,12 @@ class ItAddMember extends Component
     }
 
 
+
+
     public function showEditItMember($id)
     {
         $this->resetForm();
+        $this->resetErrorBag();
         $itMember = IT::find($id);
         if ($itMember) {
 
@@ -69,54 +93,108 @@ class ItAddMember extends Component
             $this->editMode = true;
         }
     }
+    public function validateEmail()
+    {
+        $this->validate([
+            'email' => ['required', 'email', function($attribute, $value, $fail) {
+            $allowedExtensions = ['payg.in', 'paygdigitals.com'];
+            $domain = substr(strrchr($value, "@"), 1);
+            if (!in_array($domain, $allowedExtensions)) {
+            $fail('Email address must use one of these domains:: ' . implode(', ', $allowedExtensions));
+            }
+        }],
+        ]);
+    }
 
+
+    public function validateField($propertyName)
+    {
+        // Apply validation rules dynamically
+        $rules = $this->rules;
+
+        // Apply image validation only if a new image is uploaded
+        if ($propertyName === 'image') {
+        $rules['image'] = $this->isImageChanged ? 'nullable|image|max:512' : 'nullable';
+        }
+
+        $this->validateOnly($propertyName, $rules);
+
+        $this->resetErrorBag();
+    }
+    public function validateEmployeeId()
+    {
+        $existingRecord = IT::where('emp_id', $this->employeeId)
+        ->where('id', '!=', $this->selectedItId)
+        ->exists();
+
+        if ($existingRecord) {
+
+        $this->addError('employeeId', 'An IT member with this Employee ID already exists.');
+        }
+    }
 
 
     public function submit()
     {
-        $this->validate([
-            'employeeName' => 'required|string|max:255',
-            'employeeId' => 'required',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:512',
-            'phoneNumber' => 'required|numeric',
-            'email' => 'required|email',
-            'dateOfBirth' => 'required|date',
-        ]);
+        $this->resetErrorBag('employeeId');
+
+        $this->validateEmployeeId();
+        if ($this->getErrorBag()->has('employeeId')) {
+        return;
+        }
+        $this->validate();
+        $this->validateEmail();
+        // $this->resetErrorBag('email');
+
+        $rules = $this->rules;
+
+        $imageData = null;
 
 
-        if($this->image) {
-            if ($this->image->getSize() > 200 * 1024) {
-                dd();
-                session()->flash('message', 'Image size should be less than 200KB.');
-                return;
-            }
-            $imageData = file_get_contents($this->image->getRealPath());
+        if ($this->image) {
+        // If image is base64 data
+        if (strpos($this->image, 'data:image/jpeg;base64,') === 0) {
+        $imageData = base64_decode(substr($this->image, strpos($this->image, ',') + 1));
+
+        }
+        // If image is an instance of UploadedFile
+        elseif ($this->image instanceof \Illuminate\Http\UploadedFile) {
+        if ($this->image->getSize() > 500 * 1024) { // 500KB
+        $this->addError('image', 'Image size should be less than 500KB.');
+        return;
+        }
+        $imageData = file_get_contents($this->image->getRealPath());
+        } else {
+        // Handle the case where $this->image is not valid
+        $this->addError('image', 'Invalid image file.');
+        return;
+        }
         }
 
         if ($this->editMode) {
-            // Update existing record
-            $data = IT::find($this->selectedItId);
-            if ($data) {
-                $data->update([
-                    'emp_id' => $this->employeeId,
-                    'employee_name' => $this->employeeName,
-                    'date_of_birth' => $this->dateOfBirth,
-                    'phone_number' => $this->phoneNumber,
-                    'email' => $this->email,
-                    'image' => $imageData,
-                ]);
-            }
+        // Update existing record
+        $data = IT::find($this->selectedItId);
+        if ($data) {
+        $data->update([
+        'emp_id' => $this->employeeId,
+        'employee_name' => $this->employeeName,
+        'date_of_birth' => $this->dateOfBirth,
+        'phone_number' => $this->phoneNumber,
+        'email' => $this->email,
+        'image' => $imageData ?? $data->image,
+        ]);
+        }
         } else {
-            // Create new record
-            IT::create([
-                'emp_id' => $this->employeeId,
-                'employee_name' => $this->employeeName,
-                'date_of_birth' => $this->dateOfBirth,
-                'phone_number' => $this->phoneNumber,
-                'email' => $this->email,
-                'image' => $imageData,
-                'is_active' => true,
-            ]);
+        // Create new record
+        IT::create([
+        'emp_id' => $this->employeeId,
+        'employee_name' => $this->employeeName,
+        'date_of_birth' => $this->dateOfBirth,
+        'phone_number' => $this->phoneNumber,
+        'email' => $this->email,
+        'image' => $imageData,
+        'is_active' => true,
+        ]);
         }
 
         $this->resetForm();
@@ -127,10 +205,13 @@ class ItAddMember extends Component
         $this->showAddIt = false;
         $this->editMode = false;
         $this->showEditDeleteIt = true;
+        $this->showLogoutModal = false;
+        $this->resetErrorBag();
+
     }
     public function cancelLogout()
     {
-        $this->showLogoutModal = true;
+         $this->showLogoutModal = true;
     }
 
     public function delete($id)
@@ -159,31 +240,31 @@ class ItAddMember extends Component
 
     public function updateEmployeeName()
     {
-        // Find the employee based on the selected ID
+        $this->resetErrorBag();
+        $this->validateEmployeeId();
         $member = EmployeeDetails::with('personalInfo')->where('emp_id', $this->employeeId)->first();
 
         if ($member) {
-            $this->employeeName = "{$member->first_name} {$member->last_name}";
-            $this->dateOfBirth = $member->personalInfo->date_of_birth ?? '';
-            $this->phoneNumber = $member->personalInfo->mobile_number ?? '';
-            $this->email = $member->personalInfo->email ?? '';
+        $this->employeeName = "{$member->first_name} {$member->last_name}";
+        $this->dateOfBirth = $member->personalInfo->date_of_birth ?? '';
+        $this->phoneNumber = $member->personalInfo->mobile_number ?? '';
+        $this->email = $member->personalInfo->email ?? '';
         } else {
-            $this->employeeName = '';
-            $this->dateOfBirth = '';
-            $this->phoneNumber = '';
-            $this->email = '';
+        $this->employeeName = '';
+        $this->dateOfBirth = '';
+        $this->phoneNumber = '';
+        $this->email = '';
         }
     }
-
-
 
     public function render()
     {
         $this->itRelatedEmye = IT::all();
         return view('livewire.it-add-member',['itRelatedEmye' => $this->itRelatedEmye->map(function ($item) {
-                $item->formatted_date_of_birth = $this->formatDate($item->date_of_birth);
-                return $item;
-            }),
+            $item->formatted_date_of_birth = $this->formatDate($item->date_of_birth);
+            return $item;
+        }),
         ]);
     }
+
 }

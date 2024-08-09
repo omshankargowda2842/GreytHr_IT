@@ -98,7 +98,7 @@ class ItLogin extends Component
 
         try {
             // $this->showLoader = true;
-
+            
             if (Auth::guard('it')->attempt(['it_emp_id' => $this->form['emp_id'] , 'password' => $this->form['password']])) {
                 return redirect()->route('requests');
             } elseif (Auth::guard('it')->attempt(['email' => $this->form['emp_id'], 'password' => $this->form['password']])) {
