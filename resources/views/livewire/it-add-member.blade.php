@@ -1,3 +1,4 @@
+<div class="main">
 <div class="row">
     @if($showAddIt)
     <div class="col-8  container mt-4 itadd-maincolumn">
@@ -87,7 +88,7 @@
         <button class="btn btn-dark btn-sm" wire:click='showAddItMember' style="margin-right: 9%;padding: 7px;"><i
                 class="fas fa-user-plus "></i> Add Member</button>
     </div>
-    <div class="col-10 container mt-4">
+    <div class="col-11  mt-4 ml-4">
         <div class="table-responsive req-table-res">
 
             <div wire:loading.delay>
@@ -167,4 +168,5 @@
     <div class="modal-backdrop fade show"></div>
     @endif
 
+</div>
 </div>

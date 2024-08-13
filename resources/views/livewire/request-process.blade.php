@@ -1,950 +1,956 @@
-<div>
+    <div class="main">
 
-    <div class="row req-pro-main-page">
+        <div class="row req-pro-main-page">
 
-        <div class="col-lg-9 col-md-8 col-xs-12">
+            <div class="col-lg-9 col-md-7 col-xs-12">
 
-            <div class="req-pro-head" x-data="{ activeTab: @entangle('activeTab') }">
+                <div class="req-pro-head" x-data="{ activeTab: @entangle('activeTab') }">
 
-                <req-pro-nav class="req-pro-req-pro-nav">
+                    <req-pro-nav class="req-pro-req-pro-nav">
 
-                    <ul class="tabss">
+                        <ul class="tabss">
 
-                        <li class="tab" wire:click="setActiveTab('active')"
-                            :class="$activeTab === 'active' ? 'active' : ''"
-                            :style="$activeTab === 'active' ? 'color: black;' : 'color: gray;'">
+                            <li class="tab" wire:click="setActiveTab('active')"
+                                :class="$activeTab === 'active' ? 'active' : ''"
+                                :style="$activeTab === 'active' ? 'color: black;' : 'color: gray;'">
 
-                            <i class="fas fa-check"></i> Active
+                                <i class="fas fa-check"></i> Active
 
-                            @if($activeTab === 'active')
-                            <img class="req-active-tick"
-                                src="https://png.pngtree.com/png-vector/20221215/ourmid/pngtree-green-check-mark-png-image_6525691.png"
-                                alt="">
-                            @endif
-                        </li>
+                                @if($activeTab === 'active')
+                                <img class="req-active-tick"
+                                    src="https://png.pngtree.com/png-vector/20221215/ourmid/pngtree-green-check-mark-png-image_6525691.png"
+                                    alt="">
+                                @endif
+                            </li>
 
-                        <li class="tab" wire:click="setActiveTab('pending')"
-                            :class="$activeTab === 'pending' ? 'active' : ''"
-                            :style="$activeTab === 'pending' ? 'color: black;' : 'color: gray;'">
+                            <li class="tab" wire:click="setActiveTab('pending')"
+                                :class="$activeTab === 'pending' ? 'active' : ''"
+                                :style="$activeTab === 'pending' ? 'color: black;' : 'color: gray;'">
 
-                            <i class="fas fa-clock"></i> Inprogress
+                                <i class="fas fa-clock"></i> Inprogress
 
-                            @if($activeTab === 'pending')
-                            <img class="req-active-tick"
-                                src="https://png.pngtree.com/png-vector/20221215/ourmid/pngtree-green-check-mark-png-image_6525691.png"
-                                alt="">
-                            @endif
+                                @if($activeTab === 'pending')
+                                <img class="req-active-tick"
+                                    src="https://png.pngtree.com/png-vector/20221215/ourmid/pngtree-green-check-mark-png-image_6525691.png"
+                                    alt="">
+                                @endif
 
-                        </li>
+                            </li>
 
-                        <li class="tab" wire:click="setActiveTab('closed')"
-                            :class="$activeTab === 'closed' ? 'active' : ''"
-                            :style="$activeTab === 'closed' ? 'color: black;' : 'color: gray;'">
+                            <li class="tab" wire:click="setActiveTab('closed')"
+                                :class="$activeTab === 'closed' ? 'active' : ''"
+                                :style="$activeTab === 'closed' ? 'color: black;' : 'color: gray;'">
 
-                            <i class="fas fa-times"></i> Closed
+                                <i class="fas fa-times"></i> Closed
 
-                            @if($activeTab === 'closed')
-                            <img class="req-active-tick"
-                                src="https://png.pngtree.com/png-vector/20221215/ourmid/pngtree-green-check-mark-png-image_6525691.png"
-                                alt="">
-                            @endif
+                                @if($activeTab === 'closed')
+                                <img class="req-active-tick"
+                                    src="https://png.pngtree.com/png-vector/20221215/ourmid/pngtree-green-check-mark-png-image_6525691.png"
+                                    alt="">
+                                @endif
 
-                        </li>
+                            </li>
 
-                    </ul>
+                        </ul>
 
-                </req-pro-nav>
-
-
-
-            </div>
+                    </req-pro-nav>
 
 
 
-            <div class="mt-5">
+                </div>
 
-                <div class="req-main-page">
-                    <div id="active" class="req-pro-tab-content"
-                        style="display: {{ $activeTab === 'active' ? 'block' : 'none' }};">
 
-                        <div class="req-pro-details">
 
-                            <h3>Request Details</h3>
-                            @if($viewingDetails)
-                            <button class="btn bg-dark text-white float:right" wire:click="closeDetails" @if($loading)
-                                disabled @endif>
-                                <i class="fas fa-arrow-left"></i> Back
-                            </button>
-                            @endif
-                        </div>
+                <div class="mt-5">
 
-                        @if($viewingDetails && $selectedRequest)
+                    <div class="req-main-page">
+                        <div id="active" class="req-pro-tab-content"
+                            style="display: {{ $activeTab === 'active' ? 'block' : 'none' }};">
 
-                        <div class="req-pro-tablediv">
+                            <div class="req-pro-details">
 
-                            <div wire:loading.delay>
-                                <div class="loader-overlay">
-                                    <div class="loader"></div>
-                                </div>
+                                <h3>Request Details</h3>
+                                @if($viewingDetails)
+                                <button class="btn bg-dark text-white float:right" wire:click="closeDetails"
+                                    @if($loading) disabled @endif>
+                                    <i class="fas fa-arrow-left"></i> Back
+                                </button>
+                                @endif
                             </div>
-                            <table class="table table-bordered mt-3 req-pro-table">
 
-                                <thead>
+                            @if($viewingDetails && $selectedRequest)
 
-                                    <tr>
+                            <div class="req-pro-tablediv">
 
-                                        <th>Field</th>
+                                <div wire:loading.delay>
+                                    <div class="loader-overlay">
+                                        <div class="loader"></div>
+                                    </div>
+                                </div>
+                                <table class="table table-bordered mt-3 req-pro-table">
 
-                                        <th>Value</th>
+                                    <thead>
 
-                                    </tr>
+                                        <tr>
 
-                                </thead>
+                                            <th>Field</th>
 
-                                <tbody>
+                                            <th>Value</th>
 
-                                    <tr>
+                                        </tr>
 
-                                        <td>Requested By</td>
+                                    </thead>
 
-                                        <td>{{$selectedRequest->emp->first_name }} {{$selectedRequest->emp->last_name }}
-                                        </td>
+                                    <tbody>
 
-                                    </tr>
+                                        <tr>
 
-                                    <tr>
+                                            <td>Requested By</td>
 
-                                        <td>Department</td>
+                                            <td>{{$selectedRequest->emp->first_name }}
+                                                {{$selectedRequest->emp->last_name }}
+                                            </td>
 
-                                        <td>{{$selectedRequest->category ?? 'N/A' }}</td>
+                                        </tr>
 
-                                    </tr>
+                                        <tr>
 
-                                    <tr>
+                                            <td>Department</td>
 
-                                        <td>Subject</td>
+                                            <td>{{$selectedRequest->category ?? 'N/A' }}</td>
 
-                                        <td>{{$selectedRequest->subject??'N/A' }}</td>
+                                        </tr>
 
-                                    </tr>
+                                        <tr>
 
-                                    <tr>
+                                            <td>Subject</td>
 
-                                        <td>Description</td>
+                                            <td>{{$selectedRequest->subject??'N/A' }}</td>
 
-                                        <td>{{$selectedRequest->description ??'N/A' }}</td>
+                                        </tr>
 
-                                    </tr>
+                                        <tr>
 
-                                    <tr>
+                                            <td>Description</td>
 
-                                        <td>Distributor</td>
+                                            <td>{{$selectedRequest->description ??'N/A' }}</td>
 
-                                        <td>{{$selectedRequest->distributor_name ??'N/A' }}</td>
+                                        </tr>
 
-                                    </tr>
+                                        <tr>
 
-                                    <tr>
+                                            <td>Distributor</td>
 
-                                        <td>Mobile</td>
+                                            <td>{{$selectedRequest->distributor_name ??'N/A' }}</td>
 
-                                        <td>{{$selectedRequest->mobile ??'N/A' }}</td>
+                                        </tr>
 
-                                    </tr>
+                                        <tr>
 
-                                    <tr>
+                                            <td>Mobile</td>
 
-                                        <td>MailBox</td>
+                                            <td>{{$selectedRequest->mobile ??'N/A' }}</td>
 
-                                        <td>{{$selectedRequest->mail ??'N/A' }}</td>
+                                        </tr>
 
-                                    </tr>
+                                        <tr>
 
-                                    <tr>
+                                            <td>MailBox</td>
 
-                                        <td>Attach Files</td>
+                                            <td>{{$selectedRequest->mail ??'N/A' }}</td>
 
-                                        <td>
+                                        </tr>
 
-                                            <a href="#" data-toggle="modal"
-                                                data-target="#exampleModalCenter-{{ $selectedRequest['id'] }}">
+                                        <tr>
 
-                                                <i class="fas fa-eye"></i> View Attachments
+                                            <td>Attach Files</td>
 
-                                            </a>
+                                            <td>
 
-                                        </td>
+                                                <a href="#" data-toggle="modal"
+                                                    data-target="#exampleModalCenter-{{ $selectedRequest['id'] }}">
+
+                                                    <i class="fas fa-eye"></i> View Attachments
+
+                                                </a>
+
+                                            </td>
 
 
 
-                                    </tr>
+                                        </tr>
 
 
-                                    <div wire:key="{{ $selectedRequest['id'] }}">
-                                        <div class="modal fade" id="exampleModalCenter-{{ $selectedRequest['id'] }}"
-                                            tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
-                                            aria-hidden="true">
-                                            <div class="req-modal-dialog modal-dialog-centered" role="document">
-                                                <div class="req-modal-content">
-                                                    <div class="modal-body">
-                                                        <div id="carouselExampleIndicators-{{ $selectedRequest['id'] }}"
-                                                            class="carousel slide" data-ride="carousel">
-                                                            @php
-                                                            $defaultImage =
-                                                            'https://as2.ftcdn.net/v2/jpg/03/80/67/05/1000_F_380670556_xhO9ggcy3awgX3JdFvgqOfAfSvrlVUmJ.jpg';
-                                                            $filePaths = [];
+                                        <div wire:key="{{ $selectedRequest['id'] }}">
+                                            <div class="modal fade" id="exampleModalCenter-{{ $selectedRequest['id'] }}"
+                                                tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+                                                aria-hidden="true">
+                                                <div class="req-modal-dialog modal-dialog-centered" role="document">
+                                                    <div class="req-modal-content">
+                                                        <div class="modal-body">
+                                                            <div id="carouselExampleIndicators-{{ $selectedRequest['id'] }}"
+                                                                class="carousel slide" data-ride="carousel">
+                                                                @php
+                                                                $defaultImage =
+                                                                'https://as2.ftcdn.net/v2/jpg/03/80/67/05/1000_F_380670556_xhO9ggcy3awgX3JdFvgqOfAfSvrlVUmJ.jpg';
+                                                                $filePaths = [];
 
-                                                            if (isset($selectedRequest['file_path']) &&
-                                                            !empty($selectedRequest['file_path'])) {
-                                                            if (is_array($selectedRequest['file_path'])) {
-                                                            $filePaths = $selectedRequest['file_path'];
-                                                            } else {
-                                                            $filePaths[] = $selectedRequest['file_path'];
-                                                            }
-                                                            }
+                                                                if (isset($selectedRequest['file_path']) &&
+                                                                !empty($selectedRequest['file_path'])) {
+                                                                if (is_array($selectedRequest['file_path'])) {
+                                                                $filePaths = $selectedRequest['file_path'];
+                                                                } else {
+                                                                $filePaths[] = $selectedRequest['file_path'];
+                                                                }
+                                                                }
 
-                                                            if (empty($filePaths)) {
-                                                            $filePaths[] = $defaultImage;
-                                                            }
-                                                            @endphp
-                                                            <ol class="carousel-indicators">
-                                                                @foreach ($filePaths as $index => $file)
-                                                                <li data-target="#carouselExampleIndicators-{{ $selectedRequest['id'] }}"
-                                                                    data-slide-to="{{ $index }}"
-                                                                    class="{{ $index == 0 ? 'active' : '' }}"></li>
-                                                                @endforeach
-                                                            </ol>
-                                                            <div class="carousel-inner">
-                                                                @foreach ($filePaths as $index => $file)
-                                                                <div
-                                                                    class="carousel-item {{ $index == 0 ? 'active' : '' }}">
-                                                                    <a href="{{ $file }}" target="_blank">
-                                                                        <img src="{{ $file }}" class="d-block w-100"
-                                                                            alt="Attachment Image">
-                                                                    </a>
+                                                                if (empty($filePaths)) {
+                                                                $filePaths[] = $defaultImage;
+                                                                }
+                                                                @endphp
+                                                                <ol class="carousel-indicators">
+                                                                    @foreach ($filePaths as $index => $file)
+                                                                    <li data-target="#carouselExampleIndicators-{{ $selectedRequest['id'] }}"
+                                                                        data-slide-to="{{ $index }}"
+                                                                        class="{{ $index == 0 ? 'active' : '' }}"></li>
+                                                                    @endforeach
+                                                                </ol>
+                                                                <div class="carousel-inner">
+                                                                    @foreach ($filePaths as $index => $file)
+                                                                    <div
+                                                                        class="carousel-item {{ $index == 0 ? 'active' : '' }}">
+                                                                        <a href="{{ $file }}" target="_blank">
+                                                                            <img src="{{ $file }}" class="d-block w-100"
+                                                                                alt="Attachment Image">
+                                                                        </a>
+                                                                    </div>
+                                                                    @endforeach
                                                                 </div>
-                                                                @endforeach
+                                                                <a class="carousel-control-prev"
+                                                                    href="#carouselExampleIndicators-{{ $selectedRequest['id'] }}"
+                                                                    role="button" data-slide="prev">
+                                                                    <span class="carousel-control-prev-icon"
+                                                                        aria-hidden="true"></span>
+                                                                    <span class="sr-only">Previous</span>
+                                                                </a>
+                                                                <a class="carousel-control-next"
+                                                                    href="#carouselExampleIndicators-{{ $selectedRequest['id'] }}"
+                                                                    role="button" data-slide="next">
+                                                                    <span class="carousel-control-next-icon"
+                                                                        aria-hidden="true"></span>
+                                                                    <span class="sr-only">Next</span>
+                                                                </a>
                                                             </div>
-                                                            <a class="carousel-control-prev"
-                                                                href="#carouselExampleIndicators-{{ $selectedRequest['id'] }}"
-                                                                role="button" data-slide="prev">
-                                                                <span class="carousel-control-prev-icon"
-                                                                    aria-hidden="true"></span>
-                                                                <span class="sr-only">Previous</span>
-                                                            </a>
-                                                            <a class="carousel-control-next"
-                                                                href="#carouselExampleIndicators-{{ $selectedRequest['id'] }}"
-                                                                role="button" data-slide="next">
-                                                                <span class="carousel-control-next-icon"
-                                                                    aria-hidden="true"></span>
-                                                                <span class="sr-only">Next</span>
-                                                            </a>
                                                         </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary"
-                                                            data-dismiss="modal" @if($loading) disabled
-                                                            @endif>Close</button>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-dismiss="modal" @if($loading) disabled
+                                                                @endif>Close</button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <tr>
+                                        <tr>
 
-                                        <td>CC To</td>
+                                            <td>CC To</td>
 
-                                        <td>{{$selectedRequest->cc_to ??'N/A' }}</td>
+                                            <td>{{$selectedRequest->cc_to ??'N/A' }}</td>
 
-                                    </tr>
+                                        </tr>
 
-                                    <tr>
+                                        <tr>
 
-                                        <td>Priority</td>
+                                            <td>Priority</td>
 
-                                        <td>{{$selectedRequest->priority ??'N/A' }}</td>
+                                            <td>{{$selectedRequest->priority ??'N/A' }}</td>
 
-                                    </tr>
+                                        </tr>
 
-                                    <tr>
+                                        <tr>
 
-                                        <td>Select Equipment</td>
+                                            <td>Select Equipment</td>
 
-                                        <td>{{$selectedRequest->selected_equipment ??'N/A' }}</td>
+                                            <td>{{$selectedRequest->selected_equipment ??'N/A' }}</td>
 
-                                    </tr>
+                                        </tr>
 
-                                    <tr>
-                                        <td>Status <span class="text-danger">*</span></td>
+                                        <tr>
+                                            <td>Status <span class="text-danger">*</span></td>
 
-                                        <td>
-                                            <select wire:model="selectedStatus" class="req-selected-status"
-                                                wire:change="updateStatus('{{ $selectedRequest->id }}')">
-                                                <option value="" disabled selected>Select Status </option>
-                                                <option value="Pending">Pending</option>
-                                                <option value="Completed">Completed</option>
-                                                <!-- Add other status options as needed -->
-                                            </select>
-                                            @error('selectedStatus') <span class="text-danger">{{ $message }}</span>
-                                            @enderror
+                                            <td>
+                                                <select wire:model="selectedStatus" class="req-selected-status"
+                                                    wire:change="updateStatus('{{ $selectedRequest->id }}')">
+                                                    <option value="" disabled selected>Select Status </option>
+                                                    <option value="Pending">Pending</option>
+                                                    <option value="Completed">Completed</option>
+                                                    <!-- Add other status options as needed -->
+                                                </select>
+                                                @error('selectedStatus') <span class="text-danger">{{ $message }}</span>
+                                                @enderror
 
-                                            @if (session()->has('statusMessage'))
-                                            <div id="flash-message" class="alert alert-success mt-1">
-                                                {{ session('statusMessage') }}
-                                            </div>
-                                            @endif
-                                        </td>
-                                    </tr>
-
-
-                                    <tr>
-                                        <td>Comments</td>
-                                        <td>
-
-                                            <div>
-                                                <div class="row">
-                                                    <div class="col-10">
-                                                        <textarea wire:model.lazy="comments"
-                                                            class="form-control"></textarea>
-                                                    </div>
-                                                    <div class="col-2 d-flex align-items-center">
-                                                        <button class="btn btn-dark"
-                                                            wire:click="postComment('{{ $selectedRequest->id }}')"
-                                                            @if($loading) disabled @endif>Post</button>
-                                                    </div>
-                                                </div>
-
-                                                @if (session()->has('commentMessage'))
+                                                @if (session()->has('statusMessage'))
                                                 <div id="flash-message" class="alert alert-success mt-1">
-                                                    {{ session('commentMessage') }}
+                                                    {{ session('statusMessage') }}
                                                 </div>
                                                 @endif
-                                            </div>
-                                        </td>
-                                    </tr>
+                                            </td>
+                                        </tr>
 
 
-                                    <tr>
-                                        <td>Assign to <span class="text-danger">*</span></td>
-                                        <td>
-                                            <select class="form-control" wire:model="selectedAssigne"
-                                                wire:change="updateAssigne('{{ $selectedRequest->id }}')">
-                                                <option value="" disabled selected>Select Assigne</option>
-                                                @foreach($itData as $itName)
-                                                <option
-                                                    value="{{ $itName->empIt->first_name }} {{ $itName->empIt->last_name }} ">
-                                                    {{ $itName->empIt->first_name }} {{ $itName->empIt->last_name }}
-                                                </option>
-                                                @endforeach
-                                            </select>
-                                            @error('selectedAssigne') <span class="text-danger">{{ $message }}</span>
-                                            @enderror
+                                        <tr>
+                                            <td>Comments</td>
+                                            <td>
 
-                                        </td>
+                                                <div>
+                                                    <div class="row">
+                                                        <div class="col-10">
+                                                            <textarea wire:model.lazy="comments"
+                                                                class="form-control"></textarea>
+                                                        </div>
+                                                        <div class="col-2 d-flex align-items-center">
+                                                            <button class="btn btn-dark"
+                                                                wire:click="postComment('{{ $selectedRequest->id }}')"
+                                                                @if($loading) disabled @endif>Post</button>
+                                                        </div>
+                                                    </div>
 
-                                    </tr>
+                                                    @if (session()->has('commentMessage'))
+                                                    <div id="flash-message" class="alert alert-success mt-1">
+                                                        {{ session('commentMessage') }}
+                                                    </div>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        </tr>
+
+
+                                        <tr>
+                                            <td>Assign to <span class="text-danger">*</span></td>
+                                            <td>
+                                                <select class="form-control" wire:model="selectedAssigne"
+                                                    wire:change="updateAssigne('{{ $selectedRequest->id }}')">
+                                                    <option value="" disabled selected>Select Assigne</option>
+                                                    @foreach($itData as $itName)
+                                                    <option
+                                                        value="{{ $itName->empIt->first_name }} {{ $itName->empIt->last_name }} ">
+                                                        {{ $itName->empIt->first_name }} {{ $itName->empIt->last_name }}
+                                                    </option>
+                                                    @endforeach
+                                                </select>
+                                                @error('selectedAssigne') <span
+                                                    class="text-danger">{{ $message }}</span>
+                                                @enderror
+
+                                            </td>
+
+                                        </tr>
 
 
 
 
-                                </tbody>
+                                    </tbody>
 
-                            </table>
+                                </table>
 
-                            <div class="d-flex justify-content-center align-items-center">
-                                <button class="btn btn-dark mb-3" wire:click="redirectBasedOnStatus" @if($loading)
-                                    disabled @endif>Save and
-                                    Continue</button>
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <button class="btn btn-dark mb-3" wire:click="redirectBasedOnStatus" @if($loading)
+                                        disabled @endif>Save and
+                                        Continue</button>
+                                </div>
+
+
                             </div>
 
 
-                        </div>
 
+                            @else
 
+                            @if($forIT->where('status', 'Open')->count() > 0)
+                            <div class="req-pro-card">
 
-                        @else
+                                @foreach ($forIT->where('status', 'Open') as $index => $request)
 
-                        @if($forIT->where('status', 'Open')->count() > 0)
-                        <div class="req-pro-card">
+                                <div class="request-card">
 
-                            @foreach ($forIT->where('status', 'Open') as $index => $request)
+                                    <div class="req-pro-card-body">
 
-                            <div class="request-card">
+                                        <div>
 
-                                <div class="req-pro-card-body">
+                                            <p class="req-reqBy-Dep"><strong>Requested By:</strong>
+                                                {{ $request->emp->first_name }}
+                                                {{ $request->emp->last_name }}</p>
+
+                                            <p title="{{ $request['category'] }}">
+                                                <strong>Department: </strong><span
+                                                    style="width:50%">{{ $request->category ?? 'N/A' }}</span>
+                                            </p>
+
+                                        </div>
+
+                                        <button wire:click="viewDetails({{ $index }})" class="req-pro-view-details-btn"
+                                            @if($loading) disabled @endif>View</button>
+
+                                    </div>
+
+                                </div>
+
+                                @endforeach
+
+                            </div>
+
+                            @else
+                            <div class="req-requestnotfound">
+                                <td colspan="20" class="req-td-norecords">
 
                                     <div>
+                                        <img src="{{ asset('images/Closed.webp') }}" alt="No Records"
+                                            class="req-img-norecords">
 
-                                        <p class="req-reqBy-Dep"><strong>Requested By:</strong>
-                                            {{ $request->emp->first_name }}
-                                            {{ $request->emp->last_name }}</p>
-
-                                        <p title="{{ $request['category'] }}">
-                                            <strong>Department: </strong><span
-                                                style="width:50%">{{ $request->category ?? 'N/A' }}</span>
-                                        </p>
-
+                                        <h3 class="req-head-norecords">No requests found
+                                        </h3>
                                     </div>
+                                </td>
+                            </div>
+                            @endif
+                            @endif
+                        </div>
 
-                                    <button wire:click="viewDetails({{ $index }})" class="req-pro-view-details-btn"
-                                        @if($loading) disabled @endif>View</button>
+                        <div id="pending" class="req-pro-tab-content"
+                            style="display: {{ $activeTab === 'pending' ? 'block' : 'none' }};">
 
-                                </div>
-
+                            <div>
+                                <h3 class="req-inprogress-heading">
+                                    In Progress Requests</h3>
                             </div>
 
-                            @endforeach
+                            <div class="row ">
 
-                        </div>
-
-                        @else
-                        <div class="req-requestnotfound" >
-                            <td colspan="20" class="req-td-norecords">
-
-                                <div>
-                                    <img src="{{ asset('images/Closed.webp') }}" alt="No Records"
-                                        class="req-img-norecords">
-
-                                    <h3 class="req-head-norecords">No requests found
-                                    </h3>
-                                </div>
-                            </td>
-                     </div>
-                        @endif
-                        @endif
-                    </div>
-
-                    <div id="pending" class="req-pro-tab-content"
-                        style="display: {{ $activeTab === 'pending' ? 'block' : 'none' }};">
-
-                        <div>
-                            <h3 class="req-inprogress-heading">
-                                In Progress Requests</h3>
-                        </div>
-
-                        <div class="row ">
-
-                            <div class="col-12 mt-2">
-                                @if (session()->has('message'))
-                                <div id="flash-message" class="alert alert-success mt-1">
-                                    {{ session('message') }}
-                                </div>
-                                @endif
-                                <div class="table-responsive req-table-res">
-
-                                    <div wire:loading.delay>
-                                        <div class="loader-overlay">
-                                            <div class="loader"></div>
-                                        </div>
+                                <div class="col-12 mt-2">
+                                    @if (session()->has('message'))
+                                    <div id="flash-message" class="alert alert-success mt-1">
+                                        {{ session('message') }}
                                     </div>
-                                    <table class="table  table-striped">
+                                    @endif
+                                    <div class="table-responsive req-table-res">
 
-                                        <thead class="table-dark">
+                                        <div wire:loading.delay>
+                                            <div class="loader-overlay">
+                                                <div class="loader"></div>
+                                            </div>
+                                        </div>
+                                        <table class="table  table-striped">
 
-                                            <tr>
+                                            <thead class="table-dark">
 
-                                                <th scope="col" class="req-table-head">#</th>
+                                                <tr>
 
-                                                <th class="req-table-head">Requested By</th>
+                                                    <th scope="col" class="req-table-head">#</th>
 
-                                                <th class="req-table-head">Department</th>
+                                                    <th class="req-table-head">Requested By</th>
 
-                                                <th class="req-table-head">Subject</th>
+                                                    <th class="req-table-head">Department</th>
 
-                                                <th class="req-table-head">Description</th>
+                                                    <th class="req-table-head">Subject</th>
 
-                                                <th class="req-table-head">Distributor</th>
+                                                    <th class="req-table-head">Description</th>
 
-                                                <th class="req-table-head">Mobile</th>
+                                                    <th class="req-table-head">Distributor</th>
 
-                                                <th class="req-table-head">MailBox</th>
+                                                    <th class="req-table-head">Mobile</th>
 
-                                                <th class="req-table-head">Attach Files</th>
+                                                    <th class="req-table-head">MailBox</th>
 
-                                                <th class="req-table-head">CC To</th>
+                                                    <th class="req-table-head">Attach Files</th>
 
-                                                <th class="req-table-head">Priority</th>
+                                                    <th class="req-table-head">CC To</th>
 
-                                                <th class="req-table-head">Select Equipment</th>
+                                                    <th class="req-table-head">Priority</th>
 
-                                                <th class="req-table-head">Status</th>
+                                                    <th class="req-table-head">Select Equipment</th>
 
-                                                <th class="req-table-head">Assigned to</th>
+                                                    <th class="req-table-head">Status</th>
 
-                                                <th class="req-table-head">Comments</th>
-                                                <th class="req-table-head">Reopen Request</th>
-                                                <th class="req-table-head">Close Request</th>
-                                                <th class="req-table-head" style="white-space: nowrap;width: 150px;">
-                                                    Remarks</th>
+                                                    <th class="req-table-head">Assigned to</th>
 
-                                            </tr>
+                                                    <th class="req-table-head">Comments</th>
+                                                    <th class="req-table-head">Reopen Request</th>
+                                                    <th class="req-table-head">Close Request</th>
+                                                    <th class="req-table-head"
+                                                        style="white-space: nowrap;width: 150px;">
+                                                        Remarks</th>
 
-                                        </thead>
+                                                </tr>
 
-                                        <tbody>
+                                            </thead>
 
-                                            @if($forIT->where('status', 'Pending')->count() > 0)
-                                            @foreach ($forIT->where('status', 'Pending') as $index =>$record)
-                                            @php
-                                            $ccToArray = explode(',', $record->cc_to);
-                                            @endphp
-                                            <tr>
+                                            <tbody>
 
-                                                <th scope="row">{{ $record->emp_id }}</th>
+                                                @if($forIT->where('status', 'Pending')->count() > 0)
+                                                @foreach ($forIT->where('status', 'Pending') as $index =>$record)
+                                                @php
+                                                $ccToArray = explode(',', $record->cc_to);
+                                                @endphp
+                                                <tr>
 
-                                                <td>{{ $record->emp->first_name }} {{ $record->emp->last_name }} <br>
-                                                    <strong style="font-size: 10px;">({{$record->emp_id}})
-                                                </td>
+                                                    <th scope="row">{{ $record->emp_id }}</th>
 
-                                                <td>{{ $record->category ?? 'N/A'}}</td>
+                                                    <td>{{ $record->emp->first_name }} {{ $record->emp->last_name }}
+                                                        <br>
+                                                        <strong style="font-size: 10px;">({{$record->emp_id}})
+                                                    </td>
 
-                                                <td>{{ $record->subject ?? 'N/A' }}</td>
+                                                    <td>{{ $record->category ?? 'N/A'}}</td>
 
-                                                <td>{{ $record->description?? 'N/A' }}</td>
+                                                    <td>{{ $record->subject ?? 'N/A' }}</td>
 
-                                                <td>{{ $record->distributor_name?? 'N/A' }}</td>
+                                                    <td>{{ $record->description?? 'N/A' }}</td>
 
-                                                <td>{{ $record->mobile?? 'N/A' }}</td>
+                                                    <td>{{ $record->distributor_name?? 'N/A' }}</td>
 
-                                                <td>{{ $record->mail ??'N/A' }}</td>
+                                                    <td>{{ $record->mobile?? 'N/A' }}</td>
 
-                                                <td>
+                                                    <td>{{ $record->mail ??'N/A' }}</td>
 
-                                                    @if(isset($record['file_path']) &&
-                                                    is_array($record['file_path']))
+                                                    <td>
 
-                                                    <div class="req-image-grid">
+                                                        @if(isset($record['file_path']) &&
+                                                        is_array($record['file_path']))
 
-                                                        @foreach($record['file_path'] as $image)
+                                                        <div class="req-image-grid">
 
-                                                        <a href="{{ $image }}" target="_blank">
+                                                            @foreach($record['file_path'] as $image)
 
-                                                            <img src="{{ $image }}" alt="Attached Image">
+                                                            <a href="{{ $image }}" target="_blank">
 
-                                                        </a>
+                                                                <img src="{{ $image }}" alt="Attached Image">
 
-                                                        @endforeach
+                                                            </a>
 
-                                                    </div>
+                                                            @endforeach
 
-                                                    @else
-
-                                                    No images attached.
-
-                                                    @endif
-
-                                                </td>
-
-
-
-                                                <td>{{ count($ccToArray) <= 2 ? $record->cc_to ?? '-' : '-'}}</td>
-
-                                                <td>{{ $record->priority?? 'N/A' }}</td>
-
-                                                <td>{{ $record->selected_equipment?? 'N/A' }}</td>
-
-                                                <td>
-                                                    <div class="req-status"> {{ $record['status'] }}
-                                                    </div>
-                                                </td>
-
-                                                <td>{{ $record['assign_to'] }}</td>
-
-                                                <td> {{$record -> active_comment?? 'N/A'}}</td>
-
-                                                <td>
-                                                    <button wire:click="closeForDesks('{{$record->id}}')"
-                                                        class="btn btn-dark border-white text-white" @if($loading)
-                                                        disabled @endif>Open</button>
-                                                </td>
-                                                <td>
-                                                    <button wire:click="openForDesks('{{$record->id}}')"
-                                                        class="btn btn-white border-black text-black" @if($loading)
-                                                        disabled @endif>Close </button>
-                                                </td>
-
-                                                <td>
-                                                    <form wire:submit.prevent="postRemarks('{{ $record->id }}')">
-                                                        <div class="row">
-                                                            <div class="col-12 req-remarks-div">
-                                                                <textarea wire:model.lazy="remarks.{{ $record->id }}"
-                                                                    class="form-control req-remarks-textarea"></textarea>
-                                                                <button type="submit" class="btn btn-dark ml-2"
-                                                                    @if($loading) disabled @endif>Post</button>
-                                                            </div>
                                                         </div>
-                                                    </form>
-                                                </td>
-                                            </tr>
+
+                                                        @else
+
+                                                        No images attached.
+
+                                                        @endif
+
+                                                    </td>
 
 
-                                            @if(count($ccToArray) > 2)
-                                            <tr class="req-cc-tr">
-                                                <td colspan="19" class="req-cc-td">
-                                                    <div class="req-cc-div">
-                                                        <strong>CC TO: </strong> {{ implode(', ', $ccToArray) }}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            @endif
-                                            @endforeach
-                                            @else
-                                            <tr>
-                                                <td colspan="20" class="req-td-norecords">
 
-                                                    <div>
-                                                        <img src="{{ asset('images/Closed.webp') }}" alt="No Records"
-                                                            class="req-img-norecords">
+                                                    <td>{{ count($ccToArray) <= 2 ? $record->cc_to ?? '-' : '-'}}</td>
 
-                                                        <h3 class="req-head-norecords">No records found
-                                                        </h3>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            @endif
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                                    <td>{{ $record->priority?? 'N/A' }}</td>
 
-                    <div id="closed" class="req-pro-tab-content"
-                        style="display: {{ $activeTab === 'closed' ? 'block' : 'none' }};">
-                        <div>
-                            <h3 class="req-closed-head">
-                                Closed Requests</h3>
-                        </div>
-                        <div class="row">
+                                                    <td>{{ $record->selected_equipment?? 'N/A' }}</td>
 
-                            <div class="col-12 mt-2">
-                                @if (session()->has('message'))
-                                <div id="flash-message" class="alert alert-success mt-1">
-                                    {{ session('message') }}
-                                </div>
-                                @endif
+                                                    <td>
+                                                        <div class="req-status"> {{ $record['status'] }}
+                                                        </div>
+                                                    </td>
 
-                                <div class="table-responsive  req-closed-table-res">
+                                                    <td>{{ $record['assign_to'] }}</td>
 
-                                    <div wire:loading.delay>
-                                        <div class="loader-overlay">
-                                            <div class="loader"></div>
-                                        </div>
+                                                    <td> {{$record -> active_comment?? 'N/A'}}</td>
+
+                                                    <td>
+                                                        <button wire:click="closeForDesks('{{$record->id}}')"
+                                                            class="btn btn-dark border-white text-white" @if($loading)
+                                                            disabled @endif>Open</button>
+                                                    </td>
+                                                    <td>
+                                                        <button wire:click="openForDesks('{{$record->id}}')"
+                                                            class="btn btn-white border-black text-black" @if($loading)
+                                                            disabled @endif>Close </button>
+                                                    </td>
+
+                                                    <td>
+                                                        <form wire:submit.prevent="postRemarks('{{ $record->id }}')">
+                                                            <div class="row">
+                                                                <div class="col-12 req-remarks-div">
+                                                                    <textarea
+                                                                        wire:model.lazy="remarks.{{ $record->id }}"
+                                                                        class="form-control req-remarks-textarea"></textarea>
+                                                                    <button type="submit" class="btn btn-dark ml-2"
+                                                                        @if($loading) disabled @endif>Post</button>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+
+
+                                                @if(count($ccToArray) > 2)
+                                                <tr class="req-cc-tr">
+                                                    <td colspan="19" class="req-cc-td">
+                                                        <div class="req-cc-div">
+                                                            <strong>CC TO: </strong> {{ implode(', ', $ccToArray) }}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                @endif
+                                                @endforeach
+                                                @else
+                                                <tr>
+                                                    <td colspan="20" class="req-td-norecords">
+
+                                                        <div>
+                                                            <img src="{{ asset('images/Closed.webp') }}"
+                                                                alt="No Records" class="req-img-norecords">
+
+                                                            <h3 class="req-head-norecords">No records found
+                                                            </h3>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                @endif
+                                            </tbody>
+                                        </table>
                                     </div>
-
-                                    <table class="table table-striped">
-
-                                        <thead class="table-dark">
-
-                                            <tr>
-
-                                                <th scope="col" class="req-closed-th">#</th>
-
-                                                <th class="req-closed-th">Requested By</th>
-
-                                                <th class="req-closed-th">Department</th>
-
-                                                <th class="req-closed-th">Subject</th>
-
-                                                <th class="req-closed-th">Description</th>
-
-                                                <th class="req-closed-th">Distributor</th>
-
-                                                <th class="req-closed-th">Mobile</th>
-
-                                                <th class="req-closed-th">MailBox</th>
-
-                                                <th class="req-closed-th">Attach Files</th>
-
-                                                <th class="req-closed-th">CC To</th>
-
-                                                <th class="req-closed-th">Priority</th>
-
-                                                <th class="req-closed-th">Select Equipment</th>
-
-                                                <th class="req-closed-th">Status</th>
-
-                                                <th class="req-closed-th">Assigned to</th>
-
-                                                <th class="req-closed-th">Comments</th>
-                                                <th class="req-closed-th">Remarks</th>
-                                                <th class="req-closed-th">Re Open</th>
-
-                                            </tr>
-
-                                        </thead>
-
-                                        <tbody>
-
-                                            @if($forIT->where('status', 'Completed')->count() > 0)
-                                            @foreach ($forIT->where('status', 'Completed') as $record)
-                                            @php
-                                            $ccToArray = explode(',', $record->cc_to);
-                                            @endphp
-                                            <tr>
-
-                                                <th scope="row">{{ $record->emp_id }}</th>
-
-                                                <td>{{ $record->emp->first_name }} {{ $record->emp->last_name }} <br>
-                                                    <strong style="font-size: 10px;">({{$record->emp_id}})
-                                                </td>
-
-                                                <td>{{ $record->category ?? 'N/A'}}</td>
-
-                                                <td>{{ $record->subject ?? 'N/A' }}</td>
-
-                                                <td>{{ $record->description?? 'N/A' }}</td>
-
-                                                <td>{{ $record->distributor_name?? 'N/A' }}</td>
-
-                                                <td>{{ $record->mobile?? 'N/A' }}</td>
-
-                                                <td>{{ $record->mail ??'N/A' }}</td>
-
-                                                <td>
-
-                                                    @if(isset($record['file_path']) &&
-                                                    is_array($record['file_path']))
-
-                                                    <div class="req-image-grid">
-
-                                                        @foreach($record['file_path'] as $image)
-
-                                                        <a href="{{ $image }}" target="_blank">
-
-                                                            <img src="{{ $image }}" alt="Attached Image">
-
-                                                        </a>
-
-                                                        @endforeach
-
-                                                    </div>
-
-                                                    @else
-
-                                                    No images attached.
-
-                                                    @endif
-
-                                                </td>
-
-
-
-                                                <td> {{ count($ccToArray) <= 2 ? $record->cc_to ?? '-' : '-' }}</td>
-
-                                                <td>{{ $record->priority?? 'N/A' }}</td>
-
-                                                <td>{{ $record->selected_equipment?? 'N/A' }}</td>
-
-                                                <td>
-                                                    <div class="req-status-closed">
-                                                        {{ $record['status'] }}
-                                                    </div>
-                                                </td>
-
-                                                <td>{{ $record['assign_to'] }}</td>
-
-                                                <td>{{$record -> active_comment?? 'N/A'}}</td>
-                                                <td>{{$record -> inprogress_remarks?? 'N/A'}}</td>
-
-                                                <td>
-
-                                                    <button wire:click="closeForDesks('{{$record->id}}')"
-                                                        class="btn btn-dark border-white text-white" @if($loading)
-                                                        disabled @endif>Open</button>
-                                                </td>
-
-
-                                            </tr>
-                                            @if(count($ccToArray) > 2)
-
-                                            <tr class="req-cc-tr">
-
-
-                                                <td colspan="19" class="req-cc-td">
-                                                    <div class="req-cc-div">
-                                                        <strong>CC TO: </strong> {{ implode(', ', $ccToArray) }}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            @endif
-
-                                            @endforeach
-                                            @else
-                                            <tr>
-                                                <td colspan="20" class="req-td-norecords">
-
-                                                    <div>
-                                                        <img src="{{ asset('images/Closed.webp') }}" alt="No Records"
-                                                            class="req-img-norecords">
-
-                                                        <h3 class="req-head-norecords">No records found
-                                                        </h3>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            @endif
-                                        </tbody>
-                                    </table>
                                 </div>
                             </div>
                         </div>
+
+                        <div id="closed" class="req-pro-tab-content"
+                            style="display: {{ $activeTab === 'closed' ? 'block' : 'none' }};">
+                            <div>
+                                <h3 class="req-closed-head">
+                                    Closed Requests</h3>
+                            </div>
+                            <div class="row">
+
+                                <div class="col-12 mt-2">
+                                    @if (session()->has('message'))
+                                    <div id="flash-message" class="alert alert-success mt-1">
+                                        {{ session('message') }}
+                                    </div>
+                                    @endif
+
+                                    <div class="table-responsive  req-closed-table-res">
+
+                                        <div wire:loading.delay>
+                                            <div class="loader-overlay">
+                                                <div class="loader"></div>
+                                            </div>
+                                        </div>
+
+                                        <table class="table table-striped">
+
+                                            <thead class="table-dark">
+
+                                                <tr>
+
+                                                    <th scope="col" class="req-closed-th">#</th>
+
+                                                    <th class="req-closed-th">Requested By</th>
+
+                                                    <th class="req-closed-th">Department</th>
+
+                                                    <th class="req-closed-th">Subject</th>
+
+                                                    <th class="req-closed-th">Description</th>
+
+                                                    <th class="req-closed-th">Distributor</th>
+
+                                                    <th class="req-closed-th">Mobile</th>
+
+                                                    <th class="req-closed-th">MailBox</th>
+
+                                                    <th class="req-closed-th">Attach Files</th>
+
+                                                    <th class="req-closed-th">CC To</th>
+
+                                                    <th class="req-closed-th">Priority</th>
+
+                                                    <th class="req-closed-th">Select Equipment</th>
+
+                                                    <th class="req-closed-th">Status</th>
+
+                                                    <th class="req-closed-th">Assigned to</th>
+
+                                                    <th class="req-closed-th">Comments</th>
+                                                    <th class="req-closed-th">Remarks</th>
+                                                    <th class="req-closed-th">Re Open</th>
+
+                                                </tr>
+
+                                            </thead>
+
+                                            <tbody>
+
+                                                @if($forIT->where('status', 'Completed')->count() > 0)
+                                                @foreach ($forIT->where('status', 'Completed') as $record)
+                                                @php
+                                                $ccToArray = explode(',', $record->cc_to);
+                                                @endphp
+                                                <tr>
+
+                                                    <th scope="row">{{ $record->emp_id }}</th>
+
+                                                    <td>{{ $record->emp->first_name }} {{ $record->emp->last_name }}
+                                                        <br>
+                                                        <strong style="font-size: 10px;">({{$record->emp_id}})
+                                                    </td>
+
+                                                    <td>{{ $record->category ?? 'N/A'}}</td>
+
+                                                    <td>{{ $record->subject ?? 'N/A' }}</td>
+
+                                                    <td>{{ $record->description?? 'N/A' }}</td>
+
+                                                    <td>{{ $record->distributor_name?? 'N/A' }}</td>
+
+                                                    <td>{{ $record->mobile?? 'N/A' }}</td>
+
+                                                    <td>{{ $record->mail ??'N/A' }}</td>
+
+                                                    <td>
+
+                                                        @if(isset($record['file_path']) &&
+                                                        is_array($record['file_path']))
+
+                                                        <div class="req-image-grid">
+
+                                                            @foreach($record['file_path'] as $image)
+
+                                                            <a href="{{ $image }}" target="_blank">
+
+                                                                <img src="{{ $image }}" alt="Attached Image">
+
+                                                            </a>
+
+                                                            @endforeach
+
+                                                        </div>
+
+                                                        @else
+
+                                                        No images attached.
+
+                                                        @endif
+
+                                                    </td>
+
+
+
+                                                    <td> {{ count($ccToArray) <= 2 ? $record->cc_to ?? '-' : '-' }}</td>
+
+                                                    <td>{{ $record->priority?? 'N/A' }}</td>
+
+                                                    <td>{{ $record->selected_equipment?? 'N/A' }}</td>
+
+                                                    <td>
+                                                        <div class="req-status-closed">
+                                                            {{ $record['status'] }}
+                                                        </div>
+                                                    </td>
+
+                                                    <td>{{ $record['assign_to'] }}</td>
+
+                                                    <td>{{$record -> active_comment?? 'N/A'}}</td>
+                                                    <td>{{$record -> inprogress_remarks?? 'N/A'}}</td>
+
+                                                    <td>
+
+                                                        <button wire:click="closeForDesks('{{$record->id}}')"
+                                                            class="btn btn-dark border-white text-white" @if($loading)
+                                                            disabled @endif>Open</button>
+                                                    </td>
+
+
+                                                </tr>
+                                                @if(count($ccToArray) > 2)
+
+                                                <tr class="req-cc-tr">
+
+
+                                                    <td colspan="19" class="req-cc-td">
+                                                        <div class="req-cc-div">
+                                                            <strong>CC TO: </strong> {{ implode(', ', $ccToArray) }}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                @endif
+
+                                                @endforeach
+                                                @else
+                                                <tr>
+                                                    <td colspan="20" class="req-td-norecords">
+
+                                                        <div>
+                                                            <img src="{{ asset('images/Closed.webp') }}"
+                                                                alt="No Records" class="req-img-norecords">
+
+                                                            <h3 class="req-head-norecords">No records found
+                                                            </h3>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                @endif
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
                 </div>
 
             </div>
 
+            <div class="col-lg-3 col-md-5 col-xs-12  req-pro-col3">
+                <div class="row req-overview-main">
+                    <div class="col-10">
+                        <h5 class="mb-3 req-overview-head">
+                            Overview</h5>
+                    </div>
+                    <div class="col-2">
+                        <!-- <i wire:click="toggleOverview" class="fas fa-caret-down req-pro-dropdown-arrow" style="margin-left: auto; cursor: pointer;"></i> -->
+                        <!-- <i wire:click="toggleOverview"
+                            class="fas fa-caret-down req-pro-dropdown-arrow {{ $showOverview ? 'rotated' : '' }} req-overview-icon"></i> -->
+
+                    </div>
+                </div>
+
+                <div class="req-pro-overview-container">
+                    <div class="req-pro-overview-card">
+
+                        <div class="card text-dark  req-pro-over-card1">
+
+                            <div class="req-pro-card-body-overview">
+
+                                <h5 class="card-title"> Active</h5>
+
+                                <p class="card-text reqCardText">Total Active
+
+                                    <span
+                                        class="bg-white text-primary rounded-circle  p-2 d-inline-flex align-items-center justify-content-center req-pro-overview-val">
+
+                                        <strong> {{$activeCount}} </strong>
+
+                                    </span>
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <i class="fas fa-arrow-down req-pro-arrow"></i>
+
+                    </div>
+
+                    <div class="req-pro-overview-card">
+
+                        <div class="card text-dark  req-pro-over-card2">
+
+                            <div class="req-pro-card-body-overview">
+
+                                <h5 class="card-title">In Progress</h5>
+
+                                <p class="card-text reqCardText">Total In Progress
+
+                                    <span
+                                        class="bg-white text-primary rounded-circle p-2 d-inline-flex align-items-center justify-content-center req-pro-overview-val">
+
+                                        <strong>{{$pendingCount}}</strong>
+
+                                    </span>
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <i class="fas fa-arrow-down req-pro-arrow"></i>
+
+                    </div>
+
+                    <div class="req-pro-overview-card">
+
+                        <div class="card text-dark  req-pro-over-card3">
+
+                            <div class="req-pro-card-body-overview">
+
+                                <h5 class="card-title">Closed</h5>
+
+                                <p class="card-text reqCardText">Total Closed
+
+                                    <span
+                                        class="bg-white text-primary rounded-circle p-2 d-inline-flex align-items-center justify-content-center req-pro-overview-val">
+
+                                        <strong>{{$closedCount}}</strong>
+
+                                    </span>
+
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="col-lg-3 col-md-4 col-xs-12  req-pro-col3">
-            <div class="row req-overview-main">
-                <div class="col-10">
-                    <h5 class="mb-3 req-overview-head">
-                        Overview</h5>
-                </div>
-                <div class="col-2">
-                    <!-- <i wire:click="toggleOverview" class="fas fa-caret-down req-pro-dropdown-arrow" style="margin-left: auto; cursor: pointer;"></i> -->
-                    <!-- <i wire:click="toggleOverview"
-                        class="fas fa-caret-down req-pro-dropdown-arrow {{ $showOverview ? 'rotated' : '' }} req-overview-icon"></i> -->
 
-                </div>
-            </div>
 
-            <div class="req-pro-overview-container">
-                <div class="req-pro-overview-card">
 
-                    <div class="card text-dark  req-pro-over-card1">
 
-                        <div class="req-pro-card-body-overview">
 
-                            <h5 class="card-title"> Active</h5>
 
-                            <p class="card-text">Total Active
 
-                                <span
-                                    class="bg-white text-primary rounded-circle  p-2 d-inline-flex align-items-center justify-content-center req-pro-overview-val">
 
-                                    <strong> {{$activeCount}} </strong>
+        <!-- jQuery and Bootstrap Bundle (includes Popper) -->
 
-                                </span>
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 
-                            </p>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
 
-                        </div>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-                    </div>
 
-                    <i class="fas fa-arrow-down req-pro-arrow"></i>
 
-                </div>
+        <script>
+        function showTab(tab) {
 
-                <div class="req-pro-overview-card">
+            document.querySelectorAll('.req-pro-tab-content').forEach(el => el.style.display = 'none');
 
-                    <div class="card text-dark  req-pro-over-card2">
+            document.getElementById(tab).style.display = 'block';
 
-                        <div class="req-pro-card-body-overview">
+        }
 
-                            <h5 class="card-title">In Progress</h5>
 
-                            <p class="card-text">Total In Progress
 
-                                <span
-                                    class="bg-white text-primary rounded-circle p-2 d-inline-flex align-items-center justify-content-center req-pro-overview-val">
+        document.addEventListener("DOMContentLoaded", () => {
+            showTab('{{ $activeTab }}'); // Show the initially active tab
+        });
 
-                                    <strong>{{$pendingCount}}</strong>
+        Livewire.on('tabSwitched', tab => {
+            showTab(tab);
+        });
 
-                                </span>
 
-                            </p>
 
-                        </div>
 
-                    </div>
+        $(document).ready(function() {
 
-                    <i class="fas fa-arrow-down req-pro-arrow"></i>
+            // Handle click on small image to open larger modal
 
-                </div>
+            $('#modalImage').on('click', function() {
 
-                <div class="req-pro-overview-card">
+                $('#imageModal').modal('show');
 
-                    <div class="card text-dark  req-pro-over-card3">
-
-                        <div class="req-pro-card-body-overview">
-
-                            <h5 class="card-title">Closed</h5>
-
-                            <p class="card-text">Total Closed
-
-                                <span
-                                    class="bg-white text-primary rounded-circle p-2 d-inline-flex align-items-center justify-content-center req-pro-overview-val">
-
-                                    <strong>{{$closedCount}}</strong>
-
-                                </span>
-
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-
-
-
-
-
-
-
-    <!-- jQuery and Bootstrap Bundle (includes Popper) -->
-
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-
-
-    <script>
-    function showTab(tab) {
-
-        document.querySelectorAll('.req-pro-tab-content').forEach(el => el.style.display = 'none');
-
-        document.getElementById(tab).style.display = 'block';
-
-    }
-
-
-
-    document.addEventListener("DOMContentLoaded", () => {
-        showTab('{{ $activeTab }}'); // Show the initially active tab
-    });
-
-    Livewire.on('tabSwitched', tab => {
-        showTab(tab);
-    });
-
-
-
-
-    $(document).ready(function() {
-
-        // Handle click on small image to open larger modal
-
-        $('#modalImage').on('click', function() {
-
-            $('#imageModal').modal('show');
+            });
 
         });
 
-    });
+        //for to remove the space after session message
+        </script>
 
-    //for to remove the space after session message
-    </script>
-
-</div>
+    </div>

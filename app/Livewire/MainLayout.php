@@ -3,8 +3,8 @@
 namespace App\Livewire;
 
 use Livewire\Component;
-use App\Models\IT;
-class Header extends Component
+
+class MainLayout extends Component
 {
     public $employeeInitials;
 
@@ -35,13 +35,21 @@ class Header extends Component
         }
     }
 
-    public function render()
-    {
-        return view('livewire.header');
+    public function dashboard(){
+        return redirect()->route('dashboard');
     }
 
-    public function addMember()
+
+    public function itRequest(){
+        return redirect()->route('requests');
+    }
+
+    public function itMembers(){
+        return redirect()->route('itMembers');
+    }
+
+    public function render()
     {
-        return redirect()->route('it-AddMember');
+        return view('livewire.main-layout');
     }
 }
