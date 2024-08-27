@@ -18,5 +18,18 @@ class HelpDesks extends Model
     {
         return $this->belongsTo(EmployeeDetails::class, 'emp_id', 'emp_id');
     }
+
+    public function setImageAttribute($value)
+    {
+        $this->attributes['file_path'] = $value ? $value : null;
+    }
+
+    public function getImageAttribute($value)
+    {
+        return $value;
+    }
+    public function getImageUrlAttribute()
+{
+    return 'data:image/jpeg;base64,' . base64_encode($this->attributes['file_path']);
 }
-    
+}

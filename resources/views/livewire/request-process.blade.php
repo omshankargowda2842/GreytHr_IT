@@ -162,95 +162,60 @@
                                         </tr>
 
                                         <tr>
-
                                             <td>Attach Files</td>
-
                                             <td>
-
                                                 <a href="#" data-toggle="modal"
-                                                    data-target="#exampleModalCenter-{{ $selectedRequest['id'] }}">
-
+                                                    data-target="#attachmentsModal-{{ $selectedRequest->id }}">
                                                     <i class="fas fa-eye"></i> View Attachments
-
                                                 </a>
-
                                             </td>
-
-
-
                                         </tr>
 
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="attachmentsModal-{{ $selectedRequest->id }}"
+                                            tabindex="-1" role="dialog"
+                                            aria-labelledby="attachmentsModalLabel-{{ $selectedRequest->id }}"
+                                            aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title"
+                                                            id="attachmentsModalLabel-{{ $selectedRequest->id }}">
+                                                            Attachments</h5>
+                                                        <button type="button" class="close" data-dismiss="modal"
+                                                            aria-label="Close">
+                                                         
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <!-- Swiper -->
+                                                        <div class="swiper-container">
+                                                            <div class="swiper-wrapper">
 
-                                        <div wire:key="{{ $selectedRequest['id'] }}">
-                                            <div class="modal fade" id="exampleModalCenter-{{ $selectedRequest['id'] }}"
-                                                tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
-                                                aria-hidden="true">
-                                                <div class="req-modal-dialog modal-dialog-centered" role="document">
-                                                    <div class="req-modal-content">
-                                                        <div class="modal-body">
-                                                            <div id="carouselExampleIndicators-{{ $selectedRequest['id'] }}"
-                                                                class="carousel slide" data-ride="carousel">
-                                                                @php
-                                                                $defaultImage =
-                                                                'https://as2.ftcdn.net/v2/jpg/03/80/67/05/1000_F_380670556_xhO9ggcy3awgX3JdFvgqOfAfSvrlVUmJ.jpg';
-                                                                $filePaths = [];
+                                                                <div class="swiper-slide">
 
-                                                                if (isset($selectedRequest['file_path']) &&
-                                                                !empty($selectedRequest['file_path'])) {
-                                                                if (is_array($selectedRequest['file_path'])) {
-                                                                $filePaths = $selectedRequest['file_path'];
-                                                                } else {
-                                                                $filePaths[] = $selectedRequest['file_path'];
-                                                                }
-                                                                }
-
-                                                                if (empty($filePaths)) {
-                                                                $filePaths[] = $defaultImage;
-                                                                }
-                                                                @endphp
-                                                                <ol class="carousel-indicators">
-                                                                    @foreach ($filePaths as $index => $file)
-                                                                    <li data-target="#carouselExampleIndicators-{{ $selectedRequest['id'] }}"
-                                                                        data-slide-to="{{ $index }}"
-                                                                        class="{{ $index == 0 ? 'active' : '' }}"></li>
-                                                                    @endforeach
-                                                                </ol>
-                                                                <div class="carousel-inner">
-                                                                    @foreach ($filePaths as $index => $file)
-                                                                    <div
-                                                                        class="carousel-item {{ $index == 0 ? 'active' : '' }}">
-                                                                        <a href="{{ $file }}" target="_blank">
-                                                                            <img src="{{ $file }}" class="d-block w-100"
-                                                                                alt="Attachment Image">
-                                                                        </a>
-                                                                    </div>
-                                                                    @endforeach
+                                                                <img src="{{ $selectedRequest->image_url }}" alt="Image" style="width: 100px; height:auto;">
+                                                                <!-- <img src="data:image/jpeg;base64,{{ $selectedRequest->file_path }}" class="img-fluid" width="50" height="50" alt="Image preview"> -->
                                                                 </div>
-                                                                <a class="carousel-control-prev"
-                                                                    href="#carouselExampleIndicators-{{ $selectedRequest['id'] }}"
-                                                                    role="button" data-slide="prev">
-                                                                    <span class="carousel-control-prev-icon"
-                                                                        aria-hidden="true"></span>
-                                                                    <span class="sr-only">Previous</span>
-                                                                </a>
-                                                                <a class="carousel-control-next"
-                                                                    href="#carouselExampleIndicators-{{ $selectedRequest['id'] }}"
-                                                                    role="button" data-slide="next">
-                                                                    <span class="carousel-control-next-icon"
-                                                                        aria-hidden="true"></span>
-                                                                    <span class="sr-only">Next</span>
-                                                                </a>
                                                             </div>
+                                                            <!-- Add Pagination -->
+                                                            <div class="swiper-pagination"></div>
+                                                            <!-- Add Navigation -->
+                                                            <div class="swiper-button-next"></div>
+                                                            <div class="swiper-button-prev"></div>
                                                         </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary"
-                                                                data-dismiss="modal" @if($loading) disabled
-                                                                @endif>Close</button>
-                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-dismiss="modal">Close</button>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+
+
+
+
 
                                         <tr>
 
@@ -938,16 +903,18 @@
 
 
 
-        $(document).ready(function() {
-
-            // Handle click on small image to open larger modal
-
-            $('#modalImage').on('click', function() {
-
-                $('#imageModal').modal('show');
-
+        document.addEventListener('livewire:load', function() {
+            var swiper = new Swiper('.swiper-container', {
+                loop: true,
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                },
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                },
             });
-
         });
 
         //for to remove the space after session message

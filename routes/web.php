@@ -4,8 +4,11 @@ use App\Livewire\Dashboard;
 use App\Livewire\ItAddMember;
 use App\Livewire\ItLogin;
 use App\Livewire\ItMembers;
+use App\Livewire\OldItMembers;
 use App\Livewire\RequestProcess;
 use App\Livewire\TestPurpose;
+use App\Livewire\VendorAssets;
+use App\Livewire\Vendors;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -37,6 +40,9 @@ Route::middleware(['auth:it'])->group(function () {
                 Route::get('/itrequest',RequestProcess::class)->name('requests');
                 Route::get('/itMembers',ItAddMember::class)->name('itMembers');
                 Route::get('/test',TestPurpose::class)->name('test');
+                Route::get('/oldItMembers',OldItMembers::class)->name('oldItMembers');
+                Route::get('/vendor',Vendors::class)->name('vendor');
+                Route::get('/vendorAssets',VendorAssets::class)->name('vendorAssets');
 
     });
 });

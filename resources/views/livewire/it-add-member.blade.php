@@ -1,7 +1,7 @@
 <div class="main">
 <div class="row">
     @if($showAddIt)
-    <div class="col-8  container mt-4 itadd-maincolumn">
+    <div class="col-11  mt-4 itadd-maincolumn">
     <div wire:loading.delay>
                 <div class="loader-overlay">
                     <div class="loader"></div>
@@ -89,7 +89,7 @@
                 class="fas fa-user-plus "></i> Add Member</button>
     </div>
     <div class="col-11  mt-4 ml-4">
-        <div class="table-responsive req-table-res">
+        <div class="table-responsive it-add-table-res">
 
             <div wire:loading.delay>
                 <div class="loader-overlay">
@@ -119,7 +119,7 @@
                         <td>{{ $itemployee->employee_name }}</td>
                         <td><img src="{{ $itemployee->image_url }}" alt="Image" style="width: 30px; height: 30px;"></td>
                         <td>{{ $itemployee->emp_id }}</td>
-                        <td>{{ $itemployee->formatted_date_of_birth }}</td>
+                        <td>{{ \Carbon\Carbon::parse($itemployee->date_of_birth)->format('d-M-Y') }}</td>
                         <td>{{ $itemployee->phone_number }}</td>
                         <td>{{ $itemployee->email }}</td>
                         <td class="d-flex flex-direction-row">
@@ -157,11 +157,38 @@
                 <div class="modal-body text-center" style="font-size: 16px;color:black">
                     Are you sure you want to delete?
                 </div>
+                <div class="modal-body text-center">
+                    <form wire:submit.prevent="delete">
+                    <span class="text-danger d-flex align-start">*</span>
+                        <div class="row">
+                            <div class="col-12 req-remarks-div">
+
+                                <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea"  style="min-height: 76px;" placeholder="Reason for deactivation"></textarea>
+
+                            </div>
+                        </div>
+                        @error('reason') <span class="text-danger d-flex align-start">{{ $message }}</span>@enderror
+                        <div class="d-flex justify-content-center p-3">
+                        <button type="submit" class="submit-btn mr-3" wire:click="confirmDelete({{ $itemployee->id }})"  @if($loading) disabled @endif>Delete</button>
+                            <button type="button" class="cancel-btn1 ml-3" wire:click="cancel">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- <div class="modal-body text-center">
+                    <form wire:submit.prevent="postRemarks('{{ $itemployee->id }}')">
+                        <div class="row">
+                            <div class="col-12 req-remarks-div">
+                                <textarea wire:model.lazy="remarks.{{ $itemployee->id }}" class="form-control req-remarks-textarea" placeholder="Reason for deletion"></textarea>
+                                <button type="submit" class="btn btn-dark ml-2" @if($loading) disabled @endif>Post</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
                 <div class="d-flex justify-content-center p-3">
                     <button type="button" class="submit-btn mr-3"
                         wire:click="delete({{ $itemployee->id }})">Delete</button>
                     <button type="button" class="cancel-btn1 ml-3" wire:click="cancel">Cancel</button>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>

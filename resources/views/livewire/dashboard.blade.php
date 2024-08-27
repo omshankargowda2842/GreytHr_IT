@@ -5,7 +5,7 @@
     <div class="cardBox">
         <div class="card">
             <div>
-                <div class="numbers">{{$activeCount}} <span>  <i class="fas fa-eye"></i></span></div>
+                <div class="numbers">{{$activeCount}} <span> <i class="fas fa-eye"></i></span></div>
                 <div class="cardName">Active Requests </div>
             </div>
         </div>
@@ -66,19 +66,27 @@
                     <tr>
                         <td>{{ $category }}</td> <!-- Display category in the Category column -->
                         <td class="text-primary">
+                            @php
+                            $statuses = ['Open', 'Pending', 'Completed'];
+                            $filteredRequests = $countRequests->whereIn('status', $statuses)->where('category',
+                            $category);
+                            @endphp
                             <div class="badge rounded-pill bg-dark text-white">
-                                {{ $countRequests->where('category', $category)->count() }}
+                            {{ $filteredRequests->count() }}
                             </div>
                         </td>
                         <td>
                             <span class="badge rounded-pill dash-custom-bg-color text-black">
-                                Active <span class="badge rounded-pill bg-white text-dark">{{ $countRequests->where('category', $category)->where('status', 'Open')->count() }}</span>
+                                Active <span
+                                    class="badge rounded-pill bg-white text-dark">{{ $countRequests->where('category', $category)->where('status', 'Open')->count() }}</span>
                             </span>
                             <span class="badge rounded-pill dash-custom-bg-color1 text-black">
-                                Pending <span class="badge rounded-pill  bg-white text-dark">{{ $countRequests->where('category', $category)->where('status', 'Pending')->count() }}</span>
+                                Pending <span
+                                    class="badge rounded-pill  bg-white text-dark">{{ $countRequests->where('category', $category)->where('status', 'Pending')->count() }}</span>
                             </span>
                             <span class="badge rounded-pill dash-custom-bg-color2 text-black">
-                                Completed <span class="badge rounded-pill  bg-white text-dark">{{ $countRequests->where('category', $category)->where('status', 'Completed')->count() }}</span>
+                                Completed <span
+                                    class="badge rounded-pill  bg-white text-dark">{{ $countRequests->where('category', $category)->where('status', 'Completed')->count() }}</span>
                             </span>
                         </td>
                     </tr>
@@ -90,58 +98,58 @@
 
         <!-- ================= New Customers ================ -->
         <div class="recentCustomers">
-            <div class="cardHeader">
-                <h2>Graph Data</h2>
+            <div>
+            <h2 class="mb-5">Graph Data</h2>
+                <canvas id="myDonutChart" width="300" height="300"></canvas>
+                <!-- <canvas id="myPieChart" width="400" height="400"></canvas> -->
             </div>
-
-           <div>
-           <canvas id="myDonutChart" width="300" height="300"></canvas>
-           <!-- <canvas id="myPieChart" width="400" height="400"></canvas> -->
-           </div>
         </div>
     </div>
 </div>
 
+<?php
+
+$activeCount = $activeCount;
+$pendingCount = $pendingCount;
+$completedCount = $closedCount;
+?>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const ctx = document.getElementById('myDonutChart').getContext('2d');
 
-    // Sample data
+    // Sample data - these should be PHP variables in your actual implementation
+    const activeCount = <?php echo json_encode($activeCount); ?>;
+    const pendingCount = <?php echo json_encode($pendingCount); ?>;
+    const completedCount = <?php echo json_encode($completedCount); ?>;
+
     const data = {
         labels: ['Active', 'Pending', 'Completed'],
         datasets: [{
             label: 'Request Status',
-            data: [10, 5, 15], // Replace these values with your actual data
+            data: [activeCount, pendingCount, completedCount], // Use the PHP variables
             backgroundColor: [
-                '#a5d6a7', // Blue
-                '#ffcc80',  // Orange
-                '#64b5f6'   // Green
+                '#ffcc80', // Orange
+                '#a5d6a7', // Green
+                '#64b5f6'  // Blue
             ],
             borderColor: [
-                'rgba(54, 162, 235, 1)',     // Blue
-                'rgba(255, 159, 64, 1)',     // Orange
-                'rgba(75, 192, 192, 1)'      // Green
+                'rgba(255, 159, 64, 1)', // Orange
+                'rgba(75, 192, 192, 1)' , // Green
+                'rgba(54, 162, 235, 1)', // Blue
             ],
             borderWidth: 1
         }]
     };
 
     const config = {
-        type: 'doughnut', // Change type to 'doughnut'
+        type: 'doughnut',
         data: data,
         options: {
             responsive: true,
             plugins: {
                 legend: {
                     position: 'top',
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            return tooltipItem.label + ': ' + tooltipItem.raw;
-                        }
-                    }
                 },
                 tooltip: {
                     callbacks: {
@@ -157,3 +165,4 @@ document.addEventListener('DOMContentLoaded', () => {
     new Chart(ctx, config);
 });
 </script>
+

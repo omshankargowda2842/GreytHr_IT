@@ -29,12 +29,14 @@ class ItAddMember extends Component
     public $showLogoutModal =false;
     public $dateFromDatabase;
     public $imageData;
+    public $reason =[];
+    public $loading = false;
 
 
     public function mount()
     {
         $this->itMembers = EmployeeDetails::where('sub_dept_id', '9915')->get();
-        $this->itRelatedEmye =IT ::all();
+        $this->itRelatedEmye = IT::where('is_active', 1)->get();
 
     }
 
@@ -175,6 +177,7 @@ class ItAddMember extends Component
         // Update existing record
         $data = IT::find($this->selectedItId);
         if ($data) {
+
         $data->update([
         'emp_id' => $this->employeeId,
         'employee_name' => $this->employeeName,
@@ -182,7 +185,9 @@ class ItAddMember extends Component
         'phone_number' => $this->phoneNumber,
         'email' => $this->email,
         'image' => $imageData ?? $data->image,
+
         ]);
+
         }
         } else {
         // Create new record
@@ -214,13 +219,40 @@ class ItAddMember extends Component
          $this->showLogoutModal = true;
     }
 
-    public function delete($id)
-    {
-        IT::destroy($id);
-        session()->flash('message', 'IT member deleted successfully!');
+    public $recordId;
+    public function confirmDelete($id)
+{
+    $this->recordId = $id;
+    $this->showLogoutModal = true;
+}
+
+public function delete()
+{
+    $this->validate([
+
+        'reason' => 'required|string|max:255', // Validate the remark input
+    ], [
+        'reason.required' => 'Reason is required.',
+    ]);
+    $this->resetErrorBag();
+    $itMember = IT::find($this->recordId);
+
+    if ($itMember) {
+        $itMember->update([
+            'delete_itmember_reason' => $this->reason,
+            'is_active' => 0
+        ]);
+
+        session()->flash('message', 'IT member deactivated successfully!');
         $this->showLogoutModal = false;
-        $this->itRelatedEmye = IT::all();
+        $this->itRelatedEmye = IT::where('is_active', 1)->get();
+        // Reset the recordId and reason after processing
+        $this->recordId = null;
+        $this->reason = '';
     }
+}
+
+
 
 
     private function resetForm()
@@ -259,12 +291,8 @@ class ItAddMember extends Component
 
     public function render()
     {
-        $this->itRelatedEmye = IT::all();
-        return view('livewire.it-add-member',['itRelatedEmye' => $this->itRelatedEmye->map(function ($item) {
-            $item->formatted_date_of_birth = $this->formatDate($item->date_of_birth);
-            return $item;
-        }),
-        ]);
+        $this->itRelatedEmye = IT::where('is_active', 1)->get();
+        return view('livewire.it-add-member');
     }
 
 }
