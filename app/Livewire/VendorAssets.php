@@ -27,6 +27,7 @@ class VendorAssets extends Component
     public $manufacturer;
     public $purchaseDate;
     public $file_paths = [];
+    public $existingFilePaths = [];
     public $showEditDeleteVendor = true;
     public $vendorAssets ;
     public $selectedAssetId;
@@ -37,6 +38,7 @@ class VendorAssets extends Component
     public $currentVendorId = null;
     public $selectedVendorId;
     public $showLogoutModal = false;
+    public $reason =[];
 
     protected function rules(): array
     {
@@ -47,13 +49,14 @@ class VendorAssets extends Component
             'color' => 'nullable|string|max:50',
             'version' => 'nullable|string|max:50',
             'serialNumber' => 'required|string|max:255',
-            'invoiceNumber' => 'nullable|string|max:255',
-            'taxableAmount' => 'nullable|numeric|min:0',
-            'invoiceAmount' => 'nullable|numeric|min:0',
-            'gstState' => 'nullable|string|max:255',
-            'gstCentral' => 'nullable|string|max:255',
-            'manufacturer' => 'nullable|string|max:255',
-            'purchaseDate' => 'nullable|date',
+            'invoiceNumber' => 'required|string|max:255', // Ensure this is required
+            'taxableAmount' => 'required|numeric|min:0', // Ensure this is required
+            'invoiceAmount' => 'required|numeric|min:0', // Ensure this is required
+            'gstState' => 'required|string|max:255', // Ensure this is required
+            'gstCentral' => 'required|string|max:255', // Ensure this is required
+            'manufacturer' => 'required|string|max:255',
+            'selectedVendorId' => 'required|string|max:255',
+           'purchaseDate' => 'required|date|before_or_equal:today',
             'file_paths.*' => 'nullable|file|mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif|max:40960',
         ];
 
@@ -76,6 +79,8 @@ class VendorAssets extends Component
 
 
     protected $messages = [
+        'selectedVendorId.required' => 'Vendor is required.',
+
         'assetType.required' => 'Asset Type is required.',
         'assetType.string' => 'Asset Type must be a string.',
         'assetType.max' => 'Asset Type may not be greater than 255 characters.',
@@ -99,32 +104,57 @@ class VendorAssets extends Component
         'serialNumber.unique' => 'Serial Number has already been taken.',
         'serialNumber.max' => 'Serial Number may not be greater than 255 characters.',
 
+        'invoiceNumber.required' => 'Invoice Number is required.',
         'invoiceNumber.string' => 'Invoice Number must be a string.',
         'invoiceNumber.max' => 'Invoice Number may not be greater than 255 characters.',
 
-        'taxableAmount.numeric' => 'Taxable Amount must be a number.',
-        'taxableAmount.min' => 'Taxable Amount must be at least 0.',
-
-        'invoiceAmount.numeric' => 'Invoice Amount must be a number.',
-        'invoiceAmount.min' => 'Invoice Amount must be at least 0.',
-
+        'gstState.required' => 'GST State is required.',
         'gstState.string' => 'GST State must be a string.',
         'gstState.max' => 'GST State may not be greater than 255 characters.',
 
+        'gstCentral.required' => 'GST Central is required.',
         'gstCentral.string' => 'GST Central must be a string.',
         'gstCentral.max' => 'GST Central may not be greater than 255 characters.',
 
+        'taxableAmount.required' => 'Taxable Amount is required.',
+        'taxableAmount.numeric' => 'Taxable Amount must be a number.',
+        'taxableAmount.min' => 'Taxable Amount must be at least 0.',
+
+        'invoiceAmount.required' => 'Invoice Amount is required.',
+        'invoiceAmount.numeric' => 'Invoice Amount must be a number.',
+        'invoiceAmount.min' => 'Invoice Amount must be at least 0.',
+
+        'purchaseDate.required' => 'Purchase Date is required.',
+         'purchaseDate.date' => 'Purchase Date must be a valid date.',
+        'purchaseDate.before_or_equal' => 'Purchase Date cannot be a future date.',
+
+        'manufacturer.required' => 'Manufacturer is required.',
         'manufacturer.string' => 'Manufacturer must be a string.',
         'manufacturer.max' => 'Manufacturer may not be greater than 255 characters.',
 
-        'purchaseDate.date' => 'Purchase Date must be a valid date.',
 
-        // 'file_paths.*.file' => 'Each file must be a valid file.',
-        // 'file_paths.*.mimes' => 'Each file must be a file of type: jpg, jpeg, png, pdf.',
-        // 'file_paths.*.max' => 'Each file may not be greater than 2MB.',
+
     ];
 
     public $vendors;
+
+    public $showViewVendorDialog = false;
+
+    public function showViewVendor($vendorId)
+    {
+        $this->currentVendorId = $vendorId;
+        $this->showViewVendorDialog = true;
+        $this->showEditDeleteVendor = false;
+        $this->editMode = false;
+    }
+
+    public function closeViewVendor()
+    {
+        $this->showViewVendorDialog = false;
+        $this->showEditDeleteVendor = true;
+        $this->currentVendorId = null;
+    }
+
 
 
 
@@ -246,6 +276,7 @@ public function downloadImages($vendorId)
     $this->manufacturer = '';
     $this->purchaseDate = null;
     $this->file_paths = [];
+
     $this->selectedAssetId = null; // Reset the selected asset ID
     $this->editMode = false; // Reset edit mode
     $this->showAddVendor = false; // Hide add vendor form
@@ -261,18 +292,31 @@ public function downloadImages($vendorId)
 
     }
     public function delete()
+    {
+        $this->validate([
 
-    {   $vendormember = Vendor::find($this->recordId);
-        dd($vendormember);
+            'reason' => 'required|string|max:255', // Validate the remark input
+        ], [
+            'reason.required' => 'Reason is required.',
+        ]);
+        $this->resetErrorBag();
+
+        $vendormember = VendorAsset::find($this->recordId);
         if ($vendormember) {
-            // Permanently delete the record from the database
-            $vendormember->delete();
+
+            $vendormember->update([
+                'delete_asset_reason' => $this->reason,
+                'is_active' => 0
+            ]);
+
 
             session()->flash('message', 'Vendor deleted successfully!');
             $this->showLogoutModal = false;
 
             //Refresh
-            $this->vendors = DB::table('vendors')->get();
+            $this->vendorAssets =VendorAsset::where('is_active', 1)->get();
+            $this->recordId = null;
+             $this->reason = '';
 
         }
     }
@@ -309,8 +353,7 @@ public function downloadImages($vendorId)
         $this->gstCentral = $asset->gst_central;
         $this->purchaseDate = $asset->purchase_date ? Carbon::parse($asset->purchase_date)->format('Y-m-d') : null;
 
-        // Handle file_paths if exists
-        // $this->file_paths = $asset->file_paths ? 'data:file_paths/jpeg;base64,' . base64_encode(file_get_contents(storage_path('app/' . $asset->file_paths))) : null;
+        $this->existingFilePaths = json_decode($asset->file_paths, true) ?? [];
 
         $this->showAddVendor = true;
         $this->showEditDeleteVendor = false;
@@ -326,38 +369,83 @@ public function submit()
 
     $fileDataArray = [];
 
-        $this->validate([
-            'file_paths.*' => 'nullable|file|mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif|max:40960',
-        ]);
+    if ($this->editMode) {
+        // Fetch the existing vendor record
+        $vendorAst = VendorAsset::find($this->selectedAssetId);
+       
+        if ($vendorAst) {
 
+            // Retrieve and decode existing file paths
+            $existingFileData = json_decode($vendorAst->file_paths, true);
 
-    if ($this->file_paths) {
-        foreach ($this->file_paths as $file) {
-            try {
-                if (file_exists($file->getRealPath())) {
-                    // $fileContent = $file->get();
-                    $fileContent = file_get_contents($file->getRealPath());
-                    $mimeType = $file->getMimeType();
-                    $base64File = base64_encode($fileContent);
+            // Ensure existing file data is an array
+            $existingFileData = is_array($existingFileData) ? $existingFileData : [];
 
-                    $fileDataArray[] = [
-                        'data' => $base64File,
-                        'mime_type' => $mimeType,
-                        'original_name' => $file->getClientOriginalName(),
-                    ];
-
-                } else {
-                    Log::error('File does not exist:', ['file' => $file->getClientOriginalName()]);
-                }
-            } catch (\Exception $e) {
-                Log::error('Error processing file:', [
-                    'file' => $file->getClientOriginalName(),
-                    'error' => $e->getMessage()
+            // If new files are uploaded, replace the existing ones
+            if ($this->file_paths) {
+                $this->validate([
+                    'file_paths.*' => 'nullable|file|mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif|max:40960',
                 ]);
+
+                foreach ($this->file_paths as $file) {
+                    try {
+                        if ($file->isValid()) {
+                            $fileContent = file_get_contents($file->getRealPath());
+                            $mimeType = $file->getMimeType();
+                            $base64File = base64_encode($fileContent);
+
+                            // Add new file to the array
+                            $fileDataArray[] = [
+                                'data' => $base64File,
+                                'mime_type' => $mimeType,
+                                'original_name' => $file->getClientOriginalName(),
+                            ];
+                        } else {
+                            Log::error('File is not valid:', ['file' => $file->getClientOriginalName()]);
+                        }
+                    } catch (\Exception $e) {
+                        Log::error('Error processing file:', [
+                            'file' => $file->getClientOriginalName(),
+                            'error' => $e->getMessage()
+                        ]);
+                    }
+                }
+            } else {
+                // No new files provided, keep the existing files
+                $fileDataArray = $existingFileData;
             }
         }
     } else {
-        Log::info('No files received.');
+        // New record creation
+        if ($this->file_paths) {
+            $this->validate([
+                'file_paths.*' => 'nullable|file|mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif|max:40960',
+            ]);
+
+            foreach ($this->file_paths as $file) {
+                try {
+                    if ($file->isValid()) {
+                        $fileContent = file_get_contents($file->getRealPath());
+                        $mimeType = $file->getMimeType();
+                        $base64File = base64_encode($fileContent);
+
+                        // Add new file to the array
+                        $fileDataArray[] = [
+                            'data' => $base64File,
+                            'mime_type' => $mimeType,
+                            'original_name' => $file->getClientOriginalName(),
+                        ];
+                    } else {
+                        Log::error('File is not valid:', ['file' => $file->getClientOriginalName()]);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Error processing file:', [
+                        'file' => $file->getClientOriginalName(),
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+        }
     }
 
 
@@ -415,7 +503,7 @@ public function submit()
     public function render()
     {
         $this->vendors = Vendor::all();
-        $this->vendorAssets = DB::table('vendor_assets')->get();
+        $this->vendorAssets =VendorAsset::where('is_active', 1)->get();
         return view('livewire.vendor-assets');
     }
 }

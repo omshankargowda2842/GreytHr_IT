@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('pin_code')->nullable();
             $table->text('note_description')->nullable();
             $table->json('file_paths')->nullable();
+            $table->string('delete_vendor_reason')->nullable();
             $table->boolean('is_active')->default(true);
 
             $table->timestamps();

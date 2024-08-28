@@ -33,6 +33,8 @@ return new class extends Migration
             $table->string('gst_central')->nullable();
             $table->date('purchase_date')->nullable();
             $table->json('file_paths')->nullable();
+            $table->string('delete_asset_reason')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->foreign('vendor_id')
                 ->references('vendor_id')
                 ->on('vendors')
