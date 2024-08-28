@@ -20,6 +20,7 @@ class Vendor extends Model
         'phone',
         'gst',
         'bank_name',
+        'delete_vendor_reason',
         'account_number',
         'ifsc_code',
         'branch',

@@ -18,6 +18,7 @@ class VendorAsset extends Model
         'asset_model',
         'asset_specification',
         'color',
+        'delete_asset_reason',
         'version',
         'serial_number',
         'invoice_number',
@@ -28,6 +29,7 @@ class VendorAsset extends Model
         'manufacturer',
         'purchase_date',
         'file_paths',
+        'is_active'
     ];
 
 

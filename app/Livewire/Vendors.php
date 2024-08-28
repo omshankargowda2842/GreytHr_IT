@@ -39,6 +39,8 @@ class Vendors extends Component
     public $showLogoutModal = false;
     public $showEditDeleteVendor = true;
     public $vendors ;
+    public $reason =[];
+    public $existingFilePaths = [];
 
     protected function rules()
 {
@@ -193,16 +195,31 @@ public function updatedContactEmail()
     public function delete()
 {
 
+
+    $this->validate([
+
+        'reason' => 'required|string|max:255', // Validate the remark input
+    ], [
+        'reason.required' => 'Reason is required.',
+    ]);
+    $this->resetErrorBag();
+
     $vendormember = Vendor::find($this->recordId);
     if ($vendormember) {
-        // Permanently delete the record from the database
-        $vendormember->delete();
+
+        $vendormember->update([
+            'delete_vendor_reason' => $this->reason,
+            'is_active' => 0
+        ]);
+
 
         session()->flash('message', 'Vendor deleted successfully!');
         $this->showLogoutModal = false;
 
         //Refresh
-        $this->vendors = DB::table('vendors')->get();
+        $this->vendors = Vendor::where('is_active', 1)->get();
+        $this->recordId = null;
+        $this->reason = '';
 
     }
 }
@@ -231,9 +248,8 @@ public function updatedContactEmail()
         $this->state = $vendor->state;
         $this->pinCode = $vendor->pin_code;
         $this->noteDescription = $vendor->note_description;
-
-        // Handle file_paths if exists
-        // $this->file_paths = $vendor->file_paths ? 'data:file_paths/jpeg;base64,' . base64_encode(file_get_contents(storage_path('app/' . $vendor->file_paths))) : null;
+        $this->existingFilePaths = json_decode($vendor->file_paths, true) ?? [];
+        // $this->file_paths = $vendor->file_paths ? json_decode($vendor->file_paths, true) : [];
 
         $this->showAddVendor = true;
         $this->showEditDeleteVendor = false;
@@ -316,45 +332,93 @@ public function downloadImages($vendorId)
 
         $fileDataArray = [];
 
-        $this->validate([
-            'file_paths.*' => 'nullable|file|mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif|max:40960',
-        ]);
+        if ($this->editMode) {
+            // Fetch the existing vendor record
+            $vendor = Vendor::find($this->selectedVendorId);
 
+            if ($vendor) {
 
-    if ($this->file_paths) {
-        foreach ($this->file_paths as $file) {
-            try {
-                if (file_exists($file->getRealPath())) {
-                    // $fileContent = $file->get();
-                    $fileContent = file_get_contents($file->getRealPath());
-                    $mimeType = $file->getMimeType();
-                    $base64File = base64_encode($fileContent);
+                // Retrieve and decode existing file paths
+                $existingFileData = json_decode($vendor->file_paths, true);
 
-                    $fileDataArray[] = [
-                        'data' => $base64File,
-                        'mime_type' => $mimeType,
-                        'original_name' => $file->getClientOriginalName(),
-                    ];
+                // Ensure existing file data is an array
+                $existingFileData = is_array($existingFileData) ? $existingFileData : [];
 
+                // If new files are uploaded, replace the existing ones
+                if ($this->file_paths) {
+                    $this->validate([
+                        'file_paths.*' => 'nullable|file|mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif|max:40960',
+                    ]);
+
+                    foreach ($this->file_paths as $file) {
+                        try {
+                            if ($file->isValid()) {
+                                $fileContent = file_get_contents($file->getRealPath());
+                                $mimeType = $file->getMimeType();
+                                $base64File = base64_encode($fileContent);
+
+                                // Add new file to the array
+                                $fileDataArray[] = [
+                                    'data' => $base64File,
+                                    'mime_type' => $mimeType,
+                                    'original_name' => $file->getClientOriginalName(),
+                                ];
+                            } else {
+                                Log::error('File is not valid:', ['file' => $file->getClientOriginalName()]);
+                            }
+                        } catch (\Exception $e) {
+                            Log::error('Error processing file:', [
+                                'file' => $file->getClientOriginalName(),
+                                'error' => $e->getMessage()
+                            ]);
+                        }
+                    }
                 } else {
-                    Log::error('File does not exist:', ['file' => $file->getClientOriginalName()]);
+                    // No new files provided, keep the existing files
+                    $fileDataArray = $existingFileData;
                 }
-            } catch (\Exception $e) {
-                Log::error('Error processing file:', [
-                    'file' => $file->getClientOriginalName(),
-                    'error' => $e->getMessage()
+            }
+        } else {
+            // New record creation
+            if ($this->file_paths) {
+                $this->validate([
+                    'file_paths.*' => 'nullable|file|mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif|max:40960',
                 ]);
+
+                foreach ($this->file_paths as $file) {
+                    try {
+                        if ($file->isValid()) {
+                            $fileContent = file_get_contents($file->getRealPath());
+                            $mimeType = $file->getMimeType();
+                            $base64File = base64_encode($fileContent);
+
+                            // Add new file to the array
+                            $fileDataArray[] = [
+                                'data' => $base64File,
+                                'mime_type' => $mimeType,
+                                'original_name' => $file->getClientOriginalName(),
+                            ];
+                        } else {
+                            Log::error('File is not valid:', ['file' => $file->getClientOriginalName()]);
+                        }
+                    } catch (\Exception $e) {
+                        Log::error('Error processing file:', [
+                            'file' => $file->getClientOriginalName(),
+                            'error' => $e->getMessage()
+                        ]);
+                    }
+                }
             }
         }
-    } else {
-        Log::info('No files received.');
-    }
+
+
 
     try {
         if ($this->editMode) {
             // Update existing record
             $vendor = Vendor::find($this->selectedVendorId);
             if ($vendor) {
+
                 $vendor->update([
                     'vendor_name' => $this->vendorName,
                     'contact_name' => $this->contactName,
@@ -372,6 +436,7 @@ public function downloadImages($vendorId)
                     'note_description' => $this->noteDescription,
                     'file_paths' => json_encode($fileDataArray),
                 ]);
+
             }
         } else {
             // Create new record
@@ -421,14 +486,14 @@ public function downloadImages($vendorId)
 
     public function mount()
     {
-        $this->vendors = DB::table('vendors')->get();
+        $this->vendors = Vendor::where('is_active', 1)->get();
 
     }
 
 
     public function render()
     {
-        $this->vendors = DB::table('vendors')->get();
+        $this->vendors = Vendor::where('is_active', 1)->get();
         return view('livewire.vendors');
     }
 }
