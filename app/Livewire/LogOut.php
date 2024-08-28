@@ -96,6 +96,6 @@ class LogOut extends Component
 
     public function render()
     {
-        return view('livewire.logOut');
+        return view('livewire.logout');
     }
 }
