@@ -34,45 +34,31 @@ class Dashboard extends Component
 {
     $this->activeCount = HelpDesks::where('status', 'Open')
         ->whereIn('category', [
-            'Request For IT', 'Distribution List Request', 'New Laptop',
-            'New Distribution Request', 'New Mailbox Request', 'Devops Access Request',
-            'New ID Card', 'MMS Request', 'Desktop Request', 'N/A'
+            'Distribution List Request', 'New Laptop', 'New Distribution Request',
+            'New Mailbox Request', 'Desktop Request', ' Request For IT',
+            'Devops Access Request', 'New ID Card', 'MMS Request', 'N/A'
         ])->count();
 
     $this->pendingCount = HelpDesks::where('status', 'Pending')
-        ->whereIn('category', [
-            'Request For IT', 'Distribution List Request', 'New Laptop',
-            'New Distribution Request', 'New Mailbox Request', 'Devops Access Request',
-            'New ID Card', 'MMS Request', 'Desktop Request', 'N/A'
+    ->whereIn('category', [
+        'Distribution List Request', 'New Laptop', 'New Distribution Request',
+        'New Mailbox Request', 'Desktop Request', ' Request For IT',
+        'Devops Access Request', 'New ID Card', 'MMS Request', 'N/A'
         ])->count();
 
-    $this->closedCount = HelpDesks::where('status', 'Completed')->count();
-
-   
-}
-
+    $this->closedCount = HelpDesks::where('status', 'Completed')
+    ->whereIn('category', [
+        'Distribution List Request', 'New Laptop', 'New Distribution Request',
+        'New Mailbox Request', 'Desktop Request', ' Request For IT',
+        'Devops Access Request', 'New ID Card', 'MMS Request', 'N/A'
+        ])->count();
+    }
 
     public function itRequest(){
     return redirect()->route('requests');
     }
     public function render()
     {
-        $this->activeCount = HelpDesks::where('status', 'Open')
-        ->whereIn('category', [
-            'Request For IT', 'Distribution List Request', 'New Laptop',
-            'New Distribution Request', 'New Mailbox Request', 'Devops Access Request',
-            'New ID Card', 'MMS Request', 'Desktop Request', 'N/A'
-        ])->count();
-
-        $this->pendingCount = HelpDesks::where('status', 'Pending')
-            ->whereIn('category', [
-                'Request For IT', 'Distribution List Request', 'New Laptop',
-                'New Distribution Request', 'New Mailbox Request', 'Devops Access Request',
-                'New ID Card', 'MMS Request', 'Desktop Request', 'N/A'
-            ])->count();
-
-        $this->closedCount = HelpDesks::where('status', 'Completed')->count();
-
         return view('livewire.dashboard');
     }
 }

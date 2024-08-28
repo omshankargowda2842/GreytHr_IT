@@ -47,6 +47,17 @@ class MainLayout extends Component
     public function itMembers(){
         return redirect()->route('itMembers');
     }
+    public function oldRecords(){
+        return redirect()->route('oldItMembers');
+    }
+
+    public function vendor(){
+        return redirect()->route('vendor');
+    }
+
+    public function vendorAssets(){
+        return redirect()->route('vendorAssets');
+    }
 
     public function render()
     {

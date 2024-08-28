@@ -14,7 +14,7 @@ class IT extends Authenticatable
 
     protected $fillable = [
         'it_emp_id','image', 'employee_name', 'date_of_birth','emp_id',
-        'phone_number', 'email','password','is_active'
+        'phone_number', 'email','password','is_active','delete_itmember_reason','active_comment','inprogress_remarks'
     ];
 
     protected $casts = [
