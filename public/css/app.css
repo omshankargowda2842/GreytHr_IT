@@ -515,17 +515,7 @@ padding: 10px;
     display: flex;
     justify-content: center;
  }
- /* .swiper-slide img {
-    width: 100%;
-    height: auto;
-} */
 
-.swiper-slide img {
-    width: 100%;
-    height: auto;
-    max-height: calc(80vh); /* 50vh minus the height of header and footer */
-    object-fit: contain; /* Ensures the image scales correctly */
-}
 
  .req-image-grid {
      display: grid;
@@ -1456,3 +1446,4 @@ body {
     max-height: calc(80vh); /* 50vh minus the height of header and footer */
     object-fit: contain; /* Ensures the image scales correctly */
 }
+

@@ -192,7 +192,7 @@
                                                         <div class="swiper-container">
                                                             <div class="swiper-wrapper">
 
-                                                                <div class="swiper-slide">
+                                                                <div class="swiper-slide" style="display: flex;justify-content:center">
 
                                                                 <img src="{{ $selectedRequest->image_url }}" alt="Image" style="width: 100px; height:auto;">
                                                                 <!-- <img src="data:image/jpeg;base64,{{ $selectedRequest->file_path }}" class="img-fluid" width="50" height="50" alt="Image preview"> -->
