@@ -35,6 +35,22 @@ class MainLayout extends Component
         }
     }
 
+    public function getActiveTab()
+{
+    $routeName = request()->route()->getName();
+    $tabs = [
+        'dashboard' => 'dashboard',
+        'requests' => 'itRequest',
+        'itMembers' => 'itMembers',
+        'oldItMembers' => 'oldRecords',
+        'vendor' => 'vendor',
+        'vendorAssets' => 'vendorAssets',
+    ];
+
+    return array_search($routeName, $tabs);
+}
+
+
     public function dashboard(){
         return redirect()->route('dashboard');
     }
