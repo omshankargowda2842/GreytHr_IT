@@ -198,8 +198,12 @@ public function downloadImages($vendorId)
     // Filter images
     $images = array_filter(
         $fileDataArray,
-        fn($fileData) => strpos($fileData['mime_type'], 'image') !== false
+        function ($fileData) {
+            // Ensure 'mime_type' key exists and is valid
+            return isset($fileData['mime_type']) && strpos($fileData['mime_type'], 'image') !== false;
+        }
     );
+
 
     // If only one image, provide direct download
     if (count($images) === 1) {
@@ -372,7 +376,7 @@ public function submit()
     if ($this->editMode) {
         // Fetch the existing vendor record
         $vendorAst = VendorAsset::find($this->selectedAssetId);
-       
+
         if ($vendorAst) {
 
             // Retrieve and decode existing file paths

@@ -81,6 +81,7 @@ class RequestProcess extends Component
 
     public function viewDetails($index)
     {
+        $this->comments='';
         $this->selectedRequest = $this->forIT->where('status', 'Open')->values()->get($index);
         $this->viewingDetails = true;
             if (!$this->selectedRequest) {
