@@ -261,7 +261,7 @@ padding: 10px;
 
  .req-pro-req-pro-nav {
      width: 95%;
-     margin-top: 30px;
+     margin-top: 10px;
      background-color: #fff;
      z-index: 999;
      /* Ensure it stays below the navbar */
@@ -397,6 +397,22 @@ padding: 10px;
  .req-pro-view-details-btn:hover {
      background-color: #008000;
  }
+ .scrollable-container {
+    max-height: 380px;
+    overflow-y: scroll;
+}
+
+/* Hide scrollbar for Webkit browsers (Chrome, Safari) */
+.scrollable-container::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for Firefox */
+.scrollable-container {
+    -ms-overflow-style: none;  /* Hides the scrollbar for Internet Explorer and Edge */
+    scrollbar-width: none; /* Hides the scrollbar for Firefox */
+}
+
 
  .request-card {
      flex: 1 1 calc(33.33% - 18px);
@@ -499,17 +515,7 @@ padding: 10px;
     display: flex;
     justify-content: center;
  }
- /* .swiper-slide img {
-    width: 100%;
-    height: auto;
-} */
 
-.swiper-slide img {
-    width: 100%;
-    height: auto;
-    max-height: calc(80vh); /* 50vh minus the height of header and footer */
-    object-fit: contain; /* Ensures the image scales correctly */
-}
 
  .req-image-grid {
      display: grid;
@@ -903,11 +909,11 @@ body {
 .navigation {
   position: fixed;
   width: 250px;
-  height: 100%;
+  height: 100vh;
   background: black;
   border-left: 8px solid black;
   transition: 0.5s;
-  overflow: hidden;
+  overflow-y: auto;
   top: 50px;
   left: 0;
   transition: width 0.5s , overflow 0.5s ;
@@ -922,6 +928,7 @@ body {
   left: 0;
   width: 100%;
   padding: 0px;
+  margin: 0px;
 
 }
 
@@ -932,6 +939,7 @@ body {
   list-style: none;
   border-top-left-radius: 30px;
   border-bottom-left-radius: 30px;
+
 }
 w
 .navigation ul li:hover,
@@ -939,6 +947,11 @@ w
   background-color: #C8C8C8;
 }
 
+@media (max-width: 768px) {
+    .navigation {
+        height: calc(100vh - 60px); /* Adjust based on header height or other elements */
+    }
+}
 
 .navigation ul li:nth-child(1) {
   margin-top: 10px;
@@ -1377,6 +1390,7 @@ w
   .navigation.active {
     width: 50%;
     left: 0;
+    height: 100vh;
   }
   .toggle {
     z-index: 10001;
@@ -1432,3 +1446,4 @@ w
     max-height: calc(80vh); /* 50vh minus the height of header and footer */
     object-fit: contain; /* Ensures the image scales correctly */
 }
+

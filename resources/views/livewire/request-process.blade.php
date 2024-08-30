@@ -61,7 +61,7 @@
 
 
 
-                <div class="mt-5">
+                <div class="mt-2">
 
                     <div class="req-main-page">
                         <div id="active" class="req-pro-tab-content"
@@ -184,7 +184,7 @@
                                                             Attachments</h5>
                                                         <button type="button" class="close" data-dismiss="modal"
                                                             aria-label="Close">
-                                                         
+
                                                         </button>
                                                     </div>
                                                     <div class="modal-body">
@@ -192,7 +192,7 @@
                                                         <div class="swiper-container">
                                                             <div class="swiper-wrapper">
 
-                                                                <div class="swiper-slide">
+                                                                <div class="swiper-slide" style="display: flex;justify-content:center">
 
                                                                 <img src="{{ $selectedRequest->image_url }}" alt="Image" style="width: 100px; height:auto;">
                                                                 <!-- <img src="data:image/jpeg;base64,{{ $selectedRequest->file_path }}" class="img-fluid" width="50" height="50" alt="Image preview"> -->
@@ -333,6 +333,7 @@
                             @else
 
                             @if($forIT->where('status', 'Open')->count() > 0)
+                            <div class="scrollable-container">
                             <div class="req-pro-card">
 
                                 @foreach ($forIT->where('status', 'Open') as $index => $request)
@@ -363,6 +364,7 @@
 
                                 @endforeach
 
+                            </div>
                             </div>
 
                             @else
@@ -411,7 +413,7 @@
 
                                                 <tr>
 
-                                                    <th scope="col" class="req-table-head">#</th>
+                                                    <th scope="col" class="req-table-head">Id</th>
 
                                                     <th class="req-table-head">Requested By</th>
 
@@ -507,7 +509,7 @@
 
 
 
-                                                    <td>{{ count($ccToArray) <= 2 ? $record->cc_to ?? '-' : '-'}}</td>
+                                                    <td>{{ count($ccToArray) <= 1 ? $record->cc_to ?? '-' : '-'}}</td>
 
                                                     <td>{{ $record->priority?? 'N/A' }}</td>
 
@@ -549,7 +551,7 @@
                                                 </tr>
 
 
-                                                @if(count($ccToArray) > 2)
+                                                @if(count($ccToArray) > 1)
                                                 <tr class="req-cc-tr">
                                                     <td colspan="19" class="req-cc-td">
                                                         <div class="req-cc-div">
@@ -609,7 +611,7 @@
 
                                                 <tr>
 
-                                                    <th scope="col" class="req-closed-th">#</th>
+                                                    <th scope="col" class="req-closed-th">Id</th>
 
                                                     <th class="req-closed-th">Requested By</th>
 
@@ -702,7 +704,7 @@
 
 
 
-                                                    <td> {{ count($ccToArray) <= 2 ? $record->cc_to ?? '-' : '-' }}</td>
+                                                    <td> {{ count($ccToArray) <= 1 ? $record->cc_to ?? '-' : '-' }}</td>
 
                                                     <td>{{ $record->priority?? 'N/A' }}</td>
 
@@ -728,7 +730,7 @@
 
 
                                                 </tr>
-                                                @if(count($ccToArray) > 2)
+                                                @if(count($ccToArray) > 1)
 
                                                 <tr class="req-cc-tr">
 
