@@ -933,7 +933,7 @@ body {
   border-top-left-radius: 30px;
   border-bottom-left-radius: 30px;
 }
-
+w
 .navigation ul li:hover,
 .navigation ul li.hovered {
   background-color: #C8C8C8;
@@ -1018,7 +1018,7 @@ body {
 /* ===================== Main ===================== */
 .main {
   position: absolute;
-  width: calc(100% - 208px);
+  width: calc(100% - 200px);
   left: 193px;
   min-height: 100vh;
   background: var(--white);

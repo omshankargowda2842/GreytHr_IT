@@ -6,8 +6,6 @@
                 <img id="logo1" class="dash-logo" src="{{asset('images/IIT.jpeg')}}" alt="">
                 <img id="logo2" class="dash-logo1" src="{{asset('images/it.jpeg')}}" alt="">
             </label>
-
-
             <div class="toggle d-flex align-items-center" onclick="toggleLogo()">
                 <i class="fas fa-bars" style="color: white;font-size: 23px;"></i>
 
