@@ -7,16 +7,19 @@ use App\Models\VendorAsset;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
-
+use Picqer\Barcode\BarcodeGeneratorPNG;
 class VendorAssets extends Component
 {
     use WithFileUploads;
+    public $quantity;
     public $assetType;
     public $assetModel;
     public $assetSpecification;
     public $color;
+    public $barcode;
     public $version;
     public $serialNumber;
     public $invoiceNumber;
@@ -38,12 +41,14 @@ class VendorAssets extends Component
     public $currentVendorId = null;
     public $selectedVendorId;
     public $showLogoutModal = false;
+    public $restoreModal = false;
     public $reason =[];
 
     protected function rules(): array
     {
         $rules = [
             'assetType' => 'required|string|max:255',
+
             'assetModel' => 'required|string|max:255',
             'assetSpecification' => 'required|string|max:255',
             'color' => 'nullable|string|max:50',
@@ -59,6 +64,11 @@ class VendorAssets extends Component
            'purchaseDate' => 'required|date|before_or_equal:today',
             'file_paths.*' => 'nullable|file|mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif|max:40960',
         ];
+
+        if (!$this->editMode) {
+            $rules['quantity'] = 'required|integer|min:1';
+        }
+
 
         if ($this->editMode) {
             $rules['serialNumber'] = [
@@ -80,6 +90,7 @@ class VendorAssets extends Component
 
     protected $messages = [
         'selectedVendorId.required' => 'Vendor is required.',
+        'quantity.required' => 'Quantity is required.',
 
         'assetType.required' => 'Asset Type is required.',
         'assetType.string' => 'Asset Type must be a string.',
@@ -101,7 +112,7 @@ class VendorAssets extends Component
 
         'serialNumber.required' => 'Serial Number is required.',
         'serialNumber.string' => 'Serial Number must be a string.',
-        'serialNumber.unique' => 'Serial Number has already been taken.',
+        // 'serialNumber.unique' => 'Serial Number has already been taken.',
         'serialNumber.max' => 'Serial Number may not be greater than 255 characters.',
 
         'invoiceNumber.required' => 'Invoice Number is required.',
@@ -267,6 +278,7 @@ public function downloadImages($vendorId)
     // Reset fields related to Asset model
     $this->selectedVendorId ='';
     $this->assetType = '';
+    $this->quantity = '';
     $this->assetModel = '';
     $this->assetSpecification = '';
     $this->color = '';
@@ -292,6 +304,9 @@ public function downloadImages($vendorId)
         $this->editMode = false;
         $this->showEditDeleteVendor = true;
         $this->showLogoutModal = false;
+        $this->restoreModal = false;
+        $this->recordId = null;
+        $this->reason = '';
         $this->resetErrorBag();
 
     }
@@ -306,19 +321,19 @@ public function downloadImages($vendorId)
         $this->resetErrorBag();
 
         $vendormember = VendorAsset::find($this->recordId);
-        if ($vendormember) {
-
-            $vendormember->update([
-                'delete_asset_reason' => $this->reason,
-                'is_active' => 0
-            ]);
+            if ($vendormember) {
+                // Perform the update (deactivation)
+                $vendormember->update([
+                    'delete_asset_reason' => $this->reason,
+                    'is_active' => 0,
+                ]);
 
 
             session()->flash('message', 'Vendor deleted successfully!');
             $this->showLogoutModal = false;
 
             //Refresh
-            $this->vendorAssets =VendorAsset::where('is_active', 1)->get();
+            $this->vendorAssets =VendorAsset::get();
             $this->recordId = null;
              $this->reason = '';
 
@@ -328,6 +343,7 @@ public function downloadImages($vendorId)
     public $recordId;
     public function confirmDelete($id)
     {
+        $this->resetErrorBag();
         $this->recordId = $id;
         $this->showLogoutModal = true;
     }
@@ -352,6 +368,7 @@ public function downloadImages($vendorId)
         $this->invoiceNumber = $asset->invoice_number;
         $this->taxableAmount = $asset->taxable_amount;
         $this->invoiceAmount = $asset->invoice_amount;
+        $this->barcode = $asset->barcode;
         $this->gstState = $asset->gst_state;
         $this->selectedVendorId = $asset->vendor_id;
         $this->gstCentral = $asset->gst_central;
@@ -366,10 +383,49 @@ public function downloadImages($vendorId)
 }
 
 
+
+public function restore($id)
+{
+
+
+    $vnrAst = VendorAsset::find($id);
+    if ($vnrAst) {
+        $vnrAst->is_active = 1;
+        $vnrAst->save();
+        session()->flash('message', 'Vendor Asset Restored successfully!');
+        $this->restoreModal = false;
+        $this->vendorAssets = VendorAsset::get();
+    }
+
+}
+
+public $vendorAssetIdToRestore;
+
+
+public function cancelLogout($id)
+{
+    $this->vendorAssetIdToRestore = $id;
+     $this->restoreModal = true;
+}
+
+
+
 public function submit()
 {
 
-    $this->validate($this->rules());
+     $this->validate($this->rules());
+
+
+    $generator = new BarcodeGeneratorPNG();
+
+    $barcode = $generator->getBarcode($this->serialNumber, $generator::TYPE_CODE_128);
+
+    // Save the barcode image in storage (public path)
+    $barcodePath = 'barcodes/' . $this->serialNumber . '.png';
+
+    Storage::disk('public')->put($barcodePath, $barcode);
+
+
 
     $fileDataArray = [];
 
@@ -457,7 +513,9 @@ public function submit()
     if ($this->editMode) {
         // Update existing asset record
         $asset = VendorAsset::find($this->selectedAssetId);
+
         if ($asset) {
+
             $asset->update([
                 'vendor_id' => $this->selectedVendorId,
                 'manufacturer' => $this->manufacturer,
@@ -470,6 +528,7 @@ public function submit()
                 'invoice_number' => $this->invoiceNumber,
                 'taxable_amount' => $this->taxableAmount,
                 'invoice_amount' => $this->invoiceAmount,
+                'barcode' => $barcodePath,
                 'gst_state' => $this->gstState,
                 'gst_central' => $this->gstCentral,
                 'purchase_date' => $this->purchaseDate ? $this->purchaseDate : null,
@@ -478,7 +537,7 @@ public function submit()
         }
     } else {
         // Create new asset record
-
+        for ($i = 0; $i < $this->quantity; $i++) {
         VendorAsset::create([
             'vendor_id' => $this->selectedVendorId,
             'manufacturer' => $this->manufacturer,
@@ -491,11 +550,13 @@ public function submit()
             'invoice_number' => $this->invoiceNumber,
             'taxable_amount' => $this->taxableAmount,
             'invoice_amount' => $this->invoiceAmount,
+            'barcode' => $barcodePath,
             'gst_state' => $this->gstState,
             'gst_central' => $this->gstCentral,
             'purchase_date' => $this->purchaseDate ? $this->purchaseDate : null,
             'file_paths' => json_encode($fileDataArray),
         ]);
+    }
     }
 
     // Flash success message and reset form
@@ -507,7 +568,7 @@ public function submit()
     public function render()
     {
         $this->vendors = Vendor::all();
-        $this->vendorAssets =VendorAsset::where('is_active', 1)->get();
+        $this->vendorAssets =VendorAsset::get();
         return view('livewire.vendor-assets');
     }
 }

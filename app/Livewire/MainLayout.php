@@ -75,6 +75,16 @@ class MainLayout extends Component
         return redirect()->route('vendorAssets');
     }
 
+    public function employeeAssetList(){
+        return redirect()->route('EmployeeAssetList');
+    }
+
+
+    public function assignAsset(){
+        return redirect()->route('EmployeeAssetList');
+    }
+
+
     public function render()
     {
         return view('livewire.main-layout');

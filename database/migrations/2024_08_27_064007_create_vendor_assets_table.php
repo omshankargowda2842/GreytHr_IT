@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('color')->nullable();
             $table->string('version')->nullable();
             $table->string('serial_number')->nullable();
+            $table->string('barcode')->nullable();
             $table->string('invoice_number')->nullable();
             $table->decimal('taxable_amount', 10, 2)->nullable();
             $table->decimal('invoice_amount', 10, 2)->nullable();
@@ -51,10 +52,10 @@ return new class extends Migration
             -- Check if asset_id is NULL
             IF NEW.asset_id IS NULL THEN
                 -- Find the maximum asset_id value in the vendor_assets table
-                SET @max_id := IFNULL((SELECT MAX(CAST(SUBSTRING(asset_id, 5) AS UNSIGNED)) FROM vendor_assets), 0);
+                SET @max_id := IFNULL((SELECT MAX(CAST(SUBSTRING(asset_id, 5) AS UNSIGNED)) + 1 FROM vendor_assets), 10000);
 
                 -- Increment the max_id and assign it to the new asset_id
-                SET NEW.asset_id = CONCAT('ASS-', LPAD(@max_id + 1, 5, '0'));
+                SET NEW.asset_id = CONCAT('ASS-', LPAD(@max_id , 5, '0'));
             END IF;
         END;
         SQL;

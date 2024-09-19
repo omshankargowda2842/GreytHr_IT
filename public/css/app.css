@@ -747,6 +747,25 @@ padding: 10px;
     border:1px solid black
 }
 
+.reqResSwiper{
+    display: flex;justify-content:center
+}
+
+.req-Res-Image{
+    width: 100px; height:auto;
+}
+
+.req-res-depart{
+    width:50%
+}
+.req-table-head-Remarks{
+    white-space: nowrap;width: 150px;
+}
+.req-res-emp_id{
+    font-size: 10px;
+}
+
+
  @media (min-width: 768px) and (max-width: 1220px) {
      .req-pro-head {
          width: 110%;
@@ -841,15 +860,41 @@ padding: 10px;
 }
 
 
+.itAdd1{
+    max-height: 400px;
+     overflow-y: auto;
+}
+
+.itAdd2{
+    width: 50px; height: 50px;
+}
+
+.itAdd3{
+    margin-right: 9%;padding: 7px;
+}
+
+.itAdd4{
+    width: 30px; height: 30px;
+}
 
 
+.logoutModal{
+    display: block;
+}
+.logoutModalTitle{
+    align-items: center;
+}
 
+.logoutModalBody{
+    font-size: 16px;color:black
+}
+.logoutModalHeader{
+    background-color: black;
+}
 
-
-
-
-
-
+.oldItMemImage{
+    width: 30px; height: 30px;
+}
 
 
 
@@ -1123,6 +1168,10 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.mainlayoutIcon{
+    color: white;font-size: 23px;
 }
 
 /* ======================= Cards ====================== */
@@ -1446,4 +1495,170 @@ body {
     max-height: calc(80vh); /* 50vh minus the height of header and footer */
     object-fit: contain; /* Ensures the image scales correctly */
 }
+
+
+
+/* assignAssetToEmployeee............................................................ */
+
+
+.assetEmpDetailsCard{
+    border: 1px solid black;
+    border-radius: 20px;
+    background-color: #fafafa;
+
+}
+
+.active-option {
+    cursor: pointer;
+}
+
+/* Inactive option styling to show not-allowed cursor */
+.inactive-option {
+    cursor: not-allowed;
+    color: #999; /* Optional: Change the text color to indicate it's disabled */
+    pointer-events: none; /* Optional: Prevent pointer events on inactive options */
+}
+
+
+/* employeeAssetList............................................................ */
+
+.employeeAssetList{
+ display: flex;
+ justify-content: center;
+}
+
+
+
+/* @media (min-width: 360px) and (max-width: 500px) {
+    .employeeAssetList{
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+       }
+} */
+
+
+/* Logout Modal ............................................................................. */
+
+.logout1{
+    display: block;
+}
+.logout2{
+    background-color: black;
+}
+
+.logout3{
+    align-items: center;
+
+}
+.logout4{
+
+    font-size: 16px;color:black;
+}
+.logout5{
+    min-height: 76px;
+}
+
+
+
+/* IT LOGIN....................................................... */
+
+
+.itlogin1{
+    background-color: f0f0f0; aspect-ratio: 16/9;border-radius:10px
+}
+.itloginImg{
+    width:93%;border-radius: 50%;
+}
+.itlogin2{
+    bottom: 0px; padding-bottom: 0px; color: #007bff;
+}
+.itlogin3{
+    height: 30px;width:400px;margin-bottom:0px;margin-left:13%
+}
+.itloginFont{
+    font-size: 12px;
+}
+.itlogin4{
+    margin-top: 0px;backdrop-filter: blur(36px);
+}
+.itlogin5{
+    padding-top: 20px;
+}
+
+.itloginImage1{
+    width: 14em !important; height: auto !important; margin-bottom: 10px;
+}
+
+.itloginImage2{
+    border-radius: 50%;
+}
+
+.itloginInput{
+    border-radius: 0; box-shadow: none;font-size: 13px;
+}
+.itlogin6{
+    margin-top: 20px;
+}
+.itlogin7{
+    margin-left: 60%; text-align: center;
+}
+.itlogin8{
+    color: rgb(2, 17, 79);font-size:12px;
+}
+.itlogin9{
+    text-align:center; margin-top:10px;
+}
+.itloginInput1{
+    background-color:black; font-size:small; margin: 0 auto;
+}
+.itlogin10{
+    color: rgb(2, 17, 79);
+}
+.itlogin11{
+    display: block;
+}
+.itlogin12{
+    background-color:black;display: flex;justify-content: space-between;
+}
+.itlogin13{
+    padding: 5px; color: white; font-size: 15px;
+}
+.itloginClose{
+    color: white;
+}
+.itlogin14{
+    background-color: #f0f0f0; padding: 20px;
+}
+
+.itloginFont1{
+    font-size: 10px;
+}
+.itlogin15{
+    display: block;
+}
+.itlogin16{
+    padding: 10px; color: white; font-size: 15px;
+}
+.itlogin17{
+    background-color: #f0f0f0;
+}
+.itlogin18{
+    padding: 30px 0px; text-align: center;
+}
+.itlogin19{
+    margin-bottom: 70px;
+}
+.itlogin20{
+    background-color: #f0f0f0; padding: 20px;display: flex; align-items: center; flex-direction: column;
+}
+.itlogin21{
+    background-color : transparent; border : none
+}
+
+.itlogin22{
+    width: 3rem; height: 3rem;
+}
+
+
 

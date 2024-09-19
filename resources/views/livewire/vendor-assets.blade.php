@@ -9,18 +9,29 @@
 
         <div class="border rounded p-3 bg-light" style="max-height: 400px; overflow-y: auto;">
             <form wire:submit.prevent="submit" enctype="multipart/form-data">
+                <div class="row mb-3">
+                    <div class="col-md-6 mb-3">
+                        <label for="vendor" class="form-label"><span class="text-danger">*</span> Vendor</label>
+                        <select id="vendor" wire:model="selectedVendorId" class="form-control">
+                            <option value="">Select Vendor</option>
+                            @foreach($vendors as $vendor)
+                            <option value="{{ $vendor->vendor_id }}">{{ $vendor->vendor_name }}</option>
+                            @endforeach 
+                        </select>
+                        @error('selectedVendorId')
+                        <span class="text-danger">{{ $message }}</span>
+                        @enderror
+                    </div>
 
-                <div class="col-md-6 mb-3">
-                    <label for="vendor" class="form-label"><span class="text-danger">*</span> Vendor</label>
-                    <select id="vendor" wire:model="selectedVendorId" class="form-control">
-                        <option value="">Select Vendor</option>
-                        @foreach($vendors as $vendor)
-                        <option value="{{ $vendor->vendor_id }}">{{ $vendor->vendor_name }}</option>
-                        @endforeach
-                    </select>
-                    @error('selectedVendorId')
-                    <span class="text-danger">{{ $message }}</span>
-                    @enderror
+                    @if($editMode == false)
+                    <div class="col-md-6">
+                        <label for="quantity" class="form-label"><span class="text-danger">*</span> Quantity</label>
+                        <input type="number" id="quantity" wire:model="quantity" class="form-control" min="1" />
+                        @error('quantity')
+                        <div class="text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    @endif
                 </div>
 
                 <div class="row mb-3">
@@ -60,8 +71,6 @@
                             class="form-control">
                         @error('assetSpecification') <div class="text-danger">{{ $message }}</div> @enderror
                     </div>
-
-
                 </div>
 
                 <div class="row mb-3">
@@ -149,6 +158,14 @@
                         <input type="date" id="purchaseDate" wire:model="purchaseDate" class="form-control">
                         @error('purchaseDate') <div class="text-danger">{{ $message }}</div> @enderror
                     </div>
+                    <div class="col-md-6">
+
+                    @if($barcode)
+                    <h6>Generated Barcode:</h6>
+                    <img src="{{ asset('storage/' . $barcode) }}" alt="Barcode">
+                    @endif
+
+                    </div>
                 </div>
 
                 <!-- Attachments -->
@@ -158,6 +175,7 @@
                         style="font-size: 12px;" />
                     @error('file_paths.*') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
+
 
                 <button type="button" wire:click="submit"
                     class="btn btn-dark border-white">{{ $editMode ? 'Update' : 'Submit' }}</button>
@@ -179,13 +197,13 @@
             <table class="table table-striped">
                 <thead class="table-dark">
                     <tr>
-                        <th scope="col" class="vendor-table-head">Id</th>
+                        <th class="vendor-table-head">Vendor ID </th>
+                        <th class="vendor-table-head">Asset ID </th>
                         <th class="vendor-table-head">Manufacturer</th>
                         <th class="vendor-table-head">Asset Type</th>
-                        <th class="vendor-table-head">Serial Number</th>
                         <th class="vendor-table-head">Invoice Number</th>
-                        <th class="vendor-table-head">Invoice Amount</th>
-                        <th class="vendor-table-head">Purchase Date</th>
+                        <th class="vendor-table-head">Status</th>
+                        <th class="vendor-table-head">Barcode Image</th>
                         <th class="vendor-table-head">Actions</th>
                     </tr>
                 </thead>
@@ -193,38 +211,99 @@
                     @if($vendorAssets->count() > 0)
                     @foreach($vendorAssets as $vendorAsset)
                     <tr>
-                        <td class="vendor-table-head">{{ $vendorAsset->id }}</td>
+                        <td class="vendor-table-head">{{ $vendorAsset->vendor_id }}</td>
+                        <td class="vendor-table-head">{{ $vendorAsset->asset_id}}</td>
                         <td class="vendor-table-head">{{ $vendorAsset->manufacturer }}</td>
                         <td class="vendor-table-head">{{ $vendorAsset->asset_type }}</td>
-                        <td class="vendor-table-head">{{ $vendorAsset->serial_number }}</td>
                         <td class="vendor-table-head">{{ $vendorAsset->invoice_number }}</td>
-                        <td class="vendor-table-head">{{ $vendorAsset->invoice_amount }}</td>
+
+
                         <td class="vendor-table-head">
-                            {{ \Carbon\Carbon::parse($vendorAsset->purchase_date)->format('d-M-Y') }}</td>
+                            @if ($vendorAsset->is_active == 1)
+                            <span class="text-primary f-3"> Active</span>
+                            @else
+                            <span class="text-danger f-3"> Inactive</span>
+                            @endif
+                        </td>
+
+                        <td class="vendor-table-head">
+                            @if($vendorAsset->barcode)
+                            <!-- Text "View Barcode" without any action -->
+                            <span>View Barcode</span>
+
+                            <!-- Eye icon to trigger the modal -->
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#barcodeModal{{ $vendorAsset->id }}"
+                                class="ms-2">
+                                <i class="fas fa-eye "></i>
+                            </a>
+
+                            <!-- Modal for image preview -->
+                            <div class="modal fade" id="barcodeModal{{ $vendorAsset->id }}" tabindex="-1"
+                                aria-labelledby="barcodeModalLabel{{ $vendorAsset->id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="barcodeModalLabel{{ $vendorAsset->id }}">Barcode
+                                                Preview</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body text-center">
+                                            <img src="{{ asset('storage/' . $vendorAsset->barcode) }}" alt="Barcode"
+                                                style="max-width: 100%; height: auto;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @else
+                            No Barcode
+                            @endif
+                        </td>
+
+
 
 
                         <td class="d-flex flex-direction-row">
 
                             <!-- View Action -->
                             <div class="col">
-                                <button class="btn btn-white border-dark"
-                                    wire:click="showViewVendor({{ $vendorAsset->id }})">
+                                <button
+                                    class="btn btn-white border-dark  {{ $vendorAsset->is_active == 0 ? 'disabled' : '' }}"
+                                    wire:click="showViewVendor({{ $vendorAsset->id }})"
+                                    {{ $vendorAsset->is_active == 0 ? 'disabled' : '' }}>
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
 
                             <div class="col">
-                                <button class="btn btn-white border-dark"
-                                    wire:click="showEditAsset({{ $vendorAsset->id }})">
+                                <button
+                                    class="btn btn-white border-dark  {{ $vendorAsset->is_active == 0 ? 'disabled' : '' }}"
+                                    wire:click="showEditAsset({{ $vendorAsset->id }})"
+                                    {{ $vendorAsset->is_active == 0 ? 'disabled' : '' }}>
                                     <i class="fas fa-edit"></i>
                                 </button>
                             </div>
+
                             <div class="col">
-                                <button class="btn btn-dark border-white"
-                                    wire:click='confirmDelete({{ $vendorAsset->id }})'>
+                                <!-- Delete Button (Inactive if is_active is 0) -->
+                                <button
+                                    class="btn btn-dark border-white {{ $vendorAsset->is_active == 0 ? 'disabled' : '' }}"
+                                    wire:click="confirmDelete({{ $vendorAsset->id }})"
+                                    {{ $vendorAsset->is_active == 0 ? 'disabled' : '' }}>
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
+
+                            <div class="col">
+                                <!-- Restore Button (Inactive if is_active is 1) -->
+                                <button
+                                    class="btn btn-dark border-white {{ $vendorAsset->is_active == 1 ? 'disabled' : '' }}"
+                                    wire:click="cancelLogout({{ $vendorAsset->id }})"
+                                    {{ $vendorAsset->is_active == 1 ? 'disabled' : '' }}>
+                                    <i class="fas fa-undo"></i>
+                                </button>
+                            </div>
+
 
                         </td>
                     </tr>
@@ -493,13 +572,13 @@
 
 
     @if ($showLogoutModal)
-    <div class="modal" id="logoutModal" tabindex="-1" style="display: block;">
+    <div class="modal logout1" id="logoutModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header text-white" style=" background-color: black;">
-                    <h6 class="modal-title " id="logoutModalLabel" style="align-items: center;">Confirm Delete</h6>
+                <div class="modal-header text-white logout2">
+                    <h6 class="modal-title logout3" id="logoutModalLabel">Confirm Delete</h6>
                 </div>
-                <div class="modal-body text-center" style="font-size: 16px;color:black">
+                <div class="modal-body text-center logout4">
                     Are you sure you want to delete?
                 </div>
                 <div class="modal-body text-center">
@@ -508,15 +587,14 @@
                         <div class="row">
                             <div class="col-12 req-remarks-div">
 
-                                <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea"
-                                    style="min-height: 76px;" placeholder="Reason for deactivation"></textarea>
+                                <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea logout5"
+                                    placeholder="Reason for deactivation"></textarea>
 
                             </div>
                         </div>
                         @error('reason') <span class="text-danger d-flex align-start">{{ $message }}</span>@enderror
                         <div class="d-flex justify-content-center p-3">
-                            <button type="submit" class="submit-btn mr-3"
-                                wire:click="confirmDelete({{ $vendorAsset->id }})">Delete</button>
+                            <button type="submit" class="submit-btn mr-3">Delete</button>
                             <button type="button" class="cancel-btn1 ml-3" wire:click="cancel">Cancel</button>
                         </div>
                     </form>
@@ -525,6 +603,30 @@
                     <button type="button" class="submit-btn mr-3" wire:click="delete({{ $vendorAsset->id }})">Delete</button>
                     <button type="button" class="cancel-btn1 ml-3" wire:click="cancel">Cancel</button>
                 </div> -->
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+    @endif
+
+
+    @if ($restoreModal)
+    <div class="modal logout1" id="logoutModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header text-white logout2">
+                    <h6 class="modal-title logout3" id="logoutModalLabel">Confirm Restore</h6>
+                </div>
+                <div class="modal-body text-center logout4">
+                    Are you sure you want to Restore?
+                </div>
+
+                <div class="d-flex justify-content-center p-3">
+                    <button type="button" class="submit-btn mr-3"
+                        wire:click="restore({{ $vendorAssetIdToRestore }})">Restore</button>
+
+                    <button type="button" class="cancel-btn1 ml-3" wire:click="cancel">Cancel</button>
+                </div>
             </div>
         </div>
     </div>

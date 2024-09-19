@@ -8,8 +8,8 @@
             </label>
 
 
-            <div class="toggle d-flex align-items-center" onclick="toggleLogo()">
-                <i class="fas fa-bars" style="color: white;font-size: 23px;"></i>
+            <div class="toggle d-flex align-items-center" >
+                <i class="fas fa-bars mainlayoutIcon"></i>
 
             </div>
 
@@ -81,6 +81,23 @@
                 </a>
             </li>
 
+            <li id="assignAsset" class="{{ request()->routeIs('assignAsset') ? 'active' : '' }}">
+                <a href="#" wire:click='assignAsset'>
+                    <span class="icon">
+                        <i class="fas fa-store"></i>
+                    </span>
+                    <span class="title">Employee Assets</span>
+                </a>
+            </li>
+
+            <!-- <li id="employeeAssetList" class="{{ request()->routeIs('employeeAssetList') ? 'active' : '' }}">
+                <a href="#" wire:click='employeeAssetList'>
+                    <span class="icon">
+                        <i class="fas fa-store"></i>
+                    </span>
+                    <span class="title">Employee Asset</span>
+                </a>
+            </li> -->
 
             <li>
                 <a href="#">
