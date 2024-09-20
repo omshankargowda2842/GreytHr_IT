@@ -41,7 +41,6 @@ Route::middleware(['auth:it'])->group(function () {
                 Route::get('/hello', Dashboard::class)->name('hello');
                 Route::get('/itrequest',RequestProcess::class)->name('requests');
                 Route::get('/itMembers',ItAddMember::class)->name('itMembers');
-                Route::get('/test',TestPurpose::class)->name('test');
                 Route::get('/oldItMembers',OldItMembers::class)->name('oldItMembers');
                 Route::get('/vendor',Vendors::class)->name('vendor');
                 Route::get('/vendorAssets',VendorAssets::class)->name('vendorAssets');
