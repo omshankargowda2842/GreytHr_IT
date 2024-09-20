@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('vendor_id')->nullable();
             $table->string('asset_id')->nullable()->default(null)->unique();
             $table->string('manufacturer')->nullable();
-            $table->string('asset_type')->nullable();
+            $table->integer('asset_type')->nullable();
             $table->string('asset_model')->nullable();
             $table->string('asset_specification')->nullable();
             $table->string('color')->nullable();

@@ -16,7 +16,7 @@
                             <option value="">Select Vendor</option>
                             @foreach($vendors as $vendor)
                             <option value="{{ $vendor->vendor_id }}">{{ $vendor->vendor_name }}</option>
-                            @endforeach 
+                            @endforeach
                         </select>
                         @error('selectedVendorId')
                         <span class="text-danger">{{ $message }}</span>
@@ -47,9 +47,61 @@
                     <!-- Asset Type -->
                     <div class="col-md-6">
                         <label for="assetType" class="form-label"><span class="text-danger">*</span> Asset Type</label>
-                        <input type="text" id="assetType" wire:model.lazy="assetType" class="form-control">
+                        <div class="input-group">
+                            <select wire:model="assetType" id="assetType" class="form-control">
+                                <option value="">Select Asset Type</option>
+                                @foreach($assetNames as $asset)
+                                <option value="{{ $asset->id }}">{{ $asset->asset_names }}</option>
+                                @endforeach
+                            </select>
+                            <button type="button" class="btn btn-dark" wire:click="showModal">Add</button>
+                        </div>
                         @error('assetType') <div class="text-danger">{{ $message }}</div> @enderror
                     </div>
+
+                    <!-- Modal -->
+
+                    @if ($isModalOpen)
+                    <div class="modal fade show" style="display: block;" tabindex="-1"
+                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Create Asset Type</h5>
+                                    <!-- Close modal on clicking the button -->
+                                    <button type="button" class="btn-close" wire:click="closeModal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form>
+                                        <div class="mb-3 col-10">
+                                            <label for="assetName" class="form-label">Asset Name</label>
+                                            <input type="text" class="form-control" id="assetName"
+                                                wire:model="newAssetName">
+                                            @error('newAssetName')
+                                            <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <!-- Row for centering the button -->
+                                        <div class="row">
+                                            <div class="col-12 d-flex justify-content-center" style="height: fit-content;margin-top: 25px;">
+                                                <button wire:click="createAssetType"
+                                                    class="btn btn-dark">Create</button>
+                                            </div>
+                                        </div>
+
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Backdrop -->
+                    <div class="modal-backdrop fade show"></div>
+                    @endif
+
+
 
 
                 </div>
@@ -160,10 +212,10 @@
                     </div>
                     <div class="col-md-6">
 
-                    @if($barcode)
-                    <h6>Generated Barcode:</h6>
-                    <img src="{{ asset('storage/' . $barcode) }}" alt="Barcode">
-                    @endif
+                        @if($barcode)
+                        <h6>Generated Barcode:</h6>
+                        <img src="{{ asset('storage/' . $barcode) }}" alt="Barcode">
+                        @endif
 
                     </div>
                 </div>
@@ -208,6 +260,24 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @php
+                    $assetTypes = [
+                    1 => 'Laptop',
+                    2 => 'Mouse',
+                    3 => 'Headphones',
+                    4 => 'Keyboards',
+                    5 => 'Printers',
+                    6 => 'Hard Disks',
+                    7 => 'CPUs',
+                    8 => 'Routers',
+                    9 => 'Cables',
+                    10 => 'Monitors',
+                    11 => 'UPS',
+                    12 => 'Mobile Phones',
+                    13 => 'Chargers',
+                    ];
+                    @endphp
+
                     @if($vendorAssets->count() > 0)
                     @foreach($vendorAssets as $vendorAsset)
                     <tr>

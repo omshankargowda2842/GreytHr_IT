@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\asset_types_table;
 use App\Models\Vendor;
 use App\Models\VendorAsset;
 use Carbon\Carbon;
@@ -15,6 +16,10 @@ class VendorAssets extends Component
 {
     use WithFileUploads;
     public $quantity;
+    public $assetNames;
+    public $assetTypeSearch = '';
+    public $assetTypeName = '';
+    public $filteredAssetTypes = [];
     public $assetType;
     public $assetModel;
     public $assetSpecification;
@@ -264,7 +269,6 @@ public function downloadImages($vendorId)
 }
 
 
-
     public function showAddVendorMember()
     {
         $this->resetForm();
@@ -272,6 +276,8 @@ public function downloadImages($vendorId)
         $this->showEditDeleteVendor = false;
         $this->editMode = false;
     }
+
+
 
     private function resetForm()
 {
@@ -414,7 +420,6 @@ public function submit()
 {
 
      $this->validate($this->rules());
-
 
     $generator = new BarcodeGeneratorPNG();
 
@@ -564,11 +569,56 @@ public function submit()
     $this->reset();
 }
 
+public $newAssetName;
+public $isModalOpen = false;
+public function showModal()
+    {
+
+        $this->isModalOpen = true; // Open modal
+    }
+
+    public function closeModal()
+    {
+        $this->resetErrorBag(); // Clears validation errors
+        $this->isModalOpen = false; // Close modal
+    }
+
+public function createAssetType()
+    {
+            // $this->validate([
+            //     'newAssetName' => 'required|string|max:255|unique:asset_types_tables,asset_names',
+            // ]);
+
+        asset_types_table::create([
+            'asset_names' => $this->newAssetName,
+        ]);
+
+        // Refresh the asset types list
+        $this->assetNames = asset_types_table::all();
+        // Reset the form
+        $this->newAssetName = '';
+        // Close the modal`
+        $this->closeModal();
+
+
+
+    }
+
+
+public function mount()
+{
+    $this->assetNames = asset_types_table::all();
+}
 
     public function render()
     {
+
+        // $this->assetNames = asset_types_table::all();
+
         $this->vendors = Vendor::all();
         $this->vendorAssets =VendorAsset::get();
-        return view('livewire.vendor-assets');
+        return view('livewire.vendor-assets',[
+            'filteredAssetTypes' => $this->filteredAssetTypes,
+        ]);
     }
 }
