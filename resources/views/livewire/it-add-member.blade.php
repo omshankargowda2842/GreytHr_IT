@@ -12,7 +12,7 @@
             <button class="btn btn-dark btn-sm" wire:click='cancel'> <i class="fas fa-arrow-left"></i> Back</button>
         </div>
 
-        <div class="border rounded p-3 bg-light" style="max-height: 400px; overflow-y: auto;">
+        <div class="border rounded p-3 bg-light itAdd1">
             <form wire:submit.prevent="submit" enctype="multipart/form-data">
                 <div class="mb-3">
                     <label for="employeeId" class="form-label">Employee ID</label>
@@ -48,13 +48,13 @@
                     @if ($editMode && $image)
                     <!-- Use the temporary URL if it's a newly uploaded image -->
                     @if (is_string($image))
-                    <img src="{{ $image }}" alt="Image" style="width: 50px; height: 50px;">
+                    <img src="{{ $image }}" class="itAdd2" alt="Image" >
                     @else
-                    <img src="{{ $image->temporaryUrl() }}" alt="Image" style="width: 50px; height: 50px;">
+                    <img src="{{ $image->temporaryUrl() }}" class="itAdd2" alt="Image" >
                     @endif
                     @elseif ($editMode && $this->image)
                     <!-- Display the existing image from the database -->
-                    <img src="{{ $this->image }}" alt="Image" style="width: 50px; height: 50px;">
+                    <img src="{{ $this->image }}" alt="Image" class="itAdd2" >
                     @endif
 
                     @error('image') <div class="text-danger">{{ $message }}</div> @enderror
@@ -85,7 +85,7 @@
     @if($showEditDeleteIt)
 
     <div class="d-flex justify-content-end mt-5">
-        <button class="btn btn-dark btn-sm" wire:click='showAddItMember' style="margin-right: 9%;padding: 7px;"><i
+        <button class="btn btn-dark btn-sm itAdd3" wire:click='showAddItMember'><i
                 class="fas fa-user-plus "></i> Add Member</button>
     </div>
     <div class="col-11  mt-4 ml-4">
@@ -117,7 +117,7 @@
                         <td>{{ $itemployee->id }}</td>
                         <td>{{ $itemployee->it_emp_id }}</td>
                         <td>{{ $itemployee->employee_name }}</td>
-                        <td><img src="{{ $itemployee->image_url }}" alt="Image" style="width: 30px; height: 30px;"></td>
+                        <td><img src="{{ $itemployee->image_url }}" alt="Image" class="itAdd4"></td>
                         <td>{{ $itemployee->emp_id }}</td>
                         <td>{{ \Carbon\Carbon::parse($itemployee->date_of_birth)->format('d-M-Y') }}</td>
                         <td>{{ $itemployee->phone_number }}</td>
@@ -148,13 +148,13 @@
 
 
     @if ($showLogoutModal)
-    <div class="modal" id="logoutModal" tabindex="-1" style="display: block;">
+    <div class="modal logout1" id="logoutModal" tabindex="-1" >
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header text-white" style=" background-color: black;">
-                    <h6 class="modal-title " id="logoutModalLabel" style="align-items: center;">Confirm Delete</h6>
+                <div class="modal-header text-white logout2" >
+                    <h6 class="modal-title logout3" id="logoutModalLabel" >Confirm Delete</h6>
                 </div>
-                <div class="modal-body text-center" style="font-size: 16px;color:black">
+                <div class="modal-body text-center logout4">
                     Are you sure you want to delete?
                 </div>
                 <div class="modal-body text-center">
@@ -163,7 +163,7 @@
                         <div class="row">
                             <div class="col-12 req-remarks-div">
 
-                                <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea"  style="min-height: 76px;" placeholder="Reason for deactivation"></textarea>
+                                <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea logout5"   placeholder="Reason for deactivation"></textarea>
 
                             </div>
                         </div>

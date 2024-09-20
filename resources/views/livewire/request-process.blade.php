@@ -4,15 +4,14 @@
 
             <div class="col-lg-9 col-md-7 col-xs-12">
 
-                <div class="req-pro-head" x-data="{ activeTab: @entangle('activeTab') }">
+                <div class="req-pro-head" >
 
                     <req-pro-nav class="req-pro-req-pro-nav">
 
                         <ul class="tabss">
 
                             <li class="tab" wire:click="setActiveTab('active')"
-                                :class="$activeTab === 'active' ? 'active' : ''"
-                                :style="$activeTab === 'active' ? 'color: black;' : 'color: gray;'">
+                                >
 
                                 <i class="fas fa-check"></i> Active
 
@@ -24,8 +23,7 @@
                             </li>
 
                             <li class="tab" wire:click="setActiveTab('pending')"
-                                :class="$activeTab === 'pending' ? 'active' : ''"
-                                :style="$activeTab === 'pending' ? 'color: black;' : 'color: gray;'">
+                              >
 
                                 <i class="fas fa-clock"></i> Inprogress
 
@@ -38,8 +36,7 @@
                             </li>
 
                             <li class="tab" wire:click="setActiveTab('closed')"
-                                :class="$activeTab === 'closed' ? 'active' : ''"
-                                :style="$activeTab === 'closed' ? 'color: black;' : 'color: gray;'">
+                              >
 
                                 <i class="fas fa-times"></i> Closed
 
@@ -192,9 +189,9 @@
                                                         <div class="swiper-container">
                                                             <div class="swiper-wrapper">
 
-                                                                <div class="swiper-slide" style="display: flex;justify-content:center">
+                                                                <div class="swiper-slide reqResSwiper" >
 
-                                                                <img src="{{ $selectedRequest->image_url }}" alt="Image" style="width: 100px; height:auto;">
+                                                                <img src="{{ $selectedRequest->image_url }}" class="req-Res-Image" alt="Image">
                                                                 <!-- <img src="data:image/jpeg;base64,{{ $selectedRequest->file_path }}" class="img-fluid" width="50" height="50" alt="Image preview"> -->
                                                                 </div>
                                                             </div>
@@ -350,7 +347,7 @@
 
                                             <p title="{{ $request['category'] }}">
                                                 <strong>Department: </strong><span
-                                                    style="width:50%">{{ $request->category ?? 'N/A' }}</span>
+                                                  class="req-res-depart">{{ $request->category ?? 'N/A' }}</span>
                                             </p>
 
                                         </div>
@@ -444,8 +441,8 @@
                                                     <th class="req-table-head">Comments</th>
                                                     <th class="req-table-head">Reopen Request</th>
                                                     <th class="req-table-head">Close Request</th>
-                                                    <th class="req-table-head"
-                                                        style="white-space: nowrap;width: 150px;">
+                                                    <th class="req-table-head-Remarks"
+                                                        >
                                                         Remarks</th>
 
                                                 </tr>
@@ -465,7 +462,7 @@
 
                                                     <td>{{ $record->emp->first_name }} {{ $record->emp->last_name }}
                                                         <br>
-                                                        <strong style="font-size: 10px;">({{$record->emp_id}})
+                                                        <strong class="req-res-emp_id">({{$record->emp_id}})
                                                     </td>
 
                                                     <td>{{ $record->category ?? 'N/A'}}</td>
@@ -660,7 +657,7 @@
 
                                                     <td>{{ $record->emp->first_name }} {{ $record->emp->last_name }}
                                                         <br>
-                                                        <strong style="font-size: 10px;">({{$record->emp_id}})
+                                                        <strong class="req-res-emp_id" >({{$record->emp_id}})
                                                     </td>
 
                                                     <td>{{ $record->category ?? 'N/A'}}</td>
