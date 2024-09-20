@@ -26,6 +26,7 @@ class VendorAsset extends Model
         'invoice_amount',
         'gst_state',
         'gst_central',
+        'barcode',
         'manufacturer',
         'purchase_date',
         'file_paths',
@@ -33,9 +34,15 @@ class VendorAsset extends Model
     ];
 
 
-
     public function vendor()
     {
         return $this->belongsTo(Vendor::class, 'vendor_id', 'vendor_id');
     }
+
+    public function assignAssetEmps()
+    {
+        return $this->hasMany(AssignAssetEmp::class, 'asset_id', 'asset_id');
+    }
+
+
 }

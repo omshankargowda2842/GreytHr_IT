@@ -6,13 +6,13 @@
 
     <!-- Logout Modal -->
     @if ($showLogoutModal)
-    <div class="modal" id="logoutModal" tabindex="-1" style="display: block;">
+    <div class="modal logout1" id="logoutModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header text-white" style=" background-color: black;">
-                    <h6 class="modal-title " id="logoutModalLabel" style="align-items: center;">Confirm Logout</h6>
+                <div class="modal-header text-white logout2">
+                    <h6 class="modal-title logout3" id="logoutModalLabel">Confirm Logout</h6>
                 </div>
-                <div class="modal-body text-center" style="font-size: 16px;color:black">
+                <div class="modal-body text-center logout4" >
                     Are you sure you want to logout?
                 </div>
                 <div class="d-flex justify-content-center p-3">
