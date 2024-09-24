@@ -612,11 +612,17 @@ public function mount()
 
     public function render()
     {
-
+        $assetTypes = asset_types_table::pluck('asset_names', 'id');
         // $this->assetNames = asset_types_table::all();
+        $this->vendorAssets =VendorAsset::get();
+
+        $this->vendorAssets =  $this->vendorAssets->map(function ($vendorAsset) use ($assetTypes) {
+            $vendorAsset['asset_type_name'] = $assetTypes[$vendorAsset['asset_type']] ?? 'N/A';
+            return $vendorAsset; // Ensure you're returning the entire modified array
+
+    });
 
         $this->vendors = Vendor::all();
-        $this->vendorAssets =VendorAsset::get();
         return view('livewire.vendor-assets',[
             'filteredAssetTypes' => $this->filteredAssetTypes,
         ]);

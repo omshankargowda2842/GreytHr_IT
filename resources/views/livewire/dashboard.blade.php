@@ -5,34 +5,71 @@
     <div class="cardBox">
         <div class="card">
             <div>
-                <div class="numbers">{{$activeCount}} <span> <i class="fas fa-eye"></i></span></div>
+                <div class="numbers1">{{$activeCount}} <span> <i class="fas fa-users"></i></span></div>
                 <div class="cardName">Active Requests </div>
             </div>
         </div>
 
-        <!-- <div class="card">
+        <div class="card">
             <div>
-                <div class="numbers">80</div>
-                <div class="cardName">Sales</div>
+                <div class="row">
+                <div class="col-md-6 text-center">
+                    <div class="numbers">
+                        <h6><i class="fas fa-check-circle text-success"></i> Active</h6>
+                        <p>{{$activeItRelatedEmye}}</p>
+                    </div>
+                </div>
+
+                <div class="col-md-6 text-center">
+                    <div class="numbers">
+                        <h6><i class="fas fa-times-circle text-danger"></i> InActive</h6>
+                        <p>{{$inactiveItRelatedEmye}}</p>
+                    </div>
+                </div>
+
+                </div>
+
+                <div class="cardName">It Members</div>
             </div>
 
-            <div class="iconBx">
-                <ion-icon name="cart-outline"></ion-icon>
-            </div>
+
         </div>
 
         <div class="card">
             <div>
-                <div class="numbers">284</div>
-                <div class="cardName">Comments</div>
-            </div>
-
-            <div class="iconBx">
-                <ion-icon name="chatbubbles-outline"></ion-icon>
+                <div class="numbers1">{{$vendors}} <span>  <i class="fas fa-store"></i></span></div>
+                <div class="cardName">Vendors </div>
             </div>
         </div>
 
+
         <div class="card">
+            <div>
+                <div class="row">
+                <div class="col-md-6 text-center">
+                    <div class="numbers">
+                        <h6><i class="fas fa-check-circle text-success"></i> Active</h6>
+                        <p>{{$activeAssets}}</p>
+                    </div>
+                </div>
+
+                <div class="col-md-6 text-center">
+                    <div class="numbers">
+                        <h6><i class="fas fa-times-circle text-danger"></i> InActive</h6>
+                        <p>{{$inactiveAssets}}</p>
+                    </div>
+                </div>
+
+                </div>
+
+                <div class="cardName">Assest</div>
+            </div>
+
+
+        </div>
+
+
+        <!--  <div class="card">
             <div>
                 <div class="numbers">$7,842</div>
                 <div class="cardName">Earning</div>
@@ -72,7 +109,7 @@
                             $category);
                             @endphp
                             <div class="badge rounded-pill bg-dark text-white">
-                            {{ $filteredRequests->count() }}
+                                {{ $filteredRequests->count() }}
                             </div>
                         </td>
                         <td>
@@ -99,7 +136,7 @@
         <!-- ================= New Customers ================ -->
         <div class="recentCustomers">
             <div>
-            <h2 class="mb-5">Graph Data</h2>
+                <h2 class="mb-5">Graph Data</h2>
                 <canvas id="myDonutChart" width="300" height="300"></canvas>
                 <!-- <canvas id="myPieChart" width="400" height="400"></canvas> -->
             </div>
@@ -131,11 +168,11 @@ document.addEventListener('DOMContentLoaded', () => {
             backgroundColor: [
                 '#ffcc80', // Orange
                 '#a5d6a7', // Green
-                '#64b5f6'  // Blue
+                '#64b5f6' // Blue
             ],
             borderColor: [
                 'rgba(255, 159, 64, 1)', // Orange
-                'rgba(75, 192, 192, 1)' , // Green
+                'rgba(75, 192, 192, 1)', // Green
                 'rgba(54, 162, 235, 1)', // Blue
             ],
             borderWidth: 1
@@ -165,4 +202,3 @@ document.addEventListener('DOMContentLoaded', () => {
     new Chart(ctx, config);
 });
 </script>
-

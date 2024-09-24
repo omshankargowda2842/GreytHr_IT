@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('department')->nullable();
             $table->string('delete_reason')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->timestamp('deleted_at')->nullable();
             $table->foreign('asset_id')
                 ->references('asset_id')
                 ->on('vendor_assets')

@@ -3,7 +3,10 @@
 namespace App\Livewire;
 
 use App\Models\HelpDesks;
+use App\Models\IT;
 use App\Models\Request;
+use App\Models\Vendor;
+use App\Models\VendorAsset;
 use Livewire\Component;
 
 class Dashboard extends Component
@@ -15,6 +18,11 @@ class Dashboard extends Component
     public $matchingCount;
     public $pendingCount;
     public $closedCount;
+    public $activeItRelatedEmye = [];
+    public $inactiveItRelatedEmye = [];
+    public $vendors = [];
+    public $activeAssets = [];
+    public $inactiveAssets = [];
 
 
     public function mount(){
@@ -32,33 +40,33 @@ class Dashboard extends Component
 
     public function updateCounts()
 {
+    $requestCategories = Request::select('Request', 'category')
+    ->where('Request', 'IT') // Adjust this to match the condition for IT requests
+    ->pluck('category');
+
     $this->activeCount = HelpDesks::where('status', 'Open')
-        ->whereIn('category', [
-            'Distribution List Request', 'New Laptop', 'New Distribution Request',
-            'New Mailbox Request', 'Desktop Request', ' Request For IT',
-            'Devops Access Request', 'New ID Card', 'MMS Request', 'N/A'
-        ])->count();
+    ->whereIn('category',  $requestCategories)->count();
+
 
     $this->pendingCount = HelpDesks::where('status', 'Pending')
-    ->whereIn('category', [
-        'Distribution List Request', 'New Laptop', 'New Distribution Request',
-        'New Mailbox Request', 'Desktop Request', ' Request For IT',
-        'Devops Access Request', 'New ID Card', 'MMS Request', 'N/A'
-        ])->count();
+    ->whereIn('category',  $requestCategories)->count();
 
     $this->closedCount = HelpDesks::where('status', 'Completed')
-    ->whereIn('category', [
-        'Distribution List Request', 'New Laptop', 'New Distribution Request',
-        'New Mailbox Request', 'Desktop Request', ' Request For IT',
-        'Devops Access Request', 'New ID Card', 'MMS Request', 'N/A'
-        ])->count();
+    ->whereIn('category',  $requestCategories)->count();
     }
 
     public function itRequest(){
     return redirect()->route('requests');
     }
+
     public function render()
     {
+        $this->activeAssets =VendorAsset::where('is_active', 1)->count();
+        $this->inactiveAssets =VendorAsset::where('is_active', 0)->count();
+        $this->vendors = Vendor::where('is_active', 1)->count();
+        $this->activeItRelatedEmye = IT::where('is_active', 1)->count();
+        $this->inactiveItRelatedEmye = IT::where('is_active', 0)->count();
+
         return view('livewire.dashboard');
     }
 }

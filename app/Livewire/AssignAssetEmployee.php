@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\asset_types_table;
 use App\Models\AssetAssignments;
 use App\Models\AssignAssetEmp;
 use App\Models\EmployeeDetails;
@@ -96,6 +97,17 @@ public $currentVendorId = null;
     // $this->editMode = false;
 }
 
+public $oldAssetBackButton=true;
+public function viewOldAssetDetails($employeeAssetList){
+    $this->searchFilters =false;
+    $this->oldAssetBackButton =false;
+    $this->showOldEMployeeAssetBtn =false;
+    $this->showAssignAssetBtn =false;
+    $this->currentVendorId = $employeeAssetList;
+    $this->showViewEmployeeAsset = true;
+    $this->showEditDeleteEmployeeAsset = false;
+}
+
 public function closeViewVendor()
 {
     $this->resetForm();
@@ -112,6 +124,25 @@ public function closeViewVendor()
     $this->oldAssetEmp = false;
     $this->isUpdateMode = false;
 }
+
+public function closeViewEmpAsset()
+{
+    $this->resetForm();
+    $this->searchFilters =true;
+    $this->oldAssetBackButton =true;
+    $this->showOldEMployeeAssetBtn =false;
+    $this->assetEmpCreateUpdate = false;
+    $this->employeeAssetListing = false;
+    $this->showEMployeeAssetBtn = false;
+    $this->showAssignAssetBtn = false;
+    $this->showLogoutModal = false;
+    $this->showViewEmployeeAsset = false;
+    $this->showEditDeleteEmployeeAsset = true;
+    $this->currentVendorId = null;
+    $this->oldAssetEmp = true;
+    $this->isUpdateMode = false;
+}
+
 
 
     private function resetForm()
@@ -307,6 +338,7 @@ public function closeViewVendor()
         $this->showLogoutModal = true;
     }
 
+    public $deletionDate;
     public function delete()
     {
         $this->validate([
@@ -321,6 +353,7 @@ public function closeViewVendor()
         if ($vendormember) {
             $vendormember->update([
                 'delete_reason' => $this->reason,
+                'deleted_at' => now(),
                 'is_active' => 0
             ]);
 
@@ -340,9 +373,10 @@ public function closeViewVendor()
     public function cancel(){
         $this->searchFilters =true;
         $this->showOldEMployeeAssetBtn =true;
+         $this->showEMployeeAssetBtn = false;
         $this->assetEmpCreateUpdate = false;
         $this->employeeAssetListing = true;
-        $this->showEMployeeAssetBtn = true;
+
         $this->showAssignAssetBtn = true;
         $this->showLogoutModal = false;
         $this->resetErrorBag();
@@ -353,15 +387,24 @@ public $oldEmployeeAssetLists;
 
     public function render()
     {
+
+        $assetTypes = asset_types_table::pluck('asset_names', 'id');
+
          // Use the filtered data if available, otherwise fetch all
          $employeeAssetLists = !empty($this->filteredEmployeeAssets)
          ? $this->filteredEmployeeAssets
          : AssignAssetEmp::with(['vendorAsset.vendor']) ->get();
 
+
+         $employeeAssetLists = $employeeAssetLists->map(function ($employeeAssetList) use ($assetTypes) {
+                $employeeAssetList['asset_type_name'] = $assetTypes[$employeeAssetList['asset_type']] ?? 'N/A';
+                return $employeeAssetList; // Ensure you're returning the entire modified array
+
+        });
+
         $this->loadAssetsAndEmployees();
         return view('livewire.assign-asset-employee', compact('employeeAssetLists'));
     }
-
 
 
 }
