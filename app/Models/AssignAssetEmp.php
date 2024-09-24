@@ -17,6 +17,7 @@ class AssignAssetEmp extends Model
         'asset_type',
         'employee_name',
         'department',
+        'deleted_at',
         'delete_reason',
         'is_active'
     ];
@@ -43,6 +44,8 @@ class AssignAssetEmp extends Model
             'vendor_id' // Local key on the vendor_assets table
         );
     }
+
+    
 
 
 }

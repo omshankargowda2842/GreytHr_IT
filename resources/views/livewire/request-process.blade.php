@@ -66,7 +66,7 @@
 
                             <div class="req-pro-details">
 
-                                <h3>Request Details</h3>
+                                <h3 class="req-inprogress-heading mb-3">Request Details</h3>
                                 @if($viewingDetails)
                                 <button class="btn bg-dark text-white float:right" wire:click="closeDetails"
                                     @if($loading) disabled @endif>

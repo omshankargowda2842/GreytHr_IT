@@ -9,7 +9,7 @@
                 </button>
                 @endif
                 @if ($showOldEMployeeAssetBtn)
-                <button class="btn btn-dark mr-3" wire:click="oldAssetlisting">Previous assigned assets</button>
+                <button class="btn btn-dark mr-3" wire:click="oldAssetlisting">Previous Owners </button>
                 @endif
                 @if ($showAssignAssetBtn)
                 <button class="btn btn-dark" wire:click="assignAsset">Assign Asset</button>
@@ -49,7 +49,7 @@
             <div class="col-md-5">
                 <label for="employeeSelect" class="form-label">Select Employee ID</label>
                 <select id="employeeSelect" class="form-select" wire:model="selectedEmployee"
-                    wire:change="fetchEmployeeDetails"  {{ $isUpdateMode ? 'disabled' : '' }} >
+                    wire:change="fetchEmployeeDetails" {{ $isUpdateMode ? 'disabled' : '' }}>
                     <option value="">Choose Employee</option>
                     @foreach ($assetSelectEmp as $employee)
                     <option value="{{ $employee->emp_id }}"
@@ -160,7 +160,7 @@
                     <thead class="table-dark">
                         <tr>
                             <th class="req-table-head" scope="col">Employee Id</th>
-                            <th class="req-table-head">Vendor Id</th>
+
                             <th class="req-table-head">Asset Id</th>
                             <th class="req-table-head">Manufacturer</th>
                             <th class="req-table-head">Asset Type</th>
@@ -177,10 +177,9 @@
                         @if($employeeAssetList->is_active == 1)
                         <tr>
                             <td>{{ $employeeAssetList->emp_id }}</td>
-                            <td>{{ $employeeAssetList->vendorAsset->vendor_id }}</td>
                             <td>{{ $employeeAssetList->asset_id }}</td>
                             <td>{{ $employeeAssetList->manufacturer }}</td>
-                            <td>{{ $employeeAssetList->asset_type }}</td>
+                            <td>{{$employeeAssetList['asset_type_name'] }}</td>
                             <td>{{ $employeeAssetList->employee_name }}</td>
                             <td>{{ $employeeAssetList->department }}</td>
                             <td class="d-flex ">
@@ -274,7 +273,7 @@
                     </tr>
                     <tr>
                         <td>Asset Type</td>
-                        <td>{{ $vendor->asset_type ?? 'N/A' }}</td>
+                        <td>{{ $vendor['asset_type_name'] ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Asset Model</td>
@@ -305,11 +304,19 @@
                         <td>{{ $vendor->vendorAsset->serial_number ?? 'N/A' }}</td>
                     </tr>
                     <tr>
-                        <td>Purchase Date</td>
+                        <td>Asset Purchase Date</td>
                         <td>
                             {{ $vendor->vendorAsset->purchase_date ? \Carbon\Carbon::parse($vendor->vendorAsset->purchase_date)->format('d-m-Y') : 'N/A' }}
                         </td>
                     </tr>
+
+                    <tr>
+                        <td>No of Days</td>
+                        <td>
+                            {{ $vendor->created_at ? \Carbon\Carbon::parse($vendor->created_at)->diffInDays(\Carbon\Carbon::now()) . ' days' : 'N/A' }}
+                        </td>
+                    </tr>
+
                 </tbody>
             </table>
         </div>
@@ -324,6 +331,7 @@
 
         @if($oldAssetEmp)
 
+        @if($oldAssetBackButton)
         <div class="col-11 d-flex justify-content-end">
             <div class="">
                 <button class="btn btn-dark" wire:click="closeViewVendor" aria-label="Close">
@@ -331,6 +339,8 @@
                 </button>
             </div>
         </div>
+        @endif
+
         @if($searchFilters)
         <!-- Search Filters -->
         <div class="row mb-3 mt-4 ml-4 employeeAssetList">
@@ -370,7 +380,7 @@
                     <thead class="table-dark">
                         <tr>
                             <th class="req-table-head" scope="col">Employee Id</th>
-                            <th class="req-table-head">Vendor Id</th>
+                            <!-- <th class="req-table-head">Vendor Id</th> -->
                             <th class="req-table-head">Asset Id</th>
                             <th class="req-table-head">Manufacturer</th>
                             <th class="req-table-head">Asset Type</th>
@@ -388,17 +398,17 @@
                         @if($employeeAssetList->is_active == 0)
                         <tr>
                             <td>{{ $employeeAssetList->emp_id }}</td>
-                            <td>{{ $employeeAssetList->vendorAsset->vendor_id }}</td>
+                            <!-- <td>{{ $employeeAssetList->vendorAsset->vendor_id }}</td> -->
                             <td>{{ $employeeAssetList->asset_id }}</td>
                             <td>{{ $employeeAssetList->manufacturer }}</td>
-                            <td>{{ $employeeAssetList->asset_type }}</td>
+                            <td>{{ $employeeAssetList['asset_type_name'] }}</td>
                             <td>{{ $employeeAssetList->employee_name }}</td>
                             <td>{{ $employeeAssetList->department }}</td>
                             <td class="d-flex ">
                                 <!-- Action Buttons -->
                                 <div class="col">
                                     <button class="btn btn-sm btn-white border-dark"
-                                        wire:click="viewDetails({{ $employeeAssetList->id }})" title="View">
+                                        wire:click="viewOldAssetDetails({{ $employeeAssetList->id }})" title="View">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
@@ -441,7 +451,7 @@
         <div class="col-10 mt-4 itadd-maincolumn">
             <div class="d-flex justify-content-between align-items-center">
                 <h3>View Details</h3>
-                <button class="btn btn-dark" wire:click="closeViewVendor" aria-label="Close">
+                <button class="btn btn-dark" wire:click="closeViewEmpAsset" aria-label="Close">
                     <i class="fas fa-times"></i> Close
                 </button>
             </div>
@@ -472,7 +482,7 @@
                     </tr>
                     <tr>
                         <td>Asset Type</td>
-                        <td>{{ $vendor->asset_type ?? 'N/A' }}</td>
+                        <td>{{ $vendor['asset_type_name'] ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Asset Model</td>
@@ -508,6 +518,17 @@
                             {{ $vendor->vendorAsset->purchase_date ? \Carbon\Carbon::parse($vendor->vendorAsset->purchase_date)->format('d-m-Y') : 'N/A' }}
                         </td>
                     </tr>
+
+                    <tr>
+                        <td>No of Days</td>
+                        <td>
+                            @if($vendor->deleted_at)
+                            {{ $vendor->created_at ? \Carbon\Carbon::parse($vendor->created_at)->diffInDays(\Carbon\Carbon::parse($vendor->deleted_at)) . ' days' : 'N/A' }}
+                            @else
+                            N/A
+                            @endif
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -523,13 +544,13 @@
 
 
     @if ($showLogoutModal)
-    <div class="modal logout1" id="logoutModal" tabindex="-1" >
+    <div class="modal" style="display: block;" id="logoutModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header text-white logout2">
-                    <h6 class="modal-title logout3" id="logoutModalLabel" >Confirm Delete</h6>
+                <div class="modal-header text-white " style="background-color: black;">
+                    <h6 class="modal-title" style=" align-items: center;" id="logoutModalLabel">Confirm Delete</h6>
                 </div>
-                <div class="modal-body text-center logout4" >
+                <div class="modal-body text-center" style=" font-size: 16px;color:black;">
                     Are you sure you want to delete?
                 </div>
                 <div class="modal-body text-center">
@@ -538,8 +559,8 @@
                         <div class="row">
                             <div class="col-12 req-remarks-div">
 
-                                <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea logout5"
-                                    placeholder="Reason for deactivation"></textarea>
+                                <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea"
+                                    style=" min-height: 76px;" placeholder="Reason for deactivation"></textarea>
 
                             </div>
                         </div>

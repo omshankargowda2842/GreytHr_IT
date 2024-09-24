@@ -260,23 +260,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @php
-                    $assetTypes = [
-                    1 => 'Laptop',
-                    2 => 'Mouse',
-                    3 => 'Headphones',
-                    4 => 'Keyboards',
-                    5 => 'Printers',
-                    6 => 'Hard Disks',
-                    7 => 'CPUs',
-                    8 => 'Routers',
-                    9 => 'Cables',
-                    10 => 'Monitors',
-                    11 => 'UPS',
-                    12 => 'Mobile Phones',
-                    13 => 'Chargers',
-                    ];
-                    @endphp
+
 
                     @if($vendorAssets->count() > 0)
                     @foreach($vendorAssets as $vendorAsset)
@@ -284,7 +268,7 @@
                         <td class="vendor-table-head">{{ $vendorAsset->vendor_id }}</td>
                         <td class="vendor-table-head">{{ $vendorAsset->asset_id}}</td>
                         <td class="vendor-table-head">{{ $vendorAsset->manufacturer }}</td>
-                        <td class="vendor-table-head">{{ $vendorAsset->asset_type }}</td>
+                        <td class="vendor-table-head">{{ $vendorAsset['asset_type_name'] }}</td>
                         <td class="vendor-table-head">{{ $vendorAsset->invoice_number }}</td>
 
 
@@ -338,22 +322,26 @@
                             <!-- View Action -->
                             <div class="col">
                                 <button
-                                    class="btn btn-white border-dark  {{ $vendorAsset->is_active == 0 ? 'disabled' : '' }}"
+                                    class="btn btn-white border-dark"
                                     wire:click="showViewVendor({{ $vendorAsset->id }})"
-                                    {{ $vendorAsset->is_active == 0 ? 'disabled' : '' }}>
+                                   >
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
 
+                            @if($vendorAsset->is_active == 1)
                             <div class="col">
+
                                 <button
-                                    class="btn btn-white border-dark  {{ $vendorAsset->is_active == 0 ? 'disabled' : '' }}"
-                                    wire:click="showEditAsset({{ $vendorAsset->id }})"
-                                    {{ $vendorAsset->is_active == 0 ? 'disabled' : '' }}>
+                                    class="btn btn-white border-dark"
+                                    wire:click="showEditAsset({{ $vendorAsset->id }})">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                            </div>
 
+                            </div>
+                            @endif
+
+                            @if($vendorAsset->is_active == 1)
                             <div class="col">
                                 <!-- Delete Button (Inactive if is_active is 0) -->
                                 <button
@@ -363,7 +351,9 @@
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
+                            @endif
 
+                @if($vendorAsset->is_active == 0)
                             <div class="col">
                                 <!-- Restore Button (Inactive if is_active is 1) -->
                                 <button
@@ -373,7 +363,7 @@
                                     <i class="fas fa-undo"></i>
                                 </button>
                             </div>
-
+                    @endif
 
                         </td>
                     </tr>
@@ -642,13 +632,13 @@
 
 
     @if ($showLogoutModal)
-    <div class="modal logout1" id="logoutModal" tabindex="-1">
+    <div class="modal"  style="display: block;" id="logoutModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header text-white logout2">
-                    <h6 class="modal-title logout3" id="logoutModalLabel">Confirm Delete</h6>
+                <div class="modal-header text-white"  style="background-color: black;">
+                    <h6 class="modal-title" style=" align-items: center;" id="logoutModalLabel">Confirm Delete</h6>
                 </div>
-                <div class="modal-body text-center logout4">
+                <div class="modal-body text-center" style=" font-size: 16px;color:black;">
                     Are you sure you want to delete?
                 </div>
                 <div class="modal-body text-center">
@@ -657,7 +647,7 @@
                         <div class="row">
                             <div class="col-12 req-remarks-div">
 
-                                <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea logout5"
+                                <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea" style=" min-height: 76px;"
                                     placeholder="Reason for deactivation"></textarea>
 
                             </div>

@@ -3,8 +3,9 @@
 namespace App\Livewire;
 
 use App\Models\HelpDesks;
+use App\Models\Request;
 use App\Models\IT;
-use Illuminate\Http\Client\Request;
+// use Illuminate\Http\Client\Request;
 use Livewire\Component;
 use Illuminate\Support\Facades\Log;
 use function Termwind\render;
@@ -248,26 +249,18 @@ class RequestProcess extends Component
 
     public function updateCounts()
     {
+        $requestCategories = Request::select('Request', 'category')
+        ->where('Request', 'IT') // Adjust this to match the condition for IT requests
+        ->pluck('category');
+
         $this->activeCount = HelpDesks::where('status', 'Open')
-        ->whereIn('category', [
-            'Distribution List Request', 'New Laptop', 'New Distribution Request',
-            'New Mailbox Request', 'Desktop Request', ' Request For IT',
-            'Devops Access Request', 'New ID Card', 'MMS Request', 'N/A'
-        ])->count();
+        ->whereIn('category',  $requestCategories)->count();
 
         $this->pendingCount = HelpDesks::where('status', 'Pending')
-        ->whereIn('category', [
-            'Distribution List Request', 'New Laptop', 'New Distribution Request',
-            'New Mailbox Request', 'Desktop Request', ' Request For IT',
-            'Devops Access Request', 'New ID Card', 'MMS Request', 'N/A'
-        ])->count();
+         ->whereIn('category',  $requestCategories)->count();
 
         $this->closedCount = HelpDesks::where('status', 'Completed')
-        ->whereIn('category', [
-            'Distribution List Request', 'New Laptop', 'New Distribution Request',
-            'New Mailbox Request', 'Desktop Request', ' Request For IT',
-            'Devops Access Request', 'New ID Card', 'MMS Request', 'N/A'
-        ])->count();
+        ->whereIn('category',  $requestCategories)->count();
 
     }
 
@@ -275,8 +268,14 @@ class RequestProcess extends Component
 
     public $forIT;
     public $itData;
+    public $requestCategories='';
     public function render()
     {
+
+        $requestCategories = Request::select('Request', 'category')
+        ->where('Request', 'IT') // Adjust this to match the condition for IT requests
+        ->pluck('category');
+
 
         $this->itData = IT::with('empIt')->get();
 
@@ -286,11 +285,7 @@ class RequestProcess extends Component
                 $query->where('company_id', $companyId);
             })
             ->orderBy('created_at', 'desc')
-            ->whereIn('category', [
-                'Distribution List Request', 'New Laptop', 'New Distribution Request',
-                'New Mailbox Request', 'Desktop Request', ' Request For IT',
-                'Devops Access Request', 'New ID Card', 'MMS Request', 'N/A'
-            ])
+            ->whereIn('category',  $requestCategories)
             ->get();
 
 
@@ -299,30 +294,33 @@ class RequestProcess extends Component
             $this->forIT = HelpDesks::with('emp')
                 ->where('status', 'Open')
                 ->orderBy('created_at', 'desc')
-                ->whereIn('category', [
-                    'Distribution List Request', 'New Laptop', 'New Distribution Request',
-                    'New Mailbox Request', 'Desktop Request', ' Request For IT',
-                    'Devops Access Request', 'New ID Card', 'MMS Request', 'N/A'
-                ])->get();
+                ->whereIn('category',  $requestCategories)
+                ->get();
 
         } elseif ($this->activeTab == 'pending') {
             $this->forIT = HelpDesks::with('emp')
                 ->where('status', 'Pending')
                 ->orderBy('created_at', 'desc')
-                ->whereIn('category', [
-                    'Distribution List Request', 'New Laptop', 'New Distribution Request',
-                    'New Mailbox Request', 'Desktop Request', ' Request For IT',
-                    'Devops Access Request', 'New ID Card', 'MMS Request', 'N/A'
-                ])->get();
+                ->whereIn('category',  $requestCategories)
+                ->get();
+
+              
         } elseif ($this->activeTab == 'closed') {
             $this->forIT = HelpDesks::with('emp')
                 ->where('status', 'Completed')
                 ->orderBy('created_at', 'desc')
-                ->whereIn('category', [
-                    'Distribution List Request', 'New Laptop', 'New Distribution Request',
-                    'New Mailbox Request', 'Desktop Request', ' Request For IT',
-                    'Devops Access Request', 'New ID Card', 'MMS Request', 'N/A'
-                ])->get();
+                ->whereIn('category',  $requestCategories)
+                ->get();
+        }
+
+        if ($requestCategories->isNotEmpty()) {
+            // Group categories by their request
+            $this->requestCategories = $requestCategories->groupBy('Request')->map(function ($group) {
+                return $group->unique('category'); // Ensure categories are unique
+            });
+        } else {
+            // Handle the case where there are no requests
+            $this->requestCategories = collect(); // Initialize as an empty collection
         }
 
         return view('livewire.request-process', [
