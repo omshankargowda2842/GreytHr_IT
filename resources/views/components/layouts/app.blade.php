@@ -12,6 +12,7 @@
     <link href="https://unpkg.com/swiper/swiper-bundle.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/alpinejs" defer></script>
+    <link rel="stylesheet" href="{{ asset('css/app.css?v=' . filemtime(public_path('css/app.css'))) }}">
 </head>
 
 @guest

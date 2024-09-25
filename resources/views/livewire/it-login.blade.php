@@ -30,7 +30,7 @@
 
                     <div class="carousel-item active d-flex justify-content-center">
 
-                        <img class="mt-4 itloginImg" src="{{ asset('images/itlogin4.PNG') }}"
+                        <img class="mt-4 itloginImg" src="{{ asset('images/itlogin4.png') }}"
                             alt="Los Angeles" class="d-block">
 
                         <div class="carousel-caption itlogin2">
