@@ -99,7 +99,7 @@
             <table class="table  table-striped">
                 <thead class="table-dark">
                     <tr>
-                        <th scope="col" class="req-table-head">Id</th>
+
                         <th class="req-table-head">It Employee Id</th>
                         <th class="req-table-head">Employee Name</th>
                         <th class="req-table-head">Image</th>
@@ -114,7 +114,7 @@
                     @foreach($itRelatedEmye as $itemployee)
                     <tr>
                         <!-- <th scope="row">{{ $loop->iteration }}</th> -->
-                        <td>{{ $itemployee->id }}</td>
+                       
                         <td>{{ $itemployee->it_emp_id }}</td>
                         <td>{{ $itemployee->employee_name }}</td>
                         <td><img src="{{ $itemployee->image_url }}" alt="Image" class="itAdd4"></td>
