@@ -67,16 +67,17 @@
                             <div class="req-pro-details">
 
                                 <h3 class="req-inprogress-heading mb-3">Request Details</h3>
-                                @if($viewingDetails)
+
+                            </div>
+
+                            @if($viewingDetails && $selectedRequest)
+
+                            @if($viewingDetails)
                                 <button class="btn bg-dark text-white float:right" wire:click="closeDetails"
                                     @if($loading) disabled @endif>
                                     <i class="fas fa-arrow-left"></i> Back
                                 </button>
                                 @endif
-                            </div>
-
-                            @if($viewingDetails && $selectedRequest)
-
                             <div class="req-pro-tablediv">
 
                                 <div wire:loading.delay>
@@ -289,9 +290,9 @@
 
 
                                         <tr>
-                                            <td>Assign to <span class="text-danger">*</span></td>
+                                            <td>Assignee to <span class="text-danger">*</span></td>
                                             <td>
-                                                <select class="form-control" wire:model="selectedAssigne"
+                                                <select class="req-selected-status" wire:model="selectedAssigne"
                                                     wire:change="updateAssigne('{{ $selectedRequest->id }}')">
                                                     <option value="" disabled selected>Select Assigne</option>
                                                     @foreach($itData as $itName)
@@ -410,7 +411,7 @@
 
                                                 <tr>
 
-                                                    <th scope="col" class="req-table-head">Id</th>
+                                                    <th scope="col" class="req-table-head">Employee ID</th>
 
                                                     <th class="req-table-head">Requested By</th>
 
@@ -439,7 +440,7 @@
                                                     <th class="req-table-head">Assigned to</th>
 
                                                     <th class="req-table-head">Comments</th>
-                                                    <th class="req-table-head">Reopen Request</th>
+
                                                     <th class="req-table-head">Close Request</th>
                                                     <th class="req-table-head-Remarks"
                                                         >
@@ -498,7 +499,7 @@
 
                                                         @else
 
-                                                        No images attached.
+                                                        <p class="d-flex justify-content-center">-</p>
 
                                                         @endif
 
@@ -521,11 +522,7 @@
 
                                                     <td> {{$record -> active_comment?? 'N/A'}}</td>
 
-                                                    <td>
-                                                        <button wire:click="closeForDesks('{{$record->id}}')"
-                                                            class="btn btn-dark border-white text-white" @if($loading)
-                                                            disabled @endif>Open</button>
-                                                    </td>
+
                                                     <td>
                                                         <button wire:click="openForDesks('{{$record->id}}')"
                                                             class="btn btn-white border-black text-black" @if($loading)
@@ -608,7 +605,7 @@
 
                                                 <tr>
 
-                                                    <th scope="col" class="req-closed-th">Id</th>
+                                                    <th scope="col" class="req-closed-th">Employee ID</th>
 
                                                     <th class="req-closed-th">Requested By</th>
 
@@ -664,11 +661,11 @@
 
                                                     <td>{{ $record->subject ?? 'N/A' }}</td>
 
-                                                    <td>{{ $record->description?? 'N/A' }}</td>
+                                                    <td>{{ $record->description ?? 'N/A' }}</td>
 
-                                                    <td>{{ $record->distributor_name?? 'N/A' }}</td>
+                                                    <td>{{ $record->distributor_name ?? 'N/A' }}</td>
 
-                                                    <td>{{ $record->mobile?? 'N/A' }}</td>
+                                                    <td>{{ $record->mobile ?? 'N/A' }}</td>
 
                                                     <td>{{ $record->mail ??'N/A' }}</td>
 
@@ -693,7 +690,7 @@
 
                                                         @else
 
-                                                        No images attached.
+                                                        <p class="d-flex justify-content-center">-</p>
 
                                                         @endif
 
@@ -735,6 +732,7 @@
                                                     <td colspan="19" class="req-cc-td">
                                                         <div class="req-cc-div">
                                                             <strong>CC TO: </strong> {{ implode(', ', $ccToArray) }}
+
                                                         </div>
                                                     </td>
                                                 </tr>
