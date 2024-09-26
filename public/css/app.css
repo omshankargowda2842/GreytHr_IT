@@ -391,11 +391,14 @@ padding: 10px;
      padding: 8px 16px;
      border-radius: 15px;
      cursor: pointer;
-     transition: background-color 0.3s ease;
- }
+     transition: background-color 0.3s ease, transform 0.3s ease;
+     }
 
  .req-pro-view-details-btn:hover {
-     background-color: #008000;
+     background-color: black;
+     border-color: #ffffff; /* Optional: Change border color on hover */
+     transform: scale(1.05); /* Slightly scale the button on hover */
+
  }
  .scrollable-container {
     max-height: 380px;
@@ -607,11 +610,12 @@ padding: 10px;
  }
 
  .req-selected-status {
-     background-color: black;
-     color: white;
      border-radius: 3px;
      padding: 5px;
      width: 100%;
+     font-size: 1rem;
+    font-weight: 400;
+    border: var(--bs-border-width) solid var(--bs-border-color);
 
  }
 
@@ -672,11 +676,14 @@ padding: 10px;
  }
 
  .req-cc-div {
-     margin-left: 10px;
+     margin-left: 5px;
      font-size: 12px;
      text-transform: capitalize;
      width: 100%;
-     border-top: none
+     border-top: none;
+     border-bottom: 1px solid black; /* Creates the underline */
+        display: inline-block; /* Ensures the underline fits the content width */
+        padding-bottom: 5px; /* Adds some spacing between the text and underline */
  }
 
  .req-td-norecords {
@@ -1419,6 +1426,10 @@ w
   .cardBox {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .card {
+    width: 100%; /* Ensure each card takes the full column width */
+  }
 }
 
 @media (max-width: 768px) {
@@ -1436,6 +1447,9 @@ w
 @media (max-width: 480px) {
   .cardBox {
     grid-template-columns: repeat(1, 1fr);
+  }
+  .card {
+    width: 100%; /* Ensure each card takes the full column width */
   }
   .cardHeader h2 {
     font-size: 20px;

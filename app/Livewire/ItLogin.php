@@ -85,6 +85,13 @@ class ItLogin extends Component
     {
         return redirect()->to('/CreateCV');
     }
+
+    public function resetValidationForField($field)
+    {
+        // Reset error for the specific field when typing
+        $this->resetErrorBag($field);
+    }
+
     public function itLogin()
     {
         // Manually trim the input values
