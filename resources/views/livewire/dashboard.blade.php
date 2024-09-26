@@ -62,7 +62,7 @@
 
                 </div>
 
-                <div class="cardName">Assest</div>
+                <div class="cardName">Assets</div>
             </div>
 
 
