@@ -34,15 +34,8 @@
                             alt="Los Angeles" class="d-block">
 
                         <div class="carousel-caption itlogin2">
-
-
-
                         </div>
-
                     </div>
-
-
-
                 </div>
 
             </div>
