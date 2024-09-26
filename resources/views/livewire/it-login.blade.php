@@ -3,7 +3,59 @@
 
     <div class="row m-0">
         <!-- Left Side (Login Form) -->
+
         <div class="col-md-6 px-5 py-2 ">
+
+        <div class="col-md-7 p-0">
+
+            <!-- Carousel -->
+
+            <div id="demo" class="carousel slide itlogin1" data-bs-ride="carousel"
+                >
+
+                <!-- Indicators/dots -->
+
+                <div class="carousel-indicators">
+
+                    <button type="button" data-bs-target="#demo" data-bs-slide-to="0" class="active"></button>
+
+                    <button type="button" data-bs-target="#demo" data-bs-slide-to="1"></button>
+
+                    <button type="button" data-bs-target="#demo" data-bs-slide-to="2"></button>
+
+                </div>
+
+
+
+                <!-- The slideshow/carousel -->
+
+                <div class="carousel-inner">
+
+                    <div class="carousel-item active d-flex justify-content-center">
+
+                        <img class="mt-4 itloginImg" src="{{ asset('images/itlogin4.png') }}"
+                            alt="Los Angeles" class="d-block">
+
+                        <div class="carousel-caption itlogin2">
+
+
+
+                        </div>
+
+                    </div>
+
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Right Side (Carousel) -->
+        <div class="col-md-5 px-5 py-2 ">
+
             <div class="text-center mb-4">
             </div>
             @if (Session::has('success'))
