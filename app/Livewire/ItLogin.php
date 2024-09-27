@@ -107,8 +107,11 @@ class ItLogin extends Component
             // $this->showLoader = true;
 
             if (Auth::guard('it')->attempt(['it_emp_id' => $this->form['emp_id'] , 'password' => $this->form['password']])) {
+                session()->flash('loginSuccess', "You are logged in successfully!");
                 return redirect()->route('dashboard');
+
             } elseif (Auth::guard('it')->attempt(['email' => $this->form['emp_id'], 'password' => $this->form['password']])) {
+                session()->flash('loginSuccess', "You are logged in successfully!");
                 return redirect()->route('dashboard');
             }  else {
                 $this->error = "Invalid ID or Password. Please try again.";

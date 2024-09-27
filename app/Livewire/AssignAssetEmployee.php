@@ -125,6 +125,29 @@ public function closeViewVendor()
     $this->isUpdateMode = false;
 }
 
+public function backVendor()
+{
+    $this->resetForm();
+    $this->searchFilters =true;
+    $this->showOldEMployeeAssetBtn =true;
+    $this->assetEmpCreateUpdate = false;
+    $this->employeeAssetListing = true;
+    $this->showEMployeeAssetBtn = false;
+    $this->showAssignAssetBtn = true;
+    $this->showLogoutModal = false;
+    $this->showViewEmployeeAsset = false;
+    $this->showEditDeleteEmployeeAsset = true;
+    $this->currentVendorId = null;
+    $this->oldAssetEmp = false;
+    $this->isUpdateMode = false;
+    $this->validateOnly('selectedAsset');
+    $this->validateOnly('selectedEmployee');
+
+    $this->resetErrorBag(['selectedAsset', 'selectedEmployee']);
+
+
+}
+
 public function closeViewEmpAsset()
 {
     $this->resetForm();
@@ -173,24 +196,24 @@ public function closeViewEmpAsset()
 
     public function fetchEmployeeDetails()
     {
-        $this->validateOnly('selectedEmployee');
-        $this->resetErrorBag('selectedEmployee');
 
-        if ($this->selectedEmployee) {
+        if ($this->selectedEmployee !== "" && $this->selectedEmployee !== null) {
             $this->empDetails = EmployeeDetails::find($this->selectedEmployee);
         } else {
+
             $this->empDetails = null;
         }
     }
 
     public function fetchAssetDetails()
     {
-        $this->validateOnly('selectedAsset');
-        $this->resetErrorBag('selectedAsset');
 
-        if ($this->selectedAsset) {
+
+        if ($this->selectedAsset !== "" && $this->selectedAsset !== null) {
+
             $this->assetDetails = VendorAsset::where('asset_id', $this->selectedAsset)->first();
         } else {
+
             $this->assetDetails = null;
         }
     }
@@ -213,10 +236,15 @@ public function closeViewEmpAsset()
     $this->assignmentId = $assignment->id;
     $this->selectedAsset = $assignment->asset_id;
     $this->selectedEmployee = $assignment->emp_id;
+    $this->validateOnly('selectedAsset');
+    $this->validateOnly('selectedEmployee');
+
+    $this->resetErrorBag(['selectedAsset', 'selectedEmployee']);
 
     // Fetch asset and employee details
     $this->fetchAssetDetails();
     $this->fetchEmployeeDetails();
+
 }
 
 
@@ -267,7 +295,7 @@ public function closeViewEmpAsset()
                     'is_active' => true,
                 ]);
 
-                session()->flash('message', 'Asset reassigned successfully.');
+                session()->flash('updateMessage', 'Assignee updated successfully!');
             } else {
                 // Create new assignment
                 AssignAssetEmp::create([
@@ -280,7 +308,7 @@ public function closeViewEmpAsset()
                     'is_active' => true,
                 ]);
 
-                session()->flash('message', 'Asset assigned successfully.');
+                session()->flash('createMessage', 'Asset Assigned to employee successfully!');
             }
 
             $this->resetForm();

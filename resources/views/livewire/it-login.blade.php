@@ -4,14 +4,10 @@
         <div class="col-md-5 px-5 py-2 ">
             <div class="text-center mb-4">
             </div>
-            @if (Session::has('success'))
-            <div class="text-center mb-4 itlogin3">
-                <div class="alert alert-success alert-dismissible fade show itloginFont" role="alert">
-                    {{ Session::get('success') }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
+
+            @if (session()->has('success'))
+            <div id="flash-message" class="alert alert-success mt-1">
+                {{ session('success') }}
             </div>
             @endif
             @if (session('sessionExpired'))
@@ -31,7 +27,8 @@
                         class="text-12gpx font-bold font-title-poppins-bold opacity-90 text-text-default justify-items-center">
                         <span><img src="{{ asset('images/itlogo.jpg') }}" class="itloginImage2" width="70"
                                 alt=""></span>
-                        <span class="fs-5"> Hello there!</span> <span _ngcontent-hyf-c110="" class="font-emoji text-12gpx">👋</span>
+                        <span class="fs-5"> Hello there!</span> <span _ngcontent-hyf-c110=""
+                            class="font-emoji text-12gpx">👋</span>
                     </div>
                 </header><br>
                 @if ($error)
@@ -52,7 +49,8 @@
 
                 <div class="form-group itlogin6">
                     <input type="password" class="form-control border-0 border-bottom itloginInput"
-                        placeholder="Password" wire:model.lazy="form.password" wire:keydown="resetValidationForField('form.password')" />
+                        placeholder="Password" wire:model.lazy="form.password"
+                        wire:keydown="resetValidationForField('form.password')" />
 
                     @error('form.password')
 
@@ -99,8 +97,8 @@
 
                     <div class="carousel-item active d-flex justify-content-center">
 
-                        <img class="mt-4 itloginImg" src="{{ asset('images/itlogin4.png') }}"
-                            alt="Los Angeles" class="d-block">
+                        <img class="mt-4 itloginImg" src="{{ asset('images/itlogin4.png') }}" alt="Los Angeles"
+                            class="d-block">
 
                         <div class="carousel-caption itlogin2">
 
@@ -119,13 +117,13 @@
         </div>
     </div>
     <div class="text-center pb-2 mt-5">
-        <small>
+        <large>
             © Xsilica Software Solutions Pvt.Ltd |
-            <a href="https://xsilicasoftwaresolutions.greythr.com/v2/static-content/privacy-policy"
-                class="itlogin10" target="_blank"> <span class="fs-6"> Privacy Policy</span></a> |
+            <a href="https://xsilicasoftwaresolutions.greythr.com/v2/static-content/privacy-policy" class="itlogin10"
+                target="_blank"> <span class="fs-6"> Privacy Policy</span></a> |
             <a href="https://xsilicasoftwaresolutions.greythr.com/v2/static-content/terms-of-use" class="itlogin10"
                 target="_blank"><span class="fs-6">Terms of Service</span> </a>
-        </small>
+        </large>
     </div>
 
     @if ($showDialog)
@@ -154,9 +152,8 @@
                         @endif
                         <div class="form-group">
                             <label for="newPassword">New Password</label>
-                            <input type="password" id="newPassword" name="newPassword"
-                                class="form-control itloginFont" placeholder="Enter your new password"
-                                wire:model.lazy="newPassword"
+                            <input type="password" id="newPassword" name="newPassword" class="form-control itloginFont"
+                                placeholder="Enter your new password" wire:model.lazy="newPassword"
                                 wire:keydown.debounce.500ms="validateField('newPassword')">
                             @error('newPassword')
                             <span class="text-danger itloginFont">{{ $message }}</span>

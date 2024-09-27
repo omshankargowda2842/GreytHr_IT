@@ -1,13 +1,32 @@
 <div class="main">
 
     <div class="container AssetEmployee mt-4">
+        <div class="col-10 d-flex justify-content-center">
+            @if (session()->has('updateMessage'))
+            <div id="flash-message" class="alert alert-success mt-1">
+                {{ session('updateMessage') }}
+            </div>
+            @endif
 
+        </div>
+
+        <div class="col-10 d-flex justify-content-center">
+            @if (session()->has('createMessage'))
+            <div id="flash-message" class="alert alert-success mt-1">
+                {{ session('createMessage') }}
+            </div>
+            @endif
+
+        </div>
+        @if ($showEMployeeAssetBtn)
+        <div class="col-11 d-flex justify-content-start mb-4" style="margin-left: 4%;">
+            <button class="btn btn-dark" wire:click="backVendor"><i class="fas fa-arrow-left"></i> Back
+            </button>
+        </div>
+        @endif
         <div class="col-11 d-flex justify-content-end">
             <div class="">
-                @if ($showEMployeeAssetBtn)
-                <button class="btn btn-dark" wire:click="closeViewVendor"><i class="fas fa-arrow-left"></i> Back
-                </button>
-                @endif
+
                 @if ($showOldEMployeeAssetBtn)
                 <button class="btn btn-dark mr-3" wire:click="oldAssetlisting">Previous Owners </button>
                 @endif
@@ -85,7 +104,7 @@
                 @if ($empDetails)
                 <div class="assetEmpDetailsCard p-3 mb-3">
                     <h5><u>Employee Details</u></h5>
-                    <p><strong>Employee Id:</strong> {{ $empDetails->emp_id }}</p>
+                    <p><strong>Employee ID:</strong> {{ $empDetails->emp_id }}</p>
                     <p><strong>Employee Name:</strong> {{ $empDetails->first_name }} {{ $empDetails->last_name }}</p>
                     <p><strong>Email:</strong> {{ $empDetails->email }}</p>
                     <p><strong>Department:</strong> {{ $empDetails->job_role }}</p>
@@ -104,7 +123,7 @@
         <!-- Submit Button -->
         <div class="mt-4 text-center">
             <button class="btn btn-dark" wire:click="submit">
-                {{ $isUpdateMode ? 'Update Assigne' : 'Assign' }}
+                {{ $isUpdateMode ? 'Update Asset' : 'Assign' }}
             </button>
 
             <!-- Success Message -->
@@ -150,6 +169,7 @@
         @endif
         @if($showEditDeleteEmployeeAsset)
         <div class="col-11 mt-4 ml-4">
+
             <div class="table-responsive it-add-table-res">
                 <div wire:loading>
                     <div class="loader-overlay">
@@ -159,9 +179,10 @@
                 <table class="table table-striped">
                     <thead class="table-dark">
                         <tr>
-                            <th class="req-table-head" scope="col">Employee Id</th>
 
-                            <th class="req-table-head">Asset Id</th>
+                            <th class="req-table-head" scope="col">Employee ID</th>
+
+                            <th class="req-table-head">Asset ID</th>
                             <th class="req-table-head">Manufacturer</th>
                             <th class="req-table-head">Asset Type</th>
                             <th class="req-table-head">Employee Name</th>
@@ -173,7 +194,7 @@
                     <tbody>
 
                         @if($employeeAssetLists->count() > 0)
-                        @forelse($employeeAssetLists as $employeeAssetList)
+                        @foreach($employeeAssetLists as $employeeAssetList)
                         @if($employeeAssetList->is_active == 1)
                         <tr>
                             <td>{{ $employeeAssetList->emp_id }}</td>
@@ -207,8 +228,8 @@
                             </td>
                         </tr>
                         @endif
-                        @empty
-                        @endforelse
+
+                        @endforeach
                         @else
                         <tr>
                             <td colspan="20" class="req-td-norecords">
@@ -256,7 +277,7 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Employee Id</td>
+                        <td>Employee ID</td>
                         <td>{{ $vendor->emp_id ?? 'N/A' }}</td>
                     </tr>
                     <tr>
@@ -264,7 +285,7 @@
                         <td>{{ $vendor->vendorAsset->vendor_id ?? 'N/A' }}</td>
                     </tr>
                     <tr>
-                        <td>Asset Id</td>
+                        <td>Asset ID</td>
                         <td>{{ $vendor->asset_id ?? 'N/A' }}</td>
                     </tr>
                     <tr>
@@ -332,7 +353,7 @@
         @if($oldAssetEmp)
 
         @if($oldAssetBackButton)
-        <div class="col-11 d-flex justify-content-end">
+        <div class="col-11 d-flex justify-content-start mb-4" style="margin-left: 5%;">
             <div class="">
                 <button class="btn btn-dark" wire:click="closeViewVendor" aria-label="Close">
                     <i class="fas fa-arrow-left"></i> Back
@@ -379,9 +400,9 @@
                 <table class="table table-striped">
                     <thead class="table-dark">
                         <tr>
-                            <th class="req-table-head" scope="col">Employee Id</th>
+                            <th class="req-table-head" scope="col">Employee ID</th>
                             <!-- <th class="req-table-head">Vendor Id</th> -->
-                            <th class="req-table-head">Asset Id</th>
+                            <th class="req-table-head">Asset ID</th>
                             <th class="req-table-head">Manufacturer</th>
                             <th class="req-table-head">Asset Type</th>
                             <th class="req-table-head">Employee Name</th>
@@ -394,7 +415,7 @@
                     <tbody>
 
                         @if($employeeAssetLists->count() > 0)
-                        @forelse($employeeAssetLists as $employeeAssetList)
+                        @foreach($employeeAssetLists as $employeeAssetList)
                         @if($employeeAssetList->is_active == 0)
                         <tr>
                             <td>{{ $employeeAssetList->emp_id }}</td>
@@ -416,8 +437,8 @@
                         </tr>
 
                         @endif
-                        @empty
-                        @endforelse
+
+                        @endforeach
                         @else
                         <tr>
                             <td colspan="20" class="req-td-norecords">
@@ -465,7 +486,7 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Employee Id</td>
+                        <td>Employee ID</td>
                         <td>{{ $vendor->emp_id ?? 'N/A' }}</td>
                     </tr>
                     <tr>
@@ -473,7 +494,7 @@
                         <td>{{ $vendor->vendorAsset->vendor_id ?? 'N/A' }}</td>
                     </tr>
                     <tr>
-                        <td>Asset Id</td>
+                        <td>Asset ID</td>
                         <td>{{ $vendor->asset_id ?? 'N/A' }}</td>
                     </tr>
                     <tr>

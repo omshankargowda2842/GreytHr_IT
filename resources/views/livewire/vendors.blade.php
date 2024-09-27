@@ -1,6 +1,11 @@
 <div class="main">
 
     @if($showAddVendor)
+
+    <div class="col-11 d-flex justify-content-start mb-1 mt-4" style="margin-left: 5%;">
+        <button class="btn btn-dark btn-sm" wire:click='cancel'> <i class="fas fa-arrow-left"></i> Back</button>
+
+    </div>
     <div class="col-11 mt-4 itadd-maincolumn">
         <!-- <div wire:loading>
             <div class="loader-overlay">
@@ -9,7 +14,6 @@
         </div> -->
         <div class="d-flex justify-content-between align-items-center">
             <h2 class="mb-4 addEditHeading">{{ $editMode ? 'Edit Vendor' : 'Add Vendor' }}</h2>
-            <button class="btn btn-dark btn-sm" wire:click='cancel'> <i class="fas fa-arrow-left"></i> Back</button>
         </div>
 
 
@@ -136,8 +140,10 @@
                         style="font-size: 12px;" />
                     @error('file_paths.*') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
-
-                <button type="submit" class="btn btn-dark border-white">{{ $editMode ? 'Update' : 'Submit' }}</button>
+                <div class="d-flex justify-content-center">
+                    <button type="submit"
+                        class="btn btn-dark border-white">{{ $editMode ? 'Update' : 'Submit' }}</button>
+                </div>
             </form>
         </div>
 
@@ -155,42 +161,43 @@
             <table class="table table-striped">
                 <thead class="table-dark">
                     <tr>
-                        <th scope="col" class="vendor-table-head">Id</th>
+                        <th scope="col" class="vendor-table-head">S.No</th>
+                        <th scope="col" class="vendor-table-head">Vendor ID</th>
                         <th class="vendor-table-head">Vendor Name</th>
                         <th class="vendor-table-head">Contact Name</th>
-                        <th class="vendor-table-head">Phone</th>
+
                         <th class="vendor-table-head">GST</th>
                         <th class="vendor-table-head">Contact Email</th>
-                        <th class="vendor-table-head">Actions</th>
+                        <th class="vendor-table-head d-flex justify-content-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if($vendors->count() > 0)
                     @foreach($vendors as $vendor)
                     <tr>
-                        <td class="vendor-table-head">{{ $vendor->id }}</td>
+                        <th scope="row">{{ $loop->iteration }}</th>
+                        <td class="vendor-table-head">{{ $vendor->vendor_id}}</td>
                         <td class="vendor-table-head">{{ $vendor->vendor_name }}</td>
                         <td class="vendor-table-head">{{ $vendor->contact_name }}</td>
-                        <td class="vendor-table-head">{{ $vendor->phone }}</td>
                         <td class="vendor-table-head">{{ $vendor->gst }}</td>
                         <td class="vendor-table-head">{{ $vendor->contact_email }}</td>
                         <td class="d-flex">
                             <!-- View Action -->
-                            <div class="col">
+                            <div class="col mx-1">
                                 <button class="btn btn-white border-dark"
                                     wire:click="showViewVendor({{ $vendor->id }})">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
                             <!-- Edit Action -->
-                            <div class="col">
+                            <div class="col mx-1">
                                 <button class="btn btn-white border-dark"
                                     wire:click="showEditVendor({{ $vendor->id }})">
                                     <i class="fas fa-edit"></i>
                                 </button>
                             </div>
                             <!-- Delete Action -->
-                            <div class="col">
+                            <div class="col mx-1">
                                 <button class="btn btn-dark border-white" wire:click='confirmDelete({{ $vendor->id }})'>
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -242,6 +249,10 @@
             <tbody>
 
 
+                <tr>
+                    <td class="fs-6 fs-md-3 fs-lg-2">Vendor ID</td>
+                    <td>{{ $vendor->vendor_id ?? 'N/A' }}</td>
+                </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Vendor Name</td>
                     <td>{{ $vendor->vendor_name ?? 'N/A' }}</td>
@@ -465,10 +476,10 @@
     <div class="modal logout1" id="logoutModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header text-white logout2" >
+                <div class="modal-header text-white logout2">
                     <h6 class="modal-title logout3" id="logoutModalLabel">Confirm Delete</h6>
                 </div>
-                <div class="modal-body text-center logout4" >
+                <div class="modal-body text-center logout4">
                     Are you sure you want to delete?
                 </div>
                 <div class="modal-body text-center">

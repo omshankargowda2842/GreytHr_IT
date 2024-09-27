@@ -1,8 +1,17 @@
 <div class="main">
+    <div class="d-flex justify-content-center">
+    <div class="col-3  mt-3 ml-3">
+        @if (session()->has('loginSuccess'))
+        <div id="flash-message" class="alert alert-success mt-1">
+            {{ session('loginSuccess') }}
+        </div>
+        @endif
+    </div>
 
-
+    </div>
     <!-- ======================= Cards ================== -->
     <div class="cardBox">
+
         <div class="card">
             <div>
                 <div class="numbers1">{{$activeCount}} <span> <i class="fas fa-users"></i></span></div>
@@ -13,23 +22,23 @@
         <div class="card">
             <div>
                 <div class="row">
-                <div class="col-md-6 text-center">
-                    <div class="numbers">
-                        <h6><i class="fas fa-check-circle text-success"></i> Active</h6>
-                        <p>{{$activeItRelatedEmye}}</p>
+                    <div class="col-md-6 text-center">
+                        <div class="numbers">
+                            <h6><i class="fas fa-check-circle text-success"></i> Active</h6>
+                            <p>{{$activeItRelatedEmye}}</p>
+                        </div>
                     </div>
-                </div>
 
-                <div class="col-md-6 text-center">
-                    <div class="numbers">
-                        <h6><i class="fas fa-times-circle text-danger"></i> InActive</h6>
-                        <p>{{$inactiveItRelatedEmye}}</p>
+                    <div class="col-md-6 text-center">
+                        <div class="numbers">
+                            <h6><i class="fas fa-times-circle text-danger"></i> InActive</h6>
+                            <p>{{$inactiveItRelatedEmye}}</p>
+                        </div>
                     </div>
-                </div>
 
                 </div>
 
-                <div class="cardName">It Members</div>
+                <div class="cardName">IT Members</div>
             </div>
 
 
@@ -37,7 +46,7 @@
 
         <div class="card">
             <div>
-                <div class="numbers1">{{$vendors}} <span>  <i class="fas fa-store"></i></span></div>
+                <div class="numbers1">{{$vendors}} <span> <i class="fas fa-store"></i></span></div>
                 <div class="cardName">Vendors </div>
             </div>
         </div>
@@ -46,19 +55,19 @@
         <div class="card">
             <div>
                 <div class="row">
-                <div class="col-md-6 text-center">
-                    <div class="numbers">
-                        <h6><i class="fas fa-check-circle text-success"></i> Active</h6>
-                        <p>{{$activeAssets}}</p>
+                    <div class="col-md-6 text-center">
+                        <div class="numbers">
+                            <h6><i class="fas fa-check-circle text-success"></i> Active</h6>
+                            <p>{{$activeAssets}}</p>
+                        </div>
                     </div>
-                </div>
 
-                <div class="col-md-6 text-center">
-                    <div class="numbers">
-                        <h6><i class="fas fa-times-circle text-danger"></i> InActive</h6>
-                        <p>{{$inactiveAssets}}</p>
+                    <div class="col-md-6 text-center">
+                        <div class="numbers">
+                            <h6><i class="fas fa-times-circle text-danger"></i> InActive</h6>
+                            <p>{{$inactiveAssets}}</p>
+                        </div>
                     </div>
-                </div>
 
                 </div>
 

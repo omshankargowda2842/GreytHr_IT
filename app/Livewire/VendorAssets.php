@@ -594,7 +594,7 @@ public function createAssetType()
         ]);
 
         // Refresh the asset types list
-        $this->assetNames = asset_types_table::all();
+        $this->assetNames = asset_types_table::orderBy('asset_names', 'asc')->get();
         // Reset the form
         $this->newAssetName = '';
         // Close the modal`
@@ -607,7 +607,7 @@ public function createAssetType()
 
 public function mount()
 {
-    $this->assetNames = asset_types_table::all();
+    $this->assetNames = asset_types_table::orderBy('asset_names', 'asc')->get();
 }
 
     public function render()
