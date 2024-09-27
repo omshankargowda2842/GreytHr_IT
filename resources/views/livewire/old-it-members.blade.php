@@ -28,7 +28,7 @@
                         <!-- <th scope="row">{{ $loop->iteration }}</th> -->
                         <td>{{ $itemployee->id }}</td>
                         <td>{{ $itemployee->it_emp_id }}</td>
-                        <td>{{ $itemployee->employee_name }}</td>
+                        <td>{{ ucwords(strtolower($itemployee->employee_name)) }}</td>
                         <td><img src="{{ $itemployee->image_url }}" class="oldItMemImage" alt="Image" ></td>
                         <td>{{ $itemployee->emp_id }}</td>
                         <td>{{ \Carbon\Carbon::parse($itemployee->date_of_birth)->format('d-M-Y') }}</td>

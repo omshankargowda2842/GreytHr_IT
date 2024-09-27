@@ -3,7 +3,7 @@
     @if($showAddVendor)
 
     <div class="col-11 d-flex justify-content-start mb-1 mt-4" style="margin-left: 5%;">
-    <button class="btn btn-dark btn-sm" wire:click='cancel'> <i class="fas fa-arrow-left"></i> Back</button>
+        <button class="btn btn-dark btn-sm" wire:click='cancel'> <i class="fas fa-arrow-left"></i> Back</button>
 
     </div>
     <div class="col-11 mt-4 itadd-maincolumn">
@@ -89,7 +89,8 @@
 
                                         <!-- Row for centering the button -->
                                         <div class="row">
-                                            <div class="col-12 d-flex justify-content-center" style="height: fit-content;margin-top: 25px;">
+                                            <div class="col-12 d-flex justify-content-center"
+                                                style="height: fit-content;margin-top: 25px;">
                                                 <button wire:click="createAssetType"
                                                     class="btn btn-dark">Create</button>
                                             </div>
@@ -233,8 +234,8 @@
                 </div>
 
                 <div class="d-flex justify-content-center">
-                <button type="button" wire:click="submit"
-                    class="btn btn-dark border-white">{{ $editMode ? 'Update' : 'Submit' }}</button>
+                    <button type="button" wire:click="submit"
+                        class="btn btn-dark border-white">{{ $editMode ? 'Update' : 'Submit' }}</button>
                 </div>
             </form>
         </div>
@@ -254,7 +255,7 @@
             <table class="table table-striped">
                 <thead class="table-dark">
                     <tr>
-                    <th scope="col" class="vendor-table-head">S.No</th>
+                        <th scope="col" class="vendor-table-head">S.No</th>
                         <th class="vendor-table-head">Vendor ID </th>
                         <th class="vendor-table-head">Asset ID </th>
                         <th class="vendor-table-head">Manufacturer</th>
@@ -262,7 +263,7 @@
                         <th class="vendor-table-head">Invoice Number</th>
                         <th class="vendor-table-head">Status</th>
                         <th class="vendor-table-head">Barcode Image</th>
-                        <th class="vendor-table-head">Actions</th>
+                        <th class="vendor-table-head d-flex justify-content-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -271,12 +272,14 @@
                     @if($vendorAssets->count() > 0)
                     @foreach($vendorAssets as $vendorAsset)
                     <tr>
-                    <th scope="row">{{ $loop->iteration }}</th>
-                        <td class="vendor-table-head">{{ $vendorAsset->vendor_id }}</td>
-                        <td class="vendor-table-head">{{ $vendorAsset->asset_id}}</td>
-                        <td class="vendor-table-head">{{ $vendorAsset->manufacturer }}</td>
-                        <td class="vendor-table-head">{{ $vendorAsset['asset_type_name'] }}</td>
-                        <td class="vendor-table-head">{{ $vendorAsset->invoice_number }}</td>
+                        <th scope="row">{{ $loop->iteration }}</th>
+                        <td class="vendor-table-head">{{ $vendorAsset->vendor_id ?? 'N/A'}}</td>
+                        <td class="vendor-table-head">{{ $vendorAsset->asset_id ?? 'N/A'}}</td>
+                        <td class="vendor-table-head">{{ucwords(strtolower($vendorAsset->manufacturer )) ?? 'N/A' }}
+                        </td>
+                        <td class="vendor-table-head">{{ ucwords(strtolower($vendorAsset['asset_type_name'])) ?? 'N/A'}}
+                        </td>
+                        <td class="vendor-table-head">{{ $vendorAsset->invoice_number ?? 'N/A'}}</td>
 
 
                         <td class="vendor-table-head">
@@ -327,29 +330,28 @@
                         <td class="d-flex flex-direction-row">
 
                             <!-- View Action -->
-                            <div class="col">
-                                <button
-                                    class="btn btn-white border-dark"
-                                    wire:click="showViewVendor({{ $vendorAsset->id }})"
-                                   >
+                            <div class="col mx-1">
+                                <button class="btn btn-white border-dark"
+                                    wire:click="showViewVendor({{ $vendorAsset->id }})">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
 
-                            @if($vendorAsset->is_active == 1)
-                            <div class="col">
+
+                            <div class="col mx-1">
 
                                 <button
-                                    class="btn btn-white border-dark"
-                                    wire:click="showEditAsset({{ $vendorAsset->id }})">
+                                    class="btn btn-white border-dark {{ $vendorAsset->is_active == 0 ? 'disabled' : '' }}"
+                                    wire:click="showEditAsset({{ $vendorAsset->id }})"
+                                    {{ $vendorAsset->is_active == 0 ? 'disabled' : '' }}>
                                     <i class="fas fa-edit"></i>
                                 </button>
 
                             </div>
-                            @endif
+
 
                             @if($vendorAsset->is_active == 1)
-                            <div class="col">
+                            <div class="col mx-1">
                                 <!-- Delete Button (Inactive if is_active is 0) -->
                                 <button
                                     class="btn btn-dark border-white {{ $vendorAsset->is_active == 0 ? 'disabled' : '' }}"
@@ -360,8 +362,8 @@
                             </div>
                             @endif
 
-                @if($vendorAsset->is_active == 0)
-                            <div class="col">
+                            @if($vendorAsset->is_active == 0)
+                            <div class="col mx-1">
                                 <!-- Restore Button (Inactive if is_active is 1) -->
                                 <button
                                     class="btn btn-dark border-white {{ $vendorAsset->is_active == 1 ? 'disabled' : '' }}"
@@ -370,7 +372,7 @@
                                     <i class="fas fa-undo"></i>
                                 </button>
                             </div>
-                    @endif
+                            @endif
 
                         </td>
                     </tr>
@@ -419,34 +421,33 @@
             </thead>
             <tbody>
 
-
                 <tr>
-                    <td class="fs-6 fs-md-3 fs-lg-2">Id</td>
-                    <td>{{ $vendorAsset->id ?? 'N/A' }}</td>
+                    <td class="fs-6 fs-md-3 fs-lg-2">Vendor ID</td>
+                    <td>{{ ucwords(strtolower($vendorAsset->vendor_id)) ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Manufacturer</td>
-                    <td>{{ $vendorAsset->manufacturer ?? 'N/A' }}</td>
+                    <td>{{ ucwords(strtolower($vendorAsset->manufacturer)) ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Asset Type</td>
-                    <td>{{ $vendorAsset->asset_type ?? 'N/A' }}</td>
+                    <td>{{ ucwords(strtolower($vendorAsset->asset_type)) ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Asset Model</td>
-                    <td>{{ $vendorAsset->asset_model ?? 'N/A' }}</td>
+                    <td>{{ ucwords(strtolower($vendorAsset->asset_model)) ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Asset Specification</td>
-                    <td>{{ $vendorAsset->asset_specification ?? 'N/A' }}</td>
+                    <td>{{ ucwords(strtolower($vendorAsset->asset_specification)) ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Color</td>
-                    <td>{{ $vendorAsset->color ?? 'N/A' }}</td>
+                    <td>{{ ucwords(strtolower($vendorAsset->color)) ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Version</td>
-                    <td>{{ $vendorAsset->version ?? 'N/A' }}</td>
+                    <td>{{ ucwords(strtolower($vendorAsset->version)) ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Serial Number</td>
@@ -454,15 +455,15 @@
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Invoice Number</td>
-                    <td>{{ $vendorAsset->invoice_number ?? 'N/A' }}</td>
+                    <td> {{ $vendorAsset->invoice_number ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Taxable Amount</td>
-                    <td>{{ $vendorAsset->taxable_amount ?? 'N/A' }}</td>
+                    <td>₹ {{ $vendorAsset->taxable_amount ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Invoice Amount</td>
-                    <td>{{ $vendorAsset->invoice_amount ?? 'N/A' }}</td>
+                    <td>₹ {{$vendorAsset->invoice_amount ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">GST State</td>
@@ -639,10 +640,10 @@
 
 
     @if ($showLogoutModal)
-    <div class="modal"  style="display: block;" id="logoutModal" tabindex="-1">
+    <div class="modal" style="display: block;" id="logoutModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header text-white"  style="background-color: black;">
+                <div class="modal-header text-white" style="background-color: black;">
                     <h6 class="modal-title" style=" align-items: center;" id="logoutModalLabel">Confirm Delete</h6>
                 </div>
                 <div class="modal-body text-center" style=" font-size: 16px;color:black;">
@@ -654,8 +655,8 @@
                         <div class="row">
                             <div class="col-12 req-remarks-div">
 
-                                <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea" style=" min-height: 76px;"
-                                    placeholder="Reason for deactivation"></textarea>
+                                <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea"
+                                    style=" min-height: 76px;" placeholder="Reason for deactivation"></textarea>
 
                             </div>
                         </div>

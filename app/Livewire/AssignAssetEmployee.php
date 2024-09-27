@@ -26,7 +26,7 @@ class AssignAssetEmployee extends Component
     public $assetEmpCreateUpdate = false;
     public $oldEmpAssetListing = false;
     public $assignmentId;
-    public $searchEmpId = '';
+    public $searchEmp = '';
     public $searchAssetId = '';
     public $filteredEmployeeAssets = [];
     public $assetsFound = false;
@@ -323,13 +323,16 @@ public function closeViewEmpAsset()
     public function filter()
     {
         try {
-            $trimmedEmpId = trim($this->searchEmpId);
+            $trimmedEmpId = trim($this->searchEmp);
             $trimmedAssetId = trim($this->searchAssetId);
 
             $this->filteredEmployeeAssets = AssignAssetEmp::query()
-                ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
-                    $query->where('emp_id', 'like', '%' . $trimmedEmpId . '%');
-                })
+            ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
+                            $query->where(function ($query) use ($trimmedEmpId) {
+                                $query->where('emp_id', 'like', '%' . $trimmedEmpId . '%')
+                                    ->orWhere('employee_name', 'like', '%' . $trimmedEmpId . '%'); // Adjust the column name as needed
+                            });
+                        })
                 ->when($trimmedAssetId, function ($query) use ($trimmedAssetId) {
                     $query->where('asset_id', 'like', '%' . $trimmedAssetId . '%');
                 })
@@ -350,7 +353,7 @@ public function closeViewEmpAsset()
     public function clearFilters()
     {
         // Reset search fields and filtered results
-        $this->searchEmpId = '';
+        $this->searchEmp = '';
         $this->searchAssetId = '';
         $this->filteredEmployeeAssets = [];
         $this->assetsFound = false;
