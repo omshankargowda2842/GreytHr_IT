@@ -4,14 +4,13 @@
 
             <div class="col-lg-9 col-md-7 col-xs-12">
 
-                <div class="req-pro-head" >
+                <div class="req-pro-head">
 
                     <req-pro-nav class="req-pro-req-pro-nav">
 
                         <ul class="tabss">
 
-                            <li class="tab" wire:click="setActiveTab('active')"
-                                >
+                            <li class="tab" wire:click="setActiveTab('active')">
 
                                 <i class="fas fa-check"></i> Active
 
@@ -22,8 +21,7 @@
                                 @endif
                             </li>
 
-                            <li class="tab" wire:click="setActiveTab('pending')"
-                              >
+                            <li class="tab" wire:click="setActiveTab('pending')">
 
                                 <i class="fas fa-clock"></i> Inprogress
 
@@ -35,8 +33,7 @@
 
                             </li>
 
-                            <li class="tab" wire:click="setActiveTab('closed')"
-                              >
+                            <li class="tab" wire:click="setActiveTab('closed')">
 
                                 <i class="fas fa-times"></i> Closed
 
@@ -73,11 +70,11 @@
                             @if($viewingDetails && $selectedRequest)
 
                             @if($viewingDetails)
-                                <button class="btn bg-dark text-white float:right" wire:click="closeDetails"
-                                    @if($loading) disabled @endif>
-                                    <i class="fas fa-arrow-left"></i> Back
-                                </button>
-                                @endif
+                            <button class="btn bg-dark text-white float:right" wire:click="closeDetails" @if($loading)
+                                disabled @endif>
+                                <i class="fas fa-arrow-left"></i> Back
+                            </button>
+                            @endif
                             <div class="req-pro-tablediv">
 
                                 <div wire:loading.delay>
@@ -190,10 +187,11 @@
                                                         <div class="swiper-container">
                                                             <div class="swiper-wrapper">
 
-                                                                <div class="swiper-slide reqResSwiper" >
+                                                                <div class="swiper-slide reqResSwiper">
 
-                                                                <img src="{{ $selectedRequest->image_url }}" class="req-Res-Image" alt="Image">
-                                                                <!-- <img src="data:image/jpeg;base64,{{ $selectedRequest->file_path }}" class="img-fluid" width="50" height="50" alt="Image preview"> -->
+                                                                    <img src="{{ $selectedRequest->image_url }}"
+                                                                        class="req-Res-Image" alt="Image">
+                                                                    <!-- <img src="data:image/jpeg;base64,{{ $selectedRequest->file_path }}" class="img-fluid" width="50" height="50" alt="Image preview"> -->
                                                                 </div>
                                                             </div>
                                                             <!-- Add Pagination -->
@@ -290,11 +288,11 @@
 
 
                                         <tr>
-                                            <td>Assignee to <span class="text-danger">*</span></td>
+                                            <td>Assign to <span class="text-danger">*</span></td>
                                             <td>
                                                 <select class="req-selected-status" wire:model="selectedAssigne"
                                                     wire:change="updateAssigne('{{ $selectedRequest->id }}')">
-                                                    <option value="" disabled selected>Select Assigne</option>
+                                                    <option value="" disabled selected>Select Assignee</option>
                                                     @foreach($itData as $itName)
                                                     <option
                                                         value="{{ $itName->empIt->first_name }} {{ $itName->empIt->last_name }} ">
@@ -319,7 +317,7 @@
 
                                 <div class="d-flex justify-content-center align-items-center">
                                     <button class="btn btn-dark mb-3" wire:click="redirectBasedOnStatus" @if($loading)
-                                        disabled @endif>Save and
+                                        disabled @endif>Save &
                                         Continue</button>
                                 </div>
 
@@ -332,37 +330,38 @@
 
                             @if($forIT->where('status', 'Open')->count() > 0)
                             <div class="scrollable-container">
-                            <div class="req-pro-card">
+                                <div class="req-pro-card">
 
-                                @foreach ($forIT->where('status', 'Open') as $index => $request)
+                                    @foreach ($forIT->where('status', 'Open') as $index => $request)
 
-                                <div class="request-card">
+                                    <div class="request-card">
 
-                                    <div class="req-pro-card-body">
+                                        <div class="req-pro-card-body">
 
-                                        <div>
+                                            <div>
 
-                                            <p class="req-reqBy-Dep"><strong>Requested By:</strong>
-                                                {{ $request->emp->first_name }}
-                                                {{ $request->emp->last_name }}</p>
+                                                <p class="req-reqBy-Dep"><strong>Requested By:</strong>
+                                                    {{ $request->emp->first_name }}
+                                                    {{ $request->emp->last_name }}</p>
 
-                                            <p title="{{ $request['category'] }}">
-                                                <strong>Department: </strong><span
-                                                  class="req-res-depart">{{ $request->category ?? 'N/A' }}</span>
-                                            </p>
+                                                <p title="{{ $request['category'] }}">
+                                                    <strong>Department: </strong><span
+                                                        class="req-res-depart">{{ $request->category ?? 'N/A' }}</span>
+                                                </p>
+
+                                            </div>
+
+                                            <button wire:click="viewDetails({{ $index }})"
+                                                class="req-pro-view-details-btn" @if($loading) disabled
+                                                @endif>View</button>
 
                                         </div>
 
-                                        <button wire:click="viewDetails({{ $index }})" class="req-pro-view-details-btn"
-                                            @if($loading) disabled @endif>View</button>
-
                                     </div>
 
+                                    @endforeach
+
                                 </div>
-
-                                @endforeach
-
-                            </div>
                             </div>
 
                             @else
@@ -442,8 +441,7 @@
                                                     <th class="req-table-head">Comments</th>
 
                                                     <th class="req-table-head">Close Request</th>
-                                                    <th class="req-table-head-Remarks"
-                                                        >
+                                                    <th class="req-table-head-Remarks">
                                                         Remarks</th>
 
                                                 </tr>
@@ -532,14 +530,19 @@
                                                     <td>
                                                         <form wire:submit.prevent="postRemarks('{{ $record->id }}')">
                                                             <div class="row">
-                                                                <div class="col-12 req-remarks-div">
+                                                                <div class="col-12 d-flex align-items-center">
+                                                                    <!-- Textarea takes most of the width -->
                                                                     <textarea
                                                                         wire:model.lazy="remarks.{{ $record->id }}"
-                                                                        class="form-control req-remarks-textarea"></textarea>
-                                                                    <button type="submit" class="btn btn-dark ml-2"
+                                                                        class="form-control me-2 req-remarks-textarea"
+                                                                        style="flex-grow: 1;"></textarea>
+
+                                                                    <!-- Button is small and aligned to the right -->
+                                                                    <button type="submit" class="btn btn-dark p-2" style="height: fit-content;"
                                                                         @if($loading) disabled @endif>Post</button>
                                                                 </div>
                                                             </div>
+
                                                         </form>
                                                     </td>
                                                 </tr>
@@ -549,7 +552,8 @@
                                                 <tr class="req-cc-tr">
                                                     <td colspan="19" class="req-cc-td">
                                                         <div class="req-cc-div">
-                                                            <strong>CC TO: </strong> {{ implode(', ', $ccToArray) }}
+                                                            <strong style="margin-left: 5px;">CC TO: </strong>
+                                                            {{ implode(', ', $ccToArray) }}
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -654,7 +658,7 @@
 
                                                     <td>{{ $record->emp->first_name }} {{ $record->emp->last_name }}
                                                         <br>
-                                                        <strong class="req-res-emp_id" >({{$record->emp_id}})
+                                                        <strong class="req-res-emp_id">({{$record->emp_id}})
                                                     </td>
 
                                                     <td>{{ $record->category ?? 'N/A'}}</td>
@@ -731,7 +735,8 @@
 
                                                     <td colspan="19" class="req-cc-td">
                                                         <div class="req-cc-div">
-                                                            <strong>CC TO: </strong> {{ implode(', ', $ccToArray) }}
+                                                            <strong style="margin-left: 5px;">CC TO: </strong>
+                                                            {{ implode(', ', $ccToArray) }}
 
                                                         </div>
                                                     </td>

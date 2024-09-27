@@ -99,23 +99,23 @@
                 </a>
             </li> -->
 
-            <li>
+            <!-- <li>
                 <a href="#">
                     <span class="icon">
                         <i class="fas fa-lock"></i>
                     </span>
                     <span class="title">Password</span>
                 </a>
-            </li>
+            </li> -->
 
-            <li>
+            <!-- <li>
                 <a href="#">
                     <span class="icon">
                         <i class="fas fa-sign-out-alt"></i>
                     </span>
                     <span class="title">Sign Out</span>
                 </a>
-            </li>
+            </li> -->
 
 
 

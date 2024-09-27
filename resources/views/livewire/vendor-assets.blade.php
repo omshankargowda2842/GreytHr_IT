@@ -1,10 +1,14 @@
 <div class="main">
 
     @if($showAddVendor)
+
+    <div class="col-11 d-flex justify-content-start mb-1 mt-4" style="margin-left: 5%;">
+    <button class="btn btn-dark btn-sm" wire:click='cancel'> <i class="fas fa-arrow-left"></i> Back</button>
+
+    </div>
     <div class="col-11 mt-4 itadd-maincolumn">
         <div class="d-flex justify-content-between align-items-center">
             <h2 class="mb-4 addEditHeading">{{ $editMode ? 'Edit Asset' : 'Add Asset' }}</h2>
-            <button class="btn btn-dark btn-sm" wire:click='cancel'> <i class="fas fa-arrow-left"></i> Back</button>
         </div>
 
         <div class="border rounded p-3 bg-light" style="max-height: 400px; overflow-y: auto;">
@@ -12,7 +16,7 @@
                 <div class="row mb-3">
                     <div class="col-md-6 mb-3">
                         <label for="vendor" class="form-label"><span class="text-danger">*</span> Vendor</label>
-                        <select id="vendor" wire:model="selectedVendorId" class="form-control">
+                        <select id="vendor" wire:model="selectedVendorId" class="vendor-selected-vendorID">
                             <option value="">Select Vendor</option>
                             @foreach($vendors as $vendor)
                             <option value="{{ $vendor->vendor_id }}">{{ $vendor->vendor_name }}</option>
@@ -48,7 +52,7 @@
                     <div class="col-md-6">
                         <label for="assetType" class="form-label"><span class="text-danger">*</span> Asset Type</label>
                         <div class="input-group">
-                            <select wire:model="assetType" id="assetType" class="form-control">
+                            <select wire:model="assetType" id="assetType" class="vendor-selected-AssetType">
                                 <option value="">Select Asset Type</option>
                                 @foreach($assetNames as $asset)
                                 <option value="{{ $asset->id }}">{{ $asset->asset_names }}</option>
@@ -228,9 +232,10 @@
                     @error('file_paths.*') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
 
-
+                <div class="d-flex justify-content-center">
                 <button type="button" wire:click="submit"
                     class="btn btn-dark border-white">{{ $editMode ? 'Update' : 'Submit' }}</button>
+                </div>
             </form>
         </div>
     </div>
@@ -249,6 +254,7 @@
             <table class="table table-striped">
                 <thead class="table-dark">
                     <tr>
+                    <th scope="col" class="vendor-table-head">S.No</th>
                         <th class="vendor-table-head">Vendor ID </th>
                         <th class="vendor-table-head">Asset ID </th>
                         <th class="vendor-table-head">Manufacturer</th>
@@ -265,6 +271,7 @@
                     @if($vendorAssets->count() > 0)
                     @foreach($vendorAssets as $vendorAsset)
                     <tr>
+                    <th scope="row">{{ $loop->iteration }}</th>
                         <td class="vendor-table-head">{{ $vendorAsset->vendor_id }}</td>
                         <td class="vendor-table-head">{{ $vendorAsset->asset_id}}</td>
                         <td class="vendor-table-head">{{ $vendorAsset->manufacturer }}</td>

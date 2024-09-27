@@ -7,6 +7,7 @@ use Livewire\Component;
 use App\Models\IT;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
 
@@ -136,6 +137,7 @@ class ItAddMember extends Component
     }
 
 
+
     public function submit()
     {
         $this->resetErrorBag('employeeId');
@@ -187,6 +189,7 @@ class ItAddMember extends Component
         'image' => $imageData ?? $data->image,
 
         ]);
+        session()->flash('updateMessage', 'IT member updated successfully!');
 
         }
         } else {
@@ -200,10 +203,14 @@ class ItAddMember extends Component
         'image' => $imageData,
         'is_active' => true,
         ]);
+
+        session()->flash('createMessage', 'IT member added successfully!');
+
         }
 
         $this->resetForm();
-        session()->flash('message', $this->editMode ? 'IT member updated successfully!' : 'IT member added successfully!');
+        // session()->flash('message', $this->editMode ? 'IT member updated successfully!' : 'IT member added successfully!');
+
     }
 
     public function cancel(){
@@ -270,6 +277,8 @@ public function delete()
     }
 
 
+
+
     public function updateEmployeeName()
     {
         $this->resetErrorBag();
@@ -277,10 +286,14 @@ public function delete()
         $member = EmployeeDetails::with('personalInfo')->where('emp_id', $this->employeeId)->first();
 
         if ($member) {
+
         $this->employeeName = "{$member->first_name} {$member->last_name}";
+
         $this->dateOfBirth = $member->personalInfo->date_of_birth ?? '';
         $this->phoneNumber = $member->personalInfo->mobile_number ?? '';
         $this->email = $member->personalInfo->email ?? '';
+
+
         } else {
         $this->employeeName = '';
         $this->dateOfBirth = '';
