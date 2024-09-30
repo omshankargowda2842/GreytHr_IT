@@ -10,6 +10,8 @@ class Task extends Model
     use HasFactory;
     protected $fillable = [
         'emp_id',
+        'client_id',
+        'project_name',
         'task_name',
         'assignee',
         'priority',

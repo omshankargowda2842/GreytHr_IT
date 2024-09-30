@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('company_id')->unique()->nullable();
             $table->string('company_name')->nullable();
             $table->string('company_logo')->nullable();
-            $table->string('image')->nullable();
+            $table->binary('image')->nullable();
             $table->string('city')->nullable();
             $table->string('state')->nullable();
             $table->string('country')->nullable();

@@ -1,7 +1,16 @@
 <?php
 
+use App\Livewire\AssignAssetEmployee;
 use App\Livewire\Dashboard;
+use App\Livewire\EmployeeAssetList;
+use App\Livewire\ItAddMember;
 use App\Livewire\ItLogin;
+use App\Livewire\ItMembers;
+use App\Livewire\OldItMembers;
+use App\Livewire\RequestProcess;
+use App\Livewire\TestPurpose;
+use App\Livewire\VendorAssets;
+use App\Livewire\Vendors;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,5 +39,13 @@ Route::middleware(['auth:it'])->group(function () {
     Route::prefix('it')->group(function () {
         //like this  Route: /hr/hello
                 Route::get('/hello', Dashboard::class)->name('hello');
+                Route::get('/itrequest',RequestProcess::class)->name('requests');
+                Route::get('/itMembers',ItAddMember::class)->name('itMembers');
+                Route::get('/oldItMembers',OldItMembers::class)->name('oldItMembers');
+                Route::get('/vendor',Vendors::class)->name('vendor');
+                Route::get('/vendorAssets',VendorAssets::class)->name('vendorAssets');
+                Route::get('/EmployeeAssetList',AssignAssetEmployee::class)->name('EmployeeAssetList');
+                // Route::get('/EmployeeAssetList',EmployeeAssetList::class)->name('EmployeeAssetList');
+
     });
 });

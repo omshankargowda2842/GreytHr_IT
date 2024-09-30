@@ -13,16 +13,12 @@ class IT extends Authenticatable
     protected $table = 'i_t'; // Adjust the table name accordingly
 
     protected $fillable = [
-        'it_emp_id','image',
-        'company_id', 'employee_name', 'designation', 'skills',
-        'experience_years', 'education', 'certifications', 'date_of_birth',
-        'address', 'phone_number', 'email', 'company_email', 'bio', 'linkedin_profile','password',
-        'github_profile', 'salary', 'is_active'
+        'it_emp_id','image', 'employee_name', 'date_of_birth','emp_id',
+        'phone_number', 'email','password','is_active','delete_itmember_reason','active_comment','inprogress_remarks'
     ];
 
     protected $casts = [
         'date_of_birth' => 'date',
-        'salary' => 'decimal:2',
         'is_active' => 'boolean',
     ];
 
@@ -30,4 +26,24 @@ class IT extends Authenticatable
     {
         return $this->belongsTo(Company::class, 'company_id', 'company_id');
     }
+
+    public function empIt()
+    {
+
+        return $this->belongsTo(EmployeeDetails::class, 'emp_id', 'emp_id');
+    }
+
+    public function setImageAttribute($value)
+    {
+        $this->attributes['image'] = $value ? $value : null;
+    }
+
+    public function getImageAttribute($value)
+    {
+        return $value;
+    }
+    public function getImageUrlAttribute()
+{
+    return 'data:image/jpeg;base64,' . base64_encode($this->attributes['image']);
+}
 }
