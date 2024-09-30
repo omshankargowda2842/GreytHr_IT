@@ -176,11 +176,11 @@
                     @foreach($vendors as $vendor)
                     <tr>
                         <th scope="row">{{ $loop->iteration }}</th>
-                        <td class="vendor-table-head">{{ $vendor->vendor_id}}</td>
-                        <td class="vendor-table-head">{{ $vendor->vendor_name }}</td>
-                        <td class="vendor-table-head">{{ $vendor->contact_name }}</td>
-                        <td class="vendor-table-head">{{ $vendor->gst }}</td>
-                        <td class="vendor-table-head">{{ $vendor->contact_email }}</td>
+                        <td class="vendor-table-head">{{ $vendor->vendor_id ?? 'N/A'}}</td>
+                        <td class="vendor-table-head">{{  ucwords(strtolower($vendor->vendor_name)) ?? 'N/A' }}</td>
+                        <td class="vendor-table-head">{{  ucwords(strtolower($vendor->contact_name)) ?? 'N/A'}}</td>
+                        <td class="vendor-table-head">{{ $vendor->gst ?? 'N/A'}}</td>
+                        <td class="vendor-table-head">{{ $vendor->contact_email ?? 'N/A'}}</td>
                         <td class="d-flex">
                             <!-- View Action -->
                             <div class="col mx-1">
@@ -255,11 +255,11 @@
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Vendor Name</td>
-                    <td>{{ $vendor->vendor_name ?? 'N/A' }}</td>
+                    <td>{{ ucwords(strtolower($vendor->vendor_name)) ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Contact Name</td>
-                    <td>{{ $vendor->contact_name ?? 'N/A' }}</td>
+                    <td>{{ ucwords(strtolower($vendor->contact_name)) ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Phone</td>

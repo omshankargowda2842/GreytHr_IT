@@ -145,8 +145,8 @@
         <div class="row mb-3 mt-4 ml-4 employeeAssetList">
             <!-- Employee ID Search Input -->
             <div class="col-10 col-md-3 mb-2 mb-md-0">
-                <input type="text" class="form-control" placeholder="Search by Employee ID"
-                    wire:model.debounce.500ms="searchEmpId" wire:keydown.enter="filter">
+                <input type="text" class="form-control" placeholder="Search by Employee ID/Name"
+                    wire:model.debounce.500ms="searchEmp" wire:keydown.enter="filter">
             </div>
 
             <!-- Asset ID Search Input -->
@@ -181,14 +181,13 @@
                         <tr>
 
                             <th class="req-table-head" scope="col">Employee ID</th>
-
+                            <th class="req-table-head">Employee Name</th>
                             <th class="req-table-head">Asset ID</th>
                             <th class="req-table-head">Manufacturer</th>
                             <th class="req-table-head">Asset Type</th>
-                            <th class="req-table-head">Employee Name</th>
                             <th class="req-table-head">Department</th>
 
-                            <th class="req-table-head">Actions</th> <!-- Added Actions Column -->
+                            <th class="req-table-head d-flex justify-content-center">Actions</th> <!-- Added Actions Column -->
                         </tr>
                     </thead>
                     <tbody>
@@ -197,29 +196,29 @@
                         @foreach($employeeAssetLists as $employeeAssetList)
                         @if($employeeAssetList->is_active == 1)
                         <tr>
-                            <td>{{ $employeeAssetList->emp_id }}</td>
-                            <td>{{ $employeeAssetList->asset_id }}</td>
-                            <td>{{ $employeeAssetList->manufacturer }}</td>
-                            <td>{{$employeeAssetList['asset_type_name'] }}</td>
-                            <td>{{ $employeeAssetList->employee_name }}</td>
-                            <td>{{ $employeeAssetList->department }}</td>
+                            <td>{{ $employeeAssetList->emp_id ?? 'N/A'}}</td>
+                            <td>{{ ucwords(strtolower($employeeAssetList->employee_name)) ?? 'N/A' }}</td>
+                            <td>{{ $employeeAssetList->asset_id ?? 'N/A'}}</td>
+                            <td>{{ ucwords(strtolower($employeeAssetList->manufacturer)) ?? 'N/A'}}</td>
+                            <td>{{ ucwords(strtolower($employeeAssetList['asset_type_name'])) ?? 'N/A' }}</td>
+                            <td>{{ $employeeAssetList->department ?? 'N/A' }}</td>
                             <td class="d-flex ">
                                 <!-- Action Buttons -->
-                                <div class="col">
+                                <div class="col mx-1">
                                     <button class="btn btn-sm btn-white border-dark"
                                         wire:click="viewDetails({{ $employeeAssetList->id }})" title="View">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
                                 <!-- Edit Action -->
-                                <div class="col">
+                                <div class="col mx-1">
                                     <button class="btn btn-sm btn-white border-dark"
                                         wire:click="edit({{ $employeeAssetList->id }})" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                 </div>
                                 <!-- Delete Action -->
-                                <div class="col">
+                                <div class="col mx-1">
                                     <button class="btn btn-dark btn-sm border-dark"
                                         wire:click="confirmDelete({{ $employeeAssetList->id }})" title="Delete">
                                         <i class="fas fa-trash"></i>
@@ -281,7 +280,11 @@
                         <td>{{ $vendor->emp_id ?? 'N/A' }}</td>
                     </tr>
                     <tr>
-                        <td>Vendor Id</td>
+                        <td>Employee Name</td>
+                        <td>{{ucwords(strtolower($vendor->employee_name)) ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Vendor ID</td>
                         <td>{{ $vendor->vendorAsset->vendor_id ?? 'N/A' }}</td>
                     </tr>
                     <tr>
@@ -290,31 +293,28 @@
                     </tr>
                     <tr>
                         <td>Manufacturer</td>
-                        <td>{{ $vendor->manufacturer ?? 'N/A' }}</td>
+                        <td>{{ ucwords(strtolower($vendor->manufacturer)) ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Asset Type</td>
-                        <td>{{ $vendor['asset_type_name'] ?? 'N/A' }}</td>
+                        <td>{{ ucwords(strtolower($vendor['asset_type_name'])) ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Asset Model</td>
-                        <td>{{ $vendor->vendorAsset->asset_model ?? 'N/A' }}</td>
+                        <td>{{ ucwords(strtolower($vendor->vendorAsset->asset_model)) ?? 'N/A' }}</td>
                     </tr>
-                    <tr>
-                        <td>Employee Name</td>
-                        <td>{{ $vendor->employee_name ?? 'N/A' }}</td>
-                    </tr>
+
                     <tr>
                         <td>Department</td>
                         <td>{{ $vendor->department ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Color</td>
-                        <td>{{ $vendor->vendorAsset->color ?? 'N/A' }}</td>
+                        <td>{{ ucwords(strtolower($vendor->vendorAsset->color)) ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Invoice Amount</td>
-                        <td>{{ $vendor->vendorAsset->invoice_amount ?? 'N/A' }}</td>
+                        <td>₹ {{ $vendor->vendorAsset->invoice_amount ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Invoice Number</td>
@@ -365,10 +365,10 @@
         @if($searchFilters)
         <!-- Search Filters -->
         <div class="row mb-3 mt-4 ml-4 employeeAssetList">
-            <!-- Employee ID Search Input -->
+            <!-- Employee  Search Input -->
             <div class="col-10 col-md-3 mb-2 mb-md-0">
-                <input type="text" class="form-control" placeholder="Search by Employee ID"
-                    wire:model.debounce.500ms="searchEmpId" wire:keydown.enter="filter">
+                <input type="text" class="form-control" placeholder="Search by Employee ID/Name"
+                    wire:model.debounce.500ms="searchEmp" wire:keydown.enter="filter">
             </div>
 
             <!-- Asset ID Search Input -->
@@ -401,11 +401,12 @@
                     <thead class="table-dark">
                         <tr>
                             <th class="req-table-head" scope="col">Employee ID</th>
+                            <th class="req-table-head">Employee Name</th>
                             <!-- <th class="req-table-head">Vendor Id</th> -->
                             <th class="req-table-head">Asset ID</th>
                             <th class="req-table-head">Manufacturer</th>
                             <th class="req-table-head">Asset Type</th>
-                            <th class="req-table-head">Employee Name</th>
+
                             <th class="req-table-head">Department</th>
                             <th class="req-table-head">Actions</th>
 
@@ -418,13 +419,14 @@
                         @foreach($employeeAssetLists as $employeeAssetList)
                         @if($employeeAssetList->is_active == 0)
                         <tr>
-                            <td>{{ $employeeAssetList->emp_id }}</td>
+                            <td>{{ $employeeAssetList->emp_id ?? 'N/A'}}</td>
+                            <td>{{ucwords(strtolower($employeeAssetList->employee_name)) ?? 'N/A'}}</td>
                             <!-- <td>{{ $employeeAssetList->vendorAsset->vendor_id }}</td> -->
-                            <td>{{ $employeeAssetList->asset_id }}</td>
-                            <td>{{ $employeeAssetList->manufacturer }}</td>
-                            <td>{{ $employeeAssetList['asset_type_name'] }}</td>
-                            <td>{{ $employeeAssetList->employee_name }}</td>
-                            <td>{{ $employeeAssetList->department }}</td>
+                            <td>{{ $employeeAssetList->asset_id ?? 'N/A'}}</td>
+                            <td>{{ ucwords(strtolower($employeeAssetList->manufacturer)) ?? 'N/A'}}</td>
+                            <td>{{ ucwords(strtolower($employeeAssetList['asset_type_name'])) ?? 'N/A'}}</td>
+
+                            <td>{{ $employeeAssetList->department ?? 'N/A'}}</td>
                             <td class="d-flex ">
                                 <!-- Action Buttons -->
                                 <div class="col">
@@ -489,6 +491,12 @@
                         <td>Employee ID</td>
                         <td>{{ $vendor->emp_id ?? 'N/A' }}</td>
                     </tr>
+
+                    <tr>
+                        <td>Employee Name</td>
+                        <td>{{ ucwords(strtolower($vendor->employee_name)) ?? 'N/A' }}</td>
+                    </tr>
+
                     <tr>
                         <td>Vendor Id</td>
                         <td>{{ $vendor->vendorAsset->vendor_id ?? 'N/A' }}</td>
@@ -499,31 +507,28 @@
                     </tr>
                     <tr>
                         <td>Manufacturer</td>
-                        <td>{{ $vendor->manufacturer ?? 'N/A' }}</td>
+                        <td>{{ ucwords(strtolower($vendor->manufacturer)) ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Asset Type</td>
-                        <td>{{ $vendor['asset_type_name'] ?? 'N/A' }}</td>
+                        <td>{{ ucwords(strtolower($vendor['asset_type_name'])) ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Asset Model</td>
-                        <td>{{ $vendor->vendorAsset->asset_model ?? 'N/A' }}</td>
+                        <td>{{ ucwords(strtolower($vendor->vendorAsset->asset_model)) ?? 'N/A' }}</td>
                     </tr>
-                    <tr>
-                        <td>Employee Name</td>
-                        <td>{{ $vendor->employee_name ?? 'N/A' }}</td>
-                    </tr>
+
                     <tr>
                         <td>Department</td>
-                        <td>{{ $vendor->department ?? 'N/A' }}</td>
+                        <td>{{$vendor->department ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Color</td>
-                        <td>{{ $vendor->vendorAsset->color ?? 'N/A' }}</td>
+                        <td>{{ ucwords(strtolower($vendor->vendorAsset->color)) ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Invoice Amount</td>
-                        <td>{{ $vendor->vendorAsset->invoice_amount ?? 'N/A' }}</td>
+                        <td>₹ {{$vendor->vendorAsset->invoice_amount ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Invoice Number</td>

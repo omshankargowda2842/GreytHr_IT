@@ -1,25 +1,25 @@
 <div class="main">
     <div class="d-flex justify-content-center">
-    <div class="col-3  mt-3 ml-3">
-        @if (session()->has('loginSuccess'))
-        <div id="flash-message" class="alert alert-success mt-1">
-            {{ session('loginSuccess') }}
+        <div class="col-3  mt-3 ml-3">
+            @if (session()->has('loginSuccess'))
+            <div id="flash-message" class="alert alert-success mt-1">
+                {{ session('loginSuccess') }}
+            </div>
+            @endif
         </div>
-        @endif
-    </div>
 
     </div>
     <!-- ======================= Cards ================== -->
     <div class="cardBox">
 
-        <div class="card">
+        <div class="card" wire:click='itRequest'>
             <div>
                 <div class="numbers1">{{$activeCount}} <span> <i class="fas fa-users"></i></span></div>
                 <div class="cardName">Active Requests </div>
             </div>
         </div>
 
-        <div class="card">
+        <div class="card" wire:click='itMemeber'>
             <div>
                 <div class="row">
                     <div class="col-md-6 text-center">
@@ -44,7 +44,7 @@
 
         </div>
 
-        <div class="card">
+        <div class="card" wire:click='vendorMod'>
             <div>
                 <div class="numbers1">{{$vendors}} <span> <i class="fas fa-store"></i></span></div>
                 <div class="cardName">Vendors </div>
@@ -52,7 +52,7 @@
         </div>
 
 
-        <div class="card">
+        <div class="card" wire:click='assetMod'>
             <div>
                 <div class="row">
                     <div class="col-md-6 text-center">
@@ -101,14 +101,18 @@
             <table class="mt-5">
                 <thead>
                     <tr>
-                        <td>Category</td>
+                        <td>Category
+                            <span class="" wire:click="toggleSortOrder" style="cursor: pointer;margin-left:10px;">
+                                <i class="fas fa-sort"></i> <!-- Single Sort Icon -->
+                            </span>
+                        </td>
                         <td>Total Requests</td>
                         <td>Status</td>
                     </tr>
                 </thead>
 
                 <tbody>
-                    @foreach($categories as $category)
+                    @foreach($sortedCategories as $category)
                     <tr>
                         <td>{{ $category }}</td> <!-- Display category in the Category column -->
                         <td class="text-primary">
@@ -145,7 +149,7 @@
         <!-- ================= New Customers ================ -->
         <div class="recentCustomers">
             <div>
-                <h2 class="mb-5">Graph Data</h2>
+                <h2 class="mb-5" style="margin-left: 15px;margin-top: 9px;">Graph Data</h2>
                 <canvas id="myDonutChart" width="300" height="300"></canvas>
                 <!-- <canvas id="myPieChart" width="400" height="400"></canvas> -->
             </div>
@@ -162,52 +166,66 @@ $completedCount = $closedCount;
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const ctx = document.getElementById('myDonutChart').getContext('2d');
+    const drawChart = () => {
+        const ctx = document.getElementById('myDonutChart').getContext('2d');
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    // Sample data - these should be PHP variables in your actual implementation
-    const activeCount = <?php echo json_encode($activeCount); ?>;
-    const pendingCount = <?php echo json_encode($pendingCount); ?>;
-    const completedCount = <?php echo json_encode($completedCount); ?>;
 
-    const data = {
-        labels: ['Active', 'Pending', 'Completed'],
-        datasets: [{
-            label: 'Request Status',
-            data: [activeCount, pendingCount, completedCount], // Use the PHP variables
-            backgroundColor: [
-                '#ffcc80', // Orange
-                '#a5d6a7', // Green
-                '#64b5f6' // Blue
-            ],
-            borderColor: [
-                'rgba(255, 159, 64, 1)', // Orange
-                'rgba(75, 192, 192, 1)', // Green
-                'rgba(54, 162, 235, 1)', // Blue
-            ],
-            borderWidth: 1
-        }]
-    };
+        // Sample data - these should be PHP variables in your actual implementation
+        const activeCount = <?php echo json_encode($activeCount); ?>;
+        const pendingCount = <?php echo json_encode($pendingCount); ?>;
+        const completedCount = <?php echo json_encode($completedCount); ?>;
 
-    const config = {
-        type: 'doughnut',
-        data: data,
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            return tooltipItem.label + ': ' + tooltipItem.raw;
+        const data = {
+            labels: ['Active', 'Pending', 'Completed'],
+            datasets: [{
+                label: 'Request Status',
+                data: [activeCount, pendingCount, completedCount], // Use the PHP variables
+                backgroundColor: [
+                    '#ffcc80', // Orange
+                    '#a5d6a7', // Green
+                    '#64b5f6' // Blue
+                ],
+                borderColor: [
+                    'rgba(255, 159, 64, 1)', // Orange
+                    'rgba(75, 192, 192, 1)', // Green
+                    'rgba(54, 162, 235, 1)', // Blue
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        const config = {
+            type: 'doughnut',
+            data: data,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.label + ': ' + tooltipItem.raw;
+                            }
                         }
                     }
                 }
             }
-        }
+        };
+
+        new Chart(ctx, config);
     };
 
-    new Chart(ctx, config);
+    // Initial chart draw
+    drawChart();
+
+    // Redraw chart on Livewire updates
+    document.addEventListener('livewire:load', drawChart);
+    document.addEventListener('livewire:updated', () => {
+        setTimeout(drawChart, 100); // Adjust the delay if necessary
+    });
+
 });
 </script>
