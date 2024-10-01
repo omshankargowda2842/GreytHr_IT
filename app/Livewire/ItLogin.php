@@ -21,16 +21,20 @@ use Illuminate\Validation\ValidationException;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Session;
-
+use App\Notifications\ResetPasswordLink;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\QueryException;
 use App\Mail\PasswordChanged;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 
 class ItLogin extends Component
 {
     public $showDialog = false;
     public $email;
+    public $emp_id;
     public $company_email;
     public $dob;
     public $newPassword;
@@ -40,6 +44,7 @@ class ItLogin extends Component
     public $showErrorModal = false;
     public $showLoader = false;
     public $passwordChangedModal = false;
+    public $empIdMessageType;
     public $form = [
         'emp_id' => '',
         'password' => '',
@@ -106,14 +111,15 @@ class ItLogin extends Component
         try {
             // $this->showLoader = true;
 
-            if (Auth::guard('it')->attempt(['it_emp_id' => $this->form['emp_id'] , 'password' => $this->form['password']])) {
+            if (Auth::guard('it')->attempt(['it_emp_id' => $this->form['emp_id'], 'password' => $this->form['password']])) {
+                session(['post_login' => true]);
                 session()->flash('loginSuccess', "You are logged in successfully!");
                 return redirect()->route('dashboard');
-
             } elseif (Auth::guard('it')->attempt(['email' => $this->form['emp_id'], 'password' => $this->form['password']])) {
+                session(['post_login' => true]);
                 session()->flash('loginSuccess', "You are logged in successfully!");
                 return redirect()->route('dashboard');
-            }  else {
+            } else {
                 $this->error = "Invalid ID or Password. Please try again.";
             }
         } catch (ValidationException $e) {
@@ -238,6 +244,56 @@ class ItLogin extends Component
             $this->verify_error = 'An unexpected error occurred. Please try again.';
         }
     }
+    public function verifyLoginId()
+    {
+        // Validate Employee ID
+        $this->validate(
+            [
+                'emp_id' => 'required|exists:i_t,it_emp_id',
+            ],
+            [
+                'emp_id.required' => 'Enter your employee ID.',
+                'emp_id.exists' => 'The entered Employee ID does not exist.',
+            ]
+        );
+
+        try {
+            // Fetch the employee using emp_id
+            $employee = IT::where('it_emp_id', $this->emp_id)->firstOrFail();
+            // Check if the employee has an email
+            if (empty($employee->email)) {
+                // Handle case when employee email does not exist
+                $this->verify_error = 'The employee does not have an associated email address. Please update your email for this ID: ' . $this->emp_id;
+                $this->emp_id = null;
+                return;
+            }
+
+            // Generate a custom token
+            $token = str::random(60); // or use your own custom token generation logic
+
+            // Store the token in the password_reset_tokens table
+            DB::table('password_reset_tokens')->updateOrInsert(
+                ['email' => $employee->email], // Check for existing email
+                [
+                    'token' => $token,
+                    'created_at' => now(),
+                ]
+            );
+
+            // Here, you should create the email and send it with the link.
+            // For example:
+            // $employee->notify(new ResetPasswordLink($token));
+
+            // Flash a message to the session
+            session()->flash('empIdMessageType', 'success');
+            session()->flash('empIdMessage', 'Password reset link sent successfully to ' . $employee->email);
+            $this->remove();
+        } catch (\Exception $e) {
+            // If any exception occurs, catch and set an error message
+            $this->verify_error = 'There was an error processing your request: ' . $e->getMessage();
+        }
+    }
+
 
 
     public function showPasswordChangeModal()
@@ -278,7 +334,7 @@ class ItLogin extends Component
 
 
                 // Combine the results of all queries
-                $user = $userInIT ;
+                $user = $userInIT;
 
 
                 if ($user) {
