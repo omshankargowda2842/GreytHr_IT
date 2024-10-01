@@ -126,9 +126,9 @@
     <div class="text-center pb-2 mt-5">
         <large>
             © Xsilica Software Solutions Pvt.Ltd |
-            <a href="https://xsilicasoftwaresolutions.greythr.com/v2/static-content/privacy-policy" class="itlogin10"
+            <a href="#" class="itlogin10"
                 target="_blank"> <span class="fs-6"> Privacy Policy</span></a> |
-            <a href="https://xsilicasoftwaresolutions.greythr.com/v2/static-content/terms-of-use" class="itlogin10"
+            <a href="#" class="itlogin10"
                 target="_blank"><span class="fs-6">Terms of Service</span> </a>
         </large>
     </div>
