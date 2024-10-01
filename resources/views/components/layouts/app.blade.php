@@ -18,7 +18,7 @@
 </head>
 
 @guest
-    <livewire:it-login />
+   {{$slot}}
 @else
 <body>
     <section>

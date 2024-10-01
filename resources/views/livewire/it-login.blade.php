@@ -1,4 +1,11 @@
 <div class="container-fluid d-flex flex-column p-0 loginBGGradiant">
+    <!-- Success or Error Message for Emp ID Verification -->
+    @if (session()->has('empIdMessageType'))
+    <div class="alert alert-{{ session('empIdMessageType') }} mt-3 position-relative">
+        <button type="button" class="btn-close position-absolute" style="top: 10px; right: 10px;" aria-label="Close" wire:click="$set('empIdMessageType', null); $set('empIdMessage', null)"></button>
+        <strong>{{ session('empIdMessage') }}</strong>
+    </div>
+    @endif
     <div class="row m-0 ">
         <!-- Left Side (Login Form) -->
         <div class="col-md-5 px-5 py-2 ">
@@ -183,49 +190,33 @@
                         @endif
                     </form>
                     @else
-                    <!-- Form for verifying email and DOB -->
-                    <form wire:submit.prevent="verifyEmailAndDOB">
-                        <!-- Add input fields for email and DOB verification -->
+                    <form wire:submit.prevent="verifyLoginId">
                         @if ($verify_error)
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <strong class="itloginFont1">{{ $verify_error }}</strong>
-                            <!-- <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert" aria-label="Close"></button> -->
+                            <strong style="font-size: 10px;">{{ $verify_error }}</strong>
                         </div>
                         @endif
 
                         <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" name="email" class="form-control mt-1 itloginFont"
-                                placeholder="Enter your email" wire:model.lazy="email"
-                                wire:keydown.debounce.500ms="validateField('email')" wire:input="forgotPassword">
-                            @error('email')
-                            <span class="text-danger itloginFont">{{ $message }}</span>
+                            <label for="emp_id">Employee ID</label>
+                            <input type="text" id="emp_id" name="emp_id" class="form-control"
+                                placeholder="Enter your Employee ID" wire:model.lazy="emp_id">
+                            @error('emp_id')
+                            <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
-                        <div class="form-group">
-                            <label for="dob">Date Of Birth</label>
-                            <div class="input-group">
-                                <input type="date" id="dob" name="dob" class="form-control mt-1 itloginFont"
-                                    max="{{ date('Y-m-d') }}" wire:model.lazy="dob"
-                                    wire:keydown.debounce.500ms="validateField('dob')" wire:input="forgotPassword">
-                            </div>
-                            @error('dob')
-                            <span class="text-danger itloginFont">{{ $message }}</span>
-                            @enderror
-                        </div>
+
                         <div class="d-flex justify-content-center mt-2">
-                            <button type="submit" class="btn btn-dark">Verify</button>
+                            <button type="submit" class="submit-btn" wire:loading.attr="disabled"
+                                wire:loading.class="btn-loading" aria-disabled="true">
+                                <span wire:loading.remove>Verify</span>
+                                <span wire:loading>
+                                    <i class="fa fa-spinner fa-spin"></i> Verifying...
+                                </span>
+                            </button>
                         </div>
-
-
-
-                        <!-- Success or error message for email and DOB verification -->
-                        @if (session()->has('emailDobMessage'))
-                        <div class="alert alert-{{ session('emailDobMessageType') }} mt-3">
-                            {{ session('emailDobMessage') }}
-                        </div>
-                        @endif
                     </form>
+
                     @endif
 
                 </div>
