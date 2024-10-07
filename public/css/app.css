@@ -1480,6 +1480,26 @@ w
 
 /* Vendor................................................... */
 
+.vendor-selected-vendorID{
+    border-radius: 3px;
+    height: 33px;
+    padding: 5px;
+    width: 100%;
+    font-size: 1rem;
+   font-weight: 400;
+   border: var(--bs-border-width) solid var(--bs-border-color);
+
+}
+.vendor-selected-AssetType{
+    border-radius: 3px;
+    height: 33px;
+    padding: 5px;
+    width: 100%;
+    font-size: 1rem;
+   font-weight: 400;
+   border: var(--bs-border-width) solid var(--bs-border-color);
+
+}
 
 .vendor-table-head{
     white-space: nowrap;
