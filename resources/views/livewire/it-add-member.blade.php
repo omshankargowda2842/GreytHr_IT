@@ -113,6 +113,16 @@
 
             </div>
 
+            <div class="col-10 d-flex justify-content-center">
+                @if (session()->has('deactivationMessage'))
+                <div id="flash-message" class="alert alert-success mt-1">
+                    {{ session('deactivationMessage') }}
+                </div>
+                @endif
+
+            </div>
+
+
             <div class="table-responsive it-add-table-res">
 
                 <div wire:loading.delay>
@@ -126,9 +136,10 @@
                             <th class="req-table-head" scope="col">S.No</th>
 
                             <th class="req-table-head">IT Employee ID</th>
+                            <th class="req-table-head">Employee ID</th>
                             <th class="req-table-head">Employee Name</th>
                             <th class="req-table-head">Image</th>
-                            <th class="req-table-head">Employee ID</th>
+
                             <th class="req-table-head">Date Of Birth</th>
                             <th class="req-table-head">Phone Number</th>
                             <th class="req-table-head">Email</th>
@@ -141,15 +152,16 @@
 
                             <th scope="row">{{ $loop->iteration }}</th>
                             <td>{{ $itemployee->it_emp_id }}</td>
+                            <td>{{ $itemployee->emp_id }}</td>
                             <td>{{ ucwords(strtolower($itemployee->employee_name)) }}</td>
                             <td><img src="{{ $itemployee->image_url }}" alt="Image" class="itAdd4"></td>
-                            <td>{{ $itemployee->emp_id }}</td>
+
                             <td>{{ \Carbon\Carbon::parse($itemployee->date_of_birth)->format('d-M-Y') }}</td>
                             <td>{{ $itemployee->phone_number }}</td>
                             <td>{{ $itemployee->email }}</td>
                             <td class="d-flex flex-direction-row">
                                 <!-- Edit Action -->
-                                <div class="col">
+                                <div class="col mx-1">
                                     <button class="btn btn-white border-dark"
                                         wire:click="showEditItMember({{ $itemployee->id }})">
                                         <i class="fas fa-edit"></i>
@@ -157,7 +169,7 @@
                                 </div>
 
                                 <!-- Delete Action -->
-                                <div class="col">
+                                <div class="col mx-1">
                                     <button class="btn btn-dark border-white" wire:click='cancelLogout'>
                                         <i class="fas fa-trash"></i>
                                     </button>
@@ -177,10 +189,10 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header text-white logout2">
-                        <h6 class="modal-title logout3" id="logoutModalLabel">Confirm Delete</h6>
+                        <h6 class="modal-title logout3" id="logoutModalLabel">Confirm Deactivation</h6>
                     </div>
                     <div class="modal-body text-center logout4">
-                        Are you sure you want to delete?
+                        Are you sure you want to deactivate?
                     </div>
                     <div class="modal-body text-center">
                         <form wire:submit.prevent="delete">
@@ -197,7 +209,7 @@
                             <div class="d-flex justify-content-center p-3">
                                 <button type="submit" class="submit-btn mr-3"
                                     wire:click="confirmDelete({{ $itemployee->id }})" @if($loading) disabled
-                                    @endif>Delete</button>
+                                    @endif>Deactivate</button>
                                 <button type="button" class="cancel-btn1 ml-3" wire:click="cancel">Cancel</button>
                             </div>
                         </form>

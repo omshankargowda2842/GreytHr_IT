@@ -152,6 +152,31 @@ class VendorAssets extends Component
 
     ];
 
+    public function handleAssetTypeChangeAndResetValidation()
+{
+    $this->handleAssetTypeChange();
+    $this->resetValidationForField('assetType');
+}
+
+
+    public function handleAssetTypeChange()
+    {
+
+        // Check if 'Others' option is selected
+        if ($this->assetType === 'others') {
+            // Open the modal when 'Others' is selected
+            $this->showModal();
+        }
+    }
+
+
+    public function resetValidationForField($field)
+    {
+
+        // Reset error for the specific field when typing
+        $this->resetErrorBag($field);
+    }
+
     public $vendors;
 
     public $showViewVendorDialog = false;
@@ -335,7 +360,7 @@ public function downloadImages($vendorId)
                 ]);
 
 
-            session()->flash('message', 'Vendor deleted successfully!');
+            session()->flash('deactiveMessage', 'Asset deactivated successfully!');
             $this->showLogoutModal = false;
 
             //Refresh
@@ -398,7 +423,7 @@ public function restore($id)
     if ($vnrAst) {
         $vnrAst->is_active = 1;
         $vnrAst->save();
-        session()->flash('message', 'Vendor Asset Restored successfully!');
+        session()->flash('restoreMessage', 'Asset restored successfully!');
         $this->restoreModal = false;
         $this->vendorAssets = VendorAsset::get();
     }
@@ -418,8 +443,10 @@ public function cancelLogout($id)
 
 public function submit()
 {
+    $this->validate($this->rules());
 
-     $this->validate($this->rules());
+    try {
+
 
     $generator = new BarcodeGeneratorPNG();
 
@@ -453,7 +480,7 @@ public function submit()
                 ]);
 
                 foreach ($this->file_paths as $file) {
-                    try {
+
                         if ($file->isValid()) {
                             $fileContent = file_get_contents($file->getRealPath());
                             $mimeType = $file->getMimeType();
@@ -468,12 +495,7 @@ public function submit()
                         } else {
                             Log::error('File is not valid:', ['file' => $file->getClientOriginalName()]);
                         }
-                    } catch (\Exception $e) {
-                        Log::error('Error processing file:', [
-                            'file' => $file->getClientOriginalName(),
-                            'error' => $e->getMessage()
-                        ]);
-                    }
+
                 }
             } else {
                 // No new files provided, keep the existing files
@@ -539,6 +561,7 @@ public function submit()
                 'purchase_date' => $this->purchaseDate ? $this->purchaseDate : null,
                 'file_paths' => json_encode($fileDataArray),
             ]);
+            session()->flash('updateMessage', 'Asset updated successfully!');
         }
     } else {
         // Create new asset record
@@ -561,12 +584,19 @@ public function submit()
             'purchase_date' => $this->purchaseDate ? $this->purchaseDate : null,
             'file_paths' => json_encode($fileDataArray),
         ]);
+        session()->flash('createMessage', 'Asset created successfully!');
     }
     }
 
-    // Flash success message and reset form
-    session()->flash('message', 'Form submitted successfully!');
-    $this->reset();
+            $this->reset();
+
+    }
+     catch (\Exception $e) {
+            // Handle the exception and log the error
+            Log::error('Error during form submission:', ['error' => $e->getMessage()]);
+            session()->flash('error', 'An error occurred during submission. Please try again later.');
+        }
+
 }
 
 public $newAssetName;
@@ -612,6 +642,7 @@ public function mount()
 
     public function render()
     {
+        $this->assetNames = asset_types_table::orderBy('asset_names', 'asc')->get();
         $assetTypes = asset_types_table::pluck('asset_names', 'id');
         // $this->assetNames = asset_types_table::all();
         $this->vendorAssets =VendorAsset::get();

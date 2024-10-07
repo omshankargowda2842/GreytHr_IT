@@ -250,7 +250,7 @@ public function delete()
             'is_active' => 0
         ]);
 
-        session()->flash('message', 'IT member deactivated successfully!');
+        session()->flash('deactivationMessage', 'IT member deactivated successfully!');
         $this->showLogoutModal = false;
         $this->itRelatedEmye = IT::where('is_active', 1)->get();
         // Reset the recordId and reason after processing
