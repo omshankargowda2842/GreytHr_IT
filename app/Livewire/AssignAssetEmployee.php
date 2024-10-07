@@ -353,8 +353,9 @@ public function closeViewEmpAsset()
     public function clearFilters()
     {
         // Reset search fields and filtered results
-        $this->searchEmp = '';
-        $this->searchAssetId = '';
+        // $this->searchEmp = '';
+        // $this->searchAssetId = '';
+        $this->reset();
         $this->filteredEmployeeAssets = [];
         $this->assetsFound = false;
 

@@ -11,7 +11,7 @@ class OldItMembers extends Component
     public $itMembers = [];
     public $itRelatedEmye = [];
     public $showLogoutModal =false;
-   
+
 
     public function mount()
     {
@@ -27,7 +27,7 @@ class OldItMembers extends Component
         if ($itMember) {
             $itMember->is_active = 1;
             $itMember->save();
-            session()->flash('message', 'IT member Restored successfully!');
+            session()->flash('updateMessage', 'IT member Restored successfully!');
             $this->showLogoutModal = false;
             $this->itRelatedEmye = IT::where('is_active', 1)->get();
         }

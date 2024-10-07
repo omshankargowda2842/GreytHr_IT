@@ -643,7 +643,7 @@ padding: 10px;
  }
 
  .req-table-res {
-     max-height: 450px;
+     max-height: 366px;
      overflow-y: auto;
      border-radius: 15px;
      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);

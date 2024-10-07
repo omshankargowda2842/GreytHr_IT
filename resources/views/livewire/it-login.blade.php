@@ -12,11 +12,13 @@
             <div class="text-center mb-4">
             </div>
 
-            @if (session()->has('success'))
-            <div id="flash-message" class="alert alert-success mt-1">
-                {{ session('success') }}
+            <div class="d-flex justify-content-center">
+                @if (session()->has('success'))
+                <div id="flash-message" class="alert alert-success mt-1">
+                    {{ session('success') }} <span>x</span>
+                </div>
+                @endif
             </div>
-            @endif
             @if (session('sessionExpired'))
             <div class="alert alert-danger">
 
