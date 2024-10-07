@@ -257,6 +257,7 @@
     @endif
 
 
+
     @if($showEditDeleteVendor)
     <div class="d-flex justify-content-end mt-5">
         <button class="btn btn-dark btn-sm" wire:click='showAddVendorMember' style="margin-right: 9%; padding: 7px;">
@@ -265,6 +266,34 @@
     </div>
 
     <div class="col-11 mt-4 ml-4">
+
+    @if($searchFilters)
+        <!-- Search Filters -->
+        <div class="row mb-3 mt-4 ml-4 employeeAssetList">
+            <!-- Employee ID Search Input -->
+            <div class="col-10 col-md-3 mb-2 mb-md-0">
+                <input type="text" class="form-control" placeholder="Search by Serial Number"
+                    wire:model.debounce.500ms="searchEmp" wire:keydown.enter="filter">
+            </div>
+
+            <!-- Asset ID Search Input -->
+            <div class="col-10 col-md-3 mb-2 mb-md-0">
+                <input type="text" class="form-control" placeholder="Search by Asset ID"
+                    wire:model.debounce.500ms="searchAssetId" wire:keydown.enter="filter">
+            </div>
+
+            <!-- Buttons -->
+            <div class="col-10 col-md-3 d-flex gap-2 flex-column flex-md-row">
+                <button class="btn btn-dark" wire:click="filter">
+                    <i class="fa fa-search"></i> Search
+                </button>
+                <button class="btn btn-white text-dark border border-dark" wire:click="clearFilters">
+                    <i class="fa fa-times"></i> Clear
+                </button>
+            </div>
+        </div>
+
+        @endif
 
         <div class="col-10 d-flex justify-content-center">
             @if (session()->has('updateMessage'))

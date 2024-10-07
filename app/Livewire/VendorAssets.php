@@ -186,11 +186,13 @@ class VendorAssets extends Component
         $this->currentVendorId = $vendorId;
         $this->showViewVendorDialog = true;
         $this->showEditDeleteVendor = false;
+        $this->searchFilters = false;
         $this->editMode = false;
     }
 
     public function closeViewVendor()
     {
+        $this->searchFilters = true;
         $this->showViewVendorDialog = false;
         $this->showEditDeleteVendor = true;
         $this->currentVendorId = null;
@@ -640,13 +642,62 @@ public function mount()
     $this->assetNames = asset_types_table::orderBy('asset_names', 'asc')->get();
 }
 
+    public $filteredVendorAssets = [];
+    public $assetsFound = false;
+    public $searchFilters = true;
+    public $searchEmp = '';
+    public $searchAssetId = '';
+
+    public function filter()
+    {
+        try {
+            $trimmedEmpId = trim($this->searchEmp);
+            $trimmedAssetId = trim($this->searchAssetId);
+
+            $this->filteredVendorAssets = VendorAsset::query()
+            ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
+                            $query->where(function ($query) use ($trimmedEmpId) {
+                                $query->where('serial_number', 'like', '%' . $trimmedEmpId . '%'); // Adjust the column name as needed
+                            });
+                        })
+                ->when($trimmedAssetId, function ($query) use ($trimmedAssetId) {
+                    $query->where('asset_id', 'like', '%' . $trimmedAssetId . '%');
+                })
+                ->get();
+
+            $this->assetsFound = count($this->filteredVendorAssets) > 0;
+        } catch (\Exception $e) {
+            Log::error('Error in filter method: ' . $e->getMessage());
+        }
+    }
+
+    // Define the updateSearch method if you need it
+    public function updateSearch()
+    {
+        $this->filter();
+    }
+
+    public function clearFilters()
+    {
+        // Reset search fields and filtered results
+        // $this->searchEmp = '';
+        // $this->searchAssetId = '';
+        $this->reset();
+        $this->filteredVendorAssets = [];
+        $this->assetsFound = false;
+
+    }
+
+
     public function render()
     {
         $this->assetNames = asset_types_table::orderBy('asset_names', 'asc')->get();
         $assetTypes = asset_types_table::pluck('asset_names', 'id');
         // $this->assetNames = asset_types_table::all();
-        $this->vendorAssets =VendorAsset::get();
 
+        $this->vendorAssets =!empty($this->filteredVendorAssets)
+        ? $this->filteredVendorAssets:VendorAsset::get();
+// dd($this->vendorAssets );
         $this->vendorAssets =  $this->vendorAssets->map(function ($vendorAsset) use ($assetTypes) {
             $vendorAsset['asset_type_name'] = $assetTypes[$vendorAsset['asset_type']] ?? 'N/A';
             return $vendorAsset; // Ensure you're returning the entire modified array
