@@ -144,11 +144,14 @@ class ItLogin extends Component
 
     public function resetForm()
     {
+        $this->emp_id = '';
         $this->email = '';
         $this->dob = '';
         $this->newPassword = '';
         $this->newPassword_confirmation = '';
         $this->verified = false;
+        $this->error = '';
+        $this->verify_error = '';
         $this->resetValidation();
     }
 
@@ -176,74 +179,74 @@ class ItLogin extends Component
     {
         $this->passwordChangedModal = false;
     }
-    public function verifyEmailAndDOB()
-    {
-        $this->validate([
-            'email' => ['nullable', 'email', 'required_without:company_email'],
-            'company_email' => ['nullable', 'email', 'required_without:email'],
-            'dob' => ['required', 'date'],
-        ]);
-        try {
-            // Custom validation rule to ensure either email or company_email is present
+    // public function verifyEmailAndDOB()
+    // {
+    //     $this->validate([
+    //         'email' => ['nullable', 'email', 'required_without:company_email'],
+    //         'company_email' => ['nullable', 'email', 'required_without:email'],
+    //         'dob' => ['required', 'date'],
+    //     ]);
+    //     try {
+    //         // Custom validation rule to ensure either email or company_email is present
 
 
-            // Determine which email field is used
-            $email = $this->email ?? $this->company_email;
+    //         // Determine which email field is used
+    //         $email = $this->email ?? $this->company_email;
 
-            if (!$email) {
-                throw new \Exception('Either email or company email must be provided.');
-            }
+    //         if (!$email) {
+    //             throw new \Exception('Either email or company email must be provided.');
+    //         }
 
-            // Implement your logic to verify email and DOB here.
-            // Example: Check if the email and DOB match a user's stored values in your database.
-            // $user = EmployeeDetails::where(function ($query) use ($email) {
-            //     $query->where('email', $email)
-            //         ->orWhere('company_email', $email);
-            // })->where('dob', $this->dob)->first();
+    //         // Implement your logic to verify email and DOB here.
+    //         // Example: Check if the email and DOB match a user's stored values in your database.
+    //         // $user = EmployeeDetails::where(function ($query) use ($email) {
+    //         //     $query->where('email', $email)
+    //         //         ->orWhere('company_email', $email);
+    //         // })->where('dob', $this->dob)->first();
 
-            // Search for the user in HR table
-            $userInIT = IT::where(function ($query) use ($email) {
-                $query->where('email', $email)
-                    ->orWhere('company_email', $email);
-            })->where('date_of_birth', $this->dob)->first();
+    //         // Search for the user in HR table
+    //         $userInIT = IT::where(function ($query) use ($email) {
+    //             $query->where('email', $email)
+    //                 ->orWhere('company_email', $email);
+    //         })->where('date_of_birth', $this->dob)->first();
 
 
-            // Combine the results of all queries
-            $user =  $userInIT;
-            if ($user) {
-                $this->verified = true;
-                if ($this->verified) {
-                    $this->verified = false;
-                    $this->showSuccessModal = true;
-                }
-            } else {
-                // Invalid email or DOB, show an error message or handle accordingly.
-                $this->addError('email', 'Invalid email or date of birth');
-                $this->showErrorModal = true;
-            }
-        } catch (ValidationException $e) {
-            // Handle validation errors
-            //$this->showErrorModal = true;
-            // $this->addError('email', 'There was a problem with your input. Please check and try again.');
-            $this->verify_error = "There was a problem with your input. Please check and try again.";
-        } catch (\Illuminate\Database\QueryException $e) {
-            // Handle database errors
-            //$this->showErrorModal = true;
-            // $this->addError('email', 'We are experiencing technical difficulties. Please try again later.');
-            Log::error('Error approving leave: ' . $e->getMessage());
-            $this->verify_error = 'We are experiencing technical difficulties. Please try again later.';
-        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
-            // Handle server errors
-            // $this->showErrorModal = true;
-            // $this->addError('email', 'There is a server error. Please try again later.');
-            $this->verify_error = 'There is a server error. Please try again later.';
-        } catch (\Exception $e) {
-            // Handle general errors
-            // $this->showErrorModal = true;
-            // $this->addError('email', 'An unexpected error occurred. Please try again.');
-            $this->verify_error = 'An unexpected error occurred. Please try again.';
-        }
-    }
+    //         // Combine the results of all queries
+    //         $user =  $userInIT;
+    //         if ($user) {
+    //             $this->verified = true;
+    //             if ($this->verified) {
+    //                 $this->verified = false;
+    //                 $this->showSuccessModal = true;
+    //             }
+    //         } else {
+    //             // Invalid email or DOB, show an error message or handle accordingly.
+    //             $this->addError('email', 'Invalid email or date of birth');
+    //             $this->showErrorModal = true;
+    //         }
+    //     } catch (ValidationException $e) {
+    //         // Handle validation errors
+    //         //$this->showErrorModal = true;
+    //         // $this->addError('email', 'There was a problem with your input. Please check and try again.');
+    //         $this->verify_error = "There was a problem with your input. Please check and try again.";
+    //     } catch (\Illuminate\Database\QueryException $e) {
+    //         // Handle database errors
+    //         //$this->showErrorModal = true;
+    //         // $this->addError('email', 'We are experiencing technical difficulties. Please try again later.');
+    //         Log::error('Error approving leave: ' . $e->getMessage());
+    //         $this->verify_error = 'We are experiencing technical difficulties. Please try again later.';
+    //     } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+    //         // Handle server errors
+    //         // $this->showErrorModal = true;
+    //         // $this->addError('email', 'There is a server error. Please try again later.');
+    //         $this->verify_error = 'There is a server error. Please try again later.';
+    //     } catch (\Exception $e) {
+    //         // Handle general errors
+    //         // $this->showErrorModal = true;
+    //         // $this->addError('email', 'An unexpected error occurred. Please try again.');
+    //         $this->verify_error = 'An unexpected error occurred. Please try again.';
+    //     }
+    // }
     public function verifyLoginId()
     {
         // Validate Employee ID
@@ -255,8 +258,8 @@ class ItLogin extends Component
                 'emp_id.required' => 'Enter your employee ID.',
                 'emp_id.exists' => 'The entered Employee ID does not exist.',
             ]
-        );
 
+        );
         try {
             // Fetch the employee using emp_id
             $employee = IT::where('it_emp_id', $this->emp_id)->firstOrFail();
@@ -282,7 +285,7 @@ class ItLogin extends Component
 
             // Here, you should create the email and send it with the link.
             // For example:
-            // $employee->notify(new ResetPasswordLink($token));
+            $employee->notify(new ResetPasswordLink($token));
 
             // Flash a message to the session
             session()->flash('empIdMessageType', 'success');
