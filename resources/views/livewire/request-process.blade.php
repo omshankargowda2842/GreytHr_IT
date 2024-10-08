@@ -428,7 +428,7 @@
 
                                                     <th class="req-table-head">Attach Files</th>
 
-                                                    <th class="req-table-head">CC To</th>
+
 
                                                     <th class="req-table-head">Priority</th>
 
@@ -505,7 +505,7 @@
 
 
 
-                                                    <td>{{ count($ccToArray) <= 1 ? $record->cc_to ?? '-' : '-'}}</td>
+
 
                                                     <td>{{ $record->priority?? 'N/A' }}</td>
 
@@ -548,7 +548,7 @@
                                                 </tr>
 
 
-                                                @if(count($ccToArray) > 1)
+                                                @if(count($ccToArray) >= 1)
                                                 <tr class="req-cc-tr">
                                                     <td colspan="19" class="req-cc-td">
                                                         <div class="req-cc-div">
@@ -627,7 +627,7 @@
 
                                                     <th class="req-closed-th">Attach Files</th>
 
-                                                    <th class="req-closed-th">CC To</th>
+
 
                                                     <th class="req-closed-th">Priority</th>
 
@@ -702,8 +702,6 @@
 
 
 
-                                                    <td> {{ count($ccToArray) <= 1 ? $record->cc_to ?? '-' : '-' }}</td>
-
                                                     <td>{{ $record->priority?? 'N/A' }}</td>
 
                                                     <td>{{ $record->selected_equipment?? 'N/A' }}</td>
@@ -728,7 +726,7 @@
 
 
                                                 </tr>
-                                                @if(count($ccToArray) > 1)
+                                                @if(count($ccToArray) >= 1)
 
                                                 <tr class="req-cc-tr">
 

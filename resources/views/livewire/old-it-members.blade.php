@@ -1,5 +1,13 @@
 <div class="main">
     <div class="col-11  mt-4 ml-4">
+    <div class="col-10 d-flex justify-content-center">
+            @if (session()->has('updateMessage'))
+            <div id="flash-message" class="alert alert-success mt-1">
+                {{ session('updateMessage') }}
+            </div>
+            @endif
+
+        </div>
         <div class="table-responsive it-add-table-res">
 
             <div wire:loading.delay>
@@ -12,9 +20,10 @@
                     <tr>
                         <th scope="col" class="req-table-head">Id</th>
                         <th class="req-table-head">It Employee Id</th>
+                        <th class="req-table-head">Employee Id</th>
                         <th class="req-table-head">Employee Name</th>
                         <th class="req-table-head">Image</th>
-                        <th class="req-table-head">Employee Id</th>
+
                         <th class="req-table-head">Date Of Birth</th>
                         <th class="req-table-head">Phone Number</th>
                         <th class="req-table-head">Email</th>
@@ -28,9 +37,10 @@
                         <!-- <th scope="row">{{ $loop->iteration }}</th> -->
                         <td>{{ $itemployee->id }}</td>
                         <td>{{ $itemployee->it_emp_id }}</td>
+                        <td>{{ $itemployee->emp_id }}</td>
                         <td>{{ ucwords(strtolower($itemployee->employee_name)) }}</td>
                         <td><img src="{{ $itemployee->image_url }}" class="oldItMemImage" alt="Image" ></td>
-                        <td>{{ $itemployee->emp_id }}</td>
+
                         <td>{{ \Carbon\Carbon::parse($itemployee->date_of_birth)->format('d-M-Y') }}</td>
                         <td>{{ $itemployee->phone_number }}</td>
                         <td>{{ $itemployee->email }}</td>

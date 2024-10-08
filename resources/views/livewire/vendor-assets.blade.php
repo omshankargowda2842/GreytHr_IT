@@ -16,7 +16,8 @@
                 <div class="row mb-3">
                     <div class="col-md-6 mb-3">
                         <label for="vendor" class="form-label"><span class="text-danger">*</span> Vendor</label>
-                        <select id="vendor" wire:model="selectedVendorId" class="vendor-selected-vendorID">
+                        <select id="vendor" wire:model.lazy="selectedVendorId"
+                            wire:change="resetValidationForField('selectedVendorId')" class="vendor-selected-vendorID">
                             <option value="">Select Vendor</option>
                             @foreach($vendors as $vendor)
                             <option value="{{ $vendor->vendor_id }}">{{ $vendor->vendor_name }}</option>
@@ -30,7 +31,8 @@
                     @if($editMode == false)
                     <div class="col-md-6">
                         <label for="quantity" class="form-label"><span class="text-danger">*</span> Quantity</label>
-                        <input type="number" id="quantity" wire:model="quantity" class="form-control" min="1" />
+                        <input type="number" id="quantity" wire:model.lazy="quantity"
+                            wire:keydown="resetValidationForField('quantity')" class="form-control" min="1" />
                         @error('quantity')
                         <div class="text-danger">{{ $message }}</div>
                         @enderror
@@ -43,7 +45,8 @@
                     <div class="col-md-6">
                         <label for="manufacturer" class="form-label"><span class="text-danger">*</span>
                             Manufacturer</label>
-                        <input type="text" id="manufacturer" wire:model="manufacturer" class="form-control">
+                        <input type="text" id="manufacturer" wire:model.lazy="manufacturer"
+                            wire:keydown="resetValidationForField('manufacturer')" class="form-control">
                         @error('manufacturer')
                         <div class="text-danger">{{ $message }}</div>
                         @enderror
@@ -52,13 +55,15 @@
                     <div class="col-md-6">
                         <label for="assetType" class="form-label"><span class="text-danger">*</span> Asset Type</label>
                         <div class="input-group">
-                            <select wire:model="assetType" id="assetType" class="vendor-selected-AssetType">
+                            <select wire:model.lazy="assetType" wire:change="handleAssetTypeChangeAndResetValidation"
+                                id="assetType" class="vendor-selected-AssetType">
                                 <option value="">Select Asset Type</option>
                                 @foreach($assetNames as $asset)
                                 <option value="{{ $asset->id }}">{{ $asset->asset_names }}</option>
                                 @endforeach
+                                <option value="others">Others</option>
                             </select>
-                            <button type="button" class="btn btn-dark" wire:click="showModal">Add</button>
+
                         </div>
                         @error('assetType') <div class="text-danger">{{ $message }}</div> @enderror
                     </div>
@@ -81,7 +86,8 @@
                                         <div class="mb-3 col-10">
                                             <label for="assetName" class="form-label">Asset Name</label>
                                             <input type="text" class="form-control" id="assetName"
-                                                wire:model="newAssetName">
+                                                wire:model.lazy="newAssetName"
+                                                wire:keydown="resetValidationForField('newAssetName')">
                                             @error('newAssetName')
                                             <div class="text-danger">{{ $message }}</div>
                                             @enderror
@@ -116,7 +122,8 @@
                     <div class="col-md-6">
                         <label for="assetModel" class="form-label"><span class="text-danger">*</span> Asset
                             Model</label>
-                        <input type="text" id="assetModel" wire:model.lazy="assetModel" class="form-control">
+                        <input type="text" id="assetModel" wire:model.lazy="assetModel"
+                            wire:keydown="resetValidationForField('assetModel')" class="form-control">
                         @error('assetModel') <div class="text-danger">{{ $message }}</div> @enderror
                     </div>
 
@@ -125,7 +132,7 @@
                         <label for="assetSpecification" class="form-label"><span class="text-danger">*</span> Asset
                             Specification</label>
                         <input type="text" id="assetSpecification" wire:model.lazy="assetSpecification"
-                            class="form-control">
+                            wire:keydown="resetValidationForField('assetSpecification')" class="form-control">
                         @error('assetSpecification') <div class="text-danger">{{ $message }}</div> @enderror
                     </div>
                 </div>
@@ -151,7 +158,8 @@
                     <div class="col-md-6">
                         <label for="serialNumber" class="form-label"><span class="text-danger">*</span> Serial
                             Number</label>
-                        <input type="text" id="serialNumber" wire:model.lazy="serialNumber" class="form-control">
+                        <input type="text" id="serialNumber" wire:model.lazy="serialNumber"
+                            wire:keydown="resetValidationForField('serialNumber')" class="form-control">
                         @error('serialNumber') <div class="text-danger">{{ $message }}</div> @enderror
                     </div>
 
@@ -159,7 +167,8 @@
                     <div class="col-md-6">
                         <label for="invoiceNumber" class="form-label"><span class="text-danger">*</span> Invoice
                             Number</label>
-                        <input type="text" id="invoiceNumber" wire:model="invoiceNumber" class="form-control">
+                        <input type="text" id="invoiceNumber" wire:model.lazy="invoiceNumber"
+                            wire:keydown="resetValidationForField('invoiceNumber')" class="form-control">
                         @error('invoiceNumber') <div class="text-danger">{{ $message }}</div> @enderror
                     </div>
 
@@ -171,7 +180,8 @@
                     <!-- GST State -->
                     <div class="col-md-6">
                         <label for="gstState" class="form-label"><span class="text-danger">*</span>GST State</label>
-                        <input type="text" id="gstState" wire:model="gstState" class="form-control">
+                        <input type="text" id="gstState" wire:model.lazy="gstState"
+                            wire:keydown="resetValidationForField('gstState')" class="form-control">
                         @error('gstState') <div class="text-danger">{{ $message }}</div> @enderror
 
                     </div>
@@ -179,7 +189,8 @@
                     <!-- GST Central -->
                     <div class="col-md-6">
                         <label for="gstCentral" class="form-label"><span class="text-danger">*</span>GST Central</label>
-                        <input type="text" id="gstCentral" wire:model="gstCentral" class="form-control">
+                        <input type="text" id="gstCentral" wire:model.lazy="gstCentral"
+                            wire:keydown="resetValidationForField('gstCentral')" class="form-control">
                         @error('gstCentral') <div class="text-danger">{{ $message }}</div> @enderror
 
                     </div>
@@ -190,7 +201,8 @@
                     <div class="col-md-6">
                         <label for="taxableAmount" class="form-label"><span class="text-danger">*</span> Taxable
                             Amount</label>
-                        <input type="number" id="taxableAmount" wire:model="taxableAmount" class="form-control">
+                        <input type="number" id="taxableAmount" wire:model.lazy="taxableAmount"
+                            wire:keydown="resetValidationForField('taxableAmount')" class="form-control">
                         @error('taxableAmount') <div class="text-danger">{{ $message }}</div> @enderror
 
                     </div>
@@ -198,7 +210,8 @@
                     <div class="col-md-6">
                         <label for="invoiceAmount" class="form-label"><span class="text-danger">*</span> Invoice
                             Amount</label>
-                        <input type="number" id="invoiceAmount" wire:model="invoiceAmount" class="form-control">
+                        <input type="number" id="invoiceAmount" wire:model.lazy="invoiceAmount"
+                            wire:keydown="resetValidationForField('invoiceAmount')" class="form-control">
                         @error('invoiceAmount') <div class="text-danger">{{ $message }}</div> @enderror
 
                     </div>
@@ -212,7 +225,8 @@
                     <div class="col-md-6">
                         <label for="purchaseDate" class="form-label"><span class="text-danger">*</span>Purchase
                             Date</label>
-                        <input type="date" id="purchaseDate" wire:model="purchaseDate" class="form-control">
+                        <input type="date" id="purchaseDate" wire:model.lazy="purchaseDate"
+                            wire:change="resetValidationForField('purchaseDate')" class="form-control">
                         @error('purchaseDate') <div class="text-danger">{{ $message }}</div> @enderror
                     </div>
                     <div class="col-md-6">
@@ -243,6 +257,7 @@
     @endif
 
 
+
     @if($showEditDeleteVendor)
     <div class="d-flex justify-content-end mt-5">
         <button class="btn btn-dark btn-sm" wire:click='showAddVendorMember' style="margin-right: 9%; padding: 7px;">
@@ -251,6 +266,79 @@
     </div>
 
     <div class="col-11 mt-4 ml-4">
+
+    @if($searchFilters)
+        <!-- Search Filters -->
+        <div class="row mb-3 mt-4 ml-4 employeeAssetList">
+            <!-- Employee ID Search Input -->
+            <div class="col-10 col-md-3 mb-2 mb-md-0">
+                <input type="text" class="form-control" placeholder="Search by Serial Number"
+                    wire:model.debounce.500ms="searchEmp" wire:keydown.enter="filter">
+            </div>
+
+            <!-- Asset ID Search Input -->
+            <div class="col-10 col-md-3 mb-2 mb-md-0">
+                <input type="text" class="form-control" placeholder="Search by Asset ID"
+                    wire:model.debounce.500ms="searchAssetId" wire:keydown.enter="filter">
+            </div>
+
+            <!-- Buttons -->
+            <div class="col-10 col-md-3 d-flex gap-2 flex-column flex-md-row">
+                <button class="btn btn-dark" wire:click="filter">
+                    <i class="fa fa-search"></i> Search
+                </button>
+                <button class="btn btn-white text-dark border border-dark" wire:click="clearFilters">
+                    <i class="fa fa-times"></i> Clear
+                </button>
+            </div>
+        </div>
+
+        @endif
+
+        <div class="col-10 d-flex justify-content-center">
+            @if (session()->has('updateMessage'))
+            <div id="flash-message" class="alert alert-success mt-1">
+                {{ session('updateMessage') }}
+            </div>
+            @endif
+
+        </div>
+
+        <div class="col-10 d-flex justify-content-center">
+            @if (session()->has('createMessage'))
+            <div id="flash-message" class="alert alert-success mt-1">
+                {{ session('createMessage') }}
+            </div>
+            @endif
+
+        </div>
+
+        <div class="col-10 d-flex justify-content-center">
+            @if (session()->has('deactiveMessage'))
+            <div id="flash-message" class="alert alert-success mt-1">
+                {{ session('deactiveMessage') }}
+            </div>
+            @endif
+
+        </div>
+
+        <div class="col-10 d-flex justify-content-center">
+            @if (session()->has('restoreMessage'))
+            <div id="flash-message" class="alert alert-success mt-1">
+                {{ session('restoreMessage') }}
+            </div>
+            @endif
+
+        </div>
+
+        <div class="col-10 d-flex justify-content-center">
+            @if (session()->has('error'))
+            <div id="flash-message" class="alert alert-success mt-1">
+                {{ session('error') }}
+            </div>
+            @endif
+
+        </div>
         <div class="table-responsive it-add-table-res">
             <table class="table table-striped">
                 <thead class="table-dark">
@@ -644,10 +732,11 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header text-white" style="background-color: black;">
-                    <h6 class="modal-title" style=" align-items: center;" id="logoutModalLabel">Confirm Delete</h6>
+                    <h6 class="modal-title" style=" align-items: center;" id="logoutModalLabel">Confirm Deactivation
+                    </h6>
                 </div>
                 <div class="modal-body text-center" style=" font-size: 16px;color:black;">
-                    Are you sure you want to delete?
+                    Are you sure you want to deactivate?
                 </div>
                 <div class="modal-body text-center">
                     <form wire:submit.prevent="delete">
@@ -662,7 +751,7 @@
                         </div>
                         @error('reason') <span class="text-danger d-flex align-start">{{ $message }}</span>@enderror
                         <div class="d-flex justify-content-center p-3">
-                            <button type="submit" class="submit-btn mr-3">Delete</button>
+                            <button type="submit" class="submit-btn mr-3">Deactivate</button>
                             <button type="button" class="cancel-btn1 ml-3" wire:click="cancel">Cancel</button>
                         </div>
                     </form>
