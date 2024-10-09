@@ -4,9 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IT Expert</title>
+    <title>Document</title>
     @livewireStyles
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ asset('css/app.css?v=' . filemtime(public_path('css/app.css'))) }}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://unpkg.com/swiper/swiper-bundle.min.css" rel="stylesheet">
@@ -17,10 +19,10 @@
     <link rel="stylesheet" href="{{ asset('css/it-employee.css') }}">
 </head>
 
-@guest
-    <livewire:it-login />
-@else
 <body>
+    @guest
+    {{$slot}}
+    @else
     <section>
         @livewire('main-layout')
         <main id="maincontent" style="overflow: auto; height: calc(100vh - 65px);" onscroll="scrollFun()">
@@ -36,10 +38,11 @@
         function toggleSidebar() {
             document.body.classList.toggle('sidebar-toggled');
         }
+
         function scrollFun() {
             var navbar = document.getElementById('customNav');
             var mainContent = document.getElementById('maincontent');
-                        
+
             if (mainContent.scrollTop > 50) {
                 navbar.classList.add('scrolled');
             } else {
