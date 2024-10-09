@@ -3,7 +3,8 @@
     @if($showAddVendor)
 
     <div class="col-11 d-flex justify-content-start mb-1 mt-4" style="margin-left: 5%;">
-        <button class="btn btn-dark btn-sm" wire:click='cancel'> <i class="fas fa-arrow-left"></i> Back</button>
+        <button class="btn text-white btn-sm" style="background-color: #02114f;" wire:click='cancel'> <i
+                class="fas fa-arrow-left"></i> Back</button>
 
     </div>
     <div class="col-11 mt-4 itadd-maincolumn">
@@ -24,7 +25,8 @@
                     <div class="col-md-6">
                         <label for="vendorName" class="form-label"><span class="text-danger">*</span> Vendor
                             Name</label>
-                        <input type="text" id="vendorName" wire:model.lazy="vendorName" class="form-control">
+                        <input type="text" id="vendorName" wire:model.lazy="vendorName"
+                            wire:keydown="resetValidationForField('vendorName')" class="form-control">
                         @error('vendorName') <div class="text-danger">{{ $message }}</div> @enderror
                     </div>
 
@@ -32,7 +34,8 @@
                     <div class="col-md-6">
                         <label for="contactName" class="form-label"><span class="text-danger">*</span>Contact
                             Name</label>
-                        <input type="text" id="contactName" wire:model.lazy="contactName" class="form-control">
+                        <input type="text" id="contactName" wire:model.lazy="contactName"
+                            wire:keydown="resetValidationForField('contactName')" class="form-control">
                         @error('contactName') <div class="text-danger">{{ $message }}</div> @enderror
                     </div>
                 </div>
@@ -41,14 +44,17 @@
                     <!-- Phone -->
                     <div class="col-md-6">
                         <label for="phone" class="form-label"><span class="text-danger">*</span>Phone</label>
-                        <input type="text" id="phone" wire:model.lazy="phone" class="form-control">
+                        <input type="text" id="phone" wire:model.lazy="phone"
+                            wire:keydown="resetValidationForField('phone')" maxlength="10" oninput="formatPhoneNumber(this)"
+                            class="form-control">
                         @error('phone') <div class="text-danger">{{ $message }}</div> @enderror
                     </div>
 
                     <!-- GST -->
                     <div class="col-md-6">
                         <label for="gst" class="form-label"><span class="text-danger">*</span>GST</label>
-                        <input type="text" id="gst" wire:model.lazy="gst" class="form-control">
+                        <input type="text" id="gst" wire:model.lazy="gst" wire:keydown="resetValidationForField('gst')"
+                            class="form-control">
                         @error('gst') <div class="text-danger">{{ $message }}</div> @enderror
                     </div>
                 </div>
@@ -64,8 +70,12 @@
                     <!-- Account Number -->
                     <div class="col-md-6">
                         <label for="accountNumber" class="form-label">Account Number</label>
-                        <input type="text" id="accountNumber" wire:model="accountNumber" class="form-control">
-
+                        <input type="text" id="accountNumber" wire:model.lazy="accountNumber"
+                            wire:keydown="resetValidationForField('accountNumber')" maxlength="19"
+                            oninput="formatAccountNumber(this)" class="form-control">
+                        @error('accountNumber')
+                        <div class="text-danger">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
 
@@ -90,7 +100,8 @@
                     <div class="col-md-6">
                         <label for="contactEmail" class="form-label"><span class="text-danger">*</span>Contact
                             Email</label>
-                        <input type="email" id="contactEmail" wire:model.lazy="contactEmail" class="form-control">
+                        <input type="email" id="contactEmail" wire:model.lazy="contactEmail"
+                            wire:keydown="resetValidationForField('contactEmail')" class="form-control">
                         @error('contactEmail') <div class="text-danger">{{ $message }}</div> @enderror
                     </div>
 
@@ -121,7 +132,11 @@
                     <!-- Pin Code -->
                     <div class="col-md-6">
                         <label for="pinCode" class="form-label">Pin Code</label>
-                        <input type="text" id="pinCode" wire:model="pinCode" class="form-control">
+                        <input type="text" id="pinCode" wire:model.lazy="pinCode" maxlength="6"
+                            oninput="formatPinCode(this)" class="form-control">
+                        @error('pinCode')
+                        <div class="text-danger">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <!-- Note/Description -->
@@ -141,8 +156,8 @@
                     @error('file_paths.*') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
                 <div class="d-flex justify-content-center">
-                    <button type="submit"
-                        class="btn btn-dark border-white">{{ $editMode ? 'Update' : 'Submit' }}</button>
+                    <button type="submit" class="btn text-white border-white"
+                        style="background-color: #02114f;">{{ $editMode ? 'Update' : 'Submit' }}</button>
                 </div>
             </form>
         </div>
@@ -153,10 +168,68 @@
 
     @if($showEditDeleteVendor)
     <div class="d-flex justify-content-end mt-5">
-        <button class="btn btn-dark btn-sm" wire:click='showAddVendorMember' style="margin-right: 9%;padding: 7px;"><i
-                class="fas fa-user-plus"></i> Add Vendor</button>
+        <button class="btn text-white btn-sm" wire:click='showAddVendorMember'
+            style="margin-right: 9%;padding: 7px;background-color: #02114f;"><i class="fas fa-user-plus"></i> Add
+            Vendor</button>
     </div>
     <div class="col-11 mt-4 ml-4">
+        @if($searchFilters)
+        <!-- Search Filters -->
+        <div class="row mb-3 mt-4 ml-4 employeeAssetList">
+            <!-- Employee ID Search Input -->
+            <div class="col-10 col-md-3 mb-2 mb-md-0">
+                <input type="text" class="form-control" placeholder="Search by Vendor ID/Name"
+                    wire:model.debounce.500ms="searchVendor" wire:keydown.enter="filter">
+            </div>
+
+            <!-- Asset ID Search Input -->
+            <div class="col-10 col-md-3 mb-2 mb-md-0">
+                <input type="text" class="form-control" placeholder="Search by Contact Name"
+                    wire:model.debounce.500ms="searchContactName" wire:keydown.enter="filter">
+            </div>
+
+            <!-- Buttons -->
+            <div class="col-10 col-md-3 d-flex gap-2 flex-column flex-md-row">
+                <button class="btn text-white" style="background-color: #02114f;" wire:click="filter">
+                    <i class="fa fa-search"></i> Search
+                </button>
+                <button class="btn btn-white text-dark border border-dark" wire:click="clearFilters">
+                    <i class="fa fa-times"></i> Clear
+                </button>
+            </div>
+        </div>
+
+        @endif
+
+        <div class="col-10 d-flex justify-content-center">
+            @if (session()->has('updateMessage'))
+            <div id="flash-message" class="alert alert-success mt-1">
+                {{ session('updateMessage') }}
+            </div>
+            @endif
+
+        </div>
+
+        <div class="col-10 d-flex justify-content-center">
+            @if (session()->has('createMessage'))
+            <div id="flash-message" class="alert alert-success mt-1">
+                {{ session('createMessage') }}
+            </div>
+            @endif
+
+        </div>
+
+        <div class="col-10 d-flex justify-content-center">
+            @if (session()->has('deactiveMessage'))
+            <div id="flash-message" class="alert alert-success mt-1">
+                {{ session('deactiveMessage') }}
+            </div>
+            @endif
+
+        </div>
+
+
+        
         <div class="table-responsive it-add-table-res">
             <table class="table table-striped">
                 <thead class="table-dark">
@@ -198,7 +271,8 @@
                             </div>
                             <!-- Delete Action -->
                             <div class="col mx-1">
-                                <button class="btn btn-dark border-white" wire:click='confirmDelete({{ $vendor->id }})'>
+                                <button class="btn text-white border-white" style="background-color: #02114f;"
+                                    wire:click='confirmDelete({{ $vendor->id }})'>
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -232,8 +306,9 @@
             <div>
                 <h3>View Details</h3>
             </div>
-            <button class="btn btn-dark" wire:click="closeViewVendor" aria-label="Close">
-                <i class="fas fa-times"></i>
+            <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewVendor"
+                aria-label="Close">
+
                 Close
             </button>
         </div>
@@ -508,3 +583,27 @@
     @endif
 
 </div>
+
+
+<script>
+function formatAccountNumber(input) {
+    // Remove all non-digit characters
+    let value = input.value.replace(/\D/g, '');
+
+    // Add spaces every 4 characters
+    value = value.replace(/(.{4})/g, '$1 ').trim();
+
+    // Set the formatted value back to the input field
+    input.value = value;
+}
+
+function formatPinCode(input) {
+    // Allow only digits and limit to 6 characters
+    input.value = input.value.replace(/\D/g, '').substring(0, 6);
+}
+
+function formatPhoneNumber(input) {
+        // Allow only digits and limit to 10 characters
+        input.value = input.value.replace(/\D/g, '').substring(0, 10);
+    }
+</script>

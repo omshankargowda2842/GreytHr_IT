@@ -20,7 +20,7 @@
         </div>
         @if ($showEMployeeAssetBtn)
         <div class="col-11 d-flex justify-content-start mb-4" style="margin-left: 4%;">
-            <button class="btn btn-dark" wire:click="backVendor"><i class="fas fa-arrow-left"></i> Back
+            <button class="btn text-white" style="background-color: #02114f;" wire:click="backVendor"><i class="fas fa-arrow-left"></i> Back
             </button>
         </div>
         @endif
@@ -28,10 +28,10 @@
             <div class="">
 
                 @if ($showOldEMployeeAssetBtn)
-                <button class="btn btn-dark mr-3" wire:click="oldAssetlisting">Previous Owners </button>
+                <button class="btn text-white mr-3" style="background-color: #02114f;" wire:click="oldAssetlisting">Previous Owners </button>
                 @endif
                 @if ($showAssignAssetBtn)
-                <button class="btn btn-dark" wire:click="assignAsset">Assign Asset</button>
+                <button class="btn text-white" style="background-color: #02114f;" wire:click="assignAsset">Assign Asset</button>
                 @endif
             </div>
         </div>
@@ -39,8 +39,29 @@
         @if($assetEmpCreateUpdate)
         <!-- Row for Dropdowns -->
         <div class="row mb-3 d-flex justify-content-around">
-            <!-- Asset Dropdown -->
+
+            <!-- Employee ID Dropdown -->
             <div class="col-md-5">
+                <label for="employeeSelect" class="form-label">Select Employee ID</label>
+                <select id="employeeSelect" class="form-select" wire:model="selectedEmployee"
+                    wire:change="fetchEmployeeDetails" {{ $isUpdateMode ? 'disabled' : '' }}>
+                    <option value="">Choose Employee</option>
+                    @foreach ($assetSelectEmp as $employee)
+                    <option value="{{ $employee->emp_id }}"
+                        class="{{ in_array($employee->emp_id, $assignedEmployeeIds) ? 'inactive-option' : 'active-option' }}"
+                        {{ (in_array($employee->emp_id, $assignedEmployeeIds) && $employee->emp_id !== $selectedEmployee) ? 'disabled' : '' }}
+                        {{ $isUpdateMode && $employee->emp_id == $selectedEmployee ? 'selected' : '' }}>
+                        {{ $employee->emp_id }} - {{ $employee->first_name }} {{ $employee->last_name }}
+                    </option>
+                    @endforeach
+                </select>
+                @error('selectedEmployee')
+                <span class="text-danger">{{ $message }}</span>
+                @enderror
+            </div>
+
+             <!-- Asset Dropdown -->
+             <div class="col-md-5">
                 @if (session()->has('message'))
                 <div id="flash-message" class="alert alert-success mt-1">
                     {{ session('message') }}
@@ -64,44 +85,12 @@
                 @enderror
             </div>
 
-            <!-- Employee ID Dropdown -->
-            <div class="col-md-5">
-                <label for="employeeSelect" class="form-label">Select Employee ID</label>
-                <select id="employeeSelect" class="form-select" wire:model="selectedEmployee"
-                    wire:change="fetchEmployeeDetails" {{ $isUpdateMode ? 'disabled' : '' }}>
-                    <option value="">Choose Employee</option>
-                    @foreach ($assetSelectEmp as $employee)
-                    <option value="{{ $employee->emp_id }}"
-                        class="{{ in_array($employee->emp_id, $assignedEmployeeIds) ? 'inactive-option' : 'active-option' }}"
-                        {{ (in_array($employee->emp_id, $assignedEmployeeIds) && $employee->emp_id !== $selectedEmployee) ? 'disabled' : '' }}
-                        {{ $isUpdateMode && $employee->emp_id == $selectedEmployee ? 'selected' : '' }}>
-                        {{ $employee->emp_id }}
-                    </option>
-                    @endforeach
-                </select>
-                @error('selectedEmployee')
-                <span class="text-danger">{{ $message }}</span>
-                @enderror
-            </div>
         </div>
 
         <!-- Row for Details Cards -->
         <div class="row mt-4 d-flex justify-content-around">
             <div class="col-md-4">
-                @if ($assetDetails)
-                <div class="assetEmpDetailsCard p-3 mb-3">
-                    <h5><u>Asset Details</u></h5>
-                    <p><strong>Manufacturer:</strong> <span>{{ $assetDetails->manufacturer }}</span></p>
-                    <p><strong>Asset Type:</strong> {{ $assetDetails->asset_type }}</p>
-                    <p><strong>Asset Model:</strong> {{ $assetDetails->asset_model }}</p>
-                    <p><strong>Serial Number:</strong> {{ $assetDetails->serial_number }}</p>
-                    <p><strong>Specifications:</strong> {{ $assetDetails->asset_specification }}</p>
-                </div>
-                @endif
-            </div>
-
-            <div class="col-md-4">
-                @if ($empDetails)
+            @if ($empDetails)
                 <div class="assetEmpDetailsCard p-3 mb-3">
                     <h5><u>Employee Details</u></h5>
                     <p><strong>Employee ID:</strong> {{ $empDetails->emp_id }}</p>
@@ -109,6 +98,20 @@
                     <p><strong>Email:</strong> {{ $empDetails->email }}</p>
                     <p><strong>Department:</strong> {{ $empDetails->job_role }}</p>
                     <p><strong>Job Mode:</strong> {{ $empDetails->job_mode }}</p>
+                </div>
+                @endif
+
+            </div>
+
+            <div class="col-md-4">
+            @if ($assetDetails)
+                <div class="assetEmpDetailsCard p-3 mb-3">
+                    <h5><u>Asset Details</u></h5>
+                    <p><strong>Manufacturer:</strong> <span>{{ $assetDetails->manufacturer }}</span></p>
+                    <p><strong>Asset Type:</strong> {{ $assetDetails->asset_type }}</p>
+                    <p><strong>Asset Model:</strong> {{ $assetDetails->asset_model }}</p>
+                    <p><strong>Serial Number:</strong> {{ $assetDetails->serial_number }}</p>
+                    <p><strong>Specifications:</strong> {{ $assetDetails->asset_specification }}</p>
                 </div>
                 @endif
             </div>
@@ -122,7 +125,7 @@
 
         <!-- Submit Button -->
         <div class="mt-4 text-center">
-            <button class="btn btn-dark" wire:click="submit">
+            <button class="btn text-white" style="background-color: #02114f;" wire:click="submit">
                 {{ $isUpdateMode ? 'Update Asset' : 'Assign' }}
             </button>
 
@@ -157,7 +160,7 @@
 
             <!-- Buttons -->
             <div class="col-10 col-md-3 d-flex gap-2 flex-column flex-md-row">
-                <button class="btn btn-dark" wire:click="filter">
+                <button class="btn text-white" style="background-color: #02114f;" wire:click="filter">
                     <i class="fa fa-search"></i> Search
                 </button>
                 <button class="btn btn-white text-dark border border-dark" wire:click="clearFilters">
@@ -219,7 +222,7 @@
                                 </div>
                                 <!-- Delete Action -->
                                 <div class="col mx-1">
-                                    <button class="btn btn-dark btn-sm border-dark"
+                                    <button class="btn text-white btn-sm border-dark" style="background-color: #02114f;"
                                         wire:click="confirmDelete({{ $employeeAssetList->id }})" title="Delete">
                                         <i class="fas fa-trash"></i>
                                     </button>
@@ -262,8 +265,8 @@
         <div class="col-10 mt-4 itadd-maincolumn">
             <div class="d-flex justify-content-between align-items-center">
                 <h3>View Details</h3>
-                <button class="btn btn-dark" wire:click="closeViewVendor" aria-label="Close">
-                    <i class="fas fa-times"></i> Close
+                <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewVendor" aria-label="Close">
+                    Close
                 </button>
             </div>
 
@@ -355,7 +358,7 @@
         @if($oldAssetBackButton)
         <div class="col-11 d-flex justify-content-start mb-4" style="margin-left: 5%;">
             <div class="">
-                <button class="btn btn-dark" wire:click="closeViewVendor" aria-label="Close">
+                <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewVendor" aria-label="Close">
                     <i class="fas fa-arrow-left"></i> Back
                 </button>
             </div>
@@ -379,7 +382,7 @@
 
             <!-- Buttons -->
             <div class="col-10 col-md-3 d-flex gap-2 flex-column flex-md-row">
-                <button class="btn btn-dark" wire:click="filter">
+                <button class="btn text-white" style="background-color: #02114f;" wire:click="filter">
                     <i class="fa fa-search"></i> Search
                 </button>
                 <button class="btn btn-white text-dark border border-dark" wire:click="clearFilters">
@@ -474,8 +477,8 @@
         <div class="col-10 mt-4 itadd-maincolumn">
             <div class="d-flex justify-content-between align-items-center">
                 <h3>View Details</h3>
-                <button class="btn btn-dark" wire:click="closeViewEmpAsset" aria-label="Close">
-                    <i class="fas fa-times"></i> Close
+                <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewEmpAsset" aria-label="Close">
+                    Close
                 </button>
             </div>
 

@@ -28,10 +28,10 @@ return new class extends Migration
             $table->string('mother_state')->nullable();
             $table->string('father_country')->nullable();
             $table->string('mother_country')->nullable();
-            $table->string('father_email')->unique()->nullable();
-            $table->string('mother_email')->unique()->nullable();
-            $table->string('father_phone')->unique()->nullable();
-            $table->string('mother_phone')->unique()->nullable();
+            $table->string('father_email')->nullable();
+            $table->string('mother_email')->nullable();
+            $table->string('father_phone')->nullable();
+            $table->string('mother_phone')->nullable();
             $table->string('father_occupation')->nullable();
             $table->string('mother_occupation')->nullable();
             $table->binary('father_image')->nullable();

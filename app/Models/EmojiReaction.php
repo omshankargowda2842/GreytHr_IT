@@ -14,4 +14,5 @@ class EmojiReaction extends Model
     {
         return $this->hasMany(EmojiReaction::class, 'emp_id', 'emp_id');
     }
+
 }

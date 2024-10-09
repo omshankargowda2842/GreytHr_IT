@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('emp_id');
             $table->string('bank_name');
             $table->string('bank_branch');
-            $table->string('account_number')->unique();
+            $table->string('account_number');
             $table->string('ifsc_code');
             $table->string('bank_address');
             $table->foreign('emp_id')->references('emp_id')->on('employee_details')->onDelete('cascade');

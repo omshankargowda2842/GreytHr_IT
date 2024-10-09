@@ -8,24 +8,22 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 class Admin extends Authenticatable
 {
-    use Notifiable;
     use HasFactory;
-    protected $table = 'admins'; // Adjust the table name accordingly
+    use Notifiable;
+    protected $primaryKey = 'ad_emp_id';
+    public $incrementing = false;
+    protected $table = 'admins';
 
     protected $fillable = [
-        'admin_emp_id','image',
-        'company_id', 'employee_name', 'designation', 'skills',
-        'experience_years', 'education', 'certifications', 'date_of_birth',
-        'address', 'phone_number', 'email',  'company_email','bio', 'linkedin_profile','password',
-        'github_profile', 'salary', 'is_active'
+        'ad_emp_id','emp_id',
+        'password','email','image','employee_name','date_of_birth','emergency_contact_number',
+        'phone_number'
     ];
 
-    protected $casts = [
-        'date_of_birth' => 'date',
-        'salary' => 'decimal:2',
-        'is_active' => 'boolean',
-    ];
-
+    public function employeeDetails()
+    {
+        return $this->belongsTo(EmployeeDetails::class, 'emp_id', 'emp_id');
+    }
     public function com()
     {
         return $this->belongsTo(Company::class, 'company_id', 'company_id');

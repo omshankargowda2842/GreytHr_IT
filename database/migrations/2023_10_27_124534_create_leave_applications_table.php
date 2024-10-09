@@ -15,18 +15,20 @@ return new class extends Migration
             $table->id();
             $table->string('emp_id');
             $table->string('category_type')->default('Leave');
-            $table->enum('leave_type', ['Casual Leave Probation ', 'Maternity Leave', 'Loss Of Pay','Sick Leave','Marriage Leave','Casual Leave','Petarnity Leave','Work From Home']);
-            $table->date('from_date');
-            $table->string('from_session');
-            $table->string('to_session');
-            $table->date('to_date');
+            $table->enum('leave_type', ['Casual Leave Probation', 'Maternity Leave', 'Loss Of Pay','Sick Leave','Marriage Leave','Casual Leave','Petarnity Leave','Work From Home'])->nullable();
+            $table->date('from_date')->nullable();
+            $table->string('from_session')->nullable();
+            $table->string('to_session')->nullable();
+            $table->date('to_date')->nullable();
             $table->json('file_paths')->nullable();
-            $table->string('applying_to');
+            $table->json('applying_to');
+            $table->string(column: 'action_by')->nullable();
             $table->json('cc_to')->nullable();
             $table->string('status')->default('Pending');
             $table->string('cancel_status')->default('Pending');
-            $table->string('contact_details');
-            $table->text('reason');
+            $table->string('leave_cancel_reason')->nullable();
+            $table->string('contact_details')->nullable();
+            $table->text('reason')->nullable();
             $table->boolean('is_read')->default(false);
 
             // $table->enum('sick_leave', ['yes', 'no'])->default('no');

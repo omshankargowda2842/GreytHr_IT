@@ -110,7 +110,7 @@
 
                                         <tr>
 
-                                            <td>Department</td>
+                                            <td>Service Request</td>
 
                                             <td>{{$selectedRequest->category ?? 'N/A' }}</td>
 
@@ -142,7 +142,7 @@
 
                                         <tr>
 
-                                            <td>Mobile</td>
+                                            <td>Phone</td>
 
                                             <td>{{$selectedRequest->mobile ??'N/A' }}</td>
 
@@ -296,7 +296,7 @@
                                                     @foreach($itData as $itName)
                                                     <option
                                                         value="{{ $itName->empIt->first_name }} {{ $itName->empIt->last_name }} ">
-                                                        {{ $itName->empIt->first_name }} {{ $itName->empIt->last_name }}
+                                                        {{ ucwords(strtolower($itName->empIt->first_name)) }} {{ ucwords(strtolower($itName->empIt->last_name)) }}
                                                     </option>
                                                     @endforeach
                                                 </select>
@@ -345,7 +345,7 @@
                                                     {{ $request->emp->last_name }}</p>
 
                                                 <p title="{{ $request['category'] }}">
-                                                    <strong>Department: </strong><span
+                                                    <strong>Service Request: </strong><span
                                                         class="req-res-depart">{{ $request->category ?? 'N/A' }}</span>
                                                 </p>
 
@@ -414,7 +414,7 @@
 
                                                     <th class="req-table-head">Requested By</th>
 
-                                                    <th class="req-table-head">Department</th>
+                                                    <th class="req-table-head">Service Request</th>
 
                                                     <th class="req-table-head">Subject</th>
 
@@ -422,7 +422,7 @@
 
                                                     <th class="req-table-head">Distributor</th>
 
-                                                    <th class="req-table-head">Mobile</th>
+                                                    <th class="req-table-head">Phone</th>
 
                                                     <th class="req-table-head">MailBox</th>
 
@@ -613,7 +613,7 @@
 
                                                     <th class="req-closed-th">Requested By</th>
 
-                                                    <th class="req-closed-th">Department</th>
+                                                    <th class="req-closed-th">Service Request</th>
 
                                                     <th class="req-closed-th">Subject</th>
 
@@ -621,7 +621,7 @@
 
                                                     <th class="req-closed-th">Distributor</th>
 
-                                                    <th class="req-closed-th">Mobile</th>
+                                                    <th class="req-closed-th">Phone</th>
 
                                                     <th class="req-closed-th">MailBox</th>
 

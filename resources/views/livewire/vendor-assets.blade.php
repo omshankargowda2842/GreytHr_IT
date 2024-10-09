@@ -3,7 +3,7 @@
     @if($showAddVendor)
 
     <div class="col-11 d-flex justify-content-start mb-1 mt-4" style="margin-left: 5%;">
-        <button class="btn btn-dark btn-sm" wire:click='cancel'> <i class="fas fa-arrow-left"></i> Back</button>
+        <button class="btn text-white btn-sm" style="background-color: #02114f;" wire:click='cancel'> <i class="fas fa-arrow-left"></i> Back</button>
 
     </div>
     <div class="col-11 mt-4 itadd-maincolumn">
@@ -98,7 +98,7 @@
                                             <div class="col-12 d-flex justify-content-center"
                                                 style="height: fit-content;margin-top: 25px;">
                                                 <button wire:click="createAssetType"
-                                                    class="btn btn-dark">Create</button>
+                                                    class="btn text-white" style="background-color: #02114f;">Create</button>
                                             </div>
                                         </div>
 
@@ -249,7 +249,7 @@
 
                 <div class="d-flex justify-content-center">
                     <button type="button" wire:click="submit"
-                        class="btn btn-dark border-white">{{ $editMode ? 'Update' : 'Submit' }}</button>
+                        class="btn text-white border-white" style="background-color: #02114f;">{{ $editMode ? 'Update' : 'Submit' }}</button>
                 </div>
             </form>
         </div>
@@ -260,7 +260,7 @@
 
     @if($showEditDeleteVendor)
     <div class="d-flex justify-content-end mt-5">
-        <button class="btn btn-dark btn-sm" wire:click='showAddVendorMember' style="margin-right: 9%; padding: 7px;">
+        <button class="btn text-white btn-sm" wire:click='showAddVendorMember' style="margin-right: 9%; padding: 7px;background-color: #02114f;">
             <i class="fas fa-box"></i> Add Asset
         </button>
     </div>
@@ -284,7 +284,7 @@
 
             <!-- Buttons -->
             <div class="col-10 col-md-3 d-flex gap-2 flex-column flex-md-row">
-                <button class="btn btn-dark" wire:click="filter">
+                <button class="btn text-white" style="background-color: #02114f;" wire:click="filter">
                     <i class="fa fa-search"></i> Search
                 </button>
                 <button class="btn btn-white text-dark border border-dark" wire:click="clearFilters">
@@ -340,15 +340,17 @@
 
         </div>
         <div class="table-responsive it-add-table-res">
-            <table class="table table-striped">
-                <thead class="table-dark">
+            <table class="custom-table">
+                <thead >
                     <tr>
-                        <th scope="col" class="vendor-table-head">S.No</th>
+                        <th class="vendor-table-head">S.No</th>
                         <th class="vendor-table-head">Vendor ID </th>
+                        <th class="vendor-table-head">Vendor Name </th>
                         <th class="vendor-table-head">Asset ID </th>
                         <th class="vendor-table-head">Manufacturer</th>
                         <th class="vendor-table-head">Asset Type</th>
                         <th class="vendor-table-head">Invoice Number</th>
+                        <th class="vendor-table-head">Serial Number</th>
                         <th class="vendor-table-head">Status</th>
                         <th class="vendor-table-head">Barcode Image</th>
                         <th class="vendor-table-head d-flex justify-content-center">Actions</th>
@@ -360,14 +362,16 @@
                     @if($vendorAssets->count() > 0)
                     @foreach($vendorAssets as $vendorAsset)
                     <tr>
-                        <th scope="row">{{ $loop->iteration }}</th>
+                        <td class="vendor-table-head">{{ $loop->iteration }}</td>
                         <td class="vendor-table-head">{{ $vendorAsset->vendor_id ?? 'N/A'}}</td>
+                        <td class="vendor-table-head">{{ $vendorAsset->vendor ? ucwords(strtolower($vendorAsset->vendor->vendor_name)) : 'N/A' }}</td>
                         <td class="vendor-table-head">{{ $vendorAsset->asset_id ?? 'N/A'}}</td>
                         <td class="vendor-table-head">{{ucwords(strtolower($vendorAsset->manufacturer )) ?? 'N/A' }}
                         </td>
                         <td class="vendor-table-head">{{ ucwords(strtolower($vendorAsset['asset_type_name'])) ?? 'N/A'}}
                         </td>
                         <td class="vendor-table-head">{{ $vendorAsset->invoice_number ?? 'N/A'}}</td>
+                        <td class="vendor-table-head">{{ $vendorAsset->serial_number ?? 'N/A'}}</td>
 
 
                         <td class="vendor-table-head">
@@ -442,7 +446,7 @@
                             <div class="col mx-1">
                                 <!-- Delete Button (Inactive if is_active is 0) -->
                                 <button
-                                    class="btn btn-dark border-white {{ $vendorAsset->is_active == 0 ? 'disabled' : '' }}"
+                                    class="btn text-white border-white {{ $vendorAsset->is_active == 0 ? 'disabled' : '' }}" style="background-color: #02114f;"
                                     wire:click="confirmDelete({{ $vendorAsset->id }})"
                                     {{ $vendorAsset->is_active == 0 ? 'disabled' : '' }}>
                                     <i class="fas fa-trash"></i>
@@ -454,7 +458,7 @@
                             <div class="col mx-1">
                                 <!-- Restore Button (Inactive if is_active is 1) -->
                                 <button
-                                    class="btn btn-dark border-white {{ $vendorAsset->is_active == 1 ? 'disabled' : '' }}"
+                                    class="btn text-white border-white {{ $vendorAsset->is_active == 1 ? 'disabled' : '' }}" style="background-color: #02114f;"
                                     wire:click="cancelLogout({{ $vendorAsset->id }})"
                                     {{ $vendorAsset->is_active == 1 ? 'disabled' : '' }}>
                                     <i class="fas fa-undo"></i>
@@ -493,8 +497,8 @@
             <div>
                 <h3>View Details</h3>
             </div>
-            <button class="btn btn-dark" wire:click="closeViewVendor" aria-label="Close">
-                <i class="fas fa-times"></i>
+            <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewVendor" aria-label="Close">
+
                 Close
             </button>
         </div>

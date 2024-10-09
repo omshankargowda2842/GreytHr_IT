@@ -1,10 +1,10 @@
 <?php
- 
+
 namespace App\Models;
- 
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
- 
+
 class TimeSheet extends Model
 {
     use HasFactory;
@@ -26,7 +26,7 @@ class TimeSheet extends Model
     protected $casts = [
         'date_and_day_with_tasks' => 'array',
     ];
- 
+
     public function employee()
     {
         return $this->belongsTo(EmployeeDetails::class, 'emp_id', 'emp_id');

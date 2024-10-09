@@ -13,12 +13,17 @@ return new class extends Migration
     {
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
-            $table->string('hr_emp_id');
+            $table->string('hr_emp_id')->nullable();
+           
             $table->string('admin_emp_id')->nullable();
+            $table->string('manager_id')->nullable();
             $table->string('emp_id')->nullable();
-            $table->enum('category',  ['Appreciations', 'Buy/Sell/Rent', 'Companynews', 'Events', 'Everyone','Hyderabad','US']);
+            $table->enum('category',  ['Appreciations',  'Companynews', 'Events', 'Everyone','Hyderabad','US']);
             $table->text('description');
-            $table->string('attachment')->nullable();
+            $table->binary('file_path')->nullable();
+            $table->string('file_name')->nullable();
+            $table->string('mime_type')->nullable();
+            $table->string('status')->default('Open');
             $table->timestamps();
         });
     }

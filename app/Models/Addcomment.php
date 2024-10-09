@@ -24,4 +24,12 @@ class Addcomment extends Model
     {
         return $this->belongsTo(HR::class, 'hr_emp_id', 'emp_id');
     }
+    public function interacted()
+    {
+        return $this->belongsTo(Addcomment::class);
+    }
+    public function getImageUrlAttribute()
+    {
+        return 'data:image/jpeg;base64,' . base64_encode($this->attributes['image']);
+    }
 }

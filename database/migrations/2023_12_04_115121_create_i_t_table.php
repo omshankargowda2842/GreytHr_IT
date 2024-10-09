@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -20,6 +21,8 @@ return new class extends Migration
             $table->string('emp_id')->nullable();
             $table->date('date_of_birth')->nullable();
             $table->string('phone_number')->nullable();
+            $table->string('active_comment')->nullable();
+            $table->string('inprogress_remarks')->nullable();
             $table->string('delete_itmember_reason')->nullable();
             $table->string('email')->unique();
             $table->boolean('is_active')->default(true);

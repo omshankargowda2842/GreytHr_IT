@@ -25,6 +25,7 @@ return new class extends Migration
             $table->enum('status', ['approved', 'pending','rejected'])->default('pending');
             $table->string('approved_by')->nullable();
             $table->string('rejected_by')->nullable();
+            $table->string('mail_sent')->nullable();
             $table->foreign('emp_id')
             ->references('emp_id')
             ->on('employee_details')

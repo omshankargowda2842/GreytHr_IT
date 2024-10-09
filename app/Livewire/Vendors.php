@@ -53,7 +53,7 @@ class Vendors extends Component
     return [
         'vendorName' => 'required|string|max:255',
         'contactName' => 'required|string|max:255',
-        'phone' => 'required|string|max:15',
+        'phone' => 'required|digits:10',
         'contactEmail' => 'required|email|max:255',
         'gst' => [
             'required',
@@ -75,8 +75,8 @@ class Vendors extends Component
         'contactName.max' => 'Contact Name may not be greater than 255 characters.',
 
         'phone.required' => 'Phone number is required.',
-        'phone.string' => 'Phone number must be a string.',
-        'phone.max' => 'Phone number may not be greater than 15 characters.',
+        'phone.string' => 'Phone number must be a number.',
+        'phone.max' => 'Phone number may not be greater than 10 characters.',
         'gst.regex' => 'The GST number format is invalid.',
         'contactEmail.required' => 'Contact Email is required.',
         'contactEmail.email' => 'Contact Email must be a valid email address.',
@@ -84,6 +84,14 @@ class Vendors extends Component
 
 
     ];
+
+    public function validateAccountNumber()
+    {
+
+        $this->validateOnly('accountNumber');
+    }
+
+
 
     private function resetForm()
 {
@@ -114,6 +122,7 @@ public $selectedFile; // Store the selected file's data
 
 public $showViewVendorDialog = false;
 public $currentVendorId = null;
+
 
 public function showViewVendor($vendorId)
 {
@@ -213,7 +222,7 @@ public function updatedContactEmail()
         ]);
 
 
-        session()->flash('message', 'Vendor deleted successfully!');
+        session()->flash('deactiveMessage', 'Vendor deactivated successfully!');
         $this->showLogoutModal = false;
 
         //Refresh
@@ -436,11 +445,13 @@ public function downloadImages($vendorId)
                     'note_description' => $this->noteDescription,
                     'file_paths' => json_encode($fileDataArray),
                 ]);
-
+                session()->flash('updateMessage', 'Vendor updated successfully!');
             }
         } else {
+
             // Create new record
             Vendor::create([
+
                 'vendor_name' => $this->vendorName,
                 'contact_name' => $this->contactName,
                 'phone' => $this->phone,
@@ -457,20 +468,21 @@ public function downloadImages($vendorId)
                 'note_description' => $this->noteDescription,
                 'file_paths' => json_encode($fileDataArray),
             ]);
+            session()->flash('createMessage', 'Vendor created successfully!');
         }
 
-        session()->flash('message', 'Form submitted successfully!');
         $this->reset();
     } catch (\Illuminate\Database\QueryException $e) {
-
-        if ($e->getCode() === '23000') {
-            // Unique constraint violation
-            $this->addError('gst', 'The GST Number has already been taken.');
-        } else {
+        Log::error('Database error:', [
+            'error' => $e->getMessage(),
+            'code' => $e->getCode(),
+            'sql' => $e->getSql(), // Log the SQL query if possible
+            'bindings' => $e->getBindings(), // Log the bindings for the SQL query
+        ]);
             // Other database exceptions
             Log::error('Database error:', ['error' => $e->getMessage()]);
             session()->flash('error', 'An error occurred. Please try again.');
-        }
+
     } catch (\Exception $e) {
         Log::error('Error:', ['error' => $e->getMessage()]);
         session()->flash('error', 'An unexpected error occurred.');
@@ -490,10 +502,67 @@ public function downloadImages($vendorId)
 
     }
 
+    public $filteredVendor = [];
+    public $assetsFound = false;
+    public $searchFilters = true;
+    public $searchVendor = '';
+    public $searchContactName = '';
+
+    public function filter()
+    {
+        try {
+            $trimmedEmpId = trim($this->searchVendor);
+            $trimmedAssetId = trim($this->searchContactName);
+
+            $this->filteredVendor = Vendor::query()
+            ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
+                            $query->where(function ($query) use ($trimmedEmpId) {
+                                $query->where('vendor_id', 'like', '%' . $trimmedEmpId . '%')
+                                ->orWhere('vendor_name', 'like', '%' . $trimmedEmpId . '%');
+                            });
+                        })
+                ->when($trimmedAssetId, function ($query) use ($trimmedAssetId) {
+                    $query->where('contact_name', 'like', '%' . $trimmedAssetId . '%');
+                })
+                ->get();
+
+            $this->assetsFound = count($this->filteredVendor) > 0;
+        } catch (\Exception $e) {
+            Log::error('Error in filter method: ' . $e->getMessage());
+        }
+    }
+
+    // Define the updateSearch method if you need it
+    public function updateSearch()
+    {
+        $this->filter();
+    }
+
+    public function clearFilters()
+    {
+        // Reset search fields and filtered results
+        // $this->searchVendor = '';
+        // $this->searchContactName = '';
+        $this->reset();
+        $this->filteredVendor = [];
+        $this->assetsFound = false;
+
+    }
+
+    public function resetValidationForField($field)
+    {
+        // Reset error for the specific field when typing
+        $this->resetErrorBag($field);
+    }
+
+
 
     public function render()
     {
-        $this->vendors = Vendor::where('is_active', 1)->get();
+        $this->vendors =!empty($this->filteredVendor)
+        ? $this->filteredVendor :Vendor::where('is_active', 1)->get();
+
+
         return view('livewire.vendors');
     }
 }

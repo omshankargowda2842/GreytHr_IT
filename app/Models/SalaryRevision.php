@@ -122,13 +122,7 @@ class SalaryRevision extends Model
     }
 
     // Override the booted method to perform operations when the model is retrieved from the database
-    protected static function booted()
-    {
-        static::retrieved(function ($employee) {
-            // Access the salary attribute here
-            $employee->salary = $employee->getAttribute('salary');
-        });
-    }
+
 
 
     // Define the relationship to the Employee model

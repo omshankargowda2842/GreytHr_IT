@@ -22,11 +22,12 @@ class LeaveRequest extends Model
         'to_date',
         'applying_to',
         'cc_to',
-        'contact_details',
+        'contact_details','cancel_status',
         'reason',
+        'leave_cancel_reason',
         'is_read',
-        'file_paths'
-        // Add other fields that you want to be fillable here
+        'file_paths',
+        'action_by'
     ];
 
     protected $casts = [
@@ -44,84 +45,70 @@ class LeaveRequest extends Model
     {
         return $this->belongsTo(EmployeeDetails::class, 'emp_id');
     }
-    public function calculateLeaveDays($fromDate, $fromSession, $toDate, $toSession)
+    public function calculateLeaveDays($fromDate, $fromSession, $toDate, $toSession, $leaveType)
     {
-        try {
-            $startDate = Carbon::parse($fromDate);
-            $endDate = Carbon::parse($toDate);
-            // Check if the start and end sessions are different on the same day
-            if ($startDate->isSameDay($endDate) && $this->getSessionNumber($fromSession) === $this->getSessionNumber($toSession)) {
-                // Inner condition to check if both start and end dates are weekdays
-                if (!$startDate->isWeekend() && !$endDate->isWeekend()) {
-                    return 0.5;
+
+            try {
+                $startDate = Carbon::parse($fromDate);
+                $endDate = Carbon::parse($toDate);
+    
+                // Check if the start or end date is a weekend
+                if ($startDate->isWeekend() || $endDate->isWeekend()) {
+                    return 'Error: Selected dates fall on a weekend. Please choose weekdays.';
+                }
+
+                // Check if the start and end sessions are different on the same day
+                if ($startDate->isSameDay($endDate)) {
+                    if (self::getSessionNumber($fromSession) !== self::getSessionNumber($toSession)) {
+                        return 1;
+                    } elseif (self::getSessionNumber($fromSession) == self::getSessionNumber($toSession)) {
+                        return 0.5;
+                    } else {
+                        return 0;
+                    }
+                }
+    
+                $totalDays = 0;
+    
+                while ($startDate->lte($endDate)) {
+                    if ($leaveType == 'Sick Leave') {
+                        $totalDays += 1;
+                    } else {
+                        if ($startDate->isWeekday()) {
+                            $totalDays += 1;
+                        }
+                    }
+                    // Move to the next day
+                    $startDate->addDay();
+                }
+
+                // Deduct weekends based on the session numbers
+                if ($this->getSessionNumber($fromSession) > 1) {
+                    $totalDays -= $this->getSessionNumber($fromSession) - 1; // Deduct days for the starting session
+                }
+                if ($this->getSessionNumber($toSession) < 2) {
+                    $totalDays -= 2 - $this->getSessionNumber($toSession); // Deduct days for the ending session
+                }
+                // Adjust for half days
+                if ($this->getSessionNumber($fromSession) === $this->getSessionNumber($toSession)) {
+                    // If start and end sessions are the same, check if the session is not 1
+                    if ($this->getSessionNumber($fromSession) !== 1) {
+                        $totalDays += 0.5; // Add half a day
+                    } else {
+                        $totalDays += 0.5;
+                    }
+                } elseif ($this->getSessionNumber($fromSession) !== $this->getSessionNumber($toSession)) {
+                    if ($this->getSessionNumber($fromSession) !== 1) {
+                        $totalDays += 1; // Add half a day
+                    }
                 } else {
-                    // If either start or end date is a weekend, return 0
-                    return 0;
+                    $totalDays += ($this->getSessionNumber($toSession) - $this->getSessionNumber($fromSession) + 1) * 0.5;
                 }
+    
+                return $totalDays;
+            } catch (\Exception $e) {
+                return 'Error: ' . $e->getMessage();
             }
-            // Check if the start and end sessions are different on the same day
-            if (
-
-                $startDate->isSameDay($endDate) &&
-                $this->getSessionNumber($fromSession) === $this->getSessionNumber($toSession)
-            ) {
-
-                // Inner condition to check if both start and end dates are weekdays
-                if (!$startDate->isWeekend() && !$endDate->isWeekend()) {
-                    return 0.5;
-                } else {
-                    // If either start or end date is a weekend, return 0
-                    return 0;
-                }
-            }
-            if (
-                $startDate->isSameDay($endDate) &&
-                $this->getSessionNumber($fromSession) !== $this->getSessionNumber($toSession)
-            ) {
-
-                // Inner condition to check if both start and end dates are weekdays
-                if (!$startDate->isWeekend() && !$endDate->isWeekend()) {
-                    return 1;
-                } else {
-                    // If either start or end date is a weekend, return 0
-                    return 0;
-                }
-            }
-            $totalDays = 0;
-
-            while ($startDate->lte($endDate)) {
-                // Check if it's a weekday (Monday to Friday)
-                if ($startDate->isWeekday()) {
-                    $totalDays += 1;
-                }
-                // Move to the next day
-                $startDate->addDay();
-            }
-
-            // Deduct weekends based on the session numbers
-            if ($this->getSessionNumber($fromSession) > 1) {
-                $totalDays -= $this->getSessionNumber($fromSession) - 1; // Deduct days for the starting session
-            }
-            if ($this->getSessionNumber($toSession) < 2) {
-                $totalDays -= 2 - $this->getSessionNumber($toSession); // Deduct days for the ending session
-            }
-            // Adjust for half days
-            if ($this->getSessionNumber($fromSession) === $this->getSessionNumber($toSession)) {
-                // If start and end sessions are the same, check if the session is not 1
-                if ($this->getSessionNumber($fromSession) !== 1) {
-                    $totalDays += 0.5; // Add half a day
-                }
-            } elseif ($this->getSessionNumber($fromSession) !== $this->getSessionNumber($toSession)) {
-                if ($this->getSessionNumber($fromSession) !== 1) {
-                    $totalDays += 1; // Add half a day
-                }
-            } else {
-                $totalDays += ($this->getSessionNumber($toSession) - $this->getSessionNumber($fromSession) + 1) * 0.5;
-            }
-            return $totalDays;
-        } catch (\Exception $e) {
-            return 'Error: ' . $e->getMessage();
-        }
     }
     private function getSessionNumber($session)
     {

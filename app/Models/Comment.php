@@ -32,4 +32,8 @@ class Comment extends Model
     {
         return $this->interacted->count();
     }
+    public function getImageUrlAttribute()
+    {
+        return 'data:image/jpeg;base64,' . base64_encode($this->attributes['image']);
+    }
 }

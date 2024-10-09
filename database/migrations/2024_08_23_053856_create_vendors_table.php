@@ -36,19 +36,24 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        $triggerSQL = <<<SQL
-        CREATE TRIGGER generate_vendor_id BEFORE INSERT ON vendors
+       $triggerSQL = <<<SQL
+        DELIMITER $$
+
+        CREATE TRIGGER generate_vendor_id
+        BEFORE INSERT ON vendors
         FOR EACH ROW
         BEGIN
             -- Check if vendor_id is NULL
             IF NEW.vendor_id IS NULL THEN
                 -- Find the maximum vendor_id value in the vendors table
-                SET @max_id := IFNULL((SELECT MAX(CAST(SUBSTRING(vendor_id, 5) AS UNSIGNED)) + 1 FROM vendors), 10000);
+                SET @max_id := IFNULL((SELECT MAX(CAST(SUBSTRING(vendor_id, 3) AS UNSIGNED)) FROM vendors), 9999);
 
                 -- Increment the max_id and assign it to the new vendor_id
-                SET NEW.vendor_id = CONCAT('VEN-', LPAD(@max_id, 5, '0'));
+                SET NEW.vendor_id = CONCAT('V-', LPAD(@max_id + 1, 5, '0'));
             END IF;
-        END;
+        END$$
+
+        DELIMITER ;
         SQL;
 
         DB::unprepared($triggerSQL);
@@ -56,7 +61,7 @@ return new class extends Migration
     }
 
 
-    
+
 
     /**
      * Reverse the migrations.
