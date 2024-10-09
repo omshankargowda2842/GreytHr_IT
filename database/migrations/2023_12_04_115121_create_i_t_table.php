@@ -23,14 +23,14 @@ return new class extends Migration
             $table->string('delete_itmember_reason')->nullable();
             $table->string('email')->unique();
             $table->boolean('is_active')->default(true);
+            $table->tinyInteger('role')->default(0); // Role column: 0 = user, 1 = admin, 2 = super admin (or other roles)
+            $table->string('password')->nullable(); // New 'is_admin' column as tinyInteger
             $table->timestamps();
-                $table->foreign('emp_id')
+            $table->foreign('emp_id')
                 ->references('emp_id') // Assuming the primary key of the companies table is 'id'
                 ->on('employee_details')
                 ->onDelete('restrict')
                 ->onUpdate('cascade');
-            $table->string('password')->nullable();
-
         });
         $triggerSQL = <<<SQL
         CREATE TRIGGER generate_it_emp_id BEFORE INSERT ON i_t FOR EACH ROW
