@@ -109,6 +109,11 @@ class ItAddMember extends Component
         ]);
     }
 
+    public function resetValidationForField($field)
+    {
+        // Reset error for the specific field when typing
+        $this->resetErrorBag($field);
+    }
 
     public function validateField($propertyName)
     {
@@ -309,3 +314,7 @@ public function delete()
     }
 
 }
+
+
+
+

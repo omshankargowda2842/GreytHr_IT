@@ -17,13 +17,14 @@ return new class extends Migration
             $table->date('start_date');
             $table->date('end_date');
             $table->json('date_and_day_with_tasks');
+            $table->string('time_sheet_type')->nullable(); 
             $table->string('submission_status')->default('submitted')->nullable();
-            $table->string('approval_status_for_manager')->default('pending')->nullable();
-            $table->string('approval_status_for_hr')->default('pending')->nullable();
-            $table->string('reject_reason_for_manager')->default('pending')->nullable();
-            $table->string('resubmit_reason_for_manager')->default('pending')->nullable();
-            $table->string('reject_reason_for_hr')->default('pending')->nullable();
-            $table->string('resubmit_reason_for_hr')->default('pending')->nullable();
+            $table->string('approval_status_for_manager')->default('pending')->nullable(); 
+            $table->string('approval_status_for_hr')->default('pending')->nullable(); 
+            $table->string('reject_reason_for_manager')->default('pending')->nullable(); 
+            $table->string('resubmit_reason_for_manager')->default('pending')->nullable(); 
+            $table->string('reject_reason_for_hr')->default('pending')->nullable(); 
+            $table->string('resubmit_reason_for_hr')->default('pending')->nullable(); 
             $table->timestamps();
             $table->foreign('emp_id')
             ->references('emp_id')

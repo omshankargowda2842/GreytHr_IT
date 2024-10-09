@@ -2,7 +2,7 @@
     <div class="row">
         @if($showAddIt)
         <div class="col-11 d-flex justify-content-start mb-1 mt-4" style="margin-left: 4%;">
-            <button class="btn btn-dark btn-sm" wire:click='cancel'> <i class="fas fa-arrow-left"></i> Back</button>
+            <button class="btn text-white btn-sm" style="background-color: #02114f;" wire:click='cancel'> <i class="fas fa-arrow-left"></i> Back</button>
 
         </div>
         <div class="col-11  mt-4 itadd-maincolumn">
@@ -64,23 +64,23 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="phoneNumber" class="form-label">Phone Number</label>
-                        <input type="tel" id="phoneNumber" wire:model="phoneNumber"
-                            wire:keydown.debounce.500ms="validateField('phoneNumber')" class="form-control"
-                            {{ $editMode ? '' : 'readonly' }} pattern="^\d{10}$" maxlength="10">
+                        <label for="phoneNumber" class="form-label">Phone </label>
+                        <input type="tel" id="phoneNumber" wire:model.lazy="phoneNumber"
+                        wire:keydown="resetValidationForField('phone')" maxlength="10" oninput="formatPhoneNumber(this)" class="form-control"
+                            {{ $editMode ? '' : 'readonly' }}  maxlength="10">
                         @error('phoneNumber') <div class="text-danger">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
                         <input type="email" id="email" wire:model="email" wire:keydown.debounce.500ms="validateEmail"
-                            class="form-control" {{ $editMode ? '' : 'readonly' }}>
+                            class="form-control" readonly>
                         @error('email') <div class="text-danger">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="d-flex justify-content-center">
                         <button type="submit"
-                            class="btn btn-dark border-white">{{ $editMode ? 'Update' : 'Submit' }}</button>
+                            class="btn text-white border-white" style="background-color: #02114f;">{{ $editMode ? 'Update' : 'Submit' }}</button>
                     </div>
                 </form>
             </div>
@@ -90,7 +90,7 @@
         @if($showEditDeleteIt)
 
         <div class="d-flex justify-content-end mt-5">
-            <button class="btn btn-dark btn-sm itAdd3" wire:click='showAddItMember'><i class="fas fa-user-plus "></i>
+            <button class="btn text-white btn-sm itAdd3" style="background-color: #02114f;" wire:click='showAddItMember'><i class="fas fa-user-plus "></i>
                 Add Member</button>
         </div>
         <div class="col-11  mt-4 ml-4">
@@ -141,7 +141,7 @@
                             <th class="req-table-head">Image</th>
 
                             <th class="req-table-head">Date Of Birth</th>
-                            <th class="req-table-head">Phone Number</th>
+                            <th class="req-table-head">Phone</th>
                             <th class="req-table-head">Email</th>
                             <th class="req-table-head">Actions</th>
                         </tr>
@@ -170,7 +170,7 @@
 
                                 <!-- Delete Action -->
                                 <div class="col mx-1">
-                                    <button class="btn btn-dark border-white" wire:click='cancelLogout'>
+                                    <button class="btn text-white border-white" style="background-color: #02114f;" wire:click='cancelLogout'>
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
@@ -237,3 +237,12 @@
 
     </div>
 </div>
+
+
+<script>
+
+function formatPhoneNumber(input) {
+        // Allow only digits and limit to 10 characters
+        input.value = input.value.replace(/\D/g, '').substring(0, 10);
+    }
+</script>

@@ -10,13 +10,16 @@ use Laravel\Sanctum\HasApiTokens;
 use App\Models\LeaveRequest;
 use App\Models\SwipeRecord;
 use App\Models\Chating;
+use App\Notifications\ResetPasswordLink;
+use Carbon\Carbon;
+use Illuminate\Auth\Notifications\ResetPassword;
 
 class EmployeeDetails extends Authenticatable
 {
-    use HasFactory, Notifiable;
-    use HasFactory;
+    use HasFactory, Notifiable, HasApiTokens;
     protected $primaryKey = 'emp_id';
     public $incrementing = false;
+    protected $table = 'employee_details';
     protected $fillable = [
         'emp_id',
         'company_id',
@@ -53,12 +56,12 @@ class EmployeeDetails extends Authenticatable
         'probation_Period',
         'service_age',
         'confirmation_date',
-
-
-
-
-
     ];
+
+    protected $casts = [
+        'company_id' => 'array',
+    ];
+
     public function empBankDetails()
     {
         return $this->hasOne(EmpBankDetail::class, 'emp_id', 'emp_id');
@@ -77,6 +80,10 @@ class EmployeeDetails extends Authenticatable
     {
         return $this->hasOne(EmpSpouseDetails::class, 'emp_id', 'emp_id');
     }
+    public function empDepartment()
+    {
+        return $this->hasOne(EmpDepartment::class, 'dept_id', 'dept_id');
+    }
     public function leaveRequests()
     {
         return $this->hasMany(LeaveRequest::class, 'emp_id');
@@ -91,13 +98,12 @@ class EmployeeDetails extends Authenticatable
     }
     public function comments()
     {
-        return $this->hasMany(Comment::class, 'emp_id', 'emp_id');
+        return $this->hasMany(Comment::class, 'company_id', 'company_id');
     }
     public function canCreatePost()
     {
 
         return $this->emp_id === 'emp_id'  || $this->hasPermission('create-post');
-
     }
 
     // Inside the EmployeeDetails model
@@ -109,11 +115,34 @@ class EmployeeDetails extends Authenticatable
     public function conversations()
     {
 
-        return $this->hasMany(Chating::class,'sender_id')->orWhere('receiver_id',$this->emp_id)->whereNotDeleted();
-
+        return $this->hasMany(Chating::class, 'sender_id')->orWhere('receiver_id', $this->emp_id)->whereNotDeleted();
     }
     public function personalInfo()
     {
         return $this->hasOne(EmpPersonalInfo::class, 'emp_id', 'emp_id');
     }
+    public function getImageUrlAttribute()
+    {
+        return 'data:image/jpeg;base64,' . base64_encode($this->attributes['image']);
+    }
+    public function getHireDateAttribute($value)
+    {
+        return $value ? Carbon::parse($value) : null;
+    }
+    public function company()
+    {
+        return $this->belongsTo(Company::class, 'company_id', 'company_id');
+    }
+
+    public function employee()
+    {
+        return $this->belongsTo(EmployeeDetails::class, 'emp_id', 'emp_id');
+    }
+
+    // public function sendPasswordResetNotification($token)
+    // {
+        
+    //     // Your own implementation.
+    //     $this->notify(new ResetPasswordLink($token));
+    // }
 }

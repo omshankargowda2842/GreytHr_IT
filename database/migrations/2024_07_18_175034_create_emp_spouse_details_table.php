@@ -22,10 +22,10 @@ return new class extends Migration
             $table->date('dob')->nullable();
             $table->string('nationality')->nullable();
             $table->string('bld_group')->nullable();
-            $table->string('adhar_no')->unique()->nullable();
-            $table->string('pan_no')->unique()->nullable();
+            $table->string('adhar_no')->nullable();
+            $table->string('pan_no')->nullable();
             $table->string('religion')->nullable();
-            $table->string('email')->unique()->nullable();
+            $table->string('email')->nullable();
             $table->text('address')->nullable();
             $table->json('children')->nullable();
             $table->foreign('emp_id')->references('emp_id')->on('employee_details')->onDelete('cascade');

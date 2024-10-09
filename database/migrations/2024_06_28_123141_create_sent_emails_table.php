@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('file_path')->nullable();
             $table->string('scheduled_time')->nullable();
             $table->string('status')->nullable();
+            $table->timestamp('sent_at')->nullable();
             $table->timestamps();
         });
     }

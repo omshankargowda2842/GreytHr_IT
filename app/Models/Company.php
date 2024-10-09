@@ -9,7 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class Company extends Authenticatable
 {
     use HasFactory;
-    use HasFactory;
+    protected $table = 'companies';
     protected $fillable = [
         'company_id',
         'company_name',
@@ -24,11 +24,11 @@ class Company extends Authenticatable
         'company_logo',
         'password',
         'contact_email',
+        'email_domain',
+        'parent_company_id',
+        'is_parent',
         'contact_phone',
         'company_website',
         // Add other fields that you want to be fillable here
     ];
 }
-
-
-

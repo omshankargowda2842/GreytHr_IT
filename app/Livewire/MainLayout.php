@@ -23,13 +23,13 @@ class MainLayout extends Component
 
         return $firstInitial . $lastInitial;
     }
-
+    public $employeeName;
     public function mount()
     {
+        $this->employeeName = auth()->guard('it')->user()->employee_name;
 
-        $employeeName = auth()->guard('it')->user()->employee_name;
-        if ($employeeName) {
-            $this->employeeInitials = $this->getInitials($employeeName);
+        if ($this->employeeName) {
+            $this->employeeInitials = $this->getInitials($this->employeeName);
         } else {
             $this->employeeInitials = 'N/A'; // Default or placeholder initials
         }

@@ -52,7 +52,7 @@ class VendorAssets extends Component
     protected function rules(): array
     {
         $rules = [
-            'assetType' => 'required|string|max:255',
+            'assetType' => 'required|numeric|max:255',
 
             'assetModel' => 'required|string|max:255',
             'assetSpecification' => 'required|string|max:255',
@@ -98,8 +98,6 @@ class VendorAssets extends Component
         'quantity.required' => 'Quantity is required.',
 
         'assetType.required' => 'Asset Type is required.',
-        'assetType.string' => 'Asset Type must be a string.',
-        'assetType.max' => 'Asset Type may not be greater than 255 characters.',
 
         'assetModel.required' => 'Asset Model is required.',
         'assetModel.string' => 'Asset Model must be a string.',
@@ -696,8 +694,8 @@ public function mount()
         // $this->assetNames = asset_types_table::all();
 
         $this->vendorAssets =!empty($this->filteredVendorAssets)
-        ? $this->filteredVendorAssets:VendorAsset::get();
-// dd($this->vendorAssets );
+        ? $this->filteredVendorAssets:VendorAsset::with('vendor')->get();
+
         $this->vendorAssets =  $this->vendorAssets->map(function ($vendorAsset) use ($assetTypes) {
             $vendorAsset['asset_type_name'] = $assetTypes[$vendorAsset['asset_type']] ?? 'N/A';
             return $vendorAsset; // Ensure you're returning the entire modified array

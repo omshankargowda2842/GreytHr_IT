@@ -25,7 +25,7 @@
                         <th class="req-table-head">Image</th>
 
                         <th class="req-table-head">Date Of Birth</th>
-                        <th class="req-table-head">Phone Number</th>
+                        <th class="req-table-head">Phone</th>
                         <th class="req-table-head">Email</th>
                         <th class="req-table-head">Actions</th>
                     </tr>
@@ -48,7 +48,7 @@
 
                             <!-- Delete Action -->
                             <div class="col">
-                                <button class="btn btn-dark border-white" wire:click='cancelLogout'>
+                                <button class="btn text-white border-white" style="background-color: #02114f;" wire:click='cancelLogout'>
                                     <i class="fas fa-undo"></i>
                                 </button>
                             </div>

@@ -199,6 +199,7 @@
 }
 
 .submit-btn {
+    background-color:#02114f;
     background-color: black;
     color: #fff;
     border: 1px solid white;
@@ -407,6 +408,15 @@ req-pro-nav .tab:nth-child(3)::after {
     margin: 5px 0;
 }
 
+ .req-pro-view-details-btn {
+     background-color: #02114f;
+     color: white;
+     border: 3px solid white;
+     padding: 8px 16px;
+     border-radius: 15px;
+     cursor: pointer;
+     transition: background-color 0.3s ease;
+ }
 .req-pro-view-details-btn {
     background-color: #000000;
     color: white;
@@ -417,6 +427,10 @@ req-pro-nav .tab:nth-child(3)::after {
     transition: background-color 0.3s ease;
 }
 
+ .req-pro-view-details-btn:hover {
+     background-color: #02114f;
+ }
+ .scrollable-container {
 .req-pro-view-details-btn:hover {
     background-color: #008000;
 }
@@ -638,6 +652,12 @@ req-pro-nav .tab:nth-child(3)::after {
     justify-content: space-evenly
 }
 
+ .req-selected-status {
+
+     color: black;
+     border-radius: 3px;
+     padding: 5px;
+     width: 100%;
 .req-selected-status {
     background-color: black;
     color: white;
@@ -1418,6 +1438,10 @@ w .navigation ul li:hover,
 }
 
 .recentCustomers {
+  position: relative;
+  background: var(--white);
+  box-shadow: 0 7px 25px rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
     position: relative;
     display: grid;
     min-height: 500px;
@@ -1426,6 +1450,7 @@ w .navigation ul li:hover,
     box-shadow: 0 7px 25px rgba(0, 0, 0, 0.08);
     border-radius: 20px;
 }
+
 
 .recentCustomers .imgBx {
     position: relative;
@@ -1664,6 +1689,8 @@ w .navigation ul li:hover,
 .logout1 {
     display: block;
 }
+.logout2{
+    background-color:#02114f;
 
 .logout2 {
     background-color: black;
@@ -1674,6 +1701,7 @@ w .navigation ul li:hover,
 
 }
 
+    font-size: 16px;color:#02114f;
 .logout4 {
 
     font-size: 16px;
@@ -1841,4 +1869,33 @@ w .navigation ul li:hover,
 .itlogin22 {
     width: 3rem;
     height: 3rem;
+}
+
+
+/* Basic Table Styles */
+.custom-table {
+    width: 100%; /* Full width */
+    border-collapse: collapse; /* Merge borders */
+}
+
+.custom-table th, .custom-table td {
+    padding: 12px; /* Padding for table cells */
+    text-align: left; /* Left align text */
+    border: 1px solid #dee2e6; /* Light border color */
+}
+
+.custom-table th {
+    background-color: #02114f !important; /* Dark blue background */
+    color: white; /* White text color */
+    font-weight: bold; /* Bold text for headers */
+    text-align: center; /* Center align text */
+}
+
+/* Striped Table Styles */
+.custom-table tr:nth-child(even) {
+    background-color: #f2f2f2; /* Light grey background for even rows */
+}
+
+.custom-table tr:hover {
+    background-color: #e2e6ea; /* Light grey background on hover */
 }

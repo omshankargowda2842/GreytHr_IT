@@ -188,8 +188,9 @@ public function closeViewEmpAsset()
     {
         // Fetch asset and employee data, including already assigned ones
         $this->assetSelect = VendorAsset::where('is_active', 1)->get();
-
+        
         $this->assetSelectEmp = EmployeeDetails::all();
+
         $this->assignedAssetIds = AssignAssetEmp::where('is_active', 1)->pluck('asset_id')->toArray();
         $this->assignedEmployeeIds = AssignAssetEmp::pluck('emp_id')->toArray();
     }

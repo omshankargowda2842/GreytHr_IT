@@ -2,66 +2,66 @@
 
     <!-- ======================= Cards ================== -->
     <div class="cardBox">
-        <div class="card">
+        <div class="card" wire:click='itRequest'>
             <div>
                 <div class="numbers1 mb-4">{{$activeCount}} <span> <i class="fas fa-users"></i></span></div>
                 <div class="cardName">Active Requests </div>
             </div>
         </div>
 
-        <div class="card">
+        <div class="card" wire:click='itMemeber'>
             <div>
                 <div class="row">
-                <div class="col-md-6 text-center">
-                    <div class="numbers">
-                        <h6><i class="fas fa-check-circle text-success"></i> Active</h6>
-                        <p class="mb-0">{{$activeItRelatedEmye}}</p>
+                    <div class="col-md-6 text-center">
+                        <div class="numbers">
+                            <h6><i class="fas fa-check-circle text-success"></i> Active</h6>
+                            <p class="mb-0">{{$activeItRelatedEmye}}</p>
+                        </div>
                     </div>
-                </div>
 
-                <div class="col-md-6 text-center">
-                    <div class="numbers">
-                        <h6><i class="fas fa-times-circle text-danger"></i> InActive</h6>
-                        <p class="mb-0">{{$inactiveItRelatedEmye}}</p>
+                    <div class="col-md-6 text-center">
+                        <div class="numbers">
+                            <h6><i class="fas fa-times-circle text-danger"></i> Inactive</h6>
+                            <p class="mb-0">{{$inactiveItRelatedEmye}}</p>
+                        </div>
                     </div>
-                </div>
 
                 </div>
 
-                <div class="cardName">It Members</div>
+                <div class="cardName">IT Members</div>
             </div>
 
 
         </div>
 
-        <div class="card">
+        <div class="card" wire:click='vendorMod'>
             <div>
-                <div class="numbers1 mb-4">{{$vendors}} <span>  <i class="fas fa-store"></i></span></div>
+                <div class="numbers1 mb-4">{{$vendors}} <span> <i class="fas fa-store"></i></span></div>
                 <div class="cardName">Vendors </div>
             </div>
         </div>
 
 
-        <div class="card">
+        <div class="card" wire:click='assetMod'>
             <div>
                 <div class="row">
-                <div class="col-md-6 text-center">
-                    <div class="numbers">
-                        <h6><i class="fas fa-check-circle text-success"></i> Active</h6>
-                        <p class="mb-0">{{$activeAssets}}</p>
+                    <div class="col-md-6 text-center">
+                        <div class="numbers">
+                            <h6><i class="fas fa-check-circle text-success"></i> Active</h6>
+                            <p class="mb-0">{{$activeAssets}}</p>
+                        </div>
                     </div>
-                </div>
 
-                <div class="col-md-6 text-center">
-                    <div class="numbers">
-                        <h6><i class="fas fa-times-circle text-danger"></i> InActive</h6>
-                        <p class="mb-0">{{$inactiveAssets}}</p>
+                    <div class="col-md-6 text-center">
+                        <div class="numbers">
+                            <h6><i class="fas fa-times-circle text-danger"></i> Inactive</h6>
+                            <p class="mb-0">{{$inactiveAssets}}</p>
+                        </div>
                     </div>
-                </div>
 
                 </div>
 
-                <div class="cardName">Assest</div>
+                <div class="cardName">Assets</div>
             </div>
 
 
@@ -90,21 +90,25 @@
                 <div class="col-5 text-end">
                     <a href="#" class="btn btn-primary" wire:click='itRequest'>View All</a>
                 </div>
-                
+
             </div>
 
             <div class="table-responsive">
                 <table class="mt-5">
                     <thead>
                         <tr>
-                            <td>Category</td>
+                            <td>Category
+                                <span wire:ignore wire:click="toggleSortOrder" style="cursor: pointer;margin-left:10px;">
+                                    <i class="fas fa-sort"></i> <!-- Single Sort Icon -->
+                                </span>
+                            </td>
                             <td>Total Requests</td>
                             <td>Status</td>
                         </tr>
                     </thead>
 
                     <tbody>
-                        @foreach($categories as $category)
+                        @foreach($sortedCategories as $category)
                         <tr>
                             <td>{{ $category }}</td> <!-- Display category in the Category column -->
                             <td class="text-primary">
@@ -119,7 +123,7 @@
                             </td>
                             <td>
                                 <span class="badge rounded-pill dash-custom-bg-color text-black">
-                                    Active <span
+                                    Active <span wire:click=''
                                         class="badge rounded-pill bg-white text-dark">{{ $countRequests->where('category', $category)->where('status', 'Open')->count() }}</span>
                                 </span>
                                 <span class="badge rounded-pill dash-custom-bg-color1 text-black">
@@ -143,7 +147,7 @@
         <div class="recentCustomers">
             <div>
                 <h2 class="mb-5">Graph Data</h2>
-                <canvas id="myDonutChart" width="300" height="300"></canvas>
+                <canvas id="myDonutChart" wire:ignore width="300" height="300"></canvas>
                 <!-- <canvas id="myPieChart" width="400" height="400"></canvas> -->
             </div>
         </div>
@@ -159,52 +163,66 @@ $completedCount = $closedCount;
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const ctx = document.getElementById('myDonutChart').getContext('2d');
+    const drawChart = () => {
+        const ctx = document.getElementById('myDonutChart').getContext('2d');
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    // Sample data - these should be PHP variables in your actual implementation
-    const activeCount = <?php echo json_encode($activeCount); ?>;
-    const pendingCount = <?php echo json_encode($pendingCount); ?>;
-    const completedCount = <?php echo json_encode($completedCount); ?>;
 
-    const data = {
-        labels: ['Active', 'Pending', 'Completed'],
-        datasets: [{
-            label: 'Request Status',
-            data: [activeCount, pendingCount, completedCount], // Use the PHP variables
-            backgroundColor: [
-                '#ffcc80', // Orange
-                '#a5d6a7', // Green
-                '#64b5f6' // Blue
-            ],
-            borderColor: [
-                'rgba(255, 159, 64, 1)', // Orange
-                'rgba(75, 192, 192, 1)', // Green
-                'rgba(54, 162, 235, 1)', // Blue
-            ],
-            borderWidth: 1
-        }]
-    };
+        // Sample data - these should be PHP variables in your actual implementation
+        const activeCount = <?php echo json_encode($activeCount); ?>;
+        const pendingCount = <?php echo json_encode($pendingCount); ?>;
+        const completedCount = <?php echo json_encode($completedCount); ?>;
 
-    const config = {
-        type: 'doughnut',
-        data: data,
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            return tooltipItem.label + ': ' + tooltipItem.raw;
+        const data = {
+            labels: ['Active', 'Pending', 'Completed'],
+            datasets: [{
+                label: 'Request Status',
+                data: [activeCount, pendingCount, completedCount], // Use the PHP variables
+                backgroundColor: [
+                    '#ffcc80', // Orange
+                    '#a5d6a7', // Green
+                    '#64b5f6' // Blue
+                ],
+                borderColor: [
+                    'rgba(255, 159, 64, 1)', // Orange
+                    'rgba(75, 192, 192, 1)', // Green
+                    'rgba(54, 162, 235, 1)', // Blue
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        const config = {
+            type: 'doughnut',
+            data: data,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.label + ': ' + tooltipItem.raw;
+                            }
                         }
                     }
                 }
             }
-        }
+        };
+
+        new Chart(ctx, config);
     };
 
-    new Chart(ctx, config);
+    // Initial chart draw
+    drawChart();
+
+    // Redraw chart on Livewire updates
+    document.addEventListener('livewire:load', drawChart);
+    document.addEventListener('livewire:updated', () => {
+        setTimeout(drawChart, 100); // Adjust the delay if necessary
+    });
+
 });
 </script>

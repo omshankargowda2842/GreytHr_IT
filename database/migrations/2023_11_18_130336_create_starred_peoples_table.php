@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('starred_peoples', function (Blueprint $table) {
             $table->id();
             $table->string('emp_id');
-            $table->string('company_id');
+            $table->json('company_id');
             $table->string('name')->nullable();
             $table->string('people_id');
-            $table->string('profile')->nullable();
+            $table->binary('profile')->nullable();
             $table->string('contact_details')->nullable();
             $table->string('category')->nullable();
             $table->string('location')->nullable();
@@ -29,11 +29,6 @@ return new class extends Migration
             $table->foreign('emp_id')
                 ->references('emp_id') // Assuming the primary key of the companies table is 'id'
                 ->on('employee_details')
-                ->onDelete('restrict')
-                ->onUpdate('cascade');
-            $table->foreign('company_id')
-                ->references('company_id') // Assuming the primary key of the companies table is 'id'
-                ->on('companies')
                 ->onDelete('restrict')
                 ->onUpdate('cascade');
             $table->timestamps();

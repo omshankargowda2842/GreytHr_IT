@@ -145,7 +145,7 @@
                                 <h6 class="m-0 profile">{{ $employeeInitials }}</h6>
                             </span>
                             <span class="sidebar-menu-item-link-text"
-                                >Vekatatesh K</span
+                                > {{ ucwords(strtolower($employeeName)) }}</span
                             >
                         </a>
                     </li>
@@ -529,7 +529,7 @@
                 </div>
             </div>
         </div>
-        <!-- end: Main --> 
+        <!-- end: Main -->
 
 </div>
 
