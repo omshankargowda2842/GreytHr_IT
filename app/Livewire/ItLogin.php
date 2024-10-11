@@ -111,11 +111,19 @@ class ItLogin extends Component
         try {
             // $this->showLoader = true;
 
-            if (Auth::guard('it')->attempt(['it_emp_id' => $this->form['emp_id'], 'password' => $this->form['password']])) {
+            $user = IT::where('it_emp_id', $this->form['emp_id'])
+                ->orWhere('email', $this->form['emp_id'])
+                ->first();
+            // Check if user exists and is inactive
+            if ($user && !$user->is_active) { // is_active == false
+                // Dispatch event to trigger a SweetAlert on the frontend
+                $this->dispatch('inactive-user-alert', ['message' => 'Your account is inactive. Please contact support.']);
+                $this->form = ['emp_id' => '', 'password' => '']; // Resetting the form
+            } else if (Auth::guard('it')->attempt(['it_emp_id' => $this->form['emp_id'], 'password' => $this->form['password'], 'is_active' => 1])) {
                 session(['post_login' => true]);
                 session()->flash('loginSuccess', "You are logged in successfully!");
                 return redirect()->route('dashboard');
-            } elseif (Auth::guard('it')->attempt(['email' => $this->form['emp_id'], 'password' => $this->form['password']])) {
+            } elseif (Auth::guard('it')->attempt(['email' => $this->form['emp_id'], 'password' => $this->form['password'], 'is_active' => 1])) {
                 session(['post_login' => true]);
                 session()->flash('loginSuccess', "You are logged in successfully!");
                 return redirect()->route('dashboard');

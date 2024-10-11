@@ -74,4 +74,8 @@ class IT extends Authenticatable
     {
         return $this->role === self::ROLE_SUPER_ADMIN;
     }
+    public function hasRole($role)
+    {
+        return $this->role == $role;
+    }
 }

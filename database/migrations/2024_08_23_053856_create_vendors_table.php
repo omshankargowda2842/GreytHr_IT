@@ -36,9 +36,8 @@ return new class extends Migration
             $table->timestamps();
         });
 
-       $triggerSQL = <<<SQL
-        DELIMITER $$
-
+        // Define the trigger
+        $triggerSQL = <<<SQL
         CREATE TRIGGER generate_vendor_id
         BEFORE INSERT ON vendors
         FOR EACH ROW
@@ -47,17 +46,15 @@ return new class extends Migration
             IF NEW.vendor_id IS NULL THEN
                 -- Find the maximum vendor_id value in the vendors table
                 SET @max_id := IFNULL((SELECT MAX(CAST(SUBSTRING(vendor_id, 3) AS UNSIGNED)) FROM vendors), 9999);
-
+                
                 -- Increment the max_id and assign it to the new vendor_id
                 SET NEW.vendor_id = CONCAT('V-', LPAD(@max_id + 1, 5, '0'));
             END IF;
-        END$$
-
-        DELIMITER ;
+        END;
         SQL;
 
+        // Execute the trigger SQL
         DB::unprepared($triggerSQL);
-
     }
 
 
@@ -68,6 +65,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        DB::unprepared('DROP TRIGGER IF EXISTS generate_vendor_id;');
         Schema::dropIfExists('vendors');
     }
 };
