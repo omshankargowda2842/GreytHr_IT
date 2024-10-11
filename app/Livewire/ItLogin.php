@@ -128,27 +128,33 @@ class ItLogin extends Component
                 session()->flash('loginSuccess', "You are logged in successfully!");
                 return redirect()->route('dashboard');
             } else {
-                $this->error = "Invalid ID or Password. Please try again.";
+                $this->flashError('Invalid ID or Password. Please try again.');
             }
+            // Your login logic here
         } catch (ValidationException $e) {
-            // Handle validation errors
-            $this->showLoader = false; // Hide loader if validation fails
-            $this->error = "There was a problem with your input. Please check and try again.";
+            $this->flashError('There was a problem with your input. Please check and try again.');
         } catch (\Illuminate\Database\QueryException $e) {
-            // Handle database errors
-
-            $this->showLoader = false;
-            $this->error = "We are experiencing technical difficulties. Please try again later.";
+            $this->flashError('We are experiencing technical difficulties. Please try again later.');
         } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
-            // Handle server errors
-            $this->showLoader = false;
-            $this->error = "There is a server error. Please try again later.";
+            $this->flashError('There is a server error. Please try again later.');
         } catch (\Exception $e) {
-            // Handle general errors
-            $this->showLoader = false;
-            $this->error = "An unexpected error occurred. Please try again.";
+            $this->flashError('An unexpected error occurred. Please try again.');
         }
     }
+
+    protected function flashError($message)
+    {
+        $this->showLoader = false;
+        flash(
+            message: $message,
+            type: 'error',
+            options: [
+                'timeout' => 3000, // 3 seconds
+                'position' => 'top-center',
+            ]
+        );
+    }
+
 
     public function resetForm()
     {
@@ -187,6 +193,7 @@ class ItLogin extends Component
     {
         $this->passwordChangedModal = false;
     }
+    
     // public function verifyEmailAndDOB()
     // {
     //     $this->validate([
@@ -255,6 +262,8 @@ class ItLogin extends Component
     //         $this->verify_error = 'An unexpected error occurred. Please try again.';
     //     }
     // }
+
+
     public function verifyLoginId()
     {
         // Validate Employee ID
@@ -312,84 +321,84 @@ class ItLogin extends Component
         $this->verified = true;
         $this->showSuccessModal = false;
     }
-    public function createNewPassword()
-    {
-        $this->validate([
-            'newPassword' => ['required', 'min:8', 'max:50',],
-            'newPassword_confirmation' => ['required', 'same:newPassword'],
-        ]);
+    // public function createNewPassword()
+    // {
+    //     $this->validate([
+    //         'newPassword' => ['required', 'min:8', 'max:50',],
+    //         'newPassword_confirmation' => ['required', 'same:newPassword'],
+    //     ]);
 
-        try {
-            // Validate the new password and its confirmation
+    //     try {
+    //         // Validate the new password and its confirmation
 
-            // Determine which email field is used
-            $email = $this->email ?? $this->company_email;
+    //         // Determine which email field is used
+    //         $email = $this->email ?? $this->company_email;
 
-            if (!$email) {
-                throw new \Exception('Either email or company email must be provided.');
-            }
+    //         if (!$email) {
+    //             throw new \Exception('Either email or company email must be provided.');
+    //         }
 
-            // Check if the passwords match
-            if ($this->newPassword === $this->newPassword_confirmation) {
-                // Find the user by either email or company email
-                // $user = EmployeeDetails::where(function ($query) use ($email) {
-                //     $query->where('email', $email)
-                //           ->orWhere('company_email', $email);
-                // })->first();
+    //         // Check if the passwords match
+    //         if ($this->newPassword === $this->newPassword_confirmation) {
+    //             // Find the user by either email or company email
+    //             // $user = EmployeeDetails::where(function ($query) use ($email) {
+    //             //     $query->where('email', $email)
+    //             //           ->orWhere('company_email', $email);
+    //             // })->first();
 
-                // Search for the user in HR table
-                $userInIT = IT::where(function ($query) use ($email) {
-                    $query->where('email', $email)
-                        ->orWhere('company_email', $email);
-                })->first();
-
-
-                // Combine the results of all queries
-                $user = $userInIT;
+    //             // Search for the user in HR table
+    //             $userInIT = IT::where(function ($query) use ($email) {
+    //                 $query->where('email', $email)
+    //                     ->orWhere('company_email', $email);
+    //             })->first();
 
 
-                if ($user) {
+    //             // Combine the results of all queries
+    //             $user = $userInIT;
 
-                    // Update the user's password in the database
-                    $user->update(['password' => bcrypt($this->newPassword)]);
-                    $this->passwordChangedModal = true;
 
-                    // Reset form fields and state after successful password update
-                    $this->reset(['newPassword', 'newPassword_confirmation', 'verified']);
-                    //$this->passwordChangedModal = false;
-                    $this->showDialog = false;
-                } else {
-                    // User not found, show an error message
-                    $this->addError('newPassword', 'User not found.');
-                    $this->passwordChangedModal = false;
-                }
-            } else {
-                // Passwords do not match, show an error message
-                $this->addError('newPassword', 'Passwords do not match.');
-                $this->passwordChangedModal = false;
-            }
-        } catch (ValidationException $e) {
-            // Handle validation errors
-            // $this->passwordChangedModal = false;
-            Log::error('Error approving leave: ' . $e->getMessage());
-            $this->pass_change_error = 'There was a problem with your input. Please check and try again.';
-        } catch (\Illuminate\Database\QueryException $e) {
-            // Handle database errors
-            // $this->passwordChangedModal = false;
-            Log::error('Error approving leave: ' . $e->getMessage());
-            $this->pass_change_error = 'We are experiencing technical difficulties. Please try again later.';
-        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
-            // Handle server errors
-            // $this->passwordChangedModal = false;
-            Log::error('Error approving leave: ' . $e->getMessage());
-            $this->pass_change_error = 'There is a server error. Please try again later.';
-        } catch (\Exception $e) {
-            // Handle general errors
-            //$this->passwordChangedModal = false;
-            Log::error('Error approving leave: ' . $e->getMessage());
-            $this->pass_change_error = 'An unexpected error occurred. Please try again.';
-        }
-    }
+    //             if ($user) {
+
+    //                 // Update the user's password in the database
+    //                 $user->update(['password' => bcrypt($this->newPassword)]);
+    //                 $this->passwordChangedModal = true;
+
+    //                 // Reset form fields and state after successful password update
+    //                 $this->reset(['newPassword', 'newPassword_confirmation', 'verified']);
+    //                 //$this->passwordChangedModal = false;
+    //                 $this->showDialog = false;
+    //             } else {
+    //                 // User not found, show an error message
+    //                 $this->addError('newPassword', 'User not found.');
+    //                 $this->passwordChangedModal = false;
+    //             }
+    //         } else {
+    //             // Passwords do not match, show an error message
+    //             $this->addError('newPassword', 'Passwords do not match.');
+    //             $this->passwordChangedModal = false;
+    //         }
+    //     } catch (ValidationException $e) {
+    //         // Handle validation errors
+    //         // $this->passwordChangedModal = false;
+    //         Log::error('Error approving leave: ' . $e->getMessage());
+    //         $this->pass_change_error = 'There was a problem with your input. Please check and try again.';
+    //     } catch (\Illuminate\Database\QueryException $e) {
+    //         // Handle database errors
+    //         // $this->passwordChangedModal = false;
+    //         Log::error('Error approving leave: ' . $e->getMessage());
+    //         $this->pass_change_error = 'We are experiencing technical difficulties. Please try again later.';
+    //     } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+    //         // Handle server errors
+    //         // $this->passwordChangedModal = false;
+    //         Log::error('Error approving leave: ' . $e->getMessage());
+    //         $this->pass_change_error = 'There is a server error. Please try again later.';
+    //     } catch (\Exception $e) {
+    //         // Handle general errors
+    //         //$this->passwordChangedModal = false;
+    //         Log::error('Error approving leave: ' . $e->getMessage());
+    //         $this->pass_change_error = 'An unexpected error occurred. Please try again.';
+    //     }
+    // }
 
     public function validateField($field)
     {
