@@ -33,7 +33,7 @@
                     </div>
                     @endif
                     <div class="input-block">
-                        <input class="input" type="text" id="email"  wire:model="form.emp_id">
+                        <input class="input" type="text" id="email" wire:model="form.emp_id">
                         <label for="email">ID / Mail</label>
                         @error('form.emp_id')
                         <p class="pt-2 px-1 text-danger itloginFont">
@@ -42,7 +42,7 @@
                         @enderror
                     </div>
                     <div class="input-block">
-                        <input class="input" type="password" id="pass"  wire:model="form.password">
+                        <input class="input" type="password" id="pass" wire:model="form.password">
                         <label for="pass">Password</label>
                         @error('form.password')
                         <p class="pt-2 px-1 text-danger itloginFont">
@@ -278,4 +278,51 @@
     @endif
 
 
+    <!-- @script
+    <script>
+        $wire.on('inactive-user-alert', () => {
+            //
+            Swal.fire({
+                icon: 'error',
+                title: 'Account Inactive',
+                text: event.detail.message,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#d33'
+            });
+        });
+    </script>
+    @endscript -->
+
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Livewire.on('inactive-user-alert', event => {
+            // Check if the message exists and display the SweetAlert
+            Swal.fire({
+                icon: 'error',
+                title: 'Account Inactive',
+                text: event[0].message || 'No message available',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#d33'
+            });
+        });
+    });
+</script>
+
+
+
+<!-- <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        window.addEventListener('inactive-user-alert', event => {
+            console.log(event.detail.message); // This should print the message if the event is triggered
+            Swal.fire({
+                icon: 'error',
+                title: 'Account Inactive',
+                text: event.detail.message,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#d33'
+            });
+        });
+    });
+</script> -->

@@ -34,23 +34,40 @@ Route::middleware(['checkauth'])->group(function () {
     Route::get('/itlogin', ItLogin::class)->name('itlogin');
 });
 
-Route::middleware(['auth:it','handleSession'])->group(function () {
+Route::middleware(['auth:it', 'handleSession'])->group(function () {
     // Root route, protected by auth:hr middleware
     Route::get('/', Dashboard::class)->name('dashboard');
     // Group routes under the 'hr' prefix
     Route::prefix('it')->group(function () {
-        //like this  Route: /hr/hello
-        Route::get('/hello', Dashboard::class)->name('hello');
-        Route::get('/itrequest', RequestProcess::class)->name('requests');
-        Route::get('/itMembers', ItAddMember::class)->name('itMembers');
-        Route::get('/oldItMembers', OldItMembers::class)->name('oldItMembers');
-        Route::get('/vendor', Vendors::class)->name('vendor');
-        Route::get('/vendorAssets', VendorAssets::class)->name('vendorAssets');
-        Route::get('/EmployeeAssetList', AssignAssetEmployee::class)->name('EmployeeAssetList');
-        // Route::get('/EmployeeAssetList',EmployeeAssetList::class)->name('EmployeeAssetList');
+        // Super Admin Routes
+        Route::middleware(['role:2'])->prefix('super-admin')->group(function () {
+            Route::get('/itrequest', RequestProcess::class)->name('super.requests');
+            Route::get('/itMembers', ItAddMember::class)->name('super.itMembers'); // Updated name
+            Route::get('/oldItMembers', OldItMembers::class)->name('super.oldItMembers'); // Updated name
+            Route::get('/vendorAssets', VendorAssets::class)->name('super.vendorAssets'); // Updated name
+            Route::get('/EmployeeAssetList', AssignAssetEmployee::class)->name('super.EmployeeAssetList'); // Updated name
+            Route::get('/vendor', Vendors::class)->name('super.vendor'); // Updated name
+        });
 
+        // Admin Routes
+        Route::middleware(['role:1'])->prefix('admin')->group(function () {
+            Route::get('/itrequest', RequestProcess::class)->name('admin.requests');
+            Route::get('/itMembers', ItAddMember::class)->name('admin.itMembers'); // Updated name
+            Route::get('/oldItMembers', OldItMembers::class)->name('admin.oldItMembers'); // Updated name
+            Route::get('/vendorAssets', VendorAssets::class)->name('admin.vendorAssets'); // Updated name
+            Route::get('/EmployeeAssetList', AssignAssetEmployee::class)->name('admin.EmployeeAssetList'); // Updated name
+            Route::get('/vendor', Vendors::class)->name('admin.vendor'); // Updated name
+        });
+
+        // User Routes
+        Route::middleware(['role:0'])->prefix('user')->group(function () {
+            Route::get('/itrequest', RequestProcess::class)->name('user.requests');
+            Route::get('/EmployeeAssetList', AssignAssetEmployee::class)->name('user.EmployeeAssetList'); // Updated name
+        });
     });
 });
+
+
 
 
 Route::get('password/reset/{token}', PasswordResetComponent::class)->name('password.reset');
