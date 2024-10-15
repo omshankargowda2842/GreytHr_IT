@@ -29,6 +29,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use Flasher\SweetAlert\Prime\SweetAlertInterface;
+use Livewire\Attributes\On;
+use App\Helpers\FlashMessageHelper;
 
 class ItLogin extends Component
 {
@@ -97,6 +100,10 @@ class ItLogin extends Component
         $this->resetErrorBag($field);
     }
 
+    protected $listeners = [
+        'refreshComponent' => '$refresh', // Refresh the component on this event
+    ];
+
     public function itLogin()
     {
         // Manually trim the input values
@@ -115,45 +122,90 @@ class ItLogin extends Component
                 ->orWhere('email', $this->form['emp_id'])
                 ->first();
             // Check if user exists and is inactive
-            if ($user && !$user->is_active) { // is_active == false
+            if ($user && !$user->is_active) {
+                // is_active == false
+                ################################### this is also working by using dispatch event call from in the blade using javascript
                 // Dispatch event to trigger a SweetAlert on the frontend
                 $this->dispatch('inactive-user-alert', ['message' => 'Your account is inactive. Please contact support.']);
-                $this->form = ['emp_id' => '', 'password' => '']; // Resetting the form
+                ######################################This is working as expected  but here want add title for alert message ####################################################################################################
+                // $this->js("alert('Post saved!')");
+                // sweetalert()->addError(
+                //     message: 'Your account is inactive. Please contact support.',
+                //     title: 'Inactive Account', // Add title here
+                //     options: [
+                //         'position' => 'top-center',
+                //         'showConfirmButton' => true,
+                //         'timer' => 5000, // Optional: Auto-dismiss after 5 seconds
+                //         'confirmButtonText' => 'OK',
+                //         'confirmButtonColor' => '#d33',
+                //         'willClose' => 'wire:click="$refresh"',
+                //     ]
+                // );
+
+                ######################################This is working as expected here not adding title instead of use alert type ####################################################################################################
+                // sweetalert(
+                //     'Your account is inactive. Please contact support.',
+                //     'error',
+                //     options: [
+                //         'position' => 'bottom',
+                //     ]
+                // );
+                // $this->dispatch('some-event');
+                // $this->dispatch('refresh-the-component');
+                $this->resetForm();
+                $this->reset('form'); // Reset the entire form
             } else if (Auth::guard('it')->attempt(['it_emp_id' => $this->form['emp_id'], 'password' => $this->form['password'], 'is_active' => 1])) {
                 session(['post_login' => true]);
-                session()->flash('loginSuccess', "You are logged in successfully!");
+                FlashMessageHelper::flashSuccess("You are logged in successfully!");
                 return redirect()->route('dashboard');
             } elseif (Auth::guard('it')->attempt(['email' => $this->form['emp_id'], 'password' => $this->form['password'], 'is_active' => 1])) {
                 session(['post_login' => true]);
-                session()->flash('loginSuccess', "You are logged in successfully!");
+                FlashMessageHelper::flashSuccess("You are logged in successfully!");
                 return redirect()->route('dashboard');
             } else {
                 $this->flashError('Invalid ID or Password. Please try again.');
             }
             // Your login logic here
         } catch (ValidationException $e) {
-            $this->flashError('There was a problem with your input. Please check and try again.');
+            FlashMessageHelper::flashError('There was a problem with your input. Please check and try again.');
         } catch (\Illuminate\Database\QueryException $e) {
-            $this->flashError('We are experiencing technical difficulties. Please try again later.');
+            FlashMessageHelper::flashError('We are experiencing technical difficulties. Please try again later.');
         } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
-            $this->flashError('There is a server error. Please try again later.');
+            FlashMessageHelper::flashError('There is a server error. Please try again later.');
         } catch (\Exception $e) {
-            $this->flashError('An unexpected error occurred. Please try again.');
+            FlashMessageHelper::flashError('An unexpected error occurred. Please try again.');
         }
     }
 
-    protected function flashError($message)
-    {
-        $this->showLoader = false;
-        flash(
-            message: $message,
-            type: 'error',
-            options: [
-                'timeout' => 3000, // 3 seconds
-                'position' => 'top-center',
-            ]
-        );
-    }
+    // protected function flashError($message)
+    // {
+    //     $this->showLoader = false;
+    //     ########################################## both flash are working now ############################################################################################################
+    //     flash(
+    //         message: $message,
+    //         type: 'error',
+    //         options: [
+    //             // 'timeout' => 3000, // 3 seconds
+    //             'position' => 'top-center',
+    //         ]
+    //     );
+    //     // flash()->addFlash(
+    //     //     message: $message,
+    //     //     type: 'error',
+    //     //     options: [
+    //     //         'timeout' => 3000, // 3 seconds
+    //     //         'position' => 'top-center',
+    //     //     ]
+    //     // );
+    //     ################################################ adding info by using this function ###################################################
+    //     // flash()->addInfo(
+    //     //     message: $message,
+    //     //     options: [
+    //     //         // 'timeout' => 3000, // 3 seconds
+    //     //         'position' => 'top-center',
+    //     //     ]
+    //     // );
+    // }
 
 
     public function resetForm()
@@ -166,6 +218,7 @@ class ItLogin extends Component
         $this->verified = false;
         $this->error = '';
         $this->verify_error = '';
+        $this->form = ['emp_id' => '', 'password' => '']; // Resetting the form
         $this->resetValidation();
     }
 
@@ -193,7 +246,7 @@ class ItLogin extends Component
     {
         $this->passwordChangedModal = false;
     }
-    
+
     // public function verifyEmailAndDOB()
     // {
     //     $this->validate([
@@ -305,8 +358,8 @@ class ItLogin extends Component
             $employee->notify(new ResetPasswordLink($token));
 
             // Flash a message to the session
-            session()->flash('empIdMessageType', 'success');
-            session()->flash('empIdMessage', 'Password reset link sent successfully to ' . $employee->email);
+            // session()->flash('empIdMessageType', 'success');
+            FlashMessageHelper::flashSuccess('Password reset link sent successfully to ' . $employee->email);
             $this->remove();
         } catch (\Exception $e) {
             // If any exception occurs, catch and set an error message

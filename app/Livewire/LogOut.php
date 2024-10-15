@@ -2,6 +2,7 @@
 #/ livewire
 namespace App\Livewire;
 
+use App\Helpers\FlashMessageHelper;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -80,17 +81,29 @@ class LogOut extends Component
             session()->flush();
 
             // Flash success message
-            // session()->flash('success', "You are logged out successfully!");
-            flash(
-                message: 'You are logged out successfully!',
-                type: 'success',
-                options: (
-                    [
-                        'timeout' => 3000, // 3 seconds
-                        'position' => 'top-center',
-                    ]
-                ),
-            );
+            FlashMessageHelper::flashSuccess("You are logged out successfully!");
+            // flash(
+            //     message: 'You are logged out successfully!',
+            //     type: 'success',
+            //     options: (
+            //         [
+            //             'timeout' => 3000, // 3 seconds
+            //             'position' => 'top-center',
+            //         ]
+            //     ),
+            // );
+
+            // flash()->addSuccess(
+            //     'You are logged out successfully!',
+            //     'success',
+
+            //     [
+            //         'timeout' => 3000, // 3 seconds
+            //         'position' => 'top-center',
+            //     ]
+
+            // );
+
             // Redirect to the login page
             return redirect()->route('itlogin');
         } catch (\Exception $exception) {
