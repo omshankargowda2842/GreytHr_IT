@@ -1,108 +1,103 @@
 <div class="main">
     <!-- ======================= Cards ================== -->
-    <div class="cardBox">
-        <div class="card" wire:click='itRequest'>
-            <div>
-                <div class="numbers1 mb-4">{{$activeCount}} <span> <i class="fas fa-users"></i></span></div>
-                <div class="cardName">Active Requests </div>
-            </div>
-        </div>
-
-        <div class="card" wire:click='itMemeber'>
-            <div>
-                <div class="row">
-                    <div class="col-md-6 text-center">
-                        <div class="numbers">
-                            <h6><i class="fas fa-check-circle text-success"></i> Active</h6>
-                            <p class="mb-0">{{$activeItRelatedEmye}}</p>
-                        </div>
+    <div class="row m-0 mt-3">
+        <div class="col-md-3 mb-3">
+            <div class="card-home">
+                <div class="text-home row m-0">
+                    <div class="col-6">
+                        <i class="fas fa-users fs-1"></i>
                     </div>
-
-                    <div class="col-md-6 text-center">
-                        <div class="numbers">
-                            <h6><i class="fas fa-times-circle text-danger"></i> Inactive</h6>
-                            <p class="mb-0">{{$inactiveItRelatedEmye}}</p>
-                        </div>
+                    <div class="col-6">
+                        <p class="fs-1 mb-0">{{$activeCount}}</p>
                     </div>
-
                 </div>
-
-                <div class="cardName">IT Members</div>
-            </div>
-
-
-        </div>
-
-        <div class="card" wire:click='vendorMod'>
-            <div>
-                <div class="numbers1 mb-4">{{$vendors}} <span> <i class="fas fa-store"></i></span></div>
-                <div class="cardName">Vendors </div>
-            </div>
-        </div>
-
-
-        <div class="card" wire:click='assetMod'>
-            <div>
-                <div class="row">
-                    <div class="col-md-6 text-center">
-                        <div class="numbers">
-                            <h6><i class="fas fa-check-circle text-success"></i> Active</h6>
-                            <p class="mb-0">{{$activeAssets}}</p>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6 text-center">
-                        <div class="numbers">
-                            <h6><i class="fas fa-times-circle text-danger"></i> Inactive</h6>
-                            <p class="mb-0">{{$inactiveAssets}}</p>
-                        </div>
-                    </div>
-
+                <div class="icons-text">
+                    <h6 class="m-0 fw-bold">Active Requests</h6>
                 </div>
-
-                <div class="cardName">Assets</div>
             </div>
-
-
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card-home">
+                <div class="text-home row m-0">
+                    <div class="col-6">
+                        <p class="badge dash-custom-bg-color text-black">Active</p>
+                        <p class="fs-1 mb-0">{{$activeItRelatedEmye}}</p>
+                    </div>
+                    <div class="col-6">
+                        <p class="badge dash-custom-bg-color3 text-black">InActive</p>
+                        <p class="fs-1 mb-0">{{$inactiveItRelatedEmye}}</p>
+                    </div>
+                </div>
+                <div class="icons-text">
+                    <h6 class="m-0 fw-bold">IT Members</h6>
+                </div>
+            </div>
         </div>
 
-
-        <!--  <div class="card">
-            <div>
-                <div class="numbers">$7,842</div>
-                <div class="cardName">Earning</div>
+        <div class="col-md-3 mb-3">
+            <div class="card-home">
+                <div class="text-home row m-0">
+                    <div class="col-6">
+                        <i class="fas fa-store fs-1"></i>
+                    </div>
+                    <div class="col-6">
+                        <p class="fs-1 mb-0">{{$vendors}}</p>
+                    </div>
+                </div>
+                <div class="icons-text">
+                    <h6 class="m-0 fw-bold">Vendors</h6>
+                </div>
             </div>
+        </div>
 
-            <div class="iconBx">
-                <ion-icon name="cash-outline"></ion-icon>
+        <div class="col-md-3 mb-3">
+            <div class="card-home">
+                <div class="text-home row m-0">
+                    <div class="col-6">
+                        <p class="badge dash-custom-bg-color text-black">Active</p>
+                        <p class="fs-1 mb-0">{{$activeAssets}}</p>
+                    </div>
+                    <div class="col-6">
+                        <p class="badge dash-custom-bg-color3 text-black">InActive</p>
+                        <p class="fs-1 mb-0">{{$inactiveAssets}}</p>
+                    </div>
+                </div>
+                <div class="icons-text">
+                    <h6 class="m-0 fw-bold">Assest</h6>
+                </div>
             </div>
-        </div> -->
+        </div>
     </div>
 
     <!-- ================ Order Details List ================= -->
     <div class="details">
         <div class="recentOrders">
             <div class="cardHeader row m-0">
-                <div class="col-7">
-                    <h2>Category Wise Requests</h2>
+                <div class="col-md-6">
+                    <h4>Category Wise Requests</h4>
                 </div>
-                <div class="col-5 text-end">
-                    <a href="#" class="btn btn-primary" wire:click='itRequest'>View All</a>
+                <div class="col-md-6 text-end">
+                    <!-- <a href="#" class="btn btn-outline-primary fs-6 mb-3">Month</a>
+                    <a href="#" class="btn btn-outline-primary fs-6 mb-3">Week</a>
+                    <a href="#" class="btn btn-outline-primary fs-6 mb-3">Day</a> -->
+                    <a href="#" class="btn btn-primary fs-6 mb-3" wire:click='itRequest'>View All</a>
                 </div>
 
             </div>
 
             <div class="table-responsive">
-                <table class="mt-5">
+                <table class="mt-3">
                     <thead>
                         <tr>
                             <td>Category
-                                <span wire:ignore wire:click="toggleSortOrder" style="cursor: pointer;margin-left:10px;">
+                                <span wire:ignore wire:click="toggleSortOrder"
+                                    style="cursor: pointer;margin-left:10px;">
                                     <i class="fas fa-sort"></i> <!-- Single Sort Icon -->
                                 </span>
                             </td>
                             <td>Total Requests</td>
                             <td>Status</td>
+                            <!-- <td>Action</td> -->
                         </tr>
                     </thead>
 
@@ -121,19 +116,22 @@
                                 </div>
                             </td>
                             <td>
-                                <span class="badge rounded-pill dash-custom-bg-color text-black">
-                                    Active <span wire:click=''
+                                <span class="badge dash-custom-bg-color text-black">
+                                    Active <span
                                         class="badge rounded-pill bg-white text-dark">{{ $countRequests->where('category', $category)->where('status', 'Open')->count() }}</span>
                                 </span>
-                                <span class="badge rounded-pill dash-custom-bg-color1 text-black">
+                                <span class="badge dash-custom-bg-color1 text-black">
                                     Pending <span
                                         class="badge rounded-pill  bg-white text-dark">{{ $countRequests->where('category', $category)->where('status', 'Pending')->count() }}</span>
                                 </span>
-                                <span class="badge rounded-pill dash-custom-bg-color2 text-black">
+                                <span class="badge dash-custom-bg-color2 text-black">
                                     Completed <span
                                         class="badge rounded-pill  bg-white text-dark">{{ $countRequests->where('category', $category)->where('status', 'Completed')->count() }}</span>
                                 </span>
                             </td>
+                            <!-- <td>
+                                <button class="btn btn-outline-secondary"><i class="ri-arrow-right-line"></i></button>
+                            </td> -->
                         </tr>
                         @endforeach
                     </tbody>

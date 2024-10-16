@@ -1,5 +1,25 @@
     <div class="main">
 
+        <div wire:loading
+            wire:target="submit,setActiveTab,closeDetails,selectedStatus,updateStatus,postComment,updateAssigne,redirectBasedOnStatus,viewDetails,openForDesks,postRemarks,closeForDesks">
+            <div class="loader-overlay">
+                <div>
+                    <div class="logo">
+                        <!-- <i class="fas fa-user-headset"></i> -->
+                        <img src="{{ asset('images/Screenshot 2024-10-15 120204.png') }}" width="58" height="50"
+                            alt="">&nbsp;
+                        <span>IT</span>&nbsp;&nbsp;
+                        <span>EXPERT</span>
+                    </div>
+                </div>
+                <div class="loader-bouncing">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+            </div>
+        </div>
+
         <div class="row req-pro-main-page">
 
             <div class="col-lg-9 col-md-7 col-xs-12">
@@ -70,18 +90,13 @@
                             @if($viewingDetails && $selectedRequest)
 
                             @if($viewingDetails)
-                            <button class="btn bg-dark text-white float:right" wire:click="closeDetails" @if($loading)
+                            <button class="btn text-white float:right" style="background-color: #02114f;" wire:click="closeDetails" @if($loading)
                                 disabled @endif>
                                 <i class="fas fa-arrow-left"></i> Back
                             </button>
                             @endif
                             <div class="req-pro-tablediv">
 
-                                <div wire:loading.delay>
-                                    <div class="loader-overlay">
-                                        <div class="loader"></div>
-                                    </div>
-                                </div>
                                 <table class="table table-bordered mt-3 req-pro-table">
 
                                     <thead>
@@ -202,7 +217,7 @@
                                                         </div>
                                                     </div>
                                                     <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary"
+                                                        <button type="button" class="btn text-white" style="background-color: #02114f;"
                                                             data-dismiss="modal">Close</button>
                                                     </div>
                                                 </div>
@@ -271,7 +286,7 @@
                                                                 class="form-control"></textarea>
                                                         </div>
                                                         <div class="col-2 d-flex align-items-center">
-                                                            <button class="btn btn-dark"
+                                                            <button class="btn text-white" style="background-color: #02114f;"
                                                                 wire:click="postComment('{{ $selectedRequest->id }}')"
                                                                 @if($loading) disabled @endif>Post</button>
                                                         </div>
@@ -296,7 +311,8 @@
                                                     @foreach($itData as $itName)
                                                     <option
                                                         value="{{ $itName->empIt->first_name }} {{ $itName->empIt->last_name }} ">
-                                                        {{ ucwords(strtolower($itName->empIt->first_name)) }} {{ ucwords(strtolower($itName->empIt->last_name)) }}
+                                                        {{ ucwords(strtolower($itName->empIt->first_name)) }}
+                                                        {{ ucwords(strtolower($itName->empIt->last_name)) }}
                                                     </option>
                                                     @endforeach
                                                 </select>
@@ -316,7 +332,7 @@
                                 </table>
 
                                 <div class="d-flex justify-content-center align-items-center">
-                                    <button class="btn btn-dark mb-3" wire:click="redirectBasedOnStatus" @if($loading)
+                                    <button class="btn text-white mb-3" style="background-color: #02114f;" wire:click="redirectBasedOnStatus" @if($loading)
                                         disabled @endif>Save &
                                         Continue</button>
                                 </div>
@@ -340,12 +356,15 @@
 
                                             <div>
 
-                                                <p class="req-reqBy-Dep"><strong>Requested By:</strong>
-                                                    {{ $request->emp->first_name }}
-                                                    {{ $request->emp->last_name }}</p>
+                                                <p class="req-reqBy-Dep"><b>Requested By:</b>
+                                                    <span class="req-res-depart1">
+                                                        {{ $request->emp->first_name }}
+                                                        {{ $request->emp->last_name }}
+                                                    </span>
+                                                </p>
 
                                                 <p title="{{ $request['category'] }}">
-                                                    <strong>Service Request: </strong><span
+                                                    <b>Service Request: </b><span
                                                         class="req-res-depart">{{ $request->category ?? 'N/A' }}</span>
                                                 </p>
 
@@ -399,14 +418,9 @@
                                     @endif
                                     <div class="table-responsive req-table-res">
 
-                                        <div wire:loading.delay>
-                                            <div class="loader-overlay">
-                                                <div class="loader"></div>
-                                            </div>
-                                        </div>
-                                        <table class="table  table-striped">
+                                        <table class="custom-table">
 
-                                            <thead class="table-dark">
+                                            <thead>
 
                                                 <tr>
 
@@ -457,7 +471,7 @@
                                                 @endphp
                                                 <tr>
 
-                                                    <th scope="row">{{ $record->emp_id }}</th>
+                                                    <td scope="row">{{ $record->emp_id }}</td>
 
                                                     <td>{{ $record->emp->first_name }} {{ $record->emp->last_name }}
                                                         <br>
@@ -538,8 +552,9 @@
                                                                         style="flex-grow: 1;"></textarea>
 
                                                                     <!-- Button is small and aligned to the right -->
-                                                                    <button type="submit" class="btn btn-dark p-2" style="height: fit-content;"
-                                                                        @if($loading) disabled @endif>Post</button>
+                                                                    <button type="submit" style="background-color: #02114f;" class="btn text-white p-2"
+                                                                        style="height: fit-content;" @if($loading)
+                                                                        disabled @endif>Post</button>
                                                                 </div>
                                                             </div>
 
@@ -597,15 +612,10 @@
 
                                     <div class="table-responsive  req-closed-table-res">
 
-                                        <div wire:loading.delay>
-                                            <div class="loader-overlay">
-                                                <div class="loader"></div>
-                                            </div>
-                                        </div>
 
-                                        <table class="table table-striped">
+                                        <table class="custom-table">
 
-                                            <thead class="table-dark">
+                                            <thead>
 
                                                 <tr>
 
@@ -654,7 +664,7 @@
                                                 @endphp
                                                 <tr>
 
-                                                    <th scope="row">{{ $record->emp_id }}</th>
+                                                    <td scope="row">{{ $record->emp_id }}</td>
 
                                                     <td>{{ $record->emp->first_name }} {{ $record->emp->last_name }}
                                                         <br>
@@ -720,7 +730,7 @@
                                                     <td>
 
                                                         <button wire:click="closeForDesks('{{$record->id}}')"
-                                                            class="btn btn-dark border-white text-white" @if($loading)
+                                                            class="btn border-white text-white" style="background-color: #02114f;" @if($loading)
                                                             disabled @endif>Open</button>
                                                     </td>
 

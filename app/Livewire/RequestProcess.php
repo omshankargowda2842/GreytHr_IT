@@ -304,7 +304,7 @@ class RequestProcess extends Component
                 ->whereIn('category',  $requestCategories)
                 ->get();
 
-              
+
         } elseif ($this->activeTab == 'closed') {
             $this->forIT = HelpDesks::with('emp')
                 ->where('status', 'Completed')

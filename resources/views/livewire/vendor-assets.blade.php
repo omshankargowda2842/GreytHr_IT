@@ -1,9 +1,32 @@
 <div class="main">
 
+
+    <div wire:loading
+        wire:target="cancel,submit,createAssetType,showAddVendorMember,filter ,delete,clearFilters ,showEditAsset ,showViewVendor,showViewImage,showViewFile,showEditVendor,closeViewVendor,downloadImages,closeViewImage,closeViewFile,confirmDelete ,cancelLogout,restore">
+        <div class="loader-overlay">
+            <div>
+                <div class="logo">
+                    <!-- <i class="fas fa-user-headset"></i> -->
+                    <img src="{{ asset('images/Screenshot 2024-10-15 120204.png') }}" width="58" height="50"
+                        alt="">&nbsp;
+                    <span>IT</span>&nbsp;&nbsp;
+                    <span>EXPERT</span>
+                </div>
+            </div>
+            <div class="loader-bouncing">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+    </div>
+
+
     @if($showAddVendor)
 
     <div class="col-11 d-flex justify-content-start mb-1 mt-4" style="margin-left: 5%;">
-        <button class="btn text-white btn-sm" style="background-color: #02114f;" wire:click='cancel'> <i class="fas fa-arrow-left"></i> Back</button>
+        <button class="btn text-white btn-sm" style="background-color: #02114f;" wire:click='cancel'> <i
+                class="fas fa-arrow-left"></i> Back</button>
 
     </div>
     <div class="col-11 mt-4 itadd-maincolumn">
@@ -97,8 +120,8 @@
                                         <div class="row">
                                             <div class="col-12 d-flex justify-content-center"
                                                 style="height: fit-content;margin-top: 25px;">
-                                                <button wire:click="createAssetType"
-                                                    class="btn text-white" style="background-color: #02114f;">Create</button>
+                                                <button wire:click="createAssetType" class="btn text-white"
+                                                    style="background-color: #02114f;">Create</button>
                                             </div>
                                         </div>
 
@@ -111,10 +134,6 @@
                     <!-- Backdrop -->
                     <div class="modal-backdrop fade show"></div>
                     @endif
-
-
-
-
                 </div>
 
                 <div class="row mb-3">
@@ -244,12 +263,15 @@
                     <p class="text-primary"><label for="file">Attachments</label><i class="fas fa-paperclip"></i></p>
                     <input id="file" type="file" wire:model="file_paths" wire:loading.attr="disabled" multiple
                         style="font-size: 12px;" />
+                    <div wire:loading wire:target="file_paths" class="mt-2">
+                        <i class="fas fa-spinner fa-spin"></i> Uploading...
+                    </div>
                     @error('file_paths.*') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
 
                 <div class="d-flex justify-content-center">
-                    <button type="button" wire:click="submit"
-                        class="btn text-white border-white" style="background-color: #02114f;">{{ $editMode ? 'Update' : 'Submit' }}</button>
+                    <button type="button" wire:click="submit" class="btn text-white border-white"
+                        style="background-color: #02114f;">{{ $editMode ? 'Update' : 'Submit' }}</button>
                 </div>
             </form>
         </div>
@@ -260,14 +282,15 @@
 
     @if($showEditDeleteVendor)
     <div class="d-flex justify-content-end mt-5">
-        <button class="btn text-white btn-sm" wire:click='showAddVendorMember' style="margin-right: 9%; padding: 7px;background-color: #02114f;">
+        <button class="btn text-white btn-sm" wire:click='showAddVendorMember'
+            style="margin-right: 9%; padding: 7px;background-color: #02114f;">
             <i class="fas fa-box"></i> Add Asset
         </button>
     </div>
 
     <div class="col-11 mt-4 ml-4">
 
-    @if($searchFilters)
+        @if($searchFilters)
         <!-- Search Filters -->
         <div class="row mb-3 mt-4 ml-4 employeeAssetList">
             <!-- Employee ID Search Input -->
@@ -341,17 +364,75 @@
         </div>
         <div class="table-responsive it-add-table-res">
             <table class="custom-table">
-                <thead >
+                <thead>
                     <tr>
                         <th class="vendor-table-head">S.No</th>
-                        <th class="vendor-table-head">Vendor ID </th>
-                        <th class="vendor-table-head">Vendor Name </th>
-                        <th class="vendor-table-head">Asset ID </th>
-                        <th class="vendor-table-head">Manufacturer</th>
-                        <th class="vendor-table-head">Asset Type</th>
-                        <th class="vendor-table-head">Invoice Number</th>
-                        <th class="vendor-table-head">Serial Number</th>
-                        <th class="vendor-table-head">Status</th>
+                        <th class="vendor-table-head">Vendor ID
+                            <span wire:click.debounce.500ms="toggleSortOrder('vendor_id')" style="cursor: pointer;">
+                                @if($sortColumn == 'vendor_id')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                @else
+                                <i class="fas fa-sort"></i>
+                                @endif
+                            </span>
+                        </th>
+
+                    
+                        <th class="vendor-table-head">Asset ID
+                            <span wire:click.debounce.500ms="toggleSortOrder('asset_id')" style="cursor: pointer;">
+                                @if($sortColumn == 'asset_id')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                @else
+                                <i class="fas fa-sort"></i>
+                                @endif
+                            </span>
+                        </th>
+                        <th class="vendor-table-head">Manufacturer
+                            <span wire:click.debounce.500ms="toggleSortOrder('manufacturer')" style="cursor: pointer;">
+                                @if($sortColumn == 'manufacturer')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                @else
+                                <i class="fas fa-sort"></i>
+                                @endif
+                            </span>
+                        </th>
+                        <th class="vendor-table-head">Asset Type
+                            <span wire:click.debounce.500ms="toggleSortOrder('asset_type')" style="cursor: pointer;">
+                                @if($sortColumn == 'asset_type')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                @else
+                                <i class="fas fa-sort"></i>
+                                @endif
+                            </span>
+                        </th>
+                        <th class="vendor-table-head">Invoice Number
+                            <span wire:click.debounce.500ms="toggleSortOrder('invoice_number')"
+                                style="cursor: pointer;">
+                                @if($sortColumn == 'invoice_number')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                @else
+                                <i class="fas fa-sort"></i>
+                                @endif
+                            </span>
+                        </th>
+                        <th class="vendor-table-head">Serial Number
+                            <span wire:click.debounce.500ms="toggleSortOrder('serial_number')" style="cursor: pointer;">
+                                @if($sortColumn == 'serial_number')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                @else
+                                <i class="fas fa-sort"></i>
+                                @endif
+                            </span>
+                        </th>
+                        <th class="vendor-table-head">Status
+                            <span wire:click.debounce.500ms="toggleSortOrder('is_active')" style="cursor: pointer;">
+                                @if($sortColumn == 'is_active')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                @else
+                                <i class="fas fa-sort"></i>
+                                @endif
+                            </span>
+                        </th>
                         <th class="vendor-table-head">Barcode Image</th>
                         <th class="vendor-table-head d-flex justify-content-center">Actions</th>
                     </tr>
@@ -364,7 +445,7 @@
                     <tr>
                         <td class="vendor-table-head">{{ $loop->iteration }}</td>
                         <td class="vendor-table-head">{{ $vendorAsset->vendor_id ?? 'N/A'}}</td>
-                        <td class="vendor-table-head">{{ $vendorAsset->vendor ? ucwords(strtolower($vendorAsset->vendor->vendor_name)) : 'N/A' }}</td>
+
                         <td class="vendor-table-head">{{ $vendorAsset->asset_id ?? 'N/A'}}</td>
                         <td class="vendor-table-head">{{ucwords(strtolower($vendorAsset->manufacturer )) ?? 'N/A' }}
                         </td>
@@ -446,7 +527,8 @@
                             <div class="col mx-1">
                                 <!-- Delete Button (Inactive if is_active is 0) -->
                                 <button
-                                    class="btn text-white border-white {{ $vendorAsset->is_active == 0 ? 'disabled' : '' }}" style="background-color: #02114f;"
+                                    class="btn text-white border-white {{ $vendorAsset->is_active == 0 ? 'disabled' : '' }}"
+                                    style="background-color: #02114f;"
                                     wire:click="confirmDelete({{ $vendorAsset->id }})"
                                     {{ $vendorAsset->is_active == 0 ? 'disabled' : '' }}>
                                     <i class="fas fa-trash"></i>
@@ -458,8 +540,8 @@
                             <div class="col mx-1">
                                 <!-- Restore Button (Inactive if is_active is 1) -->
                                 <button
-                                    class="btn text-white border-white {{ $vendorAsset->is_active == 1 ? 'disabled' : '' }}" style="background-color: #02114f;"
-                                    wire:click="cancelLogout({{ $vendorAsset->id }})"
+                                    class="btn text-white border-white {{ $vendorAsset->is_active == 1 ? 'disabled' : '' }}"
+                                    style="background-color: #02114f;" wire:click="cancelLogout({{ $vendorAsset->id }})"
                                     {{ $vendorAsset->is_active == 1 ? 'disabled' : '' }}>
                                     <i class="fas fa-undo"></i>
                                 </button>
@@ -497,7 +579,8 @@
             <div>
                 <h3>View Details</h3>
             </div>
-            <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewVendor" aria-label="Close">
+            <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewVendor"
+                aria-label="Close">
 
                 Close
             </button>
@@ -551,11 +634,11 @@
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Taxable Amount</td>
-                    <td>₹ {{ $vendorAsset->taxable_amount ?? 'N/A' }}</td>
+                    <td>Rs. {{ $vendorAsset->taxable_amount ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Invoice Amount</td>
-                    <td>₹ {{$vendorAsset->invoice_amount ?? 'N/A' }}</td>
+                    <td>Rs. {{$vendorAsset->invoice_amount ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">GST State</td>

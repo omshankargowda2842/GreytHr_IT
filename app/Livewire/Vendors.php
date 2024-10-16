@@ -339,6 +339,7 @@ public function downloadImages($vendorId)
     {
         $this->validate();
 
+
         $fileDataArray = [];
 
         if ($this->editMode) {
@@ -556,11 +557,28 @@ public function downloadImages($vendorId)
     }
 
 
+    public $sortColumn = 'vendor_id'; // default sorting column
+    public $sortDirection = 'asc'; // default sorting direction
+
+    public function toggleSortOrder($column)
+    {
+        if ($this->sortColumn == $column) {
+            // If the column is the same, toggle the sort direction
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            // If a different column is clicked, set it as the new sort column and default to ascending order
+            $this->sortColumn = $column;
+            $this->sortDirection = 'asc';
+        }
+    }
+
 
     public function render()
     {
         $this->vendors =!empty($this->filteredVendor)
-        ? $this->filteredVendor :Vendor::where('is_active', 1)->get();
+        ? $this->filteredVendor :Vendor::where('is_active', 1)
+        ->orderBy($this->sortColumn, $this->sortDirection)
+        ->get();
 
 
         return view('livewire.vendors');

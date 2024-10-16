@@ -686,6 +686,22 @@ public function mount()
 
     }
 
+    public $sortColumn = 'vendor_id'; // default sorting column
+    public $sortDirection = 'asc'; // default sorting direction
+
+    public function toggleSortOrder($column)
+    {
+        if ($this->sortColumn == $column) {
+            // If the column is the same, toggle the sort direction
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            // If a different column is clicked, set it as the new sort column and default to ascending order
+            $this->sortColumn = $column;
+            $this->sortDirection = 'asc';
+        }
+    }
+
+
 
     public function render()
     {
@@ -694,7 +710,9 @@ public function mount()
         // $this->assetNames = asset_types_table::all();
 
         $this->vendorAssets =!empty($this->filteredVendorAssets)
-        ? $this->filteredVendorAssets:VendorAsset::with('vendor')->get();
+        ? $this->filteredVendorAssets:VendorAsset::with('vendor')
+        ->orderBy($this->sortColumn, $this->sortDirection)
+        ->get();
 
         $this->vendorAssets =  $this->vendorAssets->map(function ($vendorAsset) use ($assetTypes) {
             $vendorAsset['asset_type_name'] = $assetTypes[$vendorAsset['asset_type']] ?? 'N/A';
