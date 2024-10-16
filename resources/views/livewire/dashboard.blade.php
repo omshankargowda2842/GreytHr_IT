@@ -1,5 +1,4 @@
 <div class="main">
-
     <!-- ======================= Cards ================== -->
     <div class="row m-0 mt-3">
         <div class="col-md-3 mb-3">
@@ -160,67 +159,79 @@ $completedCount = $closedCount;
 ?>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const drawChart = () => {
-        const ctx = document.getElementById('myDonutChart').getContext('2d');
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    document.addEventListener('DOMContentLoaded', () => {
+        const drawChart = () => {
+            const ctx = document.getElementById('myDonutChart').getContext('2d');
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
 
-        // Sample data - these should be PHP variables in your actual implementation
-        const activeCount = <?php echo json_encode($activeCount); ?>;
-        const pendingCount = <?php echo json_encode($pendingCount); ?>;
-        const completedCount = <?php echo json_encode($completedCount); ?>;
+            // Sample data - these should be PHP variables in your actual implementation
+            const activeCount = <?php echo json_encode($activeCount); ?>;
+            const pendingCount = <?php echo json_encode($pendingCount); ?>;
+            const completedCount = <?php echo json_encode($completedCount); ?>;
 
-        const data = {
-            labels: ['Active', 'Pending', 'Completed'],
-            datasets: [{
-                label: 'Request Status',
-                data: [activeCount, pendingCount, completedCount], // Use the PHP variables
-                backgroundColor: [
-                    '#ffcc80', // Orange
-                    '#a5d6a7', // Green
-                    '#64b5f6' // Blue
-                ],
-                borderColor: [
-                    'rgba(255, 159, 64, 1)', // Orange
-                    'rgba(75, 192, 192, 1)', // Green
-                    'rgba(54, 162, 235, 1)', // Blue
-                ],
-                borderWidth: 1
-            }]
-        };
+            const data = {
+                labels: ['Active', 'Pending', 'Completed'],
+                datasets: [{
+                    label: 'Request Status',
+                    data: [activeCount, pendingCount, completedCount], // Use the PHP variables
+                    backgroundColor: [
+                        '#ffcc80', // Orange
+                        '#a5d6a7', // Green
+                        '#64b5f6' // Blue
+                    ],
+                    borderColor: [
+                        'rgba(255, 159, 64, 1)', // Orange
+                        'rgba(75, 192, 192, 1)', // Green
+                        'rgba(54, 162, 235, 1)', // Blue
+                    ],
+                    borderWidth: 1
+                }]
+            };
 
-        const config = {
-            type: 'doughnut',
-            data: data,
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                return tooltipItem.label + ': ' + tooltipItem.raw;
+            const config = {
+                type: 'doughnut',
+                data: data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return tooltipItem.label + ': ' + tooltipItem.raw;
+                                }
                             }
                         }
                     }
                 }
-            }
+            };
+
+            new Chart(ctx, config);
         };
 
-        new Chart(ctx, config);
-    };
+        // Initial chart draw
+        drawChart();
 
-    // Initial chart draw
-    drawChart();
+        // Redraw chart on Livewire updates
+        document.addEventListener('livewire:load', drawChart);
+        document.addEventListener('livewire:updated', () => {
+            setTimeout(drawChart, 100); // Adjust the delay if necessary
+        });
 
-    // Redraw chart on Livewire updates
-    document.addEventListener('livewire:load', drawChart);
-    document.addEventListener('livewire:updated', () => {
-        setTimeout(drawChart, 100); // Adjust the delay if necessary
     });
-
-});
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Livewire.on('noPermissionAlert', event => {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Access Denied',
+                text: event[0].message || 'You dont have access',
+                confirmButtonText: 'OK'
+            });
+        });
+    });
 </script>

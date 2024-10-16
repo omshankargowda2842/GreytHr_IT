@@ -2072,11 +2072,12 @@ w
 }
 
 
-
-
+/* Basic Table Styles */
 .custom-table {
-    width: 100%; /* Full width */
-    border-collapse: collapse; /* Merge borders */
+    width: 100%;
+    /* Full width */
+    border-collapse: collapse;
+    /* Merge borders */
 }
 .custom-table th, .custom-table td {
     padding: 12px; /* Padding for table cells */
@@ -2085,14 +2086,19 @@ w
     text-align: center;
 }
 .custom-table th {
-    background-color: #02114f !important; /* Dark blue background */
-    color: white; /* White text color */
-    font-weight: bold; /* Bold text for headers */
-    text-align: center; /* Center align text */
+    background-color: #02114f !important;
+    /* Dark blue background */
+    color: white;
+    /* White text color */
+    font-weight: bold;
+    /* Bold text for headers */
+    text-align: center;
+    /* Center align text */
 }
 /* Striped Table Styles */
 .custom-table tr:nth-child(even) {
-    background-color: #f2f2f2; /* Light grey background for even rows */
+    background-color: #f2f2f2;
+    /* Light grey background for even rows */
 }
 .custom-table tr:hover {
     background-color: #e2e6ea; /* Light grey background on hover */

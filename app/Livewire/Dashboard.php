@@ -7,6 +7,7 @@ use App\Models\IT;
 use App\Models\Request;
 use App\Models\Vendor;
 use App\Models\VendorAsset;
+use Illuminate\Support\Facades\Route;
 use Livewire\Component;
 
 class Dashboard extends Component
@@ -29,7 +30,6 @@ class Dashboard extends Component
     public function mount()
     {
         $this->updateCounts();
-
     }
 
     // Toggle sorting order (asc/desc)
@@ -52,61 +52,86 @@ class Dashboard extends Component
 
     public function updateCounts()
     {
-     $requestCategories = Request::select('Request', 'category')
-    ->where('Request', 'IT') // Adjust this to match the condition for IT requests
-    ->pluck('category');
+        $requestCategories = Request::select('Request', 'category')
+            ->where('Request', 'IT') // Adjust this to match the condition for IT requests
+            ->pluck('category');
 
-    $this->activeCount = HelpDesks::where('status', 'Open')
-    ->whereIn('category',  $requestCategories)->count();
+        $this->activeCount = HelpDesks::where('status', 'Open')
+            ->whereIn('category',  $requestCategories)->count();
 
 
-    $this->pendingCount = HelpDesks::where('status', 'Pending')
-    ->whereIn('category',  $requestCategories)->count();
+        $this->pendingCount = HelpDesks::where('status', 'Pending')
+            ->whereIn('category',  $requestCategories)->count();
 
-    $this->closedCount = HelpDesks::where('status', 'Completed')
-    ->whereIn('category',  $requestCategories)->count();
-
+        $this->closedCount = HelpDesks::where('status', 'Completed')
+            ->whereIn('category',  $requestCategories)->count();
     }
 
-    public function itRequest(){
+    public function itRequest()
+    {
 
-    return redirect()->route('requests');
+        $this->redirectBasedOnRole('requests');
     }
 
-    public function itMemeber(){
+    public function itMemeber()
+    {
 
-        return redirect()->route('itMembers');
+        $this->redirectBasedOnRole('itMembers');
     }
 
-    public function vendorMod(){
+    public function vendorMod()
+    {
 
-        return redirect()->route('vendor');
+        $this->redirectBasedOnRole('vendor');
     }
 
-    public function assetMod(){
+    public function assetMod()
+    {
 
-        return redirect()->route('vendorAssets');
+        $this->redirectBasedOnRole('vendorAssets');
     }
 
+    private function redirectBasedOnRole($routeName)
+    {
+        // Get user role
+        $role = auth()->guard('it')->user()->role; // Adjust this if necessary
+
+        // Map roles to specific route names
+        $roleRoutes = [
+            2 => "super.$routeName", // Super Admin
+            1 => "admin.$routeName",  // Admin
+            0 => "user.$routeName",   // User
+        ];
+
+        // Get the route name for the user's role
+        $route = $roleRoutes[$role] ?? 'dashboard'; // Default to dashboard
+        // Check if the route exists before redirecting
+        if (Route::has($route)) {
+            return redirect()->route($route);
+        } else {
+            $this->dispatch('noPermissionAlert', ['message' => 'You don\'t have permissions to access this area.']);
+            // return redirect()->route('dashboard');
+        }
+    }
     public function render()
     {
         $categories = Request::where('Request', 'IT')
-        ->select('category')
-        ->distinct() // Get unique categories
-        ->orderBy('category', 'asc')
-        ->pluck('category') // Get the categories as a collection
-        ->map(function($category) {
-           return trim($category); // Trim leading/trailing whitespace from categories
-       });
+            ->select('category')
+            ->distinct() // Get unique categories
+            ->orderBy('category', 'asc')
+            ->pluck('category') // Get the categories as a collection
+            ->map(function ($category) {
+                return trim($category); // Trim leading/trailing whitespace from categories
+            });
         $this->categories = $categories;
         $this->sortCategories();
 
-        $this->countRequests = HelpDesks::get()->map(function($request) {
-        $request->category = trim($request->category); // Trim leading/trailing whitespace from the category
-        return $request;
+        $this->countRequests = HelpDesks::get()->map(function ($request) {
+            $request->category = trim($request->category); // Trim leading/trailing whitespace from the category
+            return $request;
         });
-        $this->activeAssets =VendorAsset::where('is_active', 1)->count();
-        $this->inactiveAssets =VendorAsset::where('is_active', 0)->count();
+        $this->activeAssets = VendorAsset::where('is_active', 1)->count();
+        $this->inactiveAssets = VendorAsset::where('is_active', 0)->count();
         $this->vendors = Vendor::where('is_active', 1)->count();
         $this->activeItRelatedEmye = IT::where('is_active', 1)->count();
         $this->inactiveItRelatedEmye = IT::where('is_active', 0)->count();

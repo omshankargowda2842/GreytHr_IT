@@ -2,11 +2,24 @@
 
 namespace App\Livewire;
 
+use Illuminate\Support\Facades\Route;
 use Livewire\Component;
 
 class MainLayout extends Component
 {
     public $employeeInitials;
+    public $employeeName;
+
+    public function mount()
+    {
+        $this->employeeName = auth()->guard('it')->user()->employee_name;
+
+        if ($this->employeeName) {
+            $this->employeeInitials = $this->getInitials($this->employeeName);
+        } else {
+            $this->employeeInitials = 'N/A'; // Default or placeholder initials
+        }
+    }
 
     private function getInitials($name)
     {
@@ -23,67 +36,94 @@ class MainLayout extends Component
 
         return $firstInitial . $lastInitial;
     }
-    public $employeeName;
-    public function mount()
-    {
-        $this->employeeName = auth()->guard('it')->user()->employee_name;
-
-        if ($this->employeeName) {
-            $this->employeeInitials = $this->getInitials($this->employeeName);
-        } else {
-            $this->employeeInitials = 'N/A'; // Default or placeholder initials
-        }
-    }
 
     public function getActiveTab()
-{
-    $routeName = request()->route()->getName();
-    $tabs = [
-        'dashboard' => 'dashboard',
-        'requests' => 'itRequest',
-        'itMembers' => 'itMembers',
-        'oldItMembers' => 'oldRecords',
-        'vendor' => 'vendor',
-        'vendorAssets' => 'vendorAssets',
-    ];
+    {
+        $routeName = request()->route()->getName();
 
-    return array_search($routeName, $tabs);
-}
+        // Define base route names without repetition
+        $baseRoutes = [
+            'dashboard' => 'dashboard',
+            'itRequest' => ['super.requests', 'admin.requests', 'user.requests'],
+            'itMembers' => ['super.itMembers', 'admin.itMembers', 'user.itMembers'],
+            'oldRecords' => ['super.oldItMembers', 'admin.oldItMembers', 'user.oldItMembers'],
+            'vendor' => ['super.vendor', 'admin.vendor'],
+            'vendorAssets' => ['super.vendorAssets', 'admin.vendorAssets'],
+            'employeeAssetList' => ['user.EmployeeAssetList'],
+        ];
 
+        // Iterate through base routes to find the active tab
+        foreach ($baseRoutes as $key => $routes) {
+            if (in_array($routeName, $routes)) {
+                return $key; // Return the key (tab) for the matched route
+            }
+        }
 
-    public function dashboard(){
+        return null; // Or return a default value if no match found
+    }
+
+    public function dashboard()
+    {
         return redirect()->route('dashboard');
     }
 
-
-    public function itRequest(){
-        return redirect()->route('requests');
+    public function itRequest()
+    {
+        $this->redirectBasedOnRole('requests');
     }
 
-    public function itMembers(){
-        return redirect()->route('itMembers');
-    }
-    public function oldRecords(){
-        return redirect()->route('oldItMembers');
+    public function itMembers()
+    {
+        $this->redirectBasedOnRole('itMembers');
     }
 
-    public function vendor(){
-        return redirect()->route('vendor');
+    public function oldRecords()
+    {
+        $this->redirectBasedOnRole('oldItMembers');
     }
 
-    public function vendorAssets(){
-        return redirect()->route('vendorAssets');
+    public function vendor()
+    {
+        $this->redirectBasedOnRole('vendor');
     }
 
-    public function employeeAssetList(){
-        return redirect()->route('EmployeeAssetList');
+    public function vendorAssets()
+    {
+        $this->redirectBasedOnRole('vendorAssets');
     }
 
-
-    public function assignAsset(){
-        return redirect()->route('EmployeeAssetList');
+    public function employeeAssetList()
+    {
+        $this->redirectBasedOnRole('EmployeeAssetList');
     }
 
+    public function assignAsset()
+    {
+        $this->redirectBasedOnRole('EmployeeAssetList');
+    }
+
+    private function redirectBasedOnRole($routeName)
+    {
+        // Get user role
+        $role = auth()->guard('it')->user()->role; // Adjust this if necessary
+
+        // Map roles to specific route names
+        $roleRoutes = [
+            2 => "super.$routeName", // Super Admin
+            1 => "admin.$routeName",  // Admin
+            0 => "user.$routeName",    // User
+        ];
+
+        // Get the route name for the user's role
+        $route = $roleRoutes[$role] ?? 'dashboard'; // Default to dashboard
+        // Check if the route exists before redirecting
+        if (Route::has($route)) {
+            return redirect()->route($route);
+        } else {
+            // Fallback if the route does not exist
+            return redirect()->route('dashboard')->with('error', 'You dont have permissions to access.');
+        }
+    }
 
     public function render()
     {

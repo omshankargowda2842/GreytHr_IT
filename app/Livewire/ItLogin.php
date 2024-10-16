@@ -29,6 +29,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use Flasher\SweetAlert\Prime\SweetAlertInterface;
+use Livewire\Attributes\On;
+use App\Helpers\FlashMessageHelper;
 
 class ItLogin extends Component
 {
@@ -97,6 +100,10 @@ class ItLogin extends Component
         $this->resetErrorBag($field);
     }
 
+    protected $listeners = [
+        'refreshComponent' => '$refresh', // Refresh the component on this event
+    ];
+
     public function itLogin()
     {
         // Manually trim the input values
@@ -111,36 +118,95 @@ class ItLogin extends Component
         try {
             // $this->showLoader = true;
 
-            if (Auth::guard('it')->attempt(['it_emp_id' => $this->form['emp_id'], 'password' => $this->form['password']])) {
+            $user = IT::where('it_emp_id', $this->form['emp_id'])
+                ->orWhere('email', $this->form['emp_id'])
+                ->first();
+            // Check if user exists and is inactive
+            if ($user && !$user->is_active) {
+                // is_active == false
+                ################################### this is also working by using dispatch event call from in the blade using javascript
+                // Dispatch event to trigger a SweetAlert on the frontend
+                $this->dispatch('inactive-user-alert', ['message' => 'Your account is inactive. Please contact support.']);
+                ######################################This is working as expected  but here want add title for alert message ####################################################################################################
+                // $this->js("alert('Post saved!')");
+                // sweetalert()->addError(
+                //     message: 'Your account is inactive. Please contact support.',
+                //     title: 'Inactive Account', // Add title here
+                //     options: [
+                //         'position' => 'top-center',
+                //         'showConfirmButton' => true,
+                //         'timer' => 5000, // Optional: Auto-dismiss after 5 seconds
+                //         'confirmButtonText' => 'OK',
+                //         'confirmButtonColor' => '#d33',
+                //         'willClose' => 'wire:click="$refresh"',
+                //     ]
+                // );
+
+                ######################################This is working as expected here not adding title instead of use alert type ####################################################################################################
+                // sweetalert(
+                //     'Your account is inactive. Please contact support.',
+                //     'error',
+                //     options: [
+                //         'position' => 'bottom',
+                //     ]
+                // );
+                // $this->dispatch('some-event');
+                // $this->dispatch('refresh-the-component');
+                $this->resetForm();
+                $this->reset('form'); // Reset the entire form
+            } else if (Auth::guard('it')->attempt(['it_emp_id' => $this->form['emp_id'], 'password' => $this->form['password'], 'is_active' => 1])) {
                 session(['post_login' => true]);
-                session()->flash('loginSuccess', "You are logged in successfully!");
+                FlashMessageHelper::flashSuccess("You are logged in successfully!");
                 return redirect()->route('dashboard');
-            } elseif (Auth::guard('it')->attempt(['email' => $this->form['emp_id'], 'password' => $this->form['password']])) {
+            } elseif (Auth::guard('it')->attempt(['email' => $this->form['emp_id'], 'password' => $this->form['password'], 'is_active' => 1])) {
                 session(['post_login' => true]);
-                session()->flash('loginSuccess', "You are logged in successfully!");
+                FlashMessageHelper::flashSuccess("You are logged in successfully!");
                 return redirect()->route('dashboard');
             } else {
-                $this->error = "Invalid ID or Password. Please try again.";
+                $this->flashError('Invalid ID or Password. Please try again.');
             }
+            // Your login logic here
         } catch (ValidationException $e) {
-            // Handle validation errors
-            $this->showLoader = false; // Hide loader if validation fails
-            $this->error = "There was a problem with your input. Please check and try again.";
+            FlashMessageHelper::flashError('There was a problem with your input. Please check and try again.');
         } catch (\Illuminate\Database\QueryException $e) {
-            // Handle database errors
-
-            $this->showLoader = false;
-            $this->error = "We are experiencing technical difficulties. Please try again later.";
+            FlashMessageHelper::flashError('We are experiencing technical difficulties. Please try again later.');
         } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
-            // Handle server errors
-            $this->showLoader = false;
-            $this->error = "There is a server error. Please try again later.";
+            FlashMessageHelper::flashError('There is a server error. Please try again later.');
         } catch (\Exception $e) {
-            // Handle general errors
-            $this->showLoader = false;
-            $this->error = "An unexpected error occurred. Please try again.";
+            FlashMessageHelper::flashError('An unexpected error occurred. Please try again.');
         }
     }
+
+    // protected function flashError($message)
+    // {
+    //     $this->showLoader = false;
+    //     ########################################## both flash are working now ############################################################################################################
+    //     flash(
+    //         message: $message,
+    //         type: 'error',
+    //         options: [
+    //             // 'timeout' => 3000, // 3 seconds
+    //             'position' => 'top-center',
+    //         ]
+    //     );
+    //     // flash()->addFlash(
+    //     //     message: $message,
+    //     //     type: 'error',
+    //     //     options: [
+    //     //         'timeout' => 3000, // 3 seconds
+    //     //         'position' => 'top-center',
+    //     //     ]
+    //     // );
+    //     ################################################ adding info by using this function ###################################################
+    //     // flash()->addInfo(
+    //     //     message: $message,
+    //     //     options: [
+    //     //         // 'timeout' => 3000, // 3 seconds
+    //     //         'position' => 'top-center',
+    //     //     ]
+    //     // );
+    // }
+
 
     public function resetForm()
     {
@@ -152,6 +218,7 @@ class ItLogin extends Component
         $this->verified = false;
         $this->error = '';
         $this->verify_error = '';
+        $this->form = ['emp_id' => '', 'password' => '']; // Resetting the form
         $this->resetValidation();
     }
 
@@ -179,6 +246,7 @@ class ItLogin extends Component
     {
         $this->passwordChangedModal = false;
     }
+
     // public function verifyEmailAndDOB()
     // {
     //     $this->validate([
@@ -247,6 +315,8 @@ class ItLogin extends Component
     //         $this->verify_error = 'An unexpected error occurred. Please try again.';
     //     }
     // }
+
+
     public function verifyLoginId()
     {
         // Validate Employee ID
@@ -288,8 +358,8 @@ class ItLogin extends Component
             $employee->notify(new ResetPasswordLink($token));
 
             // Flash a message to the session
-            session()->flash('empIdMessageType', 'success');
-            session()->flash('empIdMessage', 'Password reset link sent successfully to ' . $employee->email);
+            // session()->flash('empIdMessageType', 'success');
+            FlashMessageHelper::flashSuccess('Password reset link sent successfully to ' . $employee->email);
             $this->remove();
         } catch (\Exception $e) {
             // If any exception occurs, catch and set an error message
@@ -304,84 +374,84 @@ class ItLogin extends Component
         $this->verified = true;
         $this->showSuccessModal = false;
     }
-    public function createNewPassword()
-    {
-        $this->validate([
-            'newPassword' => ['required', 'min:8', 'max:50',],
-            'newPassword_confirmation' => ['required', 'same:newPassword'],
-        ]);
+    // public function createNewPassword()
+    // {
+    //     $this->validate([
+    //         'newPassword' => ['required', 'min:8', 'max:50',],
+    //         'newPassword_confirmation' => ['required', 'same:newPassword'],
+    //     ]);
 
-        try {
-            // Validate the new password and its confirmation
+    //     try {
+    //         // Validate the new password and its confirmation
 
-            // Determine which email field is used
-            $email = $this->email ?? $this->company_email;
+    //         // Determine which email field is used
+    //         $email = $this->email ?? $this->company_email;
 
-            if (!$email) {
-                throw new \Exception('Either email or company email must be provided.');
-            }
+    //         if (!$email) {
+    //             throw new \Exception('Either email or company email must be provided.');
+    //         }
 
-            // Check if the passwords match
-            if ($this->newPassword === $this->newPassword_confirmation) {
-                // Find the user by either email or company email
-                // $user = EmployeeDetails::where(function ($query) use ($email) {
-                //     $query->where('email', $email)
-                //           ->orWhere('company_email', $email);
-                // })->first();
+    //         // Check if the passwords match
+    //         if ($this->newPassword === $this->newPassword_confirmation) {
+    //             // Find the user by either email or company email
+    //             // $user = EmployeeDetails::where(function ($query) use ($email) {
+    //             //     $query->where('email', $email)
+    //             //           ->orWhere('company_email', $email);
+    //             // })->first();
 
-                // Search for the user in HR table
-                $userInIT = IT::where(function ($query) use ($email) {
-                    $query->where('email', $email)
-                        ->orWhere('company_email', $email);
-                })->first();
-
-
-                // Combine the results of all queries
-                $user = $userInIT;
+    //             // Search for the user in HR table
+    //             $userInIT = IT::where(function ($query) use ($email) {
+    //                 $query->where('email', $email)
+    //                     ->orWhere('company_email', $email);
+    //             })->first();
 
 
-                if ($user) {
+    //             // Combine the results of all queries
+    //             $user = $userInIT;
 
-                    // Update the user's password in the database
-                    $user->update(['password' => bcrypt($this->newPassword)]);
-                    $this->passwordChangedModal = true;
 
-                    // Reset form fields and state after successful password update
-                    $this->reset(['newPassword', 'newPassword_confirmation', 'verified']);
-                    //$this->passwordChangedModal = false;
-                    $this->showDialog = false;
-                } else {
-                    // User not found, show an error message
-                    $this->addError('newPassword', 'User not found.');
-                    $this->passwordChangedModal = false;
-                }
-            } else {
-                // Passwords do not match, show an error message
-                $this->addError('newPassword', 'Passwords do not match.');
-                $this->passwordChangedModal = false;
-            }
-        } catch (ValidationException $e) {
-            // Handle validation errors
-            // $this->passwordChangedModal = false;
-            Log::error('Error approving leave: ' . $e->getMessage());
-            $this->pass_change_error = 'There was a problem with your input. Please check and try again.';
-        } catch (\Illuminate\Database\QueryException $e) {
-            // Handle database errors
-            // $this->passwordChangedModal = false;
-            Log::error('Error approving leave: ' . $e->getMessage());
-            $this->pass_change_error = 'We are experiencing technical difficulties. Please try again later.';
-        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
-            // Handle server errors
-            // $this->passwordChangedModal = false;
-            Log::error('Error approving leave: ' . $e->getMessage());
-            $this->pass_change_error = 'There is a server error. Please try again later.';
-        } catch (\Exception $e) {
-            // Handle general errors
-            //$this->passwordChangedModal = false;
-            Log::error('Error approving leave: ' . $e->getMessage());
-            $this->pass_change_error = 'An unexpected error occurred. Please try again.';
-        }
-    }
+    //             if ($user) {
+
+    //                 // Update the user's password in the database
+    //                 $user->update(['password' => bcrypt($this->newPassword)]);
+    //                 $this->passwordChangedModal = true;
+
+    //                 // Reset form fields and state after successful password update
+    //                 $this->reset(['newPassword', 'newPassword_confirmation', 'verified']);
+    //                 //$this->passwordChangedModal = false;
+    //                 $this->showDialog = false;
+    //             } else {
+    //                 // User not found, show an error message
+    //                 $this->addError('newPassword', 'User not found.');
+    //                 $this->passwordChangedModal = false;
+    //             }
+    //         } else {
+    //             // Passwords do not match, show an error message
+    //             $this->addError('newPassword', 'Passwords do not match.');
+    //             $this->passwordChangedModal = false;
+    //         }
+    //     } catch (ValidationException $e) {
+    //         // Handle validation errors
+    //         // $this->passwordChangedModal = false;
+    //         Log::error('Error approving leave: ' . $e->getMessage());
+    //         $this->pass_change_error = 'There was a problem with your input. Please check and try again.';
+    //     } catch (\Illuminate\Database\QueryException $e) {
+    //         // Handle database errors
+    //         // $this->passwordChangedModal = false;
+    //         Log::error('Error approving leave: ' . $e->getMessage());
+    //         $this->pass_change_error = 'We are experiencing technical difficulties. Please try again later.';
+    //     } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+    //         // Handle server errors
+    //         // $this->passwordChangedModal = false;
+    //         Log::error('Error approving leave: ' . $e->getMessage());
+    //         $this->pass_change_error = 'There is a server error. Please try again later.';
+    //     } catch (\Exception $e) {
+    //         // Handle general errors
+    //         //$this->passwordChangedModal = false;
+    //         Log::error('Error approving leave: ' . $e->getMessage());
+    //         $this->pass_change_error = 'An unexpected error occurred. Please try again.';
+    //     }
+    // }
 
     public function validateField($field)
     {
