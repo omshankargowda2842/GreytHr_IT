@@ -1,5 +1,27 @@
 <div class="main">
 
+    <div wire:loading
+        wire:target="cancel,submit,showAddVendorMember,filter ,clearFilters ,showViewVendor,showViewImage,showViewFile,showEditVendor,closeViewVendor,downloadImages,closeViewImage,closeViewFile,confirmDelete ,cancelLogout,">
+        <div class="loader-overlay">
+            <div>
+                <div class="logo">
+                    <!-- <i class="fas fa-user-headset"></i> -->
+                    <img src="{{ asset('images/Screenshot 2024-10-15 120204.png') }}" width="58" height="50"
+                        alt="">&nbsp;
+                    <span>IT</span>&nbsp;&nbsp;
+
+                    <span>EXPERT</span>
+                </div>
+            </div>
+            <div class="loader-bouncing">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+    </div>
+
+
     @if($showAddVendor)
 
     <div class="col-11 d-flex justify-content-start mb-1 mt-4" style="margin-left: 5%;">
@@ -8,17 +30,14 @@
 
     </div>
     <div class="col-11 mt-4 itadd-maincolumn">
-        <!-- <div wire:loading>
-            <div class="loader-overlay">
-                <div class="loader"></div>
-            </div>
-        </div> -->
+
         <div class="d-flex justify-content-between align-items-center">
             <h2 class="mb-4 addEditHeading">{{ $editMode ? 'Edit Vendor' : 'Add Vendor' }}</h2>
         </div>
 
 
         <div class="border rounded p-3 bg-light" style="max-height: 400px; overflow-y: auto;">
+
             <form wire:submit.prevent="submit" enctype="multipart/form-data">
                 <div class="row mb-3">
                     <!-- Vendor Name -->
@@ -45,8 +64,8 @@
                     <div class="col-md-6">
                         <label for="phone" class="form-label"><span class="text-danger">*</span>Phone</label>
                         <input type="text" id="phone" wire:model.lazy="phone"
-                            wire:keydown="resetValidationForField('phone')" maxlength="10" oninput="formatPhoneNumber(this)"
-                            class="form-control">
+                            wire:keydown="resetValidationForField('phone')" maxlength="10"
+                            oninput="formatPhoneNumber(this)" class="form-control">
                         @error('phone') <div class="text-danger">{{ $message }}</div> @enderror
                     </div>
 
@@ -153,6 +172,10 @@
 
                     <input id="file" type="file" wire:model="file_paths" wire:loading.attr="disabled" multiple
                         style="font-size: 12px;" />
+                    <div wire:loading wire:target="file_paths" class="mt-2">
+                        <i class="fas fa-spinner fa-spin"></i> Uploading...
+                    </div>
+
                     @error('file_paths.*') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
                 <div class="d-flex justify-content-center">
@@ -172,8 +195,13 @@
             style="margin-right: 9%;padding: 7px;background-color: #02114f;"><i class="fas fa-user-plus"></i> Add
             Vendor</button>
     </div>
+
+
+
+
     <div class="col-11 mt-4 ml-4">
         @if($searchFilters)
+
         <!-- Search Filters -->
         <div class="row mb-3 mt-4 ml-4 employeeAssetList">
             <!-- Employee ID Search Input -->
@@ -229,18 +257,61 @@
         </div>
 
 
-        
+
         <div class="table-responsive it-add-table-res">
-            <table class="table table-striped">
-                <thead class="table-dark">
+            <table class="custom-table">
+                <thead>
                     <tr>
                         <th scope="col" class="vendor-table-head">S.No</th>
-                        <th scope="col" class="vendor-table-head">Vendor ID</th>
-                        <th class="vendor-table-head">Vendor Name</th>
-                        <th class="vendor-table-head">Contact Name</th>
+                        <th scope="col" class="vendor-table-head">Vendor ID
+                            <span wire:click="toggleSortOrder('vendor_id')" style="cursor: pointer;">
+                                @if($sortColumn == 'vendor_id')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                @else
+                                <i class="fas fa-sort"></i>
+                                @endif
+                            </span>
+                        </th>
 
-                        <th class="vendor-table-head">GST</th>
-                        <th class="vendor-table-head">Contact Email</th>
+                        <th class="vendor-table-head">Vendor Name
+                            <span wire:click="toggleSortOrder('vendor_name')" style="cursor: pointer;">
+                                @if($sortColumn == 'vendor_name')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                @else
+                                <i class="fas fa-sort"></i>
+                                @endif
+                            </span>
+                        </th>
+
+                        <th class="vendor-table-head">Contact Name
+                            <span wire:click="toggleSortOrder('contact_name')" style="cursor: pointer;">
+                                @if($sortColumn == 'contact_name')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                @else
+                                <i class="fas fa-sort"></i>
+                                @endif
+                            </span>
+                        </th>
+
+                        <th class="vendor-table-head">GST
+                            <span wire:click="toggleSortOrder('gst')" style="cursor: pointer;">
+                                @if($sortColumn == 'gst')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                @else
+                                <i class="fas fa-sort"></i>
+                                @endif
+                            </span>
+                        </th>
+
+                        <th class="vendor-table-head">Contact Email
+                            <span wire:click="toggleSortOrder('contact_email')" style="cursor: pointer;">
+                                @if($sortColumn == 'contact_email')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                @else
+                                <i class="fas fa-sort"></i>
+                                @endif
+                            </span>
+                        </th>
                         <th class="vendor-table-head d-flex justify-content-center">Actions</th>
                     </tr>
                 </thead>
@@ -248,7 +319,7 @@
                     @if($vendors->count() > 0)
                     @foreach($vendors as $vendor)
                     <tr>
-                        <th scope="row">{{ $loop->iteration }}</th>
+                        <td class="vendor-table-head">{{ $loop->iteration }}</td>
                         <td class="vendor-table-head">{{ $vendor->vendor_id ?? 'N/A'}}</td>
                         <td class="vendor-table-head">{{  ucwords(strtolower($vendor->vendor_name)) ?? 'N/A' }}</td>
                         <td class="vendor-table-head">{{  ucwords(strtolower($vendor->contact_name)) ?? 'N/A'}}</td>
@@ -549,6 +620,7 @@
 
     @if ($showLogoutModal)
     <div class="modal logout1" id="logoutModal" tabindex="-1">
+
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header text-white logout2">
@@ -603,7 +675,7 @@ function formatPinCode(input) {
 }
 
 function formatPhoneNumber(input) {
-        // Allow only digits and limit to 10 characters
-        input.value = input.value.replace(/\D/g, '').substring(0, 10);
-    }
+    // Allow only digits and limit to 10 characters
+    input.value = input.value.replace(/\D/g, '').substring(0, 10);
+}
 </script>

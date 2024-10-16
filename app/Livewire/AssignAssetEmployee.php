@@ -99,6 +99,7 @@ public $currentVendorId = null;
 
 public $oldAssetBackButton=true;
 public function viewOldAssetDetails($employeeAssetList){
+
     $this->searchFilters =false;
     $this->oldAssetBackButton =false;
     $this->showOldEMployeeAssetBtn =false;
@@ -188,7 +189,7 @@ public function closeViewEmpAsset()
     {
         // Fetch asset and employee data, including already assigned ones
         $this->assetSelect = VendorAsset::where('is_active', 1)->get();
-        
+
         $this->assetSelectEmp = EmployeeDetails::all();
 
         $this->assignedAssetIds = AssignAssetEmp::where('is_active', 1)->pluck('asset_id')->toArray();
@@ -418,6 +419,21 @@ public function closeViewEmpAsset()
 
 public $oldEmployeeAssetLists;
 
+    public $sortColumn = 'emp_id'; // default sorting column
+    public $sortDirection = 'asc'; // default sorting direction
+
+    public function toggleSortOrder($column)
+    {
+        if ($this->sortColumn == $column) {
+            // If the column is the same, toggle the sort direction
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            // If a different column is clicked, set it as the new sort column and default to ascending order
+            $this->sortColumn = $column;
+            $this->sortDirection = 'asc';
+        }
+    }
+
     public function render()
     {
 
@@ -426,8 +442,9 @@ public $oldEmployeeAssetLists;
          // Use the filtered data if available, otherwise fetch all
          $employeeAssetLists = !empty($this->filteredEmployeeAssets)
          ? $this->filteredEmployeeAssets
-         : AssignAssetEmp::with(['vendorAsset.vendor']) ->get();
-
+         : AssignAssetEmp::with(['vendorAsset.vendor'])
+         ->orderBy($this->sortColumn, $this->sortDirection)
+         ->get();
 
          $employeeAssetLists = $employeeAssetLists->map(function ($employeeAssetList) use ($assetTypes) {
                 $employeeAssetList['asset_type_name'] = $assetTypes[$employeeAssetList['asset_type']] ?? 'N/A';

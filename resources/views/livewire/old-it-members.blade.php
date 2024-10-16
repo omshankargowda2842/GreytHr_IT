@@ -1,6 +1,28 @@
 <div class="main">
+
+    <div wire:loading wire:target="cancel,cancelLogout,restore">
+        <div class="loader-overlay">
+            <div>
+                <div class="logo">
+                    <!-- <i class="fas fa-user-headset"></i> -->
+                    <img src="{{ asset('images/Screenshot 2024-10-15 120204.png') }}" width="58" height="50"
+                        alt="">&nbsp;
+                    <span>IT</span>&nbsp;&nbsp;
+
+                    <span>EXPERT</span>
+                </div>
+            </div>
+            <div class="loader-bouncing">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+    </div>
+
+
     <div class="col-11  mt-4 ml-4">
-    <div class="col-10 d-flex justify-content-center">
+        <div class="col-10 d-flex justify-content-center">
             @if (session()->has('updateMessage'))
             <div id="flash-message" class="alert alert-success mt-1">
                 {{ session('updateMessage') }}
@@ -10,23 +32,74 @@
         </div>
         <div class="table-responsive it-add-table-res">
 
-            <div wire:loading.delay>
-                <div class="loader-overlay">
-                    <div class="loader"></div>
-                </div>
-            </div>
-            <table class="table  table-striped">
-                <thead class="table-dark">
+            <table class="custom-table">
+                <thead>
                     <tr>
-                        <th scope="col" class="req-table-head">Id</th>
-                        <th class="req-table-head">It Employee Id</th>
-                        <th class="req-table-head">Employee Id</th>
-                        <th class="req-table-head">Employee Name</th>
+                        <th scope="col" class="req-table-head">S.No</th>
+                        <th class="req-table-head" wire:click="toggleSortOrder('it_emp_id')" style="cursor: pointer;">IT
+                            Employee ID
+                            @if($sortColumn == 'it_emp_id')
+                            <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                            @else
+                            <i class="fas fa-sort"></i>
+                            @endif
+                        </th>
+                        <!-- Sortable Employee ID Column -->
+                        <th class="req-table-head" wire:click="toggleSortOrder('emp_id')" style="cursor: pointer;">
+                            Employee ID
+                            @if($sortColumn == 'emp_id')
+                            <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                            @else
+                            <i class="fas fa-sort"></i>
+                            @endif
+                        </th>
+
+                        <!-- Sortable Employee Name Column -->
+                        <th class="req-table-head" wire:click="toggleSortOrder('employee_name')"
+                            style="cursor: pointer;">
+                            Employee Name
+                            @if($sortColumn == 'employee_name')
+                            <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                            @else
+                            <i class="fas fa-sort"></i>
+                            @endif
+                        </th>
+
+                        <!-- Non-sortable Image Column -->
                         <th class="req-table-head">Image</th>
 
-                        <th class="req-table-head">Date Of Birth</th>
-                        <th class="req-table-head">Phone</th>
-                        <th class="req-table-head">Email</th>
+                        <!-- Sortable Date Of Birth Column -->
+                        <th class="req-table-head" wire:click="toggleSortOrder('date_of_birth')"
+                            style="cursor: pointer;">
+                            Date Of Birth
+                            @if($sortColumn == 'date_of_birth')
+                            <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                            @else
+                            <i class="fas fa-sort"></i>
+                            @endif
+                        </th>
+
+                        <!-- Sortable Phone Column -->
+                        <th class="req-table-head" wire:click="toggleSortOrder('phone_number')"
+                            style="cursor: pointer;">
+                            Phone
+                            @if($sortColumn == 'phone_number')
+                            <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                            @else
+                            <i class="fas fa-sort"></i>
+                            @endif
+                        </th>
+
+                        <!-- Sortable Email Column -->
+                        <th class="req-table-head" wire:click="toggleSortOrder('email')" style="cursor: pointer;">
+                            Email
+                            @if($sortColumn == 'email')
+                            <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                            @else
+                            <i class="fas fa-sort"></i>
+                            @endif
+                        </th>
+                        
                         <th class="req-table-head">Actions</th>
                     </tr>
                 </thead>
@@ -35,11 +108,11 @@
                     @foreach($itRelatedEmye as $itemployee)
                     <tr>
                         <!-- <th scope="row">{{ $loop->iteration }}</th> -->
-                        <td>{{ $itemployee->id }}</td>
+                        <td>{{ $loop->iteration }}</td>
                         <td>{{ $itemployee->it_emp_id }}</td>
                         <td>{{ $itemployee->emp_id }}</td>
                         <td>{{ ucwords(strtolower($itemployee->employee_name)) }}</td>
-                        <td><img src="{{ $itemployee->image_url }}" class="oldItMemImage" alt="Image" ></td>
+                        <td><img src="{{ $itemployee->image_url }}" class="oldItMemImage" alt="Image"></td>
 
                         <td>{{ \Carbon\Carbon::parse($itemployee->date_of_birth)->format('d-M-Y') }}</td>
                         <td>{{ $itemployee->phone_number }}</td>
@@ -48,7 +121,8 @@
 
                             <!-- Delete Action -->
                             <div class="col">
-                                <button class="btn text-white border-white" style="background-color: #02114f;" wire:click='cancelLogout'>
+                                <button class="btn text-white border-white" style="background-color: #02114f;"
+                                    wire:click='cancelLogout'>
                                     <i class="fas fa-undo"></i>
                                 </button>
                             </div>
@@ -79,10 +153,10 @@
     <div class="modal logout1" id="logoutModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header text-white logout2" >
+                <div class="modal-header text-white logout2">
                     <h6 class="modal-title logout3" id="logoutModalLabel">Confirm Restore</h6>
                 </div>
-                <div class="modal-body text-center logout4" >
+                <div class="modal-body text-center logout4">
                     Are you sure you want to Restore?
                 </div>
 

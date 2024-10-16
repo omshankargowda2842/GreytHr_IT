@@ -1,8 +1,33 @@
 <div class="main">
+
+
+    <div wire:loading
+        wire:target="submit, showEditItMember, cancel,cancelLogout, confirmDelete, delete, showAddItMember">
+        <div class="loader-overlay">
+            <div>
+                <div class="logo">
+                    <!-- <i class="fas fa-user-headset"></i> -->
+                    <img src="{{ asset('images/Screenshot 2024-10-15 120204.png') }}" width="58" height="50"
+                        alt="">&nbsp;
+                    <span>IT</span>&nbsp;&nbsp;
+
+                    <span>EXPERT</span>
+                </div>
+            </div>
+            <div class="loader-bouncing">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+    </div>
+
+
     <div class="row">
         @if($showAddIt)
         <div class="col-11 d-flex justify-content-start mb-1 mt-4" style="margin-left: 4%;">
-            <button class="btn text-white btn-sm" style="background-color: #02114f;" wire:click='cancel'> <i class="fas fa-arrow-left"></i> Back</button>
+            <button class="btn text-white btn-sm" style="background-color: #02114f;" wire:click='cancel'> <i
+                    class="fas fa-arrow-left"></i> Back</button>
 
         </div>
         <div class="col-11  mt-4 itadd-maincolumn">
@@ -60,14 +85,19 @@
                         <!-- <p>{{ basename($this->image) }}</p> -->
                         @endif
 
+                        <div wire:loading wire:target="image" class="mt-2">
+                            <i class="fas fa-spinner fa-spin"></i> Uploading...
+                        </div>
+
                         @error('image') <div class="text-danger">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="mb-3">
                         <label for="phoneNumber" class="form-label">Phone </label>
                         <input type="tel" id="phoneNumber" wire:model.lazy="phoneNumber"
-                        wire:keydown="resetValidationForField('phone')" maxlength="10" oninput="formatPhoneNumber(this)" class="form-control"
-                            {{ $editMode ? '' : 'readonly' }}  maxlength="10">
+                            wire:keydown="resetValidationForField('phone')" maxlength="10"
+                            oninput="formatPhoneNumber(this)" class="form-control" {{ $editMode ? '' : 'readonly' }}
+                            maxlength="10">
                         @error('phoneNumber') <div class="text-danger">{{ $message }}</div> @enderror
                     </div>
 
@@ -79,8 +109,8 @@
                     </div>
 
                     <div class="d-flex justify-content-center">
-                        <button type="submit"
-                            class="btn text-white border-white" style="background-color: #02114f;">{{ $editMode ? 'Update' : 'Submit' }}</button>
+                        <button type="submit" class="btn text-white border-white"
+                            style="background-color: #02114f;">{{ $editMode ? 'Update' : 'Submit' }}</button>
                     </div>
                 </form>
             </div>
@@ -90,7 +120,8 @@
         @if($showEditDeleteIt)
 
         <div class="d-flex justify-content-end mt-5">
-            <button class="btn text-white btn-sm itAdd3" style="background-color: #02114f;" wire:click='showAddItMember'><i class="fas fa-user-plus "></i>
+            <button class="btn text-white btn-sm itAdd3" style="background-color: #02114f;"
+                wire:click='showAddItMember'><i class="fas fa-user-plus "></i>
                 Add Member</button>
         </div>
         <div class="col-11  mt-4 ml-4">
@@ -125,24 +156,76 @@
 
             <div class="table-responsive it-add-table-res">
 
-                <div wire:loading.delay>
-                    <div class="loader-overlay">
-                        <div class="loader"></div>
-                    </div>
-                </div>
-                <table class="table  table-striped">
-                    <thead class="table-dark">
+
+                <table class="custom-table">
+                    <thead>
                         <tr>
                             <th class="req-table-head" scope="col">S.No</th>
 
-                            <th class="req-table-head">IT Employee ID</th>
-                            <th class="req-table-head">Employee ID</th>
-                            <th class="req-table-head">Employee Name</th>
+                            <th class="req-table-head" wire:click="toggleSortOrder('it_emp_id')"
+                                style="cursor: pointer;">IT Employee ID
+                                @if($sortColumn == 'it_emp_id')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                @else
+                                <i class="fas fa-sort"></i>
+                                @endif
+                            </th>
+                            <!-- Sortable Employee ID Column -->
+                            <th class="req-table-head" wire:click="toggleSortOrder('emp_id')" style="cursor: pointer;">
+                                Employee ID
+                                @if($sortColumn == 'emp_id')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                @else
+                                <i class="fas fa-sort"></i>
+                                @endif
+                            </th>
+
+                            <!-- Sortable Employee Name Column -->
+                            <th class="req-table-head" wire:click="toggleSortOrder('employee_name')"
+                                style="cursor: pointer;">
+                                Employee Name
+                                @if($sortColumn == 'employee_name')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                @else
+                                <i class="fas fa-sort"></i>
+                                @endif
+                            </th>
+
+                            <!-- Non-sortable Image Column -->
                             <th class="req-table-head">Image</th>
 
-                            <th class="req-table-head">Date Of Birth</th>
-                            <th class="req-table-head">Phone</th>
-                            <th class="req-table-head">Email</th>
+                            <!-- Sortable Date Of Birth Column -->
+                            <th class="req-table-head" wire:click="toggleSortOrder('date_of_birth')"
+                                style="cursor: pointer;">
+                                Date Of Birth
+                                @if($sortColumn == 'date_of_birth')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                @else
+                                <i class="fas fa-sort"></i>
+                                @endif
+                            </th>
+
+                            <!-- Sortable Phone Column -->
+                            <th class="req-table-head" wire:click="toggleSortOrder('phone_number')"
+                                style="cursor: pointer;">
+                                Phone
+                                @if($sortColumn == 'phone_number')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                @else
+                                <i class="fas fa-sort"></i>
+                                @endif
+                            </th>
+
+                            <!-- Sortable Email Column -->
+                            <th class="req-table-head" wire:click="toggleSortOrder('email')" style="cursor: pointer;">
+                                Email
+                                @if($sortColumn == 'email')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                @else
+                                <i class="fas fa-sort"></i>
+                                @endif
+                            </th>
+                            
                             <th class="req-table-head">Actions</th>
                         </tr>
                     </thead>
@@ -150,7 +233,7 @@
                         @foreach($itRelatedEmye as $itemployee)
                         <tr>
 
-                            <th scope="row">{{ $loop->iteration }}</th>
+                            <td scope="row">{{ $loop->iteration }}</td>
                             <td>{{ $itemployee->it_emp_id }}</td>
                             <td>{{ $itemployee->emp_id }}</td>
                             <td>{{ ucwords(strtolower($itemployee->employee_name)) }}</td>
@@ -170,7 +253,8 @@
 
                                 <!-- Delete Action -->
                                 <div class="col mx-1">
-                                    <button class="btn text-white border-white" style="background-color: #02114f;" wire:click='cancelLogout'>
+                                    <button class="btn text-white border-white" style="background-color: #02114f;"
+                                        wire:click='cancelLogout'>
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
@@ -240,9 +324,8 @@
 
 
 <script>
-
 function formatPhoneNumber(input) {
-        // Allow only digits and limit to 10 characters
-        input.value = input.value.replace(/\D/g, '').substring(0, 10);
-    }
+    // Allow only digits and limit to 10 characters
+    input.value = input.value.replace(/\D/g, '').substring(0, 10);
+}
 </script>

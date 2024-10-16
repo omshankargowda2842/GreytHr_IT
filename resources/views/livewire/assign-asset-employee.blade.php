@@ -1,5 +1,26 @@
 <div class="main">
 
+    <div wire:loading
+        wire:target="cancel,backVendor,oldAssetlisting,assignAsset,viewDetails,edit,selectedAsset,closeViewEmpAsset,viewOldAssetDetails,selectedEmployee,submit,createAssetType,showAddVendorMember,filter ,delete,clearFilters ,showEditAsset ,showViewVendor,showViewImage,showViewFile,showEditVendor,closeViewVendor,downloadImages,closeViewImage,closeViewFile,confirmDelete ,cancelLogout,restore">
+        <div class="loader-overlay">
+            <div>
+                <div class="logo">
+                    <!-- <i class="fas fa-user-headset"></i> -->
+                    <img src="{{ asset('images/Screenshot 2024-10-15 120204.png') }}" width="58" height="50"
+                        alt="">&nbsp;
+                    <span>IT</span>&nbsp;&nbsp;
+                    <span>EXPERT</span>
+                </div>
+            </div>
+            <div class="loader-bouncing">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+    </div>
+
+
     <div class="container AssetEmployee mt-4">
         <div class="col-10 d-flex justify-content-center">
             @if (session()->has('updateMessage'))
@@ -20,7 +41,8 @@
         </div>
         @if ($showEMployeeAssetBtn)
         <div class="col-11 d-flex justify-content-start mb-4" style="margin-left: 4%;">
-            <button class="btn text-white" style="background-color: #02114f;" wire:click="backVendor"><i class="fas fa-arrow-left"></i> Back
+            <button class="btn text-white" style="background-color: #02114f;" wire:click="backVendor"><i
+                    class="fas fa-arrow-left"></i> Back
             </button>
         </div>
         @endif
@@ -28,10 +50,12 @@
             <div class="">
 
                 @if ($showOldEMployeeAssetBtn)
-                <button class="btn text-white mr-3" style="background-color: #02114f;" wire:click="oldAssetlisting">Previous Owners </button>
+                <button class="btn text-white mr-3" style="background-color: #02114f;"
+                    wire:click="oldAssetlisting">Previous Owners </button>
                 @endif
                 @if ($showAssignAssetBtn)
-                <button class="btn text-white" style="background-color: #02114f;" wire:click="assignAsset">Assign Asset</button>
+                <button class="btn text-white" style="background-color: #02114f;" wire:click="assignAsset">Assign
+                    Asset</button>
                 @endif
             </div>
         </div>
@@ -60,8 +84,8 @@
                 @enderror
             </div>
 
-             <!-- Asset Dropdown -->
-             <div class="col-md-5">
+            <!-- Asset Dropdown -->
+            <div class="col-md-5">
                 @if (session()->has('message'))
                 <div id="flash-message" class="alert alert-success mt-1">
                     {{ session('message') }}
@@ -90,7 +114,7 @@
         <!-- Row for Details Cards -->
         <div class="row mt-4 d-flex justify-content-around">
             <div class="col-md-4">
-            @if ($empDetails)
+                @if ($empDetails)
                 <div class="assetEmpDetailsCard p-3 mb-3">
                     <h5><u>Employee Details</u></h5>
                     <p><strong>Employee ID:</strong> {{ $empDetails->emp_id }}</p>
@@ -104,7 +128,7 @@
             </div>
 
             <div class="col-md-4">
-            @if ($assetDetails)
+                @if ($assetDetails)
                 <div class="assetEmpDetailsCard p-3 mb-3">
                     <h5><u>Asset Details</u></h5>
                     <p><strong>Manufacturer:</strong> <span>{{ $assetDetails->manufacturer }}</span></p>
@@ -117,11 +141,6 @@
             </div>
         </div>
 
-        <div wire:loading>
-            <div class="loader-overlay">
-                <div class="loader"></div>
-            </div>
-        </div>
 
         <!-- Submit Button -->
         <div class="mt-4 text-center">
@@ -174,23 +193,73 @@
         <div class="col-11 mt-4 ml-4">
 
             <div class="table-responsive it-add-table-res">
-                <div wire:loading>
-                    <div class="loader-overlay">
-                        <div class="loader"></div>
-                    </div>
-                </div>
-                <table class="table table-striped">
-                    <thead class="table-dark">
+
+                <table class="custom-table">
+                    <thead>
                         <tr>
+                            <th class="req-table-head" scope="col">Employee ID
+                                <span wire:click.debounce.500ms="toggleSortOrder('emp_id')"
+                                    style="cursor: pointer;">
+                                    @if($sortColumn == 'emp_id')
+                                    <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                    @else
+                                    <i class="fas fa-sort"></i>
+                                    @endif
+                                </span>
+                            </th>
+                            <th class="req-table-head">Employee Name
+                                <span wire:click.debounce.500ms="toggleSortOrder('employee_name')"
+                                    style="cursor: pointer;">
+                                    @if($sortColumn == 'employee_name')
+                                    <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                    @else
+                                    <i class="fas fa-sort"></i>
+                                    @endif
+                                </span>
+                            </th>
+                            <th class="req-table-head">Asset ID
+                                <span wire:click.debounce.500ms="toggleSortOrder('asset_id')" style="cursor: pointer;">
+                                    @if($sortColumn == 'asset_id')
+                                    <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                    @else
+                                    <i class="fas fa-sort"></i>
+                                    @endif
+                                </span>
+                            </th>
+                            <th class="req-table-head">Manufacturer
+                                <span wire:click.debounce.500ms="toggleSortOrder('manufacturer')"
+                                    style="cursor: pointer;">
+                                    @if($sortColumn == 'manufacturer')
+                                    <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                    @else
+                                    <i class="fas fa-sort"></i>
+                                    @endif
+                                </span>
+                            </th>
+                            <th class="req-table-head">Asset Type
+                                <span wire:click.debounce.500ms="toggleSortOrder('asset_type')"
+                                    style="cursor: pointer;">
+                                    @if($sortColumn == 'asset_type')
+                                    <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                    @else
+                                    <i class="fas fa-sort"></i>
+                                    @endif
+                                </span>
+                            </th>
+                            <th class="req-table-head">Department
+                                <span wire:click.debounce.500ms="toggleSortOrder('department')"
+                                    style="cursor: pointer;">
+                                    @if($sortColumn == 'department')
+                                    <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                    @else
+                                    <i class="fas fa-sort"></i>
+                                    @endif
+                                </span>
+                            </th>
 
-                            <th class="req-table-head" scope="col">Employee ID</th>
-                            <th class="req-table-head">Employee Name</th>
-                            <th class="req-table-head">Asset ID</th>
-                            <th class="req-table-head">Manufacturer</th>
-                            <th class="req-table-head">Asset Type</th>
-                            <th class="req-table-head">Department</th>
 
-                            <th class="req-table-head d-flex justify-content-center">Actions</th> <!-- Added Actions Column -->
+                            <th class="req-table-head d-flex justify-content-center">Actions</th>
+                            <!-- Added Actions Column -->
                         </tr>
                     </thead>
                     <tbody>
@@ -265,7 +334,8 @@
         <div class="col-10 mt-4 itadd-maincolumn">
             <div class="d-flex justify-content-between align-items-center">
                 <h3>View Details</h3>
-                <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewVendor" aria-label="Close">
+                <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewVendor"
+                    aria-label="Close">
                     Close
                 </button>
             </div>
@@ -317,7 +387,7 @@
                     </tr>
                     <tr>
                         <td>Invoice Amount</td>
-                        <td>₹ {{ $vendor->vendorAsset->invoice_amount ?? 'N/A' }}</td>
+                        <td>Rs. {{ $vendor->vendorAsset->invoice_amount ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Invoice Number</td>
@@ -358,7 +428,8 @@
         @if($oldAssetBackButton)
         <div class="col-11 d-flex justify-content-start mb-4" style="margin-left: 5%;">
             <div class="">
-                <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewVendor" aria-label="Close">
+                <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewVendor"
+                    aria-label="Close">
                     <i class="fas fa-arrow-left"></i> Back
                 </button>
             </div>
@@ -395,13 +466,9 @@
         @if($showEditDeleteEmployeeAsset)
         <div class="col-11 mt-4 ml-4">
             <div class="table-responsive it-add-table-res">
-                <div wire:loading>
-                    <div class="loader-overlay">
-                        <div class="loader"></div>
-                    </div>
-                </div>
-                <table class="table table-striped">
-                    <thead class="table-dark">
+
+                <table class="custom-table">
+                    <thead>
                         <tr>
                             <th class="req-table-head" scope="col">Employee ID</th>
                             <th class="req-table-head">Employee Name</th>
@@ -477,7 +544,8 @@
         <div class="col-10 mt-4 itadd-maincolumn">
             <div class="d-flex justify-content-between align-items-center">
                 <h3>View Details</h3>
-                <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewEmpAsset" aria-label="Close">
+                <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewEmpAsset"
+                    aria-label="Close">
                     Close
                 </button>
             </div>
@@ -531,7 +599,7 @@
                     </tr>
                     <tr>
                         <td>Invoice Amount</td>
-                        <td>₹ {{$vendor->vendorAsset->invoice_amount ?? 'N/A' }}</td>
+                        <td>Rs. {{$vendor->vendorAsset->invoice_amount ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Invoice Number</td>

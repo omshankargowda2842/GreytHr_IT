@@ -307,9 +307,29 @@ public function delete()
         }
     }
 
+    public $sortColumn = 'employee_name'; // default sorting column
+        public $sortDirection = 'asc'; // default sorting direction
+
+        public function toggleSortOrder($column)
+        {
+            if ($this->sortColumn == $column) {
+                // If the column is the same, toggle the sort direction
+                $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                // If a different column is clicked, set it as the new sort column and default to ascending order
+                $this->sortColumn = $column;
+                $this->sortDirection = 'asc';
+            }
+        }
+
     public function render()
     {
-        $this->itRelatedEmye = IT::where('is_active', 1)->get();
+        $this->itRelatedEmye = IT::where('is_active', 1)
+        ->orderBy($this->sortColumn, $this->sortDirection)
+        ->get();
+
+
+
         return view('livewire.it-add-member');
     }
 
