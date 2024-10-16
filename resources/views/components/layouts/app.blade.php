@@ -22,7 +22,7 @@
 </head>
 
 <body>
-    @livewire('loading-indicator')
+
     @guest
     {{$slot}}
     @else
@@ -33,7 +33,7 @@
         </main>
     </section>
 
- 
+
 
     @livewireScripts
     <script src="{{ asset('js/admin-dash.js') }}"></script>
