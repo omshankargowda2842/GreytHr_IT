@@ -22,43 +22,39 @@
 </head>
 
 <body>
-
+    @livewire('loading-indicator')
     @guest
-    {{$slot}}
+        {{ $slot }}
     @else
-    <section>
-        @livewire('main-layout')
-        <main id="maincontent" style="overflow: auto; height: calc(100vh - 65px);" onscroll="scrollFun()">
-            {{ $slot }}
-        </main>
-    </section>
+        <section>
+            @livewire('main-layout')
+            <main id="maincontent" style="overflow: auto; height: calc(100vh - 65px);" onscroll="scrollFun()">
+                {{ $slot }}
+            </main>
+        </section>
+        @livewireScripts
+        <script src="{{ asset('js/admin-dash.js') }}"></script>
+        <script src="{{ asset('js/loader.js') }}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@floating-ui/core@1.6.7"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.6.10"></script>
+        <script>
+            function toggleSidebar() {
+                document.body.classList.toggle('sidebar-toggled');
+            }
 
+            function scrollFun() {
+                var navbar = document.getElementById('customNav');
+                var mainContent = document.getElementById('maincontent');
 
-
-    @livewireScripts
-    <script src="{{ asset('js/admin-dash.js') }}"></script>
-    <script src="{{ asset('js/loader.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@floating-ui/core@1.6.7"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.6.10"></script>
-    <script>
-    function toggleSidebar() {
-        document.body.classList.toggle('sidebar-toggled');
-    }
-
-    function scrollFun() {
-        var navbar = document.getElementById('customNav');
-        var mainContent = document.getElementById('maincontent');
-
-        if (mainContent.scrollTop > 50) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
-        }
-    }
-    </script>
-
-</body>
+                if (mainContent.scrollTop > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            }
+        </script>
+    </body>
 @endguest
 
 </html>
