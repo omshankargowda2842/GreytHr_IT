@@ -247,6 +247,38 @@
                 data-toggle="sidebar">
                 <i class="ri-menu-line"></i>
             </button>
+
+            <h5 class="mb-0 page-name topbar-page-name">
+                    @switch(Route::currentRouteName())
+                        @case('dashboard')
+                            Dashboard
+                            @break
+                        @case('requests')
+                            IT Requests
+                            @break
+                        @case('itMembers')
+                            IT Members
+                            @break
+                        @case('oldItMembers')
+                            Old IT Members
+                            @break
+                        @case('vendor')
+                            Vendor Request
+                            @break
+                        @case('vendorAssets')
+                            Vendor Assets
+                            @break
+                        @case('assignAsset')
+                            Employee Assets
+                            @break
+                        @case('password')
+                            Password
+                            @break
+                        @default
+                            IT Admin
+                    @endswitch
+                </h5>
+
             <div
                 class="topbar-search-form-wrapper"
                 id="topbar-search-form-wrapper">
@@ -256,6 +288,36 @@
                     data-dismiss="topbar-search">
                     <i class="ri-arrow-left-line"></i>
                 </button>
+                <h5 class="mb-0 page-name">
+                        @switch(Route::currentRouteName())
+                            @case('dashboard')
+                                Dashboard
+                                @break
+                            @case('requests')
+                                IT Requests
+                                @break
+                            @case('itMembers')
+                                IT Members
+                                @break
+                            @case('oldItMembers')
+                                Old IT Members
+                                @break
+                            @case('vendor')
+                                Vendor Request
+                                @break
+                            @case('vendorAssets')
+                                Vendor Assets
+                                @break
+                            @case('assignAsset')
+                                Employee Assets
+                                @break
+                            @case('password')
+                                Password
+                                @break
+                            @default
+                                IT Admin
+                        @endswitch
+                    </h5>
                 <!-- <form action="" class="topbar-search-form">
                         <span class="topbar-search-form-icon"
                             ><i class="ri-search-line"></i

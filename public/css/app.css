@@ -155,6 +155,7 @@ label {
 
 #customNav.scrolled {
     background-color: #02114f !important;
+    color: white;
 }
 #customNav {
     transition: background-color 0.3s ease; /* Add this for smooth transition */
@@ -1449,7 +1450,7 @@ w
   left: 80px !important;
 }
 
-.topbar {
+/* .topbar {
   position: fixed;
   width: 100%;
   top: 0;
@@ -1462,7 +1463,7 @@ w
   z-index: 100;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   background-color: #fff;
-}
+} */
 .logo-container {
     flex: 1;
 }
@@ -2106,91 +2107,3 @@ w
 
 
 
-/* Dashboard ...................................*/
-
-
-  /* From Uiverse.io by Javierrocadev */
-  .card-home {
-    /* width: 250px; */
-    height: 200px;
-    border-radius: 15px;
-    /* background: rgba(105, 13, 197, 0.103); */
-    background: #5e7eb6;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .card-home::before {
-    content: "";
-    height: 100px;
-    width: 100px;
-    position: absolute;
-    top: -13%;
-    left: -13%;
-    border-radius: 50%;
-    border: 35px solid rgba(255, 255, 255, 0.102);
-    transition: all .8s ease;
-    filter: blur(.5rem);
-  }
-
-  .text-home {
-    flex-grow: 1;
-    padding: 15px;
-    display: flex;
-    flex-direction: row;
-    color: aliceblue;
-    font-weight: 900;
-    font-size: 1.2em;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-  }
-
-  .subtitle-text {
-    font-size: .6em;
-    font-weight: 300;
-    color: rgba(240, 248, 255, 0.691);
-  }
-
-  .icons-text {
-    /* display: flex;
-    justify-items: center;
-    align-items: center; */
-    /* width: 250px; */
-    border-radius: 0px 0px 15px 15px;
-    overflow: hidden;
-    background-color: rgba(247, 234, 234, 0.589);
-    text-align: center;
-    padding: 10px;
-    color: rgb(38, 59, 126);;
-  }
-
-  .btn-home {
-    border: none;
-    width: 84px;
-    height: 35px;
-    background-color: rgba(247, 234, 234, 0.589);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .svg-icon {
-    width: 25px;
-    height: 25px;
-    stroke: rgb(38, 59, 126);
-  }
-
-  .btn-home:hover {
-    background-color: rgb(247, 234, 234);
-  }
-
-  .card-home:hover::before {
-    width: 140px;
-    height: 140px;
-    top: -30%;
-    left: 50%;
-    filter: blur(0rem);
-  }

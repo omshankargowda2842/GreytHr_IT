@@ -88,6 +88,7 @@ public $currentVendorId = null;
 
     public function viewDetails($employeeAssetList)
 {
+
     $this->searchFilters =false;
     $this->showOldEMployeeAssetBtn =false;
     $this->showAssignAssetBtn =false;
@@ -99,7 +100,7 @@ public $currentVendorId = null;
 
 public $oldAssetBackButton=true;
 public function viewOldAssetDetails($employeeAssetList){
-
+    dd();
     $this->searchFilters =false;
     $this->oldAssetBackButton =false;
     $this->showOldEMployeeAssetBtn =false;

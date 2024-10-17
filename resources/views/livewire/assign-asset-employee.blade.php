@@ -5,7 +5,7 @@
         <div class="loader-overlay">
             <div>
                 <div class="logo">
-                    <!-- <i class="fas fa-user-headset"></i> -->
+
                     <img src="{{ asset('images/Screenshot 2024-10-15 120204.png') }}" width="58" height="50"
                         alt="">&nbsp;
                     <span>IT</span>&nbsp;&nbsp;
