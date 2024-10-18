@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Helpers\FlashMessageHelper;
 use App\Models\HelpDesks;
 use App\Models\Request;
 use App\Models\IT;
@@ -143,7 +144,8 @@ class RequestProcess extends Component
 
         if ($task) {
             $task->update(['status' => 'Pending']);
-            session()->flash('message', 'Status saved successfully');
+            FlashMessageHelper::flashSuccess("Status saved successfully!");
+
         }
         $this->updateCounts();
     }
@@ -155,7 +157,8 @@ class RequestProcess extends Component
 
         if ($task) {
             $task->update(['status' => 'Completed']);
-            session()->flash('message', 'Status Closed successfully');
+            FlashMessageHelper::flashSuccess("Status Closed successfully!");
+
         }
         $this->updateCounts();
     }
@@ -169,7 +172,8 @@ class RequestProcess extends Component
         try {
         if ($task) {
             $task->update(['status' => 'Open']);
-            session()->flash('message', 'Status Reopened successfully');
+            FlashMessageHelper::flashSuccess("Status Reopened successfully!");
+
         }
     }catch (\Exception $e) {
         // Handle exception
@@ -193,11 +197,12 @@ class RequestProcess extends Component
         if ($task && $this->selectedStatus) {
             $task->update(['status' => $this->selectedStatus]);
             if ($this->selectedStatus === 'Pending') {
-                session()->flash('statusMessage', 'Status has been set to Pending');
+                FlashMessageHelper::flashSuccess("Status has been set to Pending!");
             } elseif ($this->selectedStatus === 'Completed') {
-                session()->flash('statusMessage', 'Status has been set to Completed');
+                FlashMessageHelper::flashSuccess("Status has been set to Completed!");
+
             } else {
-                session()->flash('statusMessage', 'Status Updated successfully');
+                FlashMessageHelper::flashSuccess("Status Updated successfully!");
             }
         }
     }
@@ -229,7 +234,7 @@ class RequestProcess extends Component
         if ($task && $this->comments) {
 
             $task->update(['active_comment' => $this->comments]);
-            session()->flash('commentMessage', 'Comment posted successfully');
+            FlashMessageHelper::flashSuccess("Comment posted successfully!");
         }
     }
 
@@ -242,7 +247,8 @@ class RequestProcess extends Component
         if ($task) {
             $task->update(['inprogress_remarks' => $remarks]);
             // $task->update(['inprogress_remarks' => $this->remarks]);
-            session()->flash('message', 'Comment posted successfully');
+            FlashMessageHelper::flashSuccess("Comment posted successfully!");
+
         }
     }
 

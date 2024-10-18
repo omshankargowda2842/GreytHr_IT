@@ -266,11 +266,6 @@
                                                 @error('selectedStatus') <span class="text-danger">{{ $message }}</span>
                                                 @enderror
 
-                                                @if (session()->has('statusMessage'))
-                                                <div id="flash-message" class="alert alert-success mt-1">
-                                                    {{ session('statusMessage') }}
-                                                </div>
-                                                @endif
                                             </td>
                                         </tr>
 
@@ -292,11 +287,7 @@
                                                         </div>
                                                     </div>
 
-                                                    @if (session()->has('commentMessage'))
-                                                    <div id="flash-message" class="alert alert-success mt-1">
-                                                        {{ session('commentMessage') }}
-                                                    </div>
-                                                    @endif
+
                                                 </div>
                                             </td>
                                         </tr>
@@ -385,9 +376,9 @@
 
                             @else
                             <div class="req-requestnotfound">
-                                <td colspan="20" class="req-td-norecords">
+                                <td colspan="20" >
 
-                                    <div>
+                                    <div class="req-td-norecords">
                                         <img src="{{ asset('images/Closed.webp') }}" alt="No Records"
                                             class="req-img-norecords">
 
@@ -411,11 +402,7 @@
                             <div class="row ">
 
                                 <div class="col-12 mt-2">
-                                    @if (session()->has('message'))
-                                    <div id="flash-message" class="alert alert-success mt-1">
-                                        {{ session('message') }}
-                                    </div>
-                                    @endif
+
                                     <div class="table-responsive req-table-res">
 
                                         <table class="custom-table">
@@ -553,7 +540,7 @@
 
                                                                     <!-- Button is small and aligned to the right -->
                                                                     <button type="submit" style="background-color: #02114f;" class="btn text-white p-2"
-                                                                        style="height: fit-content;" @if($loading)
+                                                                        style="height: fit-content;" @if($loading || empty($remarks[$record->id]))
                                                                         disabled @endif>Post</button>
                                                                 </div>
                                                             </div>
@@ -563,22 +550,22 @@
                                                 </tr>
 
 
-                                                @if(count($ccToArray) >= 1)
+
                                                 <tr class="req-cc-tr">
                                                     <td colspan="19" class="req-cc-td">
                                                         <div class="req-cc-div">
                                                             <strong style="margin-left: 5px;">CC TO: </strong>
-                                                            {{ implode(', ', $ccToArray) }}
-                                                        </div>
+                                                            {{ (empty($ccToArray) || (count($ccToArray) === 1 && $ccToArray[0] === '-')) ? 'N/A' : implode(', ', $ccToArray) }}
+                                                            </div>
                                                     </td>
                                                 </tr>
-                                                @endif
+
                                                 @endforeach
                                                 @else
                                                 <tr>
-                                                    <td colspan="20" class="req-td-norecords">
+                                                    <td colspan="20">
 
-                                                        <div>
+                                                        <div class="req-td-norecords">
                                                             <img src="{{ asset('images/Closed.webp') }}"
                                                                 alt="No Records" class="req-img-norecords">
 
@@ -604,11 +591,7 @@
                             <div class="row">
 
                                 <div class="col-12 mt-2">
-                                    @if (session()->has('message'))
-                                    <div id="flash-message" class="alert alert-success mt-1">
-                                        {{ session('message') }}
-                                    </div>
-                                    @endif
+
 
                                     <div class="table-responsive  req-closed-table-res">
 
@@ -736,7 +719,7 @@
 
 
                                                 </tr>
-                                                @if(count($ccToArray) >= 1)
+
 
                                                 <tr class="req-cc-tr">
 
@@ -744,19 +727,19 @@
                                                     <td colspan="19" class="req-cc-td">
                                                         <div class="req-cc-div">
                                                             <strong style="margin-left: 5px;">CC TO: </strong>
-                                                            {{ implode(', ', $ccToArray) }}
+                                                       {{ (empty($ccToArray) || (count($ccToArray) === 1 && $ccToArray[0] === '-')) ? 'N/A' : implode(', ', $ccToArray) }}</u>
 
                                                         </div>
                                                     </td>
                                                 </tr>
-                                                @endif
+
 
                                                 @endforeach
                                                 @else
                                                 <tr>
-                                                    <td colspan="20" class="req-td-norecords">
+                                                    <td colspan="20" >
 
-                                                        <div>
+                                                        <div class="req-td-norecords">
                                                             <img src="{{ asset('images/Closed.webp') }}"
                                                                 alt="No Records" class="req-img-norecords">
 

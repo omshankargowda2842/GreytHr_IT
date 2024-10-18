@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Helpers\FlashMessageHelper;
 use App\Models\IT;
 use App\Models\Vendor;
 use Illuminate\Support\Facades\DB;
@@ -221,8 +222,7 @@ public function updatedContactEmail()
             'is_active' => 0
         ]);
 
-
-        session()->flash('deactiveMessage', 'Vendor deactivated successfully!');
+        FlashMessageHelper::flashSuccess("Vendor deactivated successfully!");
         $this->showLogoutModal = false;
 
         //Refresh
@@ -446,7 +446,7 @@ public function downloadImages($vendorId)
                     'note_description' => $this->noteDescription,
                     'file_paths' => json_encode($fileDataArray),
                 ]);
-                session()->flash('updateMessage', 'Vendor updated successfully!');
+                FlashMessageHelper::flashSuccess("Vendor updated successfully!");
             }
         } else {
 
@@ -469,7 +469,7 @@ public function downloadImages($vendorId)
                 'note_description' => $this->noteDescription,
                 'file_paths' => json_encode($fileDataArray),
             ]);
-            session()->flash('createMessage', 'Vendor created successfully!');
+            FlashMessageHelper::flashSuccess("Vendor created successfully!");
         }
 
         $this->reset();
@@ -482,11 +482,11 @@ public function downloadImages($vendorId)
         ]);
             // Other database exceptions
             Log::error('Database error:', ['error' => $e->getMessage()]);
-            session()->flash('error', 'An error occurred. Please try again.');
+            FlashMessageHelper::flashError("An error occurred. Please try again!");
 
     } catch (\Exception $e) {
         Log::error('Error:', ['error' => $e->getMessage()]);
-        session()->flash('error', 'An unexpected error occurred.');
+        FlashMessageHelper::flashError("An unexpected error occurred!");
     }
     }
 

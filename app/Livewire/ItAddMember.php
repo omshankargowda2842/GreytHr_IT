@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Helpers\FlashMessageHelper;
 use App\Models\EmployeeDetails;
 use Livewire\Component;
 use App\Models\IT;
@@ -194,7 +195,7 @@ class ItAddMember extends Component
         'image' => $imageData ?? $data->image,
 
         ]);
-        session()->flash('updateMessage', 'IT member updated successfully!');
+        FlashMessageHelper::flashSuccess("IT member updated successfully!");
 
         }
         } else {
@@ -208,14 +209,11 @@ class ItAddMember extends Component
         'image' => $imageData,
         'is_active' => true,
         ]);
-
-        session()->flash('createMessage', 'IT member added successfully!');
+        FlashMessageHelper::flashSuccess("IT member added successfully!");
 
         }
 
         $this->resetForm();
-        // session()->flash('message', $this->editMode ? 'IT member updated successfully!' : 'IT member added successfully!');
-
     }
 
     public function cancel(){
@@ -255,7 +253,7 @@ public function delete()
             'is_active' => 0
         ]);
 
-        session()->flash('deactivationMessage', 'IT member deactivated successfully!');
+        FlashMessageHelper::flashSuccess("IT member deactivated successfully!");
         $this->showLogoutModal = false;
         $this->itRelatedEmye = IT::where('is_active', 1)->get();
         // Reset the recordId and reason after processing

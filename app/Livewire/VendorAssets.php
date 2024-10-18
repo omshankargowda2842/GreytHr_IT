@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Helpers\FlashMessageHelper;
 use App\Models\asset_types_table;
 use App\Models\Vendor;
 use App\Models\VendorAsset;
@@ -359,8 +360,7 @@ public function downloadImages($vendorId)
                     'is_active' => 0,
                 ]);
 
-
-            session()->flash('deactiveMessage', 'Asset deactivated successfully!');
+            FlashMessageHelper::flashSuccess("Asset deactivated successfully!");
             $this->showLogoutModal = false;
 
             //Refresh
@@ -423,7 +423,7 @@ public function restore($id)
     if ($vnrAst) {
         $vnrAst->is_active = 1;
         $vnrAst->save();
-        session()->flash('restoreMessage', 'Asset restored successfully!');
+        FlashMessageHelper::flashSuccess("Asset restored successfully!");
         $this->restoreModal = false;
         $this->vendorAssets = VendorAsset::get();
     }
@@ -561,7 +561,7 @@ public function submit()
                 'purchase_date' => $this->purchaseDate ? $this->purchaseDate : null,
                 'file_paths' => json_encode($fileDataArray),
             ]);
-            session()->flash('updateMessage', 'Asset updated successfully!');
+            FlashMessageHelper::flashSuccess("Asset updated successfully!");
         }
     } else {
         // Create new asset record
@@ -584,7 +584,7 @@ public function submit()
             'purchase_date' => $this->purchaseDate ? $this->purchaseDate : null,
             'file_paths' => json_encode($fileDataArray),
         ]);
-        session()->flash('createMessage', 'Asset created successfully!');
+        FlashMessageHelper::flashSuccess("Asset created successfully!");
     }
     }
 
@@ -594,7 +594,7 @@ public function submit()
      catch (\Exception $e) {
             // Handle the exception and log the error
             Log::error('Error during form submission:', ['error' => $e->getMessage()]);
-            session()->flash('error', 'An error occurred during submission. Please try again later.');
+            FlashMessageHelper::flashError("An error occurred during submission. Please try again later!");
         }
 
 }

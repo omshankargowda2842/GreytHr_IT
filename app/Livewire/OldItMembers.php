@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Helpers\FlashMessageHelper;
 use App\Models\EmployeeDetails;
 use App\Models\IT;
 use Livewire\Component;
@@ -27,7 +28,7 @@ class OldItMembers extends Component
         if ($itMember) {
             $itMember->is_active = 1;
             $itMember->save();
-            session()->flash('updateMessage', 'IT member Restored successfully!');
+            FlashMessageHelper::flashSuccess("IT member Restored successfully!");
             $this->showLogoutModal = false;
             $this->itRelatedEmye = IT::where('is_active', 1)->get();
         }

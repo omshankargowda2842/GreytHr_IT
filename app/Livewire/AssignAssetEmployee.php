@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Helpers\FlashMessageHelper;
 use App\Models\asset_types_table;
 use App\Models\AssetAssignments;
 use App\Models\AssignAssetEmp;
@@ -70,6 +71,7 @@ public $currentVendorId = null;
         $this->showOldEMployeeAssetBtn =false;
         $this->showEditDeleteEmployeeAsset = false;
         $this->isUpdateMode = false;
+        $this->resetErrorBag(['selectedAsset', 'selectedEmployee']);
     }
 
     protected function rules()
@@ -88,6 +90,7 @@ public $currentVendorId = null;
 
     public function viewDetails($employeeAssetList)
 {
+
     $this->searchFilters =false;
     $this->showOldEMployeeAssetBtn =false;
     $this->showAssignAssetBtn =false;
@@ -99,7 +102,6 @@ public $currentVendorId = null;
 
 public $oldAssetBackButton=true;
 public function viewOldAssetDetails($employeeAssetList){
-
     $this->searchFilters =false;
     $this->oldAssetBackButton =false;
     $this->showOldEMployeeAssetBtn =false;
@@ -296,8 +298,7 @@ public function closeViewEmpAsset()
                     'department' => $this->empDetails->job_role,
                     'is_active' => true,
                 ]);
-
-                session()->flash('updateMessage', 'Assignee updated successfully!');
+                FlashMessageHelper::flashSuccess("Assignee updated successfully!");
             } else {
                 // Create new assignment
                 AssignAssetEmp::create([
@@ -309,15 +310,14 @@ public function closeViewEmpAsset()
                     'department' => $this->empDetails->job_role,
                     'is_active' => true,
                 ]);
-
-                session()->flash('createMessage', 'Asset Assigned to employee successfully!');
+                FlashMessageHelper::flashSuccess("Asset Assigned to employee successfully!");
             }
 
             $this->resetForm();
             return redirect()->route('EmployeeAssetList');
         } catch (\Exception $e) {
             Log::error('Error while assigning asset: ' . $e->getMessage());
-            session()->flash('error', 'An error occurred while saving the details. Please try again.');
+            FlashMessageHelper::flashError("An error occurred while saving the details. Please try again!");
         }
     }
 
@@ -391,8 +391,8 @@ public function closeViewEmpAsset()
                 'is_active' => 0
             ]);
 
+            FlashMessageHelper::flashSuccess("Asset deactivated successfully!");
 
-            // session()->flash('message', 'Vendor deleted successfully!');
             $this->showLogoutModal = false;
             $this->recordId = null;
             $this->reason = '';

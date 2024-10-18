@@ -1,4 +1,26 @@
 <div class="main">
+
+<div wire:loading
+        wire:target="itRequest">
+        <div class="loader-overlay">
+            <div>
+                <div class="logo">
+
+                    <img src="{{ asset('images/Screenshot 2024-10-15 120204.png') }}" width="58" height="50"
+                        alt="">&nbsp;
+                    <span>IT</span>&nbsp;&nbsp;
+                    <span>EXPERT</span>
+                </div>
+            </div>
+            <div class="loader-bouncing">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- ======================= Cards ================== -->
     <div class="row m-0 mt-3">
         <div class="col-md-3 mb-3">
