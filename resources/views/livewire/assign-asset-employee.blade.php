@@ -303,9 +303,9 @@
                         @endforeach
                         @else
                         <tr>
-                            <td colspan="20" class="req-td-norecords">
+                            <td colspan="20">
 
-                                <div>
+                                <div class="req-td-norecords">
                                     <img src="{{ asset('images/Closed.webp') }}" alt="No Records"
                                         class="req-img-norecords">
 
@@ -470,14 +470,65 @@
                 <table class="custom-table">
                     <thead>
                         <tr>
-                            <th class="req-table-head" scope="col">Employee ID</th>
-                            <th class="req-table-head">Employee Name</th>
-                            <!-- <th class="req-table-head">Vendor Id</th> -->
-                            <th class="req-table-head">Asset ID</th>
-                            <th class="req-table-head">Manufacturer</th>
-                            <th class="req-table-head">Asset Type</th>
-
-                            <th class="req-table-head">Department</th>
+                        <th class="req-table-head" scope="col">Employee ID
+                                <span wire:click.debounce.500ms="toggleSortOrder('emp_id')"
+                                    style="cursor: pointer;">
+                                    @if($sortColumn == 'emp_id')
+                                    <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                    @else
+                                    <i class="fas fa-sort"></i>
+                                    @endif
+                                </span>
+                            </th>
+                            <th class="req-table-head">Employee Name
+                                <span wire:click.debounce.500ms="toggleSortOrder('employee_name')"
+                                    style="cursor: pointer;">
+                                    @if($sortColumn == 'employee_name')
+                                    <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                    @else
+                                    <i class="fas fa-sort"></i>
+                                    @endif
+                                </span>
+                            </th>
+                            <th class="req-table-head">Asset ID
+                                <span wire:click.debounce.500ms="toggleSortOrder('asset_id')" style="cursor: pointer;">
+                                    @if($sortColumn == 'asset_id')
+                                    <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                    @else
+                                    <i class="fas fa-sort"></i>
+                                    @endif
+                                </span>
+                            </th>
+                            <th class="req-table-head">Manufacturer
+                                <span wire:click.debounce.500ms="toggleSortOrder('manufacturer')"
+                                    style="cursor: pointer;">
+                                    @if($sortColumn == 'manufacturer')
+                                    <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                    @else
+                                    <i class="fas fa-sort"></i>
+                                    @endif
+                                </span>
+                            </th>
+                            <th class="req-table-head">Asset Type
+                                <span wire:click.debounce.500ms="toggleSortOrder('asset_type')"
+                                    style="cursor: pointer;">
+                                    @if($sortColumn == 'asset_type')
+                                    <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                    @else
+                                    <i class="fas fa-sort"></i>
+                                    @endif
+                                </span>
+                            </th>
+                            <th class="req-table-head">Department
+                                <span wire:click.debounce.500ms="toggleSortOrder('department')"
+                                    style="cursor: pointer;">
+                                    @if($sortColumn == 'department')
+                                    <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                    @else
+                                    <i class="fas fa-sort"></i>
+                                    @endif
+                                </span>
+                            </th>
                             <th class="req-table-head">Actions</th>
 
 
@@ -513,9 +564,9 @@
                         @endforeach
                         @else
                         <tr>
-                            <td colspan="20" class="req-td-norecords">
+                            <td colspan="20">
 
-                                <div>
+                                <div class="req-td-norecords">
                                     <img src="{{ asset('images/Closed.webp') }}" alt="No Records"
                                         class="req-img-norecords">
 

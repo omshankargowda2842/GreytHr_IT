@@ -1,4 +1,26 @@
 <div>
+
+<div wire:loading
+        wire:target="dashboard,itRequest,itMembers,oldRecords,vendor,vendorAssets,assignAsset">
+        <div class="loader-overlay">
+            <div>
+                <div class="logo">
+
+                    <img src="{{ asset('images/Screenshot 2024-10-15 120204.png') }}" width="58" height="50"
+                        alt="">&nbsp;
+                    <span>IT</span>&nbsp;&nbsp;
+                    <span>EXPERT</span>
+                </div>
+            </div>
+            <div class="loader-bouncing">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+    </div>
+
+
     <div class="sidebar-overlay" data-dismiss="sidebar"></div>
     <div class="sidebar">
         <div class="sidebar-brand-wrapper">
@@ -53,6 +75,22 @@
                     </li>
                     <li class="sidebar-menu-item">
                         <a href="#"
+                            class="{{ request()->routeIs('assignAsset') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
+                            <span class="sidebar-menu-item-link-icon"><i class="ri-user-2-line"></i></span>
+                            <span class="sidebar-menu-item-link-text">Employee</span>
+                            <span class="sidebar-menu-item-link-arrow"><i class="ri-arrow-right-s-line"></i></span>
+                        </a>
+                        <ul class="sidebar-submenu">
+                            <li
+                                class="{{ request()->routeIs('assignAsset') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
+                                <a href="#" wire:click='assignAsset' class="sidebar-submenu-item-link">
+                                    <span class="sidebar-submenu-item-link-text">Employee Assets</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="#"
                             class="{{ request()->routeIs('vendor') || request()->routeIs('vendorAssets') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
                             <span class="sidebar-menu-item-link-icon"><i class="ri-store-2-line"></i></span>
                             <span class="sidebar-menu-item-link-text">Vendors</span>
@@ -73,22 +111,7 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="sidebar-menu-item">
-                        <a href="#"
-                            class="{{ request()->routeIs('assignAsset') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
-                            <span class="sidebar-menu-item-link-icon"><i class="ri-user-2-line"></i></span>
-                            <span class="sidebar-menu-item-link-text">Employee</span>
-                            <span class="sidebar-menu-item-link-arrow"><i class="ri-arrow-right-s-line"></i></span>
-                        </a>
-                        <ul class="sidebar-submenu">
-                            <li
-                                class="{{ request()->routeIs('assignAsset') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
-                                <a href="#" wire:click='assignAsset' class="sidebar-submenu-item-link">
-                                    <span class="sidebar-submenu-item-link-text">Employee Assets</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
+
                     <li class="sidebar-menu-item">
                         <a href="#"
                             class="{{ request()->routeIs('password') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">

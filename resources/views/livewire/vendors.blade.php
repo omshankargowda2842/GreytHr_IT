@@ -229,34 +229,6 @@
 
         @endif
 
-        <div class="col-10 d-flex justify-content-center">
-            @if (session()->has('updateMessage'))
-            <div id="flash-message" class="alert alert-success mt-1">
-                {{ session('updateMessage') }}
-            </div>
-            @endif
-
-        </div>
-
-        <div class="col-10 d-flex justify-content-center">
-            @if (session()->has('createMessage'))
-            <div id="flash-message" class="alert alert-success mt-1">
-                {{ session('createMessage') }}
-            </div>
-            @endif
-
-        </div>
-
-        <div class="col-10 d-flex justify-content-center">
-            @if (session()->has('deactiveMessage'))
-            <div id="flash-message" class="alert alert-success mt-1">
-                {{ session('deactiveMessage') }}
-            </div>
-            @endif
-
-        </div>
-
-
 
         <div class="table-responsive it-add-table-res">
             <table class="custom-table">
@@ -352,8 +324,8 @@
                     @endforeach
                     @else
                     <tr>
-                        <td colspan="7" class="req-td-norecords">
-                            <div>
+                        <td colspan="7" >
+                            <div class="req-td-norecords">
                                 <img src="{{ asset('images/Closed.webp') }}" alt="No Records" class="req-img-norecords">
                                 <h3 class="req-head-norecords">No records found</h3>
                             </div>

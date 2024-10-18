@@ -126,34 +126,6 @@
         </div>
         <div class="col-11  mt-4 ml-4">
 
-            <div class="col-10 d-flex justify-content-center">
-                @if (session()->has('updateMessage'))
-                <div id="flash-message" class="alert alert-success mt-1">
-                    {{ session('updateMessage') }}
-                </div>
-                @endif
-
-            </div>
-
-            <div class="col-10 d-flex justify-content-center">
-                @if (session()->has('createMessage'))
-                <div id="flash-message" class="alert alert-success mt-1">
-                    {{ session('createMessage') }}
-                </div>
-                @endif
-
-            </div>
-
-            <div class="col-10 d-flex justify-content-center">
-                @if (session()->has('deactivationMessage'))
-                <div id="flash-message" class="alert alert-success mt-1">
-                    {{ session('deactivationMessage') }}
-                </div>
-                @endif
-
-            </div>
-
-
             <div class="table-responsive it-add-table-res">
 
 
@@ -225,7 +197,7 @@
                                 <i class="fas fa-sort"></i>
                                 @endif
                             </th>
-                            
+
                             <th class="req-table-head">Actions</th>
                         </tr>
                     </thead>
@@ -261,6 +233,19 @@
                             </td>
                         </tr>
                         @endforeach
+                        @else
+                        <tr>
+                            <td colspan="20">
+
+                                <div class="req-td-norecords">
+                                    <img src="{{ asset('images/Closed.webp') }}" alt="No Records"
+                                        class="req-img-norecords">
+
+
+                                    <h3 class="req-head-norecords">No data found</h3>
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

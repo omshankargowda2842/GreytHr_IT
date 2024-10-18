@@ -22,14 +22,7 @@
 
 
     <div class="col-11  mt-4 ml-4">
-        <div class="col-10 d-flex justify-content-center">
-            @if (session()->has('updateMessage'))
-            <div id="flash-message" class="alert alert-success mt-1">
-                {{ session('updateMessage') }}
-            </div>
-            @endif
 
-        </div>
         <div class="table-responsive it-add-table-res">
 
             <table class="custom-table">
@@ -99,7 +92,7 @@
                             <i class="fas fa-sort"></i>
                             @endif
                         </th>
-                        
+
                         <th class="req-table-head">Actions</th>
                     </tr>
                 </thead>
@@ -131,9 +124,9 @@
                     @endforeach
                     @else
                     <tr>
-                        <td colspan="20" class="req-td-norecords">
+                        <td colspan="20" >
 
-                            <div>
+                            <div class="req-td-norecords">
                                 <img src="{{ asset('images/Closed.webp') }}" alt="No Records" class="req-img-norecords">
 
 
