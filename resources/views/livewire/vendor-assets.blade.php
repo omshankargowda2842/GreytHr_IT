@@ -318,50 +318,7 @@
 
         @endif
 
-        <div class="col-10 d-flex justify-content-center">
-            @if (session()->has('updateMessage'))
-            <div id="flash-message" class="alert alert-success mt-1">
-                {{ session('updateMessage') }}
-            </div>
-            @endif
 
-        </div>
-
-        <div class="col-10 d-flex justify-content-center">
-            @if (session()->has('createMessage'))
-            <div id="flash-message" class="alert alert-success mt-1">
-                {{ session('createMessage') }}
-            </div>
-            @endif
-
-        </div>
-
-        <div class="col-10 d-flex justify-content-center">
-            @if (session()->has('deactiveMessage'))
-            <div id="flash-message" class="alert alert-success mt-1">
-                {{ session('deactiveMessage') }}
-            </div>
-            @endif
-
-        </div>
-
-        <div class="col-10 d-flex justify-content-center">
-            @if (session()->has('restoreMessage'))
-            <div id="flash-message" class="alert alert-success mt-1">
-                {{ session('restoreMessage') }}
-            </div>
-            @endif
-
-        </div>
-
-        <div class="col-10 d-flex justify-content-center">
-            @if (session()->has('error'))
-            <div id="flash-message" class="alert alert-success mt-1">
-                {{ session('error') }}
-            </div>
-            @endif
-
-        </div>
         <div class="table-responsive it-add-table-res">
             <table class="custom-table">
                 <thead>
@@ -377,7 +334,7 @@
                             </span>
                         </th>
 
-                    
+
                         <th class="vendor-table-head">Asset ID
                             <span wire:click.debounce.500ms="toggleSortOrder('asset_id')" style="cursor: pointer;">
                                 @if($sortColumn == 'asset_id')
@@ -553,8 +510,8 @@
                     @endforeach
                     @else
                     <tr>
-                        <td colspan="20" class="req-td-norecords">
-                            <div>
+                        <td colspan="20">
+                            <div class="req-td-norecords">
                                 <img src="{{ asset('images/Closed.webp') }}" alt="No Records" class="req-img-norecords">
                                 <h3 class="req-head-norecords">No records found</h3>
                             </div>
