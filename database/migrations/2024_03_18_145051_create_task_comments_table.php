@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('task_comments', function (Blueprint $table) {
-            $table->id();
-            $table->string('emp_id');
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('emp_id', 10);
             $table->string('comment');
-            $table->string('task_id');
+            $table->string('task_id', 10);
             $table->timestamps();
         });
     }

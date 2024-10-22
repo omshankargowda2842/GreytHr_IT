@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('set_time_for_emails', function (Blueprint $table) {
-            $table->id();
-            $table->string('queue')->index(); // Name of the queue the job belongs to
-            $table->longText('payload'); // Serialized representation of the job and its data
-            $table->unsignedTinyInteger('attempts')->default(0); // Number of attempts made to process the job
-            $table->string('reserved_at')->nullable(); // Timestamp when the job was reserved by a worker
-            $table->string('available_at'); // Timestamp when the job will become available to be processed
-            $table->string('created_at'); // Timestamp when the job was created
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('queue')->index();
+            $table->longText('payload');
+            $table->unsignedTinyInteger('attempts')->default(0);
+            $table->string('reserved_at')->nullable();
+            $table->string('available_at');
+            $table->string('created_at');
         });
     }
 

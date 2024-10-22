@@ -12,20 +12,20 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('emp_spouse_details', function (Blueprint $table) {
-            $table->id();
-            $table->string('emp_id');
-            $table->string('name')->nullable();
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('emp_id',10);
+            $table->string('name',100)->nullable();
             $table->string('gender')->nullable();
             $table->binary('image')->nullable();
-            $table->string('profession')->nullable();
+            $table->string('profession',100)->nullable();
             $table->string('qualification')->nullable();
             $table->date('dob')->nullable();
-            $table->string('nationality')->nullable();
-            $table->string('bld_group')->nullable();
-            $table->string('adhar_no')->nullable();
-            $table->string('pan_no')->nullable();
-            $table->string('religion')->nullable();
-            $table->string('email')->nullable();
+            $table->string('nationality',50)->nullable();
+            $table->string('bld_group',10)->nullable();
+            $table->string('adhar_no',12)->nullable();
+            $table->string('pan_no',10)->nullable();
+            $table->string('religion',50)->nullable();
+            $table->string('email',100)->nullable();
             $table->text('address')->nullable();
             $table->json('children')->nullable();
             $table->foreign('emp_id')->references('emp_id')->on('employee_details')->onDelete('cascade');

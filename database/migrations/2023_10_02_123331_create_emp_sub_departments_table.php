@@ -15,10 +15,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('emp_sub_departments', function (Blueprint $table) {
-            $table->id();
-            $table->string('sub_dept_id')->unique();
-            $table->string('sub_department');
-            $table->string('dept_id');
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('sub_dept_id', 10)->unique();
+            $table->string('sub_department', 100);
+            $table->string('dept_id', 10);
             $table->foreign('dept_id')->references('dept_id')->on('emp_departments')->onDelete('cascade');
             $table->timestamps();
         });

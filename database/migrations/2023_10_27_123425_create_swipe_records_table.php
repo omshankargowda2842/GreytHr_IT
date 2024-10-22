@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('swipe_records', function (Blueprint $table) {
-            $table->id();
-            $table->string('emp_id');
-            $table->string('swipe_time');
-            $table->string('in_or_out');
-            $table->string('is_regularised')->nullable();
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('emp_id',10);
+            $table->string('swipe_time',50);
+            $table->string('in_or_out',10);
+            $table->string('is_regularized',10)->nullable();
             $table->foreign('emp_id')
             ->references('emp_id')
             ->on('employee_details')

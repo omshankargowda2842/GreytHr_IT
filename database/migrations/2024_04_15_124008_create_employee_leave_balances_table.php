@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('employee_leave_balances', function (Blueprint $table) {
-            $table->id();
-            $table->string('emp_id');
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('emp_id', 10);
             $table->json('leave_type')->nullable(); // Change to JSON
             $table->json('leave_balance');
             $table->string('status')->default('Granted');

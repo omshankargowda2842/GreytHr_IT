@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('posts', function (Blueprint $table) {
-            $table->id();
-            $table->string('hr_emp_id')->nullable();
-           
-            $table->string('admin_emp_id')->nullable();
-            $table->string('manager_id')->nullable();
-            $table->string('emp_id')->nullable();
-            $table->enum('category',  ['Appreciations',  'Companynews', 'Events', 'Everyone','Hyderabad','US']);
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('hr_emp_id', 10)->nullable();
+
+            $table->string('admin_emp_id', 10)->nullable();
+            $table->string('manager_id', 10)->nullable();
+            $table->string('emp_id', 10)->nullable();
+            $table->enum('category',  ['Appreciations',  'Companynews', 'Events', 'Everyone', 'Hyderabad', 'US']);
             $table->text('description');
             $table->binary('file_path')->nullable();
             $table->string('file_name')->nullable();

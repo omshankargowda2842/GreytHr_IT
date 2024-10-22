@@ -12,23 +12,23 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tasks', function (Blueprint $table) {
-            $table->id();
-            $table->string('emp_id');
-            $table->string('task_name')->nullable();
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('emp_id', 10);
+            $table->string('task_name',100)->nullable();
             $table->string('assignee');
             $table->enum('priority', ['High', 'Medium', 'Low']);
-            $table->string('due_date');
-            $table->string('reopened_date')->nullable();
-            $table->string('tags')->nullable();
-            $table->string('client_id')->nullable();
-            $table->string('project_name')->nullable();
+            $table->date('due_date');
+            $table->string('reopened_date', 10)->nullable();
+            $table->string('tags', 100)->nullable();
+            $table->string('client_id', 20)->nullable();
+            $table->string('project_name', 100)->nullable();
             $table->string('followers')->nullable();
-            $table->string('subject')->nullable();
+            $table->string('subject',100)->nullable();
             $table->text('description')->nullable();
             $table->binary('file_path')->nullable();
             $table->string('file_name')->nullable();
             $table->string('mime_type')->nullable();
-            $table->string('status')->default('Open'); // CC to field (nullable)
+            $table->string('status', 10)->default('Open'); // CC to field (nullable)
             $table->timestamps();
             $table->foreign('emp_id')
                 ->references('emp_id')

@@ -12,16 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('add_comments', function (Blueprint $table) {
-            $table->id();
-            $table->string('card_id');
-            $table->string('emp_id')->nullable();
-            $table->string('hr_emp_id')->nullable();
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('card_id', 10);
+            $table->string('emp_id', 10)->nullable();
+            $table->string('hr_emp_id', 10)->nullable();
             $table->string('addcomment');
             $table->foreign('emp_id')
-            ->references('emp_id')
-            ->on('employee_details')
-            ->onDelete('restrict')
-            ->onUpdate('cascade');
+                ->references('emp_id')
+                ->on('employee_details')
+                ->onDelete('restrict')
+                ->onUpdate('cascade');
             $table->timestamps();
         });
     }

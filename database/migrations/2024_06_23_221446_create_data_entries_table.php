@@ -12,23 +12,23 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('data_entries', function (Blueprint $table) {
-            $table->id();
-            $table->string('employee_name')->nullable();
-            $table->string('employee_title')->nullable();
-            $table->string('project_title')->nullable();
-            $table->string('employee_email')->nullable();
-            $table->string('work_location')->nullable();
-            $table->string('project_manager')->nullable();
-            $table->string('access_network')->nullable();
-            $table->string('po_number')->nullable();
-            $table->decimal('hourly_paid', 8, 2)->nullable();
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('employee_name','100')->nullable();
+            $table->string('employee_title','100')->nullable();
+            $table->string('project_title','50')->nullable();
+            $table->string('employee_email','100')->nullable();
+            $table->string('work_location','100')->nullable();
+            $table->string('project_manager','50')->nullable();
+            $table->string('access_network','100')->nullable();
+            $table->string('po_number','50')->nullable();
+            $table->decimal('hourly_paid', 8, 2,)->nullable();
             $table->decimal('mark_up', 5, 2)->nullable();
             $table->decimal('hourly_max', 8, 2)->nullable();
             $table->date('start_date')->nullable();
             $table->date('sow_end_date')->nullable();
-            $table->string('background_check')->nullable();
-            $table->string('on_site_resource')->nullable();
-            $table->string('vaccination_status')->nullable();
+            $table->string('background_check','100')->nullable();
+            $table->string('on_site_resource'.'100')->nullable();
+            $table->string('vaccination_status','10')->nullable();
             $table->timestamps();
         });
     }

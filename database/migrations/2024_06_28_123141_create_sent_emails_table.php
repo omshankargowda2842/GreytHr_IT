@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('sent_emails', function (Blueprint $table) {
-            $table->id();
-            $table->string('to_email')->nullable();
-            $table->string('cc_email')->nullable();
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('to_email','100')->nullable();
+            $table->string('cc_email','100')->nullable();
             $table->string('subject')->nullable();
             $table->string('file_path')->nullable();
-            $table->string('scheduled_time')->nullable();
-            $table->string('status')->nullable();
+            $table->string('scheduled_time','50')->nullable();
+            $table->string('status','10')->nullable();
             $table->timestamp('sent_at')->nullable();
             $table->timestamps();
         });

@@ -13,24 +13,24 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('vendors', function (Blueprint $table) {
-            $table->id();
-            $table->string('vendor_id')->nullable()->default(null)->unique();
-            $table->string('vendor_name')->nullable();
-            $table->string('contact_name')->nullable();
-            $table->string('phone')->nullable();
-            $table->string('gst')->unique()->nullable();
-            $table->string('bank_name')->nullable();
-            $table->string('account_number')->nullable();
-            $table->string('ifsc_code')->nullable();
-            $table->string('branch')->nullable();
-            $table->string('contact_email')->nullable();
-            $table->string('street')->nullable();
-            $table->string('city')->nullable();
-            $table->string('state')->nullable();
-            $table->string('pin_code')->nullable();
-            $table->text('note_description')->nullable();
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('vendor_id',10)->nullable()->default(null)->unique();
+            $table->string('vendor_name',100)->nullable();
+            $table->string('contact_name',100)->nullable();
+            $table->string('phone',20)->nullable();
+            $table->string('gst',30)->unique()->nullable();
+            $table->string('bank_name',20)->nullable();
+            $table->string('account_number',20)->nullable();
+            $table->string('ifsc_code',20)->nullable();
+            $table->string('branch',20)->nullable();
+            $table->string('contact_email',20)->nullable();
+            $table->string('street',30)->nullable();
+            $table->string('city',20)->nullable();
+            $table->string('state',20)->nullable();
+            $table->string('pin_code',6 )->nullable();
+            $table->text('description')->nullable();
             $table->json('file_paths')->nullable();
-            $table->string('delete_vendor_reason')->nullable();
+            $table->string('delete_vendor_reason',10)->nullable();
             $table->boolean('is_active')->default(true);
 
             $table->timestamps();
@@ -46,7 +46,7 @@ return new class extends Migration
             IF NEW.vendor_id IS NULL THEN
                 -- Find the maximum vendor_id value in the vendors table
                 SET @max_id := IFNULL((SELECT MAX(CAST(SUBSTRING(vendor_id, 3) AS UNSIGNED)) FROM vendors), 9999);
-                
+
                 -- Increment the max_id and assign it to the new vendor_id
                 SET NEW.vendor_id = CONCAT('V-', LPAD(@max_id + 1, 5, '0'));
             END IF;
