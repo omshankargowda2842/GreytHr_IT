@@ -2,7 +2,7 @@
 
 
     <div wire:loading
-        wire:target="submit, showEditItMember, cancel,cancelLogout, confirmDelete, delete, showAddItMember">
+        wire:target="submit, showEditItMember,filter, Cancel, clearFilters,confirmDelete, delete, showAddItMember">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -29,6 +29,28 @@
                 class="fas fa-user-plus "></i>
             Add Member</button>
     </div>
+
+    @if($searchFilters)
+    <!-- Search Filters -->
+    <div class="row mb-3 mt-4 ml-4 employeeAssetList">
+        <!-- Employee ID Search Input -->
+        <div class="col-10 col-md-4 mb-2 mb-md-0">
+            <div class="input-group task-input-group-container">
+                <input type="text" class="form-control" placeholder="Search..." wire:model.debounce.500ms="searchEmp">
+                <div class="input-group-append">
+                    <button wire:click="filter" class="icon-search-btn" type="button">
+                        <i class="fa fa-search task-search-icon"></i>
+                    </button>
+                    <button class="btn btn-white text-dark border border-dark" wire:click="clearFilters">
+                        <i class="fa fa-times"></i> Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    @endif
     <div class="col-11  mt-4 ml-4">
 
         <div class="table-responsive it-add-table-res">
@@ -112,27 +134,19 @@
                     <tr>
 
                         <td scope="row">{{ $loop->iteration }}</td>
-                        <td>{{ $itemployee->it_emp_id }}</td>
-                        <td>{{ $itemployee->emp_id }}</td>
-                        <td>{{ ucwords(strtolower($itemployee->employee_name)) }}</td>
+                        <td>{{ $itemployee->its->it_emp_id ?? 'N/A' }}</td>
+                        <td>{{ $itemployee->emp_id?? 'N/A'  }}</td>
+                        <td>{{ ucwords(strtolower($itemployee->first_name . ' ' . $itemployee->last_name)) ?? 'N/A' }}</td>
                         <td><img src="{{ $itemployee->image_url }}" alt="Image" class="itAdd4"></td>
-
-                        <td>{{ \Carbon\Carbon::parse($itemployee->date_of_birth)->format('d-M-Y') }}</td>
-                        <td>{{ $itemployee->phone_number }}</td>
-                        <td>{{ $itemployee->email }}</td>
+                        <td>{{ \Carbon\Carbon::parse($itemployee->date_of_birth)->format('d-M-Y') ?? 'N/A'  }}</td>
+                        <td>{{ $itemployee->emergency_contact ?? 'N/A'  }}</td>
+                        <td>{{ $itemployee->email ?? 'N/A'  }}</td>
                         <td class="d-flex flex-direction-row">
-                            <!-- Edit Action -->
-                            <div class="col mx-1">
-                                <button class="btn btn-white border-dark"
-                                    wire:click="showEditItMember({{ $itemployee->id }})">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </div>
 
                             <!-- Delete Action -->
                             <div class="col mx-1">
                                 <button class="btn text-white border-white" style="background-color: #02114f;"
-                                    wire:click='cancelLogout'>
+                                    wire:click='confirmDelete({{ $itemployee->id }})'>
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -145,11 +159,11 @@
                     <tr>
                         <td colspan="20">
 
-                            <div class="req-td-norecords">
-                                <img src="{{ asset('images/Closed.webp') }}" alt="No Records" class="req-img-norecords">
-
-
-                                <h3 class="req-head-norecords">No data found</h3>
+                            <div class="col mx-1">
+                                <button class="btn text-white border-white" style="background-color: #02114f;"
+                                    wire:click="confirmDelete({{ $itemployee->id }})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -166,9 +180,16 @@
 
 
 
-    @if($itmember1)
+    @if($addItmember)
 
-    <button wire:click='Cancel'>Back</button>
+    <div class="col-11 d-flex justify-content-start mb-4" style="margin-left: 5%;">
+        <div class="">
+            <button class="btn text-white" style="background-color: #02114f;" wire:click="Cancel" aria-label="Close">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+        </div>
+    </div>
+
 
 
 
@@ -231,5 +252,42 @@
     </div>
 
     @endif
+
+
+
+    @if ($showLogoutModal)
+    <div class="modal logout1" id="logoutModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header text-white logout2">
+                    <h6 class="modal-title logout3" id="logoutModalLabel">Confirm Deactivation</h6>
+                </div>
+                <div class="modal-body text-center logout4">
+                    Are you sure you want to deactivate?
+                </div>
+                <div class="modal-body text-center">
+                    <form wire:submit.prevent="delete">
+                        <span class="text-danger d-flex align-start">*</span>
+                        <div class="row">
+                            <div class="col-12 req-remarks-div">
+                                <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea logout5"
+                                    placeholder="Reason for deactivation"></textarea>
+                            </div>
+                        </div>
+                        @error('reason') <span class="text-danger d-flex align-start">{{ $message }}</span> @enderror
+                        <div class="d-flex justify-content-center p-3">
+                            <button type="submit" class="submit-btn mr-3"
+                              >Deactivate</button>
+                            <button type="button" class="cancel-btn1 ml-3" wire:click="Cancel">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+    @endif
+
+
 
 </div>

@@ -24,7 +24,7 @@ class IT extends Authenticatable
         'phone_number',
         'email',
         'password',
-        'is_active',
+        'status',
         'delete_itmember_reason',
         'active_comment',
         'inprogress_remarks',
