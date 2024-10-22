@@ -12,17 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('applied_jobs', function (Blueprint $table) {
-            $table->id();
-            $table->string('user_id');
-            $table->string('applied_to');
-            $table->string('job_id');
-            $table->string('job_title');
-            $table->string('company_name');
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('user_id', 10)->unique();
+            $table->string('applied_to', 100);
+            $table->string('job_id', 10)->unique();
+            $table->string('job_title', 100);
+            $table->string('company_name', 100);
             $table->string('application_status')->nullable();
             $table->string('resume');
             $table->timestamps();
-            $table->unique(['user_id', 'job_id']);
-
             $table->foreign('job_id')
                 ->references('job_id')
                 ->on('jobs')

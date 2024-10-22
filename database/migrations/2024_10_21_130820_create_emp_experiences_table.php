@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attendance_periods', function (Blueprint $table) {
-            $table->id();
+        Schema::create('emp_experiences', function (Blueprint $table) {
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('emp_id',10);
+            $table->json('experience');
             $table->timestamps();
+            $table->foreign('emp_id')->references('emp_id')->on('employee_details')->onDelete('cascade');
         });
     }
 
@@ -22,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('attendance_periods');
+        Schema::dropIfExists('emp_experiences');
     }
 };

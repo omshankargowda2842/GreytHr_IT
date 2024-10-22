@@ -4,6 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+
 return new class extends Migration
 {
     /**
@@ -12,16 +13,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('admins', function (Blueprint $table) {
-            $table->id();
-            $table->string('ad_emp_id')->unique()->nullable();
-            $table->string('emp_id');
-            $table->string('employee_name')->nullable();
-            $table->binary('image')->nullable();
-            $table->date('date_of_birth')->nullable();
-            $table->string('emergency_contact_number')->unique()->nullable();
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('ad_emp_id', 10)->unique()->nullable();
+            $table->string('emp_id', 10);
+            $table->string('employee_name', 100)->nullable();
             $table->string('password')->nullable();
-            $table->string('phone_number')->unique()->nullable();
-            $table->string('email')->unique()->nullable();
+            $table->tinyInteger('status')->default(1);
+            $table->enum('role', ['user', 'admin', 'super_admin'])->default('user'); // Define ENUM for roles
             $table->foreign('emp_id')
                 ->references('emp_id')
                 ->on('employee_details')
@@ -46,7 +44,6 @@ return new class extends Migration
     SQL;
 
         DB::unprepared($triggerSQL);
-    
     }
 
     /**

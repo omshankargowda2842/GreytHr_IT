@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('email_logs', function (Blueprint $table) {
-            $table->id();
+            $table->smallInteger('id')->autoIncrement();
             $table->string('subject');
             $table->timestamp('scheduled_at')->nullable();
             $table->json('to'); // Store multiple "To" emails as comma-separated values
             $table->json('cc')->nullable();
             $table->json('files');
-            $table->string('scheduled_status')->default('pending');
+            $table->string('scheduled_status')->default(5);
             $table->timestamps();
         });
     }

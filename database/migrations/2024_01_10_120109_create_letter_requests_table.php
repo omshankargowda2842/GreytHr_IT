@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('letter_requests', function (Blueprint $table) {
-            $table->id();
-            $table->string('emp_id');
-            $table->string('letter_type');
-            $table->string('priority');
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('emp_id', 10);
+            $table->string('letter_type', 100);
+            $table->string('priority', 20);
             $table->string('reason');
             $table->string('status')->default('Active');
             $table->foreign('emp_id')

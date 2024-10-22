@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('emp_salaries', function (Blueprint $table) {
-            $table->id();
-            $table->string('emp_id');
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('emp_id',10);
             $table->string('salary'); // Use string for encrypted salary
             $table->date('effective_date');
             $table->string('remarks')->nullable();

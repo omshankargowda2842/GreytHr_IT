@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('chatings', function (Blueprint $table) {
             $table->id();
-            $table->string('sender_id');
-            $table->string('receiver_id');
+            $table->string('sender_id', 10);
+            $table->string('receiver_id', 10);
             $table->softDeletes();
             $table->timestamps();
 

@@ -12,22 +12,22 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('leave_applications', function (Blueprint $table) {
-            $table->id();
-            $table->string('emp_id');
-            $table->string('category_type')->default('Leave');
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('emp_id', 10);
+            $table->string('category_type','25')->default('Leave');
             $table->enum('leave_type', ['Casual Leave Probation', 'Maternity Leave', 'Loss Of Pay','Sick Leave','Marriage Leave','Casual Leave','Petarnity Leave','Work From Home'])->nullable();
             $table->date('from_date')->nullable();
-            $table->string('from_session')->nullable();
-            $table->string('to_session')->nullable();
+            $table->string('from_session','10')->nullable();
+            $table->string('to_session','10')->nullable();
             $table->date('to_date')->nullable();
             $table->json('file_paths')->nullable();
             $table->json('applying_to');
-            $table->string(column: 'action_by')->nullable();
+            $table->string( 'action_by','10')->nullable();
             $table->json('cc_to')->nullable();
-            $table->string('status')->default('Pending');
-            $table->string('cancel_status')->default('Pending');
-            $table->string('leave_cancel_reason')->nullable();
-            $table->string('contact_details')->nullable();
+            $table->smallInteger('leave_status')->default(5);
+            $table->smallInteger('cancel_status')->default(5);
+            $table->text('leave_cancel_reason')->nullable();
+            $table->string('contact_details','50')->nullable();
             $table->text('reason')->nullable();
             $table->boolean('is_read')->default(false);
 

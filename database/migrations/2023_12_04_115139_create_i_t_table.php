@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('i_t', function (Blueprint $table) {
             $table->smallInteger('id')->autoIncrement();
-            $table->string('it_emp_id',10)->nullable()->default(null)->unique(); // Increased to 15 characters
+            $table->string('it_emp_id', 10)->nullable()->unique(); // Increased to 15 characters
             $table->string('employee_name', 100);
             $table->string('emp_id', 10);
             $table->string('email', 100)->unique();

@@ -13,24 +13,24 @@ return new class extends Migration
     {
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->string('user_id')->index();
+            $table->string('user_id', 10)->index();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longText('payload')->nullable();
-            $table->string('country')->nullable();
-            $table->string('city')->nullable();
-            $table->string('iso_code')->nullable();
-            $table->string('state')->nullable();
-            $table->string('state_name')->nullable();
-            $table->string('postal_code')->nullable();
-            $table->string('timezone')->nullable();
-            $table->string('continent')->nullable();
-            $table->string('currency')->nullable();
+            $table->string('country', 20)->nullable();
+            $table->string('city', 20)->nullable();
+            $table->string('iso_code', 10)->nullable();
+            $table->string('state', 20)->nullable();
+            $table->string('state_name', 20)->nullable();
+            $table->string('postal_code', 10)->nullable();
+            $table->string('timezone', 20)->nullable();
+            $table->string('continent', 20)->nullable();
+            $table->string('currency', 10)->nullable();
             $table->decimal('latitude', 10, 7)->nullable();
             $table->decimal('longitude', 10, 7)->nullable();
             $table->integer('last_activity')->index();
-            $table->string('device_type')->nullable();
-            $table->string('user_type')->nullable();
+            $table->string('device_type', 20)->nullable();
+            $table->string('user_type', 20)->nullable();
             $table->timestamps();
         });
     }

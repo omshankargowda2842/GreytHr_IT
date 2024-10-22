@@ -12,17 +12,17 @@ return new class extends Migration
     public function up()
     {
         Schema::create('clients_with_projects', function (Blueprint $table) {
-            $table->id();
-            $table->string('client_id');
-            $table->string('project_name');
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('client_id', 10);
+            $table->string('project_name', 100);
             $table->text('project_description')->nullable();
             $table->date('project_start_date')->nullable();
             $table->date('project_end_date')->nullable();
             $table->foreign('client_id')
-            ->references('client_id') // Assuming the primary key of the companies table is 'id'
-            ->on('clients')
-            ->onDelete('restrict')
-            ->onUpdate('cascade');
+                ->references('client_id') // Assuming the primary key of the companies table is 'id'
+                ->on('clients')
+                ->onDelete('restrict')
+                ->onUpdate('cascade');
             $table->timestamps();
         });
     }
