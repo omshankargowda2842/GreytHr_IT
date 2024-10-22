@@ -16,9 +16,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('vendor_assets', function (Blueprint $table) {
-            $table->smallInteger('id')->autoIncrement();
             $table->string('vendor_id',10)->nullable();
-            $table->string('asset_id',10)->nullable()->default(null)->unique();
+            $table->string('asset_id',10)->primary();
             $table->string('manufacturer',100)->nullable();
             $table->integer('asset_type')->nullable();
             $table->string('asset_model',50)->nullable();
