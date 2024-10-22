@@ -122,7 +122,7 @@ class ItLogin extends Component
                 ->orWhere('email', $this->form['emp_id'])
                 ->first();
             // Check if user exists and is inactive
-            if ($user && !$user->is_active) {
+            if ($user && !$user->status) {
                 // is_active == false
                 ################################### this is also working by using dispatch event call from in the blade using javascript
                 // Dispatch event to trigger a SweetAlert on the frontend
@@ -154,11 +154,11 @@ class ItLogin extends Component
                 // $this->dispatch('refresh-the-component');
                 $this->resetForm();
                 $this->reset('form'); // Reset the entire form
-            } else if (Auth::guard('it')->attempt(['it_emp_id' => $this->form['emp_id'], 'password' => $this->form['password'], 'is_active' => 1])) {
+            } else if (Auth::guard('it')->attempt(['it_emp_id' => $this->form['emp_id'], 'password' => $this->form['password'], 'status' => 1])) {
                 session(['post_login' => true]);
                 FlashMessageHelper::flashSuccess("You are logged in successfully!");
                 return redirect()->route('dashboard');
-            } elseif (Auth::guard('it')->attempt(['email' => $this->form['emp_id'], 'password' => $this->form['password'], 'is_active' => 1])) {
+            } elseif (Auth::guard('it')->attempt(['email' => $this->form['emp_id'], 'password' => $this->form['password'], 'status' => 1])) {
                 session(['post_login' => true]);
                 FlashMessageHelper::flashSuccess("You are logged in successfully!");
                 return redirect()->route('dashboard');

@@ -12,9 +12,9 @@ class IT extends Authenticatable
     use Notifiable;
     use HasFactory;
     protected $table = 'i_t'; // Adjust the table name accordingly
-    const ROLE_USER = 0;
-    const ROLE_ADMIN = 1;
-    const ROLE_SUPER_ADMIN = 2;
+    const ROLE_USER = 'user';
+    const ROLE_ADMIN = 'admin';
+    const ROLE_SUPER_ADMIN = 'super_admin';
     protected $fillable = [
         'it_emp_id',
         'image',
@@ -56,10 +56,10 @@ class IT extends Authenticatable
     {
         return $value;
     }
-    public function getImageUrlAttribute()
-    {
-        return 'data:image/jpeg;base64,' . base64_encode($this->attributes['image']);
-    }
+    // public function getImageUrlAttribute()
+    // {
+    //     return 'data:image/jpeg;base64,' . base64_encode($this->attributes['image']);
+    // }
 
     public function isUser()
     {

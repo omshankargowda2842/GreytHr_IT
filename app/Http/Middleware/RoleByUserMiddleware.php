@@ -14,11 +14,11 @@ class RoleByUserMiddleware
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, int $role): Response
+    public function handle(Request $request, Closure $next): Response
     {
         $user = Auth::guard('it')->user();
 
-        if (!$user || !$user->hasRole($role)) {
+        if (!$user->role && !$user) {
             // Redirect or abort if the user does not have the required role
             return redirect()->route('dashboard'); // Change this to your desired redirect
         }

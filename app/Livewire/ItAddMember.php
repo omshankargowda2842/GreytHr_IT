@@ -28,18 +28,17 @@ class ItAddMember extends Component
     public $showEditDeleteIt = true;
     public $editMode = false;
     public $selectedItId;
-    public $showLogoutModal =false;
+    public $showLogoutModal = false;
     public $dateFromDatabase;
     public $imageData;
-    public $reason =[];
+    public $reason = [];
     public $loading = false;
 
 
     public function mount()
     {
         $this->itMembers = EmployeeDetails::where('sub_dept_id', '9915')->get();
-        $this->itRelatedEmye = IT::where('is_active', 1)->get();
-
+        $this->itRelatedEmye = IT::where('status', 1)->get();
     }
 
     protected $rules = [
@@ -91,7 +90,7 @@ class ItAddMember extends Component
             $this->dateOfBirth = Carbon::parse($itMember->date_of_birth)->format('Y-m-d');
             $this->phoneNumber = $itMember->phone_number;
             $this->email = $itMember->email;
-            $this->image = $itMember->image ? 'data:image/jpeg;base64,' . base64_encode($itMember->image) : null;
+            // $this->image = $itMember->image ? 'data:image/jpeg;base64,' . base64_encode($itMember->image) : null;
             $this->showAddIt = true;
             $this->showEditDeleteIt = false;
             $this->editMode = true;
@@ -100,13 +99,13 @@ class ItAddMember extends Component
     public function validateEmail()
     {
         $this->validate([
-            'email' => ['required', 'email', function($attribute, $value, $fail) {
-            $allowedExtensions = ['payg.in', 'paygdigitals.com'];
-            $domain = substr(strrchr($value, "@"), 1);
-            if (!in_array($domain, $allowedExtensions)) {
-            $fail('Email address must use one of these domains:: ' . implode(', ', $allowedExtensions));
-            }
-        }],
+            'email' => ['required', 'email', function ($attribute, $value, $fail) {
+                $allowedExtensions = ['payg.in', 'paygdigitals.com'];
+                $domain = substr(strrchr($value, "@"), 1);
+                if (!in_array($domain, $allowedExtensions)) {
+                    $fail('Email address must use one of these domains:: ' . implode(', ', $allowedExtensions));
+                }
+            }],
         ]);
     }
 
@@ -123,7 +122,7 @@ class ItAddMember extends Component
 
         // Apply image validation only if a new image is uploaded
         if ($propertyName === 'image') {
-        $rules['image'] = $this->isImageChanged ? 'nullable|image|max:512' : 'nullable';
+            $rules['image'] = $this->isImageChanged ? 'nullable|image|max:512' : 'nullable';
         }
 
         $this->validateOnly($propertyName, $rules);
@@ -133,12 +132,12 @@ class ItAddMember extends Component
     public function validateEmployeeId()
     {
         $existingRecord = IT::where('emp_id', $this->employeeId)
-        ->where('id', '!=', $this->selectedItId)
-        ->exists();
+            ->where('id', '!=', $this->selectedItId)
+            ->exists();
 
         if ($existingRecord) {
 
-        $this->addError('employeeId', 'An IT member with this Employee ID already exists.');
+            $this->addError('employeeId', 'An IT member with this Employee ID already exists.');
         }
     }
 
@@ -150,7 +149,7 @@ class ItAddMember extends Component
 
         $this->validateEmployeeId();
         if ($this->getErrorBag()->has('employeeId')) {
-        return;
+            return;
         }
         $this->validate();
         $this->validateEmail();
@@ -162,105 +161,101 @@ class ItAddMember extends Component
 
 
         if ($this->image) {
-        // If image is base64 data
-        if (strpos($this->image, 'data:image/jpeg;base64,') === 0) {
-        $imageData = base64_decode(substr($this->image, strpos($this->image, ',') + 1));
-
-        }
-        // If image is an instance of UploadedFile
-        elseif ($this->image instanceof \Illuminate\Http\UploadedFile) {
-        if ($this->image->getSize() > 500 * 1024) { // 500KB
-        $this->addError('image', 'Image size should be less than 500KB.');
-        return;
-        }
-        $imageData = file_get_contents($this->image->getRealPath());
-        } else {
-        // Handle the case where $this->image is not valid
-        $this->addError('image', 'Invalid image file.');
-        return;
-        }
+            // If image is base64 data
+            if (strpos($this->image, 'data:image/jpeg;base64,') === 0) {
+                $imageData = base64_decode(substr($this->image, strpos($this->image, ',') + 1));
+            }
+            // If image is an instance of UploadedFile
+            elseif ($this->image instanceof \Illuminate\Http\UploadedFile) {
+                if ($this->image->getSize() > 500 * 1024) { // 500KB
+                    $this->addError('image', 'Image size should be less than 500KB.');
+                    return;
+                }
+                $imageData = file_get_contents($this->image->getRealPath());
+            } else {
+                // Handle the case where $this->image is not valid
+                $this->addError('image', 'Invalid image file.');
+                return;
+            }
         }
 
         if ($this->editMode) {
-        // Update existing record
-        $data = IT::find($this->selectedItId);
-        if ($data) {
+            // Update existing record
+            $data = IT::find($this->selectedItId);
+            if ($data) {
 
-        $data->update([
-        'emp_id' => $this->employeeId,
-        'employee_name' => $this->employeeName,
-        'date_of_birth' => $this->dateOfBirth,
-        'phone_number' => $this->phoneNumber,
-        'email' => $this->email,
-        'image' => $imageData ?? $data->image,
+                $data->update([
+                    'emp_id' => $this->employeeId,
+                    'employee_name' => $this->employeeName,
+                    'date_of_birth' => $this->dateOfBirth,
+                    'phone_number' => $this->phoneNumber,
+                    'email' => $this->email,
+                    'image' => $imageData ?? $data->image,
 
-        ]);
-        FlashMessageHelper::flashSuccess("IT member updated successfully!");
-
-        }
+                ]);
+                FlashMessageHelper::flashSuccess("IT member updated successfully!");
+            }
         } else {
-        // Create new record
-        IT::create([
-        'emp_id' => $this->employeeId,
-        'employee_name' => $this->employeeName,
-        'date_of_birth' => $this->dateOfBirth,
-        'phone_number' => $this->phoneNumber,
-        'email' => $this->email,
-        'image' => $imageData,
-        'is_active' => true,
-        ]);
-        FlashMessageHelper::flashSuccess("IT member added successfully!");
-
+            // Create new record
+            IT::create([
+                'emp_id' => $this->employeeId,
+                'employee_name' => $this->employeeName,
+                'date_of_birth' => $this->dateOfBirth,
+                'phone_number' => $this->phoneNumber,
+                'email' => $this->email,
+                'image' => $imageData,
+            ]);
+            FlashMessageHelper::flashSuccess("IT member added successfully!");
         }
 
         $this->resetForm();
     }
 
-    public function cancel(){
+    public function cancel()
+    {
         $this->showAddIt = false;
         $this->editMode = false;
         $this->showEditDeleteIt = true;
         $this->showLogoutModal = false;
         $this->resetErrorBag();
-
     }
     public function cancelLogout()
     {
-         $this->showLogoutModal = true;
+        $this->showLogoutModal = true;
     }
 
     public $recordId;
     public function confirmDelete($id)
-{
-    $this->recordId = $id;
-    $this->showLogoutModal = true;
-}
-
-public function delete()
-{
-    $this->validate([
-
-        'reason' => 'required|string|max:255', // Validate the remark input
-    ], [
-        'reason.required' => 'Reason is required.',
-    ]);
-    $this->resetErrorBag();
-    $itMember = IT::find($this->recordId);
-
-    if ($itMember) {
-        $itMember->update([
-            'delete_itmember_reason' => $this->reason,
-            'is_active' => 0
-        ]);
-
-        FlashMessageHelper::flashSuccess("IT member deactivated successfully!");
-        $this->showLogoutModal = false;
-        $this->itRelatedEmye = IT::where('is_active', 1)->get();
-        // Reset the recordId and reason after processing
-        $this->recordId = null;
-        $this->reason = '';
+    {
+        $this->recordId = $id;
+        $this->showLogoutModal = true;
     }
-}
+
+    public function delete()
+    {
+        $this->validate([
+
+            'reason' => 'required|string|max:255', // Validate the remark input
+        ], [
+            'reason.required' => 'Reason is required.',
+        ]);
+        $this->resetErrorBag();
+        $itMember = IT::find($this->recordId);
+
+        if ($itMember) {
+            $itMember->update([
+                'delete_itmember_reason' => $this->reason,
+                'status' => 0
+            ]);
+
+            FlashMessageHelper::flashSuccess("IT member deactivated successfully!");
+            $this->showLogoutModal = false;
+            $this->itRelatedEmye = IT::where('status', 1)->get();
+            // Reset the recordId and reason after processing
+            $this->recordId = null;
+            $this->reason = '';
+        }
+    }
 
 
 
@@ -290,49 +285,42 @@ public function delete()
 
         if ($member) {
 
-        $this->employeeName = "{$member->first_name} {$member->last_name}";
+            $this->employeeName = "{$member->first_name} {$member->last_name}";
 
-        $this->dateOfBirth = $member->personalInfo->date_of_birth ?? '';
-        $this->phoneNumber = $member->personalInfo->mobile_number ?? '';
-        $this->email = $member->personalInfo->email ?? '';
-
-
+            $this->dateOfBirth = $member->personalInfo->date_of_birth ?? '';
+            $this->phoneNumber = $member->personalInfo->mobile_number ?? '';
+            $this->email = $member->personalInfo->email ?? '';
         } else {
-        $this->employeeName = '';
-        $this->dateOfBirth = '';
-        $this->phoneNumber = '';
-        $this->email = '';
+            $this->employeeName = '';
+            $this->dateOfBirth = '';
+            $this->phoneNumber = '';
+            $this->email = '';
         }
     }
 
     public $sortColumn = 'employee_name'; // default sorting column
-        public $sortDirection = 'asc'; // default sorting direction
+    public $sortDirection = 'asc'; // default sorting direction
 
-        public function toggleSortOrder($column)
-        {
-            if ($this->sortColumn == $column) {
-                // If the column is the same, toggle the sort direction
-                $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-            } else {
-                // If a different column is clicked, set it as the new sort column and default to ascending order
-                $this->sortColumn = $column;
-                $this->sortDirection = 'asc';
-            }
+    public function toggleSortOrder($column)
+    {
+        if ($this->sortColumn == $column) {
+            // If the column is the same, toggle the sort direction
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            // If a different column is clicked, set it as the new sort column and default to ascending order
+            $this->sortColumn = $column;
+            $this->sortDirection = 'asc';
         }
+    }
 
     public function render()
     {
-        $this->itRelatedEmye = IT::where('is_active', 1)
-        ->orderBy($this->sortColumn, $this->sortDirection)
-        ->get();
+        $this->itRelatedEmye = IT::where('status', 1)
+            ->orderBy($this->sortColumn, $this->sortDirection)
+            ->get();
 
 
 
         return view('livewire.it-add-member');
     }
-
 }
-
-
-
-
