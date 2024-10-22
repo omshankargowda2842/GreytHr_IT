@@ -122,7 +122,7 @@ class ItLogin extends Component
                 ->orWhere('email', $this->form['emp_id'])
                 ->first();
             // Check if user exists and is inactive
-            if ($user && !$user->is_active) {
+            if ($user && !$user->status) {
                 // is_active == false
                 ################################### this is also working by using dispatch event call from in the blade using javascript
                 // Dispatch event to trigger a SweetAlert on the frontend
@@ -154,11 +154,11 @@ class ItLogin extends Component
                 // $this->dispatch('refresh-the-component');
                 $this->resetForm();
                 $this->reset('form'); // Reset the entire form
-            } else if (Auth::guard('it')->attempt(['it_emp_id' => $this->form['emp_id'], 'password' => $this->form['password'], 'is_active' => 1])) {
+            } else if (Auth::guard('it')->attempt(['it_emp_id' => $this->form['emp_id'], 'password' => $this->form['password'], 'status' => 1])) {
                 session(['post_login' => true]);
                 FlashMessageHelper::flashSuccess("You are logged in successfully!");
                 return redirect()->route('dashboard');
-            } elseif (Auth::guard('it')->attempt(['email' => $this->form['emp_id'], 'password' => $this->form['password'], 'is_active' => 1])) {
+            } elseif (Auth::guard('it')->attempt(['email' => $this->form['emp_id'], 'password' => $this->form['password'], 'status' => 1])) {
                 session(['post_login' => true]);
                 FlashMessageHelper::flashSuccess("You are logged in successfully!");
                 return redirect()->route('dashboard');
@@ -169,10 +169,12 @@ class ItLogin extends Component
         } catch (ValidationException $e) {
             FlashMessageHelper::flashError('There was a problem with your input. Please check and try again.');
         } catch (\Illuminate\Database\QueryException $e) {
+            Log::error('Database Query Exception: ' . $e->getMessage(), ['exception' => $e]);
             FlashMessageHelper::flashError('We are experiencing technical difficulties. Please try again later.');
         } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
             FlashMessageHelper::flashError('There is a server error. Please try again later.');
         } catch (\Exception $e) {
+            Log::error('Database Query Exception: ' . $e->getMessage(), ['exception' => $e]);
             FlashMessageHelper::flashError('An unexpected error occurred. Please try again.');
         }
     }

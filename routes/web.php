@@ -40,7 +40,7 @@ Route::middleware(['auth:it', 'handleSession'])->group(function () {
     // Group routes under the 'hr' prefix
     Route::prefix('it')->group(function () {
         // Super Admin Routes
-        Route::middleware(['role:2'])->prefix('super-admin')->group(function () {
+        Route::middleware(['role:super_admin'])->prefix('super-admin')->group(function () {
             Route::get('/itrequest', RequestProcess::class)->name('super.requests');
             Route::get('/itMembers', ItAddMember::class)->name('super.itMembers'); // Updated name
             Route::get('/oldItMembers', OldItMembers::class)->name('super.oldItMembers'); // Updated name
@@ -50,7 +50,7 @@ Route::middleware(['auth:it', 'handleSession'])->group(function () {
         });
 
         // Admin Routes
-        Route::middleware(['role:1'])->prefix('admin')->group(function () {
+        Route::middleware(['role:admin'])->prefix('admin')->group(function () {
             Route::get('/itrequest', RequestProcess::class)->name('admin.requests');
             Route::get('/itMembers', ItAddMember::class)->name('admin.itMembers'); // Updated name
             Route::get('/oldItMembers', OldItMembers::class)->name('admin.oldItMembers'); // Updated name
@@ -60,7 +60,7 @@ Route::middleware(['auth:it', 'handleSession'])->group(function () {
         });
 
         // User Routes
-        Route::middleware(['role:0'])->prefix('user')->group(function () {
+        Route::middleware(['role:user'])->prefix('user')->group(function () {
             Route::get('/itrequest', RequestProcess::class)->name('user.requests');
             Route::get('/EmployeeAssetList', AssignAssetEmployee::class)->name('user.EmployeeAssetList'); // Updated name
         });
