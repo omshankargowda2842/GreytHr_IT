@@ -14,281 +14,24 @@ use Illuminate\Support\Facades\Storage;
 
 class ItAddMember extends Component
 {
-    public $itmember=true;
-    public $itmember1=false;
+    public $itmember = true;
+    public $itmember1 = false;
     public $itRelatedEmye = [];
-    public $showAddIt = false;
-    public $showEditDeleteIt = true;
-    public $editMode = false;
-    public $selectedItId;
-    public $showLogoutModal = false;
-    public $dateFromDatabase;
-    public $imageData;
-    public $reason = [];
-    public $loading = false;
+    public $assetSelectEmp = [];
+    public $empDetails = null;
+    public $selectedEmployee = null;
 
-
-    public function mount()
+    public function addMember()
     {
-        $this->itMembers = EmployeeDetails::where('sub_dept_id', '9915')->get();
-        $this->itRelatedEmye = IT::where('status', 1)->get();
+
+        $this->itmember1 = true;
+        $this->itmember = false;
     }
 
-    protected $rules = [
-        'employeeName' => 'required|string|max:255',
-        'employeeId' => 'required',
-        'phoneNumber' => 'required|numeric',
-        'email' => 'required|email',
-        'dateOfBirth' => 'required|date',
-    ];
-
-    protected $messages = [
-        'employeeName.required' => 'Employee name is required.',
-        'employeeId.required' => 'Employee ID is required.',
-
-        'phoneNumber.required' => 'Phone number is required.',
-        'email.required' => 'Email is required.',
-        'dateOfBirth.required' => 'Date of birth is required.',
-    ];
-
-
-
-
-    public function showAddItMember()
+    public function Cancel()
     {
-        $this->resetForm();
-        $this->showAddIt = true;
-        $this->showEditDeleteIt = false;
-        $this->editMode = false;
-    }
-
-    public function formatDate($date)
-    {
-        return Carbon::parse($date)->format('d-m-Y');
-    }
-
-
-
-
-    public function showEditItMember($id)
-    {
-        $this->resetForm();
-        $this->resetErrorBag();
-        $itMember = IT::find($id);
-        if ($itMember) {
-
-            $this->selectedItId = $id;
-            $this->employeeId = $itMember->emp_id;
-            $this->employeeName = $itMember->employee_name;
-            $this->dateOfBirth = Carbon::parse($itMember->date_of_birth)->format('Y-m-d');
-            $this->phoneNumber = $itMember->phone_number;
-            $this->email = $itMember->email;
-            // $this->image = $itMember->image ? 'data:image/jpeg;base64,' . base64_encode($itMember->image) : null;
-            $this->showAddIt = true;
-            $this->showEditDeleteIt = false;
-            $this->editMode = true;
-        }
-    }
-    public function validateEmail()
-    {
-        $this->validate([
-            'email' => ['required', 'email', function ($attribute, $value, $fail) {
-                $allowedExtensions = ['payg.in', 'paygdigitals.com'];
-                $domain = substr(strrchr($value, "@"), 1);
-                if (!in_array($domain, $allowedExtensions)) {
-                    $fail('Email address must use one of these domains:: ' . implode(', ', $allowedExtensions));
-                }
-            }],
-        ]);
-    }
-
-    public function resetValidationForField($field)
-    {
-        // Reset error for the specific field when typing
-        $this->resetErrorBag($field);
-    }
-
-    public function validateField($propertyName)
-    {
-        // Apply validation rules dynamically
-        $rules = $this->rules;
-
-        // Apply image validation only if a new image is uploaded
-        if ($propertyName === 'image') {
-            $rules['image'] = $this->isImageChanged ? 'nullable|image|max:512' : 'nullable';
-        }
-
-        $this->validateOnly($propertyName, $rules);
-
-        $this->resetErrorBag();
-    }
-    public function validateEmployeeId()
-    {
-        $existingRecord = IT::where('emp_id', $this->employeeId)
-            ->where('id', '!=', $this->selectedItId)
-            ->exists();
-
-        if ($existingRecord) {
-
-            $this->addError('employeeId', 'An IT member with this Employee ID already exists.');
-        }
-    }
-
-
-
-    public function submit()
-    {
-        $this->resetErrorBag('employeeId');
-
-        $this->validateEmployeeId();
-        if ($this->getErrorBag()->has('employeeId')) {
-            return;
-        }
-        $this->validate();
-        $this->validateEmail();
-        // $this->resetErrorBag('email');
-
-        $rules = $this->rules;
-
-        $imageData = null;
-
-
-        if ($this->image) {
-            // If image is base64 data
-            if (strpos($this->image, 'data:image/jpeg;base64,') === 0) {
-                $imageData = base64_decode(substr($this->image, strpos($this->image, ',') + 1));
-            }
-            // If image is an instance of UploadedFile
-            elseif ($this->image instanceof \Illuminate\Http\UploadedFile) {
-                if ($this->image->getSize() > 500 * 1024) { // 500KB
-                    $this->addError('image', 'Image size should be less than 500KB.');
-                    return;
-                }
-                $imageData = file_get_contents($this->image->getRealPath());
-            } else {
-                // Handle the case where $this->image is not valid
-                $this->addError('image', 'Invalid image file.');
-                return;
-            }
-        }
-
-        if ($this->editMode) {
-            // Update existing record
-            $data = IT::find($this->selectedItId);
-            if ($data) {
-
-                $data->update([
-                    'emp_id' => $this->employeeId,
-                    'employee_name' => $this->employeeName,
-                    'date_of_birth' => $this->dateOfBirth,
-                    'phone_number' => $this->phoneNumber,
-                    'email' => $this->email,
-                    'image' => $imageData ?? $data->image,
-
-                ]);
-                FlashMessageHelper::flashSuccess("IT member updated successfully!");
-            }
-        } else {
-            // Create new record
-            IT::create([
-                'emp_id' => $this->employeeId,
-                'employee_name' => $this->employeeName,
-                'date_of_birth' => $this->dateOfBirth,
-                'phone_number' => $this->phoneNumber,
-                'email' => $this->email,
-                'image' => $imageData,
-            ]);
-            FlashMessageHelper::flashSuccess("IT member added successfully!");
-        }
-
-        $this->resetForm();
-    }
-
-    public function cancel()
-    {
-        $this->showAddIt = false;
-        $this->editMode = false;
-        $this->showEditDeleteIt = true;
-        $this->showLogoutModal = false;
-        $this->resetErrorBag();
-    }
-    public function cancelLogout()
-    {
-        $this->showLogoutModal = true;
-    }
-
-    public $recordId;
-    public function confirmDelete($id)
-    {
-        $this->recordId = $id;
-        $this->showLogoutModal = true;
-    }
-
-    public function delete()
-    {
-        $this->validate([
-
-            'reason' => 'required|string|max:255', // Validate the remark input
-        ], [
-            'reason.required' => 'Reason is required.',
-        ]);
-        $this->resetErrorBag();
-        $itMember = IT::find($this->recordId);
-
-        if ($itMember) {
-            $itMember->update([
-                'delete_itmember_reason' => $this->reason,
-                'status' => 0
-            ]);
-
-            FlashMessageHelper::flashSuccess("IT member deactivated successfully!");
-            $this->showLogoutModal = false;
-            $this->itRelatedEmye = IT::where('status', 1)->get();
-            // Reset the recordId and reason after processing
-            $this->recordId = null;
-            $this->reason = '';
-        }
-    }
-
-
-
-
-    private function resetForm()
-    {
-        $this->employeeName = '';
-        $this->employeeId = '';
-        $this->image = null;
-        $this->phoneNumber = '';
-        $this->email = '';
-        $this->dateOfBirth = '';
-        $this->selectedItId = null;
-        $this->editMode = false;
-        $this->showAddIt = false;
-        $this->showEditDeleteIt = true;
-    }
-
-
-
-
-    public function updateEmployeeName()
-    {
-        $this->resetErrorBag();
-        $this->validateEmployeeId();
-        $member = EmployeeDetails::with('personalInfo')->where('emp_id', $this->employeeId)->first();
-
-        if ($member) {
-
-            $this->employeeName = "{$member->first_name} {$member->last_name}";
-
-            $this->dateOfBirth = $member->personalInfo->date_of_birth ?? '';
-            $this->phoneNumber = $member->personalInfo->mobile_number ?? '';
-            $this->email = $member->personalInfo->email ?? '';
-        } else {
-            $this->employeeName = '';
-            $this->dateOfBirth = '';
-            $this->phoneNumber = '';
-            $this->email = '';
-        }
+        $this->itmember1 = false;
+        $this->itmember = true;
     }
 
     public $sortColumn = 'employee_name'; // default sorting column
@@ -305,6 +48,57 @@ class ItAddMember extends Component
             $this->sortDirection = 'asc';
         }
     }
+
+    public function fetchEmployeeDetails()
+    {
+
+        if ($this->selectedEmployee !== "" && $this->selectedEmployee !== null) {
+            $this->empDetails = EmployeeDetails::find($this->selectedEmployee);
+        } else {
+
+            $this->empDetails = null;
+        }
+    }
+
+
+    public function mount()
+    {
+
+        $this->loadAssetsAndEmployees();
+    }
+
+    public function loadAssetsAndEmployees()
+    {
+        $this->assetSelectEmp = EmployeeDetails::orderBy('first_name', 'asc')->get();
+    }
+
+
+    public function submit()
+    {
+        try {
+
+            // Attempt to create a new IT record
+            IT::create([
+                'emp_id' => $this->empDetails->emp_id,
+                'employee_name' => $this->empDetails->first_name . ' ' . $this->empDetails->last_name,
+                'email' => $this->empDetails->email,
+
+            ]);
+
+            // Flash success message if everything works
+            FlashMessageHelper::flashSuccess("IT member added successfully!");
+
+            // Reset the form or any related state (if needed)
+            $this->resetForm();
+        } catch (\Exception $e) {
+            // Log the error message
+            Log::error('Error adding IT member: ' . $e->getMessage());
+            // Flash an error message to the user
+            FlashMessageHelper::flashError("There was an error adding the IT member. Please try again.");
+        }
+    }
+
+
 
     public function render()
     {
