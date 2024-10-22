@@ -12,7 +12,6 @@ class Vendor extends Model
     use HasFactory;
 
     protected $table = 'vendors';
-    protected $primaryKey = 'id';
     protected $fillable = [
         'vendor_name',
         'vendor_id',

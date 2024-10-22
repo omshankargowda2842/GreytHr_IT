@@ -15,26 +15,52 @@ use Illuminate\Support\Facades\Storage;
 class ItAddMember extends Component
 {
     public $itmember = true;
-    public $itmember1 = false;
+    public $addItmember = false;
     public $itRelatedEmye = [];
     public $assetSelectEmp = [];
     public $empDetails = null;
     public $selectedEmployee = null;
+    public $searchFilters = true;
+    public $searchEmp = '';
+    public $searchAssetId = '';
+    public $assetsFound = false;
+    public $showLogoutModal = false;
+    public $filteredEmployeeAssets = [];
+    public $reason =[];
+
+    protected function rules()
+    {
+        return [
+
+            'selectedEmployee' => 'required|string|max:255',
+        ];
+    }
+
+    protected $messages = [
+        'selectedEmployee.required' => 'Employee ID is required.',
+    ];
 
     public function addMember()
     {
-
-        $this->itmember1 = true;
+        $this->resetForm();
+        $this->empDetails = null;
+        $this->addItmember = true;
         $this->itmember = false;
+        $this->searchFilters =false;
+        $this->resetErrorBag( 'selectedEmployee');
     }
 
     public function Cancel()
     {
-        $this->itmember1 = false;
+        $this->addItmember = false;
+        $this->showLogoutModal = false;
         $this->itmember = true;
+        $this->empDetails = null;
+        $this->searchFilters =true;
+        $this->resetErrorBag( 'selectedEmployee');
     }
 
-    public $sortColumn = 'employee_name'; // default sorting column
+    public $sortColumn = 'emp_id'; // default sorting column
     public $sortDirection = 'asc'; // default sorting direction
 
     public function toggleSortOrder($column)
@@ -54,6 +80,7 @@ class ItAddMember extends Component
 
         if ($this->selectedEmployee !== "" && $this->selectedEmployee !== null) {
             $this->empDetails = EmployeeDetails::find($this->selectedEmployee);
+            $this->resetErrorBag('selectedEmployee');
         } else {
 
             $this->empDetails = null;
@@ -69,12 +96,66 @@ class ItAddMember extends Component
 
     public function loadAssetsAndEmployees()
     {
-        $this->assetSelectEmp = EmployeeDetails::orderBy('first_name', 'asc')->get();
+        $this->assetSelectEmp = EmployeeDetails::where('sub_dept_id', '9915')
+        ->where('dept_id', '8803')
+        ->orderBy('first_name', 'asc')->get();
     }
+
+    private function resetForm()
+    {
+        $this->selectedEmployee = null;
+
+    }
+
+
+    public function cancelLogout()
+    {
+         $this->showLogoutModal = true;
+    }
+
+    public $recordId;
+    public function confirmDelete($id)
+    {
+
+        $this->recordId = $id; // Assign the ID first
+        $this->showLogoutModal = true; // Show the modal after assigning the ID
+    }
+
+
+public function delete()
+{
+    $this->validate([
+
+        'reason' => 'required|string|max:255', // Validate the remark input
+    ], [
+        'reason.required' => 'Reason is required.',
+    ]);
+    // $this->resetErrorBag();
+    $itMember = IT::find($this->recordId);
+
+    if ($itMember) {
+        $itMember->update([
+            'delete_itmember_reason' => $this->reason,
+            'status' => 0
+        ]);
+
+
+        FlashMessageHelper::flashSuccess("IT member deactivated successfully!");
+        $this->showLogoutModal = false;
+        $this->itRelatedEmye = IT::where('status', 1)->get();
+        // Reset the recordId and reason after processing
+        $this->recordId = null;
+        $this->reason = '';
+    }
+}
+
+
+
 
 
     public function submit()
     {
+        $this->validate();
         try {
 
             // Attempt to create a new IT record
@@ -82,6 +163,7 @@ class ItAddMember extends Component
                 'emp_id' => $this->empDetails->emp_id,
                 'employee_name' => $this->empDetails->first_name . ' ' . $this->empDetails->last_name,
                 'email' => $this->empDetails->email,
+                'password' => bcrypt('ags@123'),
 
             ]);
 
@@ -90,6 +172,7 @@ class ItAddMember extends Component
 
             // Reset the form or any related state (if needed)
             $this->resetForm();
+            return redirect()->route('itMembers');
         } catch (\Exception $e) {
             // Log the error message
             Log::error('Error adding IT member: ' . $e->getMessage());
@@ -99,14 +182,55 @@ class ItAddMember extends Component
     }
 
 
+    public function filter()
+    {
+        try {
+            $trimmedEmpId = trim($this->searchEmp);
+            // $trimmedAssetId = trim($this->searchAssetId);
+
+            $this->filteredEmployeeAssets = IT::query()
+            ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
+                $query->where(function ($query) use ($trimmedEmpId) {
+                    $query->where('emp_id', 'like', '%' . $trimmedEmpId . '%')
+                        ->orWhere('it_emp_id', 'like', '%' . $trimmedEmpId . '%')
+                        ->orWhere('employee_name', 'like', '%' . $trimmedEmpId . '%')
+                        ->orWhere('email', 'like', '%' . $trimmedEmpId . '%');
+                });
+            })
+                ->get();
+
+            $this->assetsFound = count($this->filteredEmployeeAssets) > 0;
+        } catch (\Exception $e) {
+            Log::error('Error in filter method: ' . $e->getMessage());
+        }
+    }
+
+
+
+    public function clearFilters()
+    {
+        // Reset search fields and filtered results
+        // $this->searchEmp = '';
+        // $this->searchAssetId = '';
+        $this->reset();
+        $this->filteredEmployeeAssets = [];
+        $this->assetsFound = false;
+
+    }
+
 
     public function render()
     {
-        $this->itRelatedEmye = IT::where('status', 1)
+        $this->itRelatedEmye = !empty($this->filteredEmployeeAssets)
+        ? $this->filteredEmployeeAssets
+        : EmployeeDetails::with('its') // Eager load the empIt relationship
+            ->whereHas('its', function ($query) {
+                $query->whereColumn('employee_details.emp_id', 'i_t.emp_id'); // Correctly reference the columns
+            })
             ->orderBy($this->sortColumn, $this->sortDirection)
             ->get();
 
+    return view('livewire.it-add-member');
 
-        return view('livewire.it-add-member');
     }
 }

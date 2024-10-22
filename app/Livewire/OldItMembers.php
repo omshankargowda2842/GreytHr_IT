@@ -16,7 +16,9 @@ class OldItMembers extends Component
 
     public function mount()
     {
-        $this->itMembers = EmployeeDetails::where('sub_dept_id', '9915')->get();
+        $this->itMembers = EmployeeDetails::where('sub_dept_id', '9915')
+        ->where('dept_id', '8803')
+        ->get();
         $this->itRelatedEmye = IT::where('status', 0)->get();
 
     }
