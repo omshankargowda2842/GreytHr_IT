@@ -180,9 +180,9 @@
                                 @endif
 
                                 <div class="form-group">
-                                    <label for="emp_id">Employee ID</label>
+                                    <label for="emp_id">IT Employee ID</label>
                                     <input type="text" id="emp_id" name="emp_id" class="form-control"
-                                        placeholder="Enter your Employee ID" wire:model.lazy="emp_id">
+                                        placeholder="Enter your IT Employee ID" wire:model.lazy="emp_id"  wire:keydown="resetValidationForField('emp_id')">
                                     @error('emp_id')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
