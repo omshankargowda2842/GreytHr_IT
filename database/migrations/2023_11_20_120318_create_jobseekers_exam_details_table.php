@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('jobseekers_exam_details', function (Blueprint $table) {
-            $table->id();
-            $table->string('user_id');
-            $table->string('job_id');
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('user_id', 10)->unique();
+            $table->string('job_id', 10)->unique();
             $table->date('exam_date');
             $table->time('exam_time');
             $table->text('instructions')->nullable();
@@ -31,7 +31,6 @@ return new class extends Migration
                 ->on('jobs')
                 ->onDelete('restrict')
                 ->onUpdate('cascade');
-            $table->unique(['user_id', 'job_id']);
             $table->timestamps();
         });
     }

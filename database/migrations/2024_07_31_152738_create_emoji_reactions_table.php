@@ -12,18 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('emoji_reactions', function (Blueprint $table) {
-            $table->id();
-            $table->string('emp_id'); // Adjust the data type as needed
-            $table->string('first_name');
-            $table->string('last_name');
-            $table->string('emoji_reaction');
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('card_id', 10);
+            $table->string('emp_id', 10); // Adjust the data type as needed
+            $table->string('first_name', 100);
+            $table->string('last_name', 100);
+            $table->string('emoji_reaction', 100);
             $table->foreign('emp_id')
-            ->references('emp_id')
-            ->on('employee_details')
-            ->onDelete('restrict')
-            ->onUpdate('cascade');
-                $table->timestamps();
-         
+                ->references('emp_id')
+                ->on('employee_details')
+                ->onDelete('restrict')
+                ->onUpdate('cascade');
+            $table->timestamps();
         });
     }
 

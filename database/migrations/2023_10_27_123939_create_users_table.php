@@ -13,42 +13,41 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('user_id')->unique();
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('user_id', 10)->unique();
             $table->enum('user_type', ['Job Seeker', 'Vendor']);
-            $table->string('company_id')->unique()->nullable();
-            $table->string('company_name')->nullable();
-            $table->string('company_logo')->nullable();
+            $table->string('company_id', 10)->unique()->nullable();
+            $table->string('company_name', 100)->nullable();
             $table->binary('image')->nullable();
-            $table->string('city')->nullable();
-            $table->string('state')->nullable();
-            $table->string('country')->nullable();
-            $table->string('experience_status')->nullable();
-            $table->string('available_to_join')->nullable();
-            $table->string('profile_summary')->nullable();
+            $table->string('city', 20)->nullable();
+            $table->string('state', 20)->nullable();
+            $table->string('country', 20)->nullable();
+            $table->string('experience_status', 10)->nullable();
+            $table->string('available_to_join', 10)->nullable();
+            $table->string('profile_summary', 100)->nullable();
             $table->json('technical_skills')->nullable();
             $table->json('education')->nullable();
-            $table->string('current_industry')->nullable();
-            $table->string('role_category')->nullable();
-            $table->string('desired_job_type')->nullable();
-            $table->string('preferred_shift')->nullable();
-            $table->string('expected_salary')->nullable();
-            $table->string('department')->nullable();
-            $table->string('job_role')->nullable();
-            $table->string('desired_employment_type')->nullable();
-            $table->string('preferred_work_location')->nullable();
+            $table->string('current_industry', 20)->nullable();
+            $table->string('role_category', 20)->nullable();
+            $table->string('desired_job_type', 50)->nullable();
+            $table->string('preferred_shift', 10)->nullable();
+            $table->string('expected_salary', 20)->nullable();
+            $table->string('department', 20)->nullable();
+            $table->string('job_role', 20)->nullable();
+            $table->string('desired_employment_type', 20)->nullable();
+            $table->string('preferred_work_location', 20)->nullable();
             $table->date('date_of_birth')->nullable();
-            $table->string('religion')->nullable();
-            $table->string('differently_abled')->nullable();
-            $table->string('career_break')->nullable();
+            $table->string('religion', 20)->nullable();
+            $table->enum('differently_able', ['yes', 'no'])->nullable();
+            $table->string('career_break', 100)->nullable();
             $table->json('languages')->nullable();
 
-            $table->string('full_name');
-            $table->string('email')->unique();
+            $table->string('full_name', 100);
+            $table->string('email', 100)->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
-            $table->string('mobile_no')->unique()->nullable();
-            $table->string('work_status')->nullable();
+            $table->string('mobile_no', 20)->unique()->nullable();
+            $table->string('work_status', 10)->nullable();
             $table->string('address')->nullable();
             $table->string('resume')->nullable();
             $table->rememberToken();
@@ -73,7 +72,7 @@ return new class extends Migration
 
         DB::unprepared($triggerSQL);
 
-      // You cannot use the DELIMITER command in Laravel migrations.
+        // You cannot use the DELIMITER command in Laravel migrations.
         // Instead, you can use raw SQL to create the trigger.
 
         $triggerSQLCompany = <<<SQL
@@ -116,7 +115,6 @@ return new class extends Migration
         SQL;
 
         DB::unprepared($triggerSQLCompany);
-
     }
     public function down(): void
     {

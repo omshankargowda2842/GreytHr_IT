@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('adddeclarations', function (Blueprint $table) {
-            $table->id();
-            $table->string('emp_id');
+        Schema::create('add_declarations', function (Blueprint $table) {
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('emp_id', 10);
             $table->decimal('5_years_fixed_deposit');
             $table->decimal('5_years_deposit');
             $table->decimal('contribution_to_pension_fund');

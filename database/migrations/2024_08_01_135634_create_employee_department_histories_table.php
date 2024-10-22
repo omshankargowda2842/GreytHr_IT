@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -11,15 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('employee_department_histories', function (Blueprint $table) {
-            $table->id();
-            $table->string('emp_id'); // Ensure this matches the type in 'employee_details'
-            $table->string('dept_id')->nullable(); // Ensure this matches the type in 'departments'
-            $table->string('sub_dept_id')->nullable(); // Ensure this matches the type in 'sub_departments'
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('emp_id', 10); // Ensure this matches the type in 'employee_details'
+            $table->string('dept_id', 10)->nullable(); // Ensure this matches the type in 'departments'
+            $table->string('sub_dept_id', 10)->nullable(); // Ensure this matches the type in 'sub_departments'
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
-            $table->string('manager')->nullable();
+            $table->string('manager', 100)->nullable();
             $table->json('job_role')->nullable();
-            $table->string('dept_head')->nullable();
+            $table->string('dept_head', 100)->nullable();
             $table->timestamps();
 
             // Define foreign keys

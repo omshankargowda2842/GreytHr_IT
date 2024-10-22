@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('swipedata', function (Blueprint $table) {
-            $table->id();
-            $table->string('emp_id');
-            $table->string('direction');
-            $table->timestamp('DownloadDate');
+        Schema::create('status_types', function (Blueprint $table) {
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('status_name', 20)->unique();
+            $table->tinyInteger('status_code')->unique();
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('swipedata');
+        Schema::dropIfExists('status_types');
     }
 };

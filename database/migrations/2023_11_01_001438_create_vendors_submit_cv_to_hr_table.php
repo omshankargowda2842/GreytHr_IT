@@ -12,18 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('vendors_submit_cv_to_hr', function (Blueprint $table) {
-            $table->id();
-            $table->string('user_id');
-            $table->string('job_id');
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('user_id', 10);
+            $table->string('job_id', 10);
             $table->string('submited_to');
             $table->json('cv');
-            $table->unique(['user_id', 'job_id']);
-
             $table->foreign('user_id')->references('user_id')->on('users')->onDelete('restrict')
                 ->onUpdate('cascade');;
             $table->foreign('job_id')->references('job_id')->on('jobs')->onDelete('restrict')
                 ->onUpdate('cascade');;
-
             $table->timestamps();
         });
     }

@@ -12,19 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('notifications', function (Blueprint $table) {
-            $table->id();
-            $table->string('emp_id');
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('emp_id',10);
             $table->integer('chatting_id')->nullable();
-            $table->string('task_name')->nullable();
-            $table->string('assignee')->nullable();
+            $table->string('task_name',100)->nullable();
+            $table->string('assignee',100)->nullable();
             $table->string('leave_reason')->nullable();
-            $table->string('leave_status')->default('Pending');
+            $table->string('leave_status',20)->default('Pending');
             $table->string('applying_to')->nullable();
             $table->json('cc_to')->nullable();
-            $table->string('receiver_id')->nullable();
-            $table->string('notification_type');
+            $table->string('receiver_id',10)->nullable();
+            $table->string('notification_type',20);
             $table->dateTime('message_read_at')->nullable();
-            $table->string('body')->nullable();
+            $table->longText('body')->nullable();
             $table->boolean('is_read')->default(false);
             $table->enum('leave_type', ['Casual Leave', 'Sick Leave', 'Loss Of Pay','Maternity Leave','Casual Leave Probation','Marriage Leave','Petarnity Leave', 'Work From Home' ]);
             $table->foreign('emp_id')
