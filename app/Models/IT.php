@@ -12,12 +12,9 @@ class IT extends Authenticatable
     use HasFactory;
 
     protected $table = 'i_t'; // Adjust the table name accordingly
-
-    // ENUM role constants
     const ROLE_USER = 'user';
     const ROLE_ADMIN = 'admin';
     const ROLE_SUPER_ADMIN = 'super_admin';
-
     protected $fillable = [
         'it_emp_id',
         'image',
@@ -59,11 +56,10 @@ class IT extends Authenticatable
     {
         return $value;
     }
-
-    public function getImageUrlAttribute()
-    {
-        return 'data:image/jpeg;base64,' . base64_encode($this->attributes['image']);
-    }
+    // public function getImageUrlAttribute()
+    // {
+    //     return 'data:image/jpeg;base64,' . base64_encode($this->attributes['image']);
+    // }
 
     // Check if the user has a specific role
     public function isUser()

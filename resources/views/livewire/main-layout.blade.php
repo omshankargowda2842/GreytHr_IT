@@ -1,7 +1,6 @@
 <div>
 
-<div wire:loading
-        wire:target="dashboard,itRequest,itMembers,oldRecords,vendor,vendorAssets,assignAsset">
+    <div wire:loading wire:target="dashboard,itRequest,itMembers,oldRecords,vendor,vendorAssets,assignAsset">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -37,217 +36,86 @@
                         <i class="ri-more-fill"></i>
                     </span>
                 </li>
-                @if (auth()->user()->isSuperAdmin())
-                    <li class="sidebar-menu-item">
-                        <a href="#" wire:click='dashboard'
-                            class="{{ request()->routeIs('dashboard') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
-                            <span class="sidebar-menu-item-link-icon"><i class="ri-home-3-line"></i></span>
-                            <span class="sidebar-menu-item-link-text">Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-menu-item">
-                        <a href="#"
-                            class="{{ request()->routeIs('oldItMembers') || request()->routeIs('requests') || request()->routeIs('itMembers') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
-                            <span class="sidebar-menu-item-link-icon"><i class="ri-group-line"></i></span>
-                            <span class="sidebar-menu-item-link-text">IT Requests</span>
-                            <span class="sidebar-menu-item-link-arrow"><i class="ri-arrow-right-s-line"></i></span>
-                        </a>
-                        <ul class="sidebar-submenu">
-                            <li
-                                class="{{ request()->routeIs('requests') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
-                                <a href="#" wire:click='itRequest' class="sidebar-submenu-item-link">
-                                    <span class="sidebar-submenu-item-link-text">IT Request</span>
-                                </a>
-                            </li>
-                            <li
-                                class="{{ request()->routeIs('itMembers') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
-                                <a href="#" wire:click='itMembers' class="sidebar-submenu-item-link">
-                                    <span class="sidebar-submenu-item-link-text">IT Members</span>
-                                </a>
-                            </li>
-                            <li
-                                class="{{ request()->routeIs('oldItMembers') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
-                                <a href="#" wire:click='oldRecords' class="sidebar-submenu-item-link">
-                                    <span class="sidebar-submenu-item-link-text">Old IT Members</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="sidebar-menu-item">
-                        <a href="#"
-                            class="{{ request()->routeIs('assignAsset') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
-                            <span class="sidebar-menu-item-link-icon"><i class="ri-user-2-line"></i></span>
-                            <span class="sidebar-menu-item-link-text">Employee</span>
-                            <span class="sidebar-menu-item-link-arrow"><i class="ri-arrow-right-s-line"></i></span>
-                        </a>
-                        <ul class="sidebar-submenu">
-                            <li
-                                class="{{ request()->routeIs('assignAsset') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
-                                <a href="#" wire:click='assignAsset' class="sidebar-submenu-item-link">
-                                    <span class="sidebar-submenu-item-link-text">Employee Assets</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="sidebar-menu-item">
-                        <a href="#"
-                            class="{{ request()->routeIs('vendor') || request()->routeIs('vendorAssets') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
-                            <span class="sidebar-menu-item-link-icon"><i class="ri-store-2-line"></i></span>
-                            <span class="sidebar-menu-item-link-text">Vendors</span>
-                            <span class="sidebar-menu-item-link-arrow"><i class="ri-arrow-right-s-line"></i></span>
-                        </a>
-                        <ul class="sidebar-submenu">
-                            <li
-                                class="{{ request()->routeIs('vendor') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
-                                <a href="#" wire:click='vendor' class="sidebar-submenu-item-link">
-                                    <span class="sidebar-submenu-item-link-text">Vendor Request</span>
-                                </a>
-                            </li>
-                            <li
-                                class="{{ request()->routeIs('vendorAssets') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
-                                <a href="#" wire:click='vendorAssets' class="sidebar-submenu-item-link">
-                                    <span class="sidebar-submenu-item-link-text">Vendor Assets</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <li class="sidebar-menu-item">
-                        <a href="#"
-                            class="{{ request()->routeIs('password') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
-                            <span class="sidebar-menu-item-link-icon"><i class="ri-lock-line"></i></span>
-                            <span class="sidebar-menu-item-link-text">Password</span>
-                        </a>
-                    </li>
-                @elseif(auth()->user()->isAdmin())
-                    <li class="sidebar-menu-item">
-                        <a href="#" wire:click='dashboard'
-                            class="{{ request()->routeIs('dashboard') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
-                            <span class="sidebar-menu-item-link-icon"><i class="ri-home-3-line"></i></span>
-                            <span class="sidebar-menu-item-link-text">Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-menu-item">
-                        <a href="#"
-                            class="{{ request()->routeIs('oldItMembers') || request()->routeIs('requests') || request()->routeIs('itMembers') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
-                            <span class="sidebar-menu-item-link-icon"><i class="ri-group-line"></i></span>
-                            <span class="sidebar-menu-item-link-text">IT Requests</span>
-                            <span class="sidebar-menu-item-link-arrow"><i class="ri-arrow-right-s-line"></i></span>
-                        </a>
-                        <ul class="sidebar-submenu">
-                            <li
-                                class="{{ request()->routeIs('requests') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
-                                <a href="#" wire:click='itRequest' class="sidebar-submenu-item-link">
-                                    <span class="sidebar-submenu-item-link-text">IT Request</span>
-                                </a>
-                            </li>
-                            <li
-                                class="{{ request()->routeIs('itMembers') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
-                                <a href="#" wire:click='itMembers' class="sidebar-submenu-item-link">
-                                    <span class="sidebar-submenu-item-link-text">IT Members</span>
-                                </a>
-                            </li>
-                            <li
-                                class="{{ request()->routeIs('oldItMembers') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
-                                <a href="#" wire:click='oldRecords' class="sidebar-submenu-item-link">
-                                    <span class="sidebar-submenu-item-link-text">Old IT Members</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="sidebar-menu-item">
-                        <a href="#"
-                            class="{{ request()->routeIs('vendor') || request()->routeIs('vendorAssets') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
-                            <span class="sidebar-menu-item-link-icon"><i class="ri-store-2-line"></i></span>
-                            <span class="sidebar-menu-item-link-text">Vendors</span>
-                            <span class="sidebar-menu-item-link-arrow"><i class="ri-arrow-right-s-line"></i></span>
-                        </a>
-                        <ul class="sidebar-submenu">
-                            <li
-                                class="{{ request()->routeIs('vendor') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
-                                <a href="#" wire:click='vendor' class="sidebar-submenu-item-link">
-                                    <span class="sidebar-submenu-item-link-text">Vendor Request</span>
-                                </a>
-                            </li>
-                            <li
-                                class="{{ request()->routeIs('vendorAssets') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
-                                <a href="#" wire:click='vendorAssets' class="sidebar-submenu-item-link">
-                                    <span class="sidebar-submenu-item-link-text">Vendor Assets</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="sidebar-menu-item">
-                        <a href="#"
-                            class="{{ request()->routeIs('assignAsset') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
-                            <span class="sidebar-menu-item-link-icon"><i class="ri-user-2-line"></i></span>
-                            <span class="sidebar-menu-item-link-text">Employee</span>
-                            <span class="sidebar-menu-item-link-arrow"><i class="ri-arrow-right-s-line"></i></span>
-                        </a>
-                        <ul class="sidebar-submenu">
-                            <li
-                                class="{{ request()->routeIs('assignAsset') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
-                                <a href="#" wire:click='assignAsset' class="sidebar-submenu-item-link">
-                                    <span class="sidebar-submenu-item-link-text">Employee Assets</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="sidebar-menu-item">
-                        <a href="#"
-                            class="{{ request()->routeIs('password') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
-                            <span class="sidebar-menu-item-link-icon"><i class="ri-lock-line"></i></span>
-                            <span class="sidebar-menu-item-link-text">Password</span>
-                        </a>
-                    </li>
-                @else
-                    <li class="sidebar-menu-item">
-                        <a href="#" wire:click='dashboard'
-                            class="{{ request()->routeIs('dashboard') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
-                            <span class="sidebar-menu-item-link-icon"><i class="ri-home-3-line"></i></span>
-                            <span class="sidebar-menu-item-link-text">Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-menu-item">
-                        <a href="#"
-                            class="{{ request()->routeIs('oldItMembers') || request()->routeIs('requests') || request()->routeIs('itMembers') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
-                            <span class="sidebar-menu-item-link-icon"><i class="ri-group-line"></i></span>
-                            <span class="sidebar-menu-item-link-text">IT Requests</span>
-                            <span class="sidebar-menu-item-link-arrow"><i class="ri-arrow-right-s-line"></i></span>
-                        </a>
-                        <ul class="sidebar-submenu">
-                            <li
-                                class="{{ request()->routeIs('requests') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
-                                <a href="#" wire:click='itRequest' class="sidebar-submenu-item-link">
-                                    <span class="sidebar-submenu-item-link-text">IT Request</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="sidebar-menu-item">
-                        <a href="#"
-                            class="{{ request()->routeIs('assignAsset') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
-                            <span class="sidebar-menu-item-link-icon"><i class="ri-user-2-line"></i></span>
-                            <span class="sidebar-menu-item-link-text">Employee</span>
-                            <span class="sidebar-menu-item-link-arrow"><i class="ri-arrow-right-s-line"></i></span>
-                        </a>
-                        <ul class="sidebar-submenu">
-                            <li
-                                class="{{ request()->routeIs('assignAsset') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
-                                <a href="#" wire:click='assignAsset' class="sidebar-submenu-item-link">
-                                    <span class="sidebar-submenu-item-link-text">Employee Assets</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="sidebar-menu-item">
-                        <a href="#"
-                            class="{{ request()->routeIs('password') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
-                            <span class="sidebar-menu-item-link-icon"><i class="ri-lock-line"></i></span>
-                            <span class="sidebar-menu-item-link-text">Password</span>
-                        </a>
-                    </li>
-                @endif
+                <li class="sidebar-menu-item">
+                    <a href="#" wire:click='dashboard'
+                        class="{{ request()->routeIs('dashboard') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
+                        <span class="sidebar-menu-item-link-icon"><i class="ri-home-3-line"></i></span>
+                        <span class="sidebar-menu-item-link-text">Dashboard</span>
+                    </a>
+                </li>
+                <li class="sidebar-menu-item">
+                    <a href="#"
+                        class="{{ request()->routeIs('oldItMembers') || request()->routeIs('requests') || request()->routeIs('itMembers') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
+                        <span class="sidebar-menu-item-link-icon"><i class="ri-group-line"></i></span>
+                        <span class="sidebar-menu-item-link-text">IT Requests</span>
+                        <span class="sidebar-menu-item-link-arrow"><i class="ri-arrow-right-s-line"></i></span>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li
+                            class="{{ request()->routeIs('requests') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
+                            <a href="#" wire:click='itRequest' class="sidebar-submenu-item-link">
+                                <span class="sidebar-submenu-item-link-text">IT Request</span>
+                            </a>
+                        </li>
+                        <li
+                            class="{{ request()->routeIs('itMembers') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
+                            <a href="#" wire:click='itMembers' class="sidebar-submenu-item-link">
+                                <span class="sidebar-submenu-item-link-text">IT Members</span>
+                            </a>
+                        </li>
+                        <li
+                            class="{{ request()->routeIs('oldItMembers') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
+                            <a href="#" wire:click='oldRecords' class="sidebar-submenu-item-link">
+                                <span class="sidebar-submenu-item-link-text">Old IT Members</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="sidebar-menu-item">
+                    <a href="#"
+                        class="{{ request()->routeIs('assignAsset') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
+                        <span class="sidebar-menu-item-link-icon"><i class="ri-user-2-line"></i></span>
+                        <span class="sidebar-menu-item-link-text">Employee</span>
+                        <span class="sidebar-menu-item-link-arrow"><i class="ri-arrow-right-s-line"></i></span>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li
+                            class="{{ request()->routeIs('assignAsset') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
+                            <a href="#" wire:click='assignAsset' class="sidebar-submenu-item-link">
+                                <span class="sidebar-submenu-item-link-text">Employee Assets</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="sidebar-menu-item">
+                    <a href="#"
+                        class="{{ request()->routeIs('vendor') || request()->routeIs('vendorAssets') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
+                        <span class="sidebar-menu-item-link-icon"><i class="ri-store-2-line"></i></span>
+                        <span class="sidebar-menu-item-link-text">Vendors</span>
+                        <span class="sidebar-menu-item-link-arrow"><i class="ri-arrow-right-s-line"></i></span>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li
+                            class="{{ request()->routeIs('vendor') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
+                            <a href="#" wire:click='vendor' class="sidebar-submenu-item-link">
+                                <span class="sidebar-submenu-item-link-text">Vendor Request</span>
+                            </a>
+                        </li>
+                        <li
+                            class="{{ request()->routeIs('vendorAssets') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
+                            <a href="#" wire:click='vendorAssets' class="sidebar-submenu-item-link">
+                                <span class="sidebar-submenu-item-link-text">Vendor Assets</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="sidebar-menu-item">
+                    <a href="#"
+                        class="{{ request()->routeIs('password') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
+                        <span class="sidebar-menu-item-link-icon"><i class="ri-lock-line"></i></span>
+                        <span class="sidebar-menu-item-link-text">Password</span>
+                    </a>
+                </li>
             </ul>
 
             <ul class="sidebar-menu">
@@ -291,75 +159,87 @@
             </button>
 
             <h5 class="mb-0 page-name topbar-page-name">
-                    @switch(Route::currentRouteName())
-                        @case('dashboard')
-                            Dashboard
-                            @break
-                        @case('requests')
-                            IT Requests
-                            @break
-                        @case('itMembers')
-                            IT Members
-                            @break
-                        @case('oldItMembers')
-                            Old IT Members
-                            @break
-                        @case('vendor')
-                            Vendor Request
-                            @break
-                        @case('vendorAssets')
-                            Vendor Assets
-                            @break
-                        @case('assignAsset')
-                            Employee Assets
-                            @break
-                        @case('password')
-                            Password
-                            @break
-                        @default
-                            IT Admin
-                    @endswitch
-                </h5>
+                @switch(Route::currentRouteName())
+                    @case('dashboard')
+                        Dashboard
+                    @break
 
-            <div
-                class="topbar-search-form-wrapper"
-                id="topbar-search-form-wrapper">
-                <button
-                    type="button"
-                    class="topbar-button topbar-button-search-form-back"
+                    @case('requests')
+                        IT Requests
+                    @break
+
+                    @case('itMembers')
+                        IT Members
+                    @break
+
+                    @case('oldItMembers')
+                        Old IT Members
+                    @break
+
+                    @case('vendor')
+                        Vendor Request
+                    @break
+
+                    @case('vendorAssets')
+                        Vendor Assets
+                    @break
+
+                    @case('assignAsset')
+                        Employee Assets
+                    @break
+
+                    @case('password')
+                        Password
+                    @break
+
+                    @default
+                        IT Admin
+                @endswitch
+            </h5>
+
+            <div class="topbar-search-form-wrapper" id="topbar-search-form-wrapper">
+                <button type="button" class="topbar-button topbar-button-search-form-back"
                     data-dismiss="topbar-search">
                     <i class="ri-arrow-left-line"></i>
                 </button>
                 <h5 class="mb-0 page-name">
-                        @switch(Route::currentRouteName())
-                            @case('dashboard')
-                                Dashboard
-                                @break
-                            @case('requests')
-                                IT Requests
-                                @break
-                            @case('itMembers')
-                                IT Members
-                                @break
-                            @case('oldItMembers')
-                                Old IT Members
-                                @break
-                            @case('vendor')
-                                Vendor Request
-                                @break
-                            @case('vendorAssets')
-                                Vendor Assets
-                                @break
-                            @case('assignAsset')
-                                Employee Assets
-                                @break
-                            @case('password')
-                                Password
-                                @break
-                            @default
-                                IT Admin
-                        @endswitch
-                    </h5>
+                    @switch(Route::currentRouteName())
+                        @case('dashboard')
+                            Dashboard
+                        @break
+
+                        @case('requests')
+                            IT Requests
+                        @break
+
+                        @case('itMembers')
+                            IT Members
+                        @break
+
+                        @case('oldItMembers')
+                            Old IT Members
+                        @break
+
+                        @case('vendor')
+                            Vendor Request
+                        @break
+
+                        @case('vendorAssets')
+                            Vendor Assets
+                        @break
+
+                        @case('assignAsset')
+                            Employee Assets
+                        @break
+
+                        @case('password')
+                            Password
+                        @break
+
+                        @default
+                            IT Admin
+                    @endswitch
+                </h5>
                 <!-- <form action="" class="topbar-search-form">
                         <span class="topbar-search-form-icon"
                             ><i class="ri-search-line"></i

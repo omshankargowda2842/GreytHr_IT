@@ -17,7 +17,7 @@ class OldItMembers extends Component
     public function mount()
     {
         $this->itMembers = EmployeeDetails::where('sub_dept_id', '9915')->get();
-        $this->itRelatedEmye = IT::where('is_active', 0)->get();
+        $this->itRelatedEmye = IT::where('status', 0)->get();
 
     }
 
@@ -26,11 +26,11 @@ class OldItMembers extends Component
         $itMember = IT::find($id);
 
         if ($itMember) {
-            $itMember->is_active = 1;
+            $itMember->status = 1;
             $itMember->save();
             FlashMessageHelper::flashSuccess("IT member Restored successfully!");
             $this->showLogoutModal = false;
-            $this->itRelatedEmye = IT::where('is_active', 1)->get();
+            $this->itRelatedEmye = IT::where('status', 1)->get();
         }
     }
 
@@ -64,7 +64,7 @@ class OldItMembers extends Component
 
     public function render()
     {
-        $this->itRelatedEmye = IT::where('is_active', 0)
+        $this->itRelatedEmye = IT::where('status', 0)
         ->orderBy($this->sortColumn, $this->sortDirection)
         ->get();
 

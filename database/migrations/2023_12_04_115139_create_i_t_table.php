@@ -14,36 +14,36 @@ return new class extends Migration
     {
         Schema::create('i_t', function (Blueprint $table) {
             $table->smallInteger('id')->autoIncrement();
-            $table->string('it_emp_id', 10)->nullable()->unique(); // Increased to 15 characters
-            $table->string('employee_name', 100);
+            $table->string('it_emp_id', 10)->nullable()->unique();
             $table->string('emp_id', 10);
             $table->string('email', 100)->unique();
+            $table->string('employee_name', 100)->nullable();
             $table->string('delete_itmember_reason', 10)->nullable();
-            $table->tinyInteger('status')->default(1);
-            $table->enum('role', ['user', 'admin', 'super_admin'])->default('user'); // Define ENUM for roles
             $table->string('password')->nullable();
-            $table->timestamps();
+            $table->tinyInteger('status')->default(1);
+            $table->enum('role', ['user', 'admin', 'super_admin'])->default('user');
 
             $table->foreign('emp_id')
                 ->references('emp_id')
                 ->on('employee_details')
                 ->onDelete('restrict')
                 ->onUpdate('cascade');
+
+            $table->timestamps();
         });
 
-        // Creating a trigger to auto-generate it_emp_id in the format IT-10000, IT-10001, etc.
+        // Trigger to auto-generate it_emp_id
         $triggerSQL = <<<SQL
         CREATE TRIGGER generate_it_emp_id BEFORE INSERT ON i_t FOR EACH ROW
         BEGIN
             IF NEW.it_emp_id IS NULL THEN
-                -- Fetch the maximum numeric value from it_emp_id
+                -- Generate it-10000 style ID
                 SET @max_id := IFNULL(
-                    (SELECT MAX(CAST(SUBSTRING(it_emp_id, 3) AS UNSIGNED)) FROM i_t),
+                    (SELECT MAX(CAST(SUBSTRING(it_emp_id, 4) AS UNSIGNED)) FROM i_t),
                     9999
-                );
+                ) + 1;
 
-                -- Increment and assign the new it_emp_id
-                SET NEW.it_emp_id = CONCAT('IT-', LPAD(@max_id + 1, 5, '0'));
+                SET NEW.it_emp_id = CONCAT('IT-', LPAD(@max_id, 5, '0'));
             END IF;
         END;
         SQL;
@@ -56,8 +56,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Drop the trigger first before dropping the table
+        // Drop the trigger first
         DB::unprepared('DROP TRIGGER IF EXISTS generate_it_emp_id');
+
+        // Drop the 'it' table
         Schema::dropIfExists('i_t');
     }
 };

@@ -156,8 +156,8 @@ class Dashboard extends Component
         $this->activeAssets = VendorAsset::where('is_active', 1)->count();
         $this->inactiveAssets = VendorAsset::where('is_active', 0)->count();
         $this->vendors = Vendor::where('is_active', 1)->count();
-        $this->activeItRelatedEmye = IT::where('is_active', 1)->count();
-        $this->inactiveItRelatedEmye = IT::where('is_active', 0)->count();
+        $this->activeItRelatedEmye = IT::where('status', 1)->count();
+        $this->inactiveItRelatedEmye = IT::where('status', 0)->count();
 
         // Log the fetched data for vendors, assets, and IT-related employees
         Log::info('Fetched dashboard metrics', [

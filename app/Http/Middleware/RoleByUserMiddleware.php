@@ -15,14 +15,14 @@ class RoleByUserMiddleware
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      * @param  string  $role  // Adjust to string to handle ENUM values like 'user', 'admin', 'super_admin'
      */
-    public function handle(Request $request, Closure $next, string $role): Response
+    public function handle(Request $request, Closure $next): Response
     {
         // Fetch the authenticated user from the 'it' guard
         $user = Auth::guard('it')->user();
 
-        // If the user is not authenticated or does not have the required role, redirect or abort
-        if (!$user || !$user->hasRole($role)) {
-            return redirect()->route('dashboard'); // Redirect to a suitable route, e.g., 'dashboard'
+        if (!$user->role && !$user) {
+            // Redirect or abort if the user does not have the required role
+            return redirect()->route('dashboard'); // Change this to your desired redirect
         }
 
         // If the user has the required role, allow the request to proceed
