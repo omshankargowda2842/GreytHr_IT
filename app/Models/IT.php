@@ -62,24 +62,55 @@ class IT extends Authenticatable
     // }
 
     // Check if the user has a specific role
-    public function isUser()
-    {
-        return $this->role === self::ROLE_USER;
-    }
+    // public function isUser()
+    // {
+    //     return $this->role === self::ROLE_USER;
+    // }
 
-    public function isAdmin()
-    {
-        return $this->role === self::ROLE_ADMIN;
-    }
+    // public function isAdmin()
+    // {
+    //     return $this->role === self::ROLE_ADMIN;
+    // }
 
-    public function isSuperAdmin()
-    {
-        return $this->role === self::ROLE_SUPER_ADMIN;
-    }
+    // public function isSuperAdmin()
+    // {
+    //     return $this->role === self::ROLE_SUPER_ADMIN;
+    // }
 
     // Generalized role check
+    // public function hasRole($role)
+    // {
+    //     return $this->role === $role;
+    // }
+
+
+
+
+    // Define the many-to-many relationship between users and roles
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id');
+    }
+
+    // Check if the user has a specific role
     public function hasRole($role)
     {
-        return $this->role === $role;
+        if (is_string($role)) {
+            return $this->roles()->where('name', $role)->exists();
+        }
+
+        return $this->roles()->where('name', $role->name)->exists();
+    }
+
+    // Assign a role to the user
+    public function assignRole($role)
+    {
+        return $this->roles()->attach($role);
+    }
+
+    // Remove a role from the user
+    public function removeRole($role)
+    {
+        return $this->roles()->detach($role);
     }
 }
