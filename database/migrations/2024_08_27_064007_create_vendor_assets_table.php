@@ -16,25 +16,25 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('vendor_assets', function (Blueprint $table) {
-            $table->id(); // Primary key for the assets table
-            $table->string('vendor_id')->nullable();
-            $table->string('asset_id')->nullable()->default(null)->unique();
-            $table->string('manufacturer')->nullable();
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('vendor_id',10)->nullable();
+            $table->string('asset_id',10)->nullable()->default(null)->unique();
+            $table->string('manufacturer',100)->nullable();
             $table->integer('asset_type')->nullable();
-            $table->string('asset_model')->nullable();
-            $table->string('asset_specification')->nullable();
-            $table->string('color')->nullable();
-            $table->string('version')->nullable();
-            $table->string('serial_number')->nullable();
-            $table->string('barcode')->nullable();
-            $table->string('invoice_number')->nullable();
+            $table->string('asset_model',50)->nullable();
+            $table->string('asset_specification',100)->nullable();
+            $table->string('color',20)->nullable();
+            $table->string('version',50)->nullable();
+            $table->string('serial_number',30)->nullable();
+            $table->string('barcode',50)->nullable();
+            $table->string('invoice_number',50)->nullable();
             $table->decimal('taxable_amount', 10, 2)->nullable();
             $table->decimal('invoice_amount', 10, 2)->nullable();
-            $table->string('gst_state')->nullable();
-            $table->string('gst_central')->nullable();
+            $table->string('gst_state',10)->nullable();
+            $table->string('gst_central',10)->nullable();
             $table->date('purchase_date')->nullable();
             $table->json('file_paths')->nullable();
-            $table->string('delete_asset_reason')->nullable();
+            $table->string('delete_asset_reason',100)->nullable();
             $table->boolean('is_active')->default(true);
             $table->foreign('vendor_id')
                 ->references('vendor_id')

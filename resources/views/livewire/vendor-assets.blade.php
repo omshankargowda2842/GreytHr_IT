@@ -772,14 +772,14 @@
 
 
     @if ($showLogoutModal)
-    <div class="modal" style="display: block;" id="logoutModal" tabindex="-1">
+    <div class="modal logout1" id="logoutModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header text-white" style="background-color: black;">
-                    <h6 class="modal-title" style=" align-items: center;" id="logoutModalLabel">Confirm Deactivation
+                <div class="modal-header text-white logout2">
+                    <h6 class="modal-title logout3"  id="logoutModalLabel">Confirm Deactivation
                     </h6>
                 </div>
-                <div class="modal-body text-center" style=" font-size: 16px;color:black;">
+                <div class="modal-body text-center logout4">
                     Are you sure you want to deactivate?
                 </div>
                 <div class="modal-body text-center">
@@ -788,8 +788,8 @@
                         <div class="row">
                             <div class="col-12 req-remarks-div">
 
-                                <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea"
-                                    style=" min-height: 76px;" placeholder="Reason for deactivation"></textarea>
+                                <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea logout5"
+                                     placeholder="Reason for deactivation"></textarea>
 
                             </div>
                         </div>

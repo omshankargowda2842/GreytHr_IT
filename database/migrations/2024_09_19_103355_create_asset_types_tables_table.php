@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('asset_types_tables', function (Blueprint $table) {
-            $table->id();
-            $table->string('asset_names')->nullable();
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('asset_names',100)->nullable();
             $table->timestamps();
         });
     }
