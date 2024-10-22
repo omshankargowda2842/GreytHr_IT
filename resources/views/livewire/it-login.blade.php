@@ -35,7 +35,7 @@
                     @endif
                     <div class="input-block">
                     <label for="email">ID / Mail</label>
-                        <input class="input" type="text" id="email" wire:model="form.emp_id">
+                        <input class="input" type="text" id="email" wire:model="form.emp_id"  wire:keydown="resetValidationForField('form.emp_id')">
                         @error('form.emp_id')
                         <p class="pt-2 px-1 text-danger itloginFont">
                             {{ str_replace('form.emp id', 'Employee ID', $message) }}</p>
@@ -43,7 +43,7 @@
                     </div>
                    <div class="input-block">
                    <label for="pass">Password</label>
-                        <input class="input" type="password" id="pass" wire:model="form.password">
+                        <input class="input" type="password" id="pass" wire:model="form.password"  wire:keydown="resetValidationForField('form.password')">
 
                         @error('form.password')
                         <p class="pt-2 px-1 text-danger itloginFont" >
