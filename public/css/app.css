@@ -1822,5 +1822,14 @@ w
     background-color: #e2e6ea; /* Light grey background on hover */
 }
 
-
+.icon-search-btn {
+    height: 38px;
+    width: 40px;
+    position: relative;
+    border-radius: 0 5px 5px 0;
+    background-color: rgb(2, 17, 79);
+    color: #fff;
+    border: none;
+    margin-right: 10px;
+}
 
