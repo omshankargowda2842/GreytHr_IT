@@ -29,7 +29,7 @@ class Vendor extends Model
         'city',
         'state',
         'pin_code',
-        'note_description',
+        'description',
         'file_paths',
         'is_active',
     ];
@@ -43,6 +43,6 @@ class Vendor extends Model
     {
         return $this->hasMany(VendorAsset::class, 'vendor_id', 'vendor_id');
     }
-    
+
 
 }

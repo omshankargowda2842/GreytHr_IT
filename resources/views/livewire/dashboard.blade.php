@@ -1,7 +1,7 @@
 <div class="main">
 
 <div wire:loading
-        wire:target="itRequest">
+        wire:target="itRequest,assetMod,itMemeber,vendorMod">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -24,7 +24,7 @@
     <!-- ======================= Cards ================== -->
     <div class="row m-0 mt-3">
         <div class="col-md-3 mb-3">
-            <div class="card-home">
+            <div class="card-home" wire:click='itRequest'>
                 <div class="text-home row m-0">
                     <div class="col-6">
                         <i class="fas fa-users fs-1"></i>
@@ -39,7 +39,7 @@
             </div>
         </div>
         <div class="col-md-3 mb-3">
-            <div class="card-home">
+            <div class="card-home" wire:click='itMemeber'>
                 <div class="text-home row m-0">
                     <div class="col-6">
                         <p class="badge dash-custom-bg-color text-black">Active</p>
@@ -57,7 +57,7 @@
         </div>
 
         <div class="col-md-3 mb-3">
-            <div class="card-home">
+            <div class="card-home" wire:click='vendorMod'>
                 <div class="text-home row m-0">
                     <div class="col-6">
                         <i class="fas fa-store fs-1"></i>
@@ -73,7 +73,7 @@
         </div>
 
         <div class="col-md-3 mb-3">
-            <div class="card-home">
+            <div class="card-home" wire:click='assetMod'>
                 <div class="text-home row m-0">
                     <div class="col-6">
                         <p class="badge dash-custom-bg-color text-black">Active</p>

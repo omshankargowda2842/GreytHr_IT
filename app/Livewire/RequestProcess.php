@@ -245,7 +245,8 @@ class RequestProcess extends Component
         $task = HelpDesks::find($taskId);
 
         if ($task) {
-            $task->update(['inprogress_remarks' => $remarks]);
+
+        $task->update(['inprogress_remarks' => $remarks]);
             // $task->update(['inprogress_remarks' => $this->remarks]);
             FlashMessageHelper::flashSuccess("Comment posted successfully!");
 

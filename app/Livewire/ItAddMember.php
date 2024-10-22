@@ -14,15 +14,8 @@ use Illuminate\Support\Facades\Storage;
 
 class ItAddMember extends Component
 {
-
-    use WithFileUploads;
-    public $employeeName;
-    public $employeeId;
-    public $image;
-    public $phoneNumber;
-    public $email;
-    public $dateOfBirth;
-    public $itMembers = [];
+    public $itmember=true;
+    public $itmember1=false;
     public $itRelatedEmye = [];
     public $showAddIt = false;
     public $showEditDeleteIt = true;
@@ -318,7 +311,6 @@ class ItAddMember extends Component
         $this->itRelatedEmye = IT::where('status', 1)
             ->orderBy($this->sortColumn, $this->sortDirection)
             ->get();
-
 
 
         return view('livewire.it-add-member');

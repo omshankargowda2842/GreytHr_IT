@@ -256,7 +256,7 @@ public function updatedContactEmail()
         $this->city = $vendor->city;
         $this->state = $vendor->state;
         $this->pinCode = $vendor->pin_code;
-        $this->noteDescription = $vendor->note_description;
+        $this->noteDescription = $vendor->description;
         $this->existingFilePaths = json_decode($vendor->file_paths, true) ?? [];
         // $this->file_paths = $vendor->file_paths ? json_decode($vendor->file_paths, true) : [];
 
@@ -443,7 +443,7 @@ public function downloadImages($vendorId)
                     'city' => $this->city,
                     'state' => $this->state,
                     'pin_code' => $this->pinCode,
-                    'note_description' => $this->noteDescription,
+                    'description' => $this->noteDescription,
                     'file_paths' => json_encode($fileDataArray),
                 ]);
                 FlashMessageHelper::flashSuccess("Vendor updated successfully!");
@@ -466,7 +466,7 @@ public function downloadImages($vendorId)
                 'city' => $this->city,
                 'state' => $this->state,
                 'pin_code' => $this->pinCode,
-                'note_description' => $this->noteDescription,
+                'description' => $this->noteDescription,
                 'file_paths' => json_encode($fileDataArray),
             ]);
             FlashMessageHelper::flashSuccess("Vendor created successfully!");

@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -11,6 +10,7 @@ class IT extends Authenticatable
 {
     use Notifiable;
     use HasFactory;
+
     protected $table = 'i_t'; // Adjust the table name accordingly
     const ROLE_USER = 'user';
     const ROLE_ADMIN = 'admin';
@@ -34,6 +34,7 @@ class IT extends Authenticatable
     protected $casts = [
         'date_of_birth' => 'date',
         'is_active' => 'boolean',
+        'role' => 'string', // Casting the role as string for ENUM type
     ];
 
     public function com()
@@ -43,7 +44,6 @@ class IT extends Authenticatable
 
     public function empIt()
     {
-
         return $this->belongsTo(EmployeeDetails::class, 'emp_id', 'emp_id');
     }
 
@@ -61,10 +61,12 @@ class IT extends Authenticatable
     //     return 'data:image/jpeg;base64,' . base64_encode($this->attributes['image']);
     // }
 
+    // Check if the user has a specific role
     public function isUser()
     {
         return $this->role === self::ROLE_USER;
     }
+
     public function isAdmin()
     {
         return $this->role === self::ROLE_ADMIN;
@@ -74,8 +76,10 @@ class IT extends Authenticatable
     {
         return $this->role === self::ROLE_SUPER_ADMIN;
     }
+
+    // Generalized role check
     public function hasRole($role)
     {
-        return $this->role == $role;
+        return $this->role === $role;
     }
 }

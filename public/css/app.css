@@ -201,7 +201,7 @@ label {
 }
 
 .submit-btn {
-    background-color:black;
+    background-color:#02114f;
     color: #fff;
     border: 1px solid white;
     font-weight: 500;
@@ -1667,7 +1667,7 @@ w
     display: block;
 }
 .logout2{
-    background-color: black;
+    background-color: #02114f;
 }
 
 .logout3{
@@ -1676,7 +1676,7 @@ w
 }
 .logout4{
 
-    font-size: 16px;color:black;
+    font-size: 16px;color:#02114f;
 }
 .logout5{
     min-height: 76px;
@@ -1705,6 +1705,8 @@ w
 }
 .itloginFont{
     font-size: 12px;
+    margin-left: 2%;
+
 }
 .itlogin4{
     margin-top: 0px;backdrop-filter: blur(36px);
@@ -1746,7 +1748,7 @@ w
     display: block;
 }
 .itlogin12{
-    background-color:black;display: flex;justify-content: space-between;
+    background-color:#02114f;display: flex;justify-content: space-between;
 }
 .itlogin13{
     padding: 5px; color: white; font-size: 15px;

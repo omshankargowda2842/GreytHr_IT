@@ -160,7 +160,7 @@
 
                     <!-- Note/Description -->
                     <div class="col-md-6">
-                        <label for="noteDescription" class="form-label">Note/Description</label>
+                        <label for="noteDescription" class="form-label">Description</label>
                         <textarea id="noteDescription" wire:model="noteDescription" class="form-control"></textarea>
                     </div>
                 </div>
@@ -425,7 +425,7 @@
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Note/Description</td>
-                    <td>{{ $vendor->note_description ?? 'N/A' }}</td>
+                    <td>{{ $vendor->description ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Attachments</td>
