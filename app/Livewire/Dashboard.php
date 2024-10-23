@@ -101,34 +101,61 @@ class Dashboard extends Component
     // Adjusted role-based redirection based on ENUM values
     private function redirectBasedOnRole($routeName)
     {
-        // Get user role
-        $role = auth()->guard('it')->user()->role; // Assuming 'role' is stored as ENUM ('user', 'admin', 'super_admin')
+        // Get the authenticated user
+        $user = auth()->guard('it')->user();
 
-        // Log the role and attempted redirection
-        Log::info("User with role '{$role}' attempting to access {$routeName}");
+        // Log the attempted redirection
+        Log::info("User '{$user->it_emp_id}' attempting to access {$routeName}");
 
-        // Map roles to specific route names based on ENUM values
-        $roleRoutes = [
-            'super_admin' => "super.$routeName", // Super Admin
-            'admin' => "admin.$routeName",       // Admin
-            'user' => "user.$routeName",         // User
-        ];
-
-        // Get the route name for the user's role
-        $route = $roleRoutes[$role] ?? 'dashboard'; // Default to dashboard if role not found
+        // Determine the route based on the user's roles
+        if ($user->hasRole('super_admin')) {
+            $route = $routeName; // Super Admin can access any route
+        } elseif ($user->hasRole('admin')) {
+            $route = $this->getAdminRoute($routeName); // Map admin to specific routes
+        } elseif ($user->hasRole('user')) {
+            $route = $this->getUserRoute($routeName); // Map user to specific routes
+        } else {
+            $route = 'dashboard'; // Default route if no role matches
+        }
 
         // Check if the route exists before redirecting
         if (Route::has($route)) {
-            Log::info("Redirecting user with role '{$role}' to {$route}");
+            Log::info("Redirecting user '{$user->id}' to {$route}");
             return redirect()->route($route);
         } else {
             // Log an error if the route does not exist
-            Log::warning("Route '{$route}' does not exist for role '{$role}'.");
+            Log::warning("Route '{$route}' does not exist for user '{$user->id}'.");
             $this->dispatch('noPermissionAlert', [
                 'message' => 'You don\'t have permissions to access this area.'
             ]);
         }
     }
+
+    // Helper method to get admin-specific route
+    private function getAdminRoute($routeName)
+    {
+        // Admin can access specific routes
+        switch ($routeName) {
+            case 'vendorAssets':
+            case 'employeeAssetList':
+                return $routeName; // Admin has access
+            default:
+                return null; // No access
+        }
+    }
+
+    // Helper method to get user-specific route
+    private function getUserRoute($routeName)
+    {
+        // User can only access specific routes
+        switch ($routeName) {
+            case 'vendor':
+                return $routeName; // User has access
+            default:
+                return null; // No access
+        }
+    }
+
 
     public function render()
     {
