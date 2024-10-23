@@ -26,7 +26,7 @@ class ItAddMember extends Component
     public $assetsFound = false;
     public $showLogoutModal = false;
     public $filteredEmployeeAssets = [];
-    public $reason =[];
+    public $reason = [];
 
     protected function rules()
     {
@@ -46,8 +46,8 @@ class ItAddMember extends Component
         $this->empDetails = null;
         $this->addItmember = true;
         $this->itmember = false;
-        $this->searchFilters =false;
-        $this->resetErrorBag( 'selectedEmployee');
+        $this->searchFilters = false;
+        $this->resetErrorBag('selectedEmployee');
     }
 
     public function Cancel()
@@ -56,8 +56,8 @@ class ItAddMember extends Component
         $this->showLogoutModal = false;
         $this->itmember = true;
         $this->empDetails = null;
-        $this->searchFilters =true;
-        $this->resetErrorBag( 'selectedEmployee');
+        $this->searchFilters = true;
+        $this->resetErrorBag('selectedEmployee');
     }
 
     public $sortColumn = 'emp_id'; // default sorting column
@@ -97,20 +97,19 @@ class ItAddMember extends Component
     public function loadAssetsAndEmployees()
     {
         $this->assetSelectEmp = EmployeeDetails::where('sub_dept_id', '9915')
-        ->where('dept_id', '8803')
-        ->orderBy('first_name', 'asc')->get();
+            ->where('dept_id', '8803')
+            ->orderBy('first_name', 'asc')->get();
     }
 
     private function resetForm()
     {
         $this->selectedEmployee = null;
-
     }
 
 
     public function cancelLogout()
     {
-         $this->showLogoutModal = true;
+        $this->showLogoutModal = true;
     }
 
     public $recordId;
@@ -122,32 +121,32 @@ class ItAddMember extends Component
     }
 
 
-public function delete()
-{
-    $this->validate([
+    public function delete()
+    {
+        $this->validate([
 
-        'reason' => 'required|string|max:255', // Validate the remark input
-    ], [
-        'reason.required' => 'Reason is required.',
-    ]);
-    // $this->resetErrorBag();
-    $itMember = IT::find($this->recordId);
-
-    if ($itMember) {
-        $itMember->update([
-            'delete_itmember_reason' => $this->reason,
-            'status' => 0
+            'reason' => 'required|string|max:255', // Validate the remark input
+        ], [
+            'reason.required' => 'Reason is required.',
         ]);
+        // $this->resetErrorBag();
+        $itMember = IT::find($this->recordId);
+
+        if ($itMember) {
+            $itMember->update([
+                'delete_itmember_reason' => $this->reason,
+                'status' => 0
+            ]);
 
 
-        FlashMessageHelper::flashSuccess("IT member deactivated successfully!");
-        $this->showLogoutModal = false;
-        $this->itRelatedEmye = IT::where('status', 1)->get();
-        // Reset the recordId and reason after processing
-        $this->recordId = null;
-        $this->reason = '';
+            FlashMessageHelper::flashSuccess("IT member deactivated successfully!");
+            $this->showLogoutModal = false;
+            $this->itRelatedEmye = IT::where('status', 1)->get();
+            // Reset the recordId and reason after processing
+            $this->recordId = null;
+            $this->reason = '';
+        }
     }
-}
 
 
 
@@ -189,14 +188,14 @@ public function delete()
             // $trimmedAssetId = trim($this->searchAssetId);
 
             $this->filteredEmployeeAssets = IT::query()
-            ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
-                $query->where(function ($query) use ($trimmedEmpId) {
-                    $query->where('emp_id', 'like', '%' . $trimmedEmpId . '%')
-                        ->orWhere('it_emp_id', 'like', '%' . $trimmedEmpId . '%')
-                        ->orWhere('employee_name', 'like', '%' . $trimmedEmpId . '%')
-                        ->orWhere('email', 'like', '%' . $trimmedEmpId . '%');
-                });
-            })
+                ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
+                    $query->where(function ($query) use ($trimmedEmpId) {
+                        $query->where('emp_id', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('it_emp_id', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('employee_name', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('email', 'like', '%' . $trimmedEmpId . '%');
+                    });
+                })
                 ->get();
 
             $this->assetsFound = count($this->filteredEmployeeAssets) > 0;
@@ -215,23 +214,20 @@ public function delete()
         $this->reset();
         $this->filteredEmployeeAssets = [];
         $this->assetsFound = false;
-
     }
 
 
     public function render()
     {
         $this->itRelatedEmye = !empty($this->filteredEmployeeAssets)
-        ? $this->filteredEmployeeAssets
-        : EmployeeDetails::with('its') // Eager load the empIt relationship
+            ? $this->filteredEmployeeAssets
+            : EmployeeDetails::with('its') // Eager load the empIt relationship
             ->whereHas('its', function ($query) {
                 $query->whereColumn('employee_details.emp_id', 'i_t.emp_id'); // Correctly reference the columns
             })
             ->orderBy($this->sortColumn, $this->sortDirection)
             ->get();
 
-            
-    return view('livewire.it-add-member');
-
+        return view('livewire.it-add-member');
     }
 }
