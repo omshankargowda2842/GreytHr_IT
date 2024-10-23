@@ -80,22 +80,22 @@ class Dashboard extends Component
     // Redirection based on role and request type
     public function itRequest()
     {
-        $this->redirectBasedOnRole('requests');
+         return redirect()->route('requests');
     }
 
     public function itMember()
     {
-        $this->redirectBasedOnRole('itMembers');
+         return redirect()->route('itMembers');
     }
 
     public function vendorMod()
     {
-        $this->redirectBasedOnRole('vendor');
+         return redirect()->route('vendor');
     }
 
     public function assetMod()
     {
-        $this->redirectBasedOnRole('vendorAssets');
+         return redirect()->route('vendorAssets');
     }
 
     // Adjusted role-based redirection based on ENUM values
