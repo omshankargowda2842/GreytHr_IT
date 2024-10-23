@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class RoleByUserMiddleware
 {
@@ -17,14 +18,17 @@ class RoleByUserMiddleware
      */
     public function handle($request, Closure $next, $role)
     {
-        // Split the role parameter by '|', allowing for multiple roles
+        // Split roles
         $roles = explode('|', $role);
-        $user = Auth::user();
+        // dd($roles); // Debugging to check roles array
 
-        // Check if the user has any of the specified roles
+        $user = Auth::user();
+        // dd($user->role);
+
+        // Check if the user has any of the roles
         foreach ($roles as $role) {
-            if ($user->hasRole($role)) {
-                return $next($request);
+            if ($user->hasRole(trim($role))) { // Ensure trimming whitespace
+                return $next($request); // Allows access
             }
         }
 
