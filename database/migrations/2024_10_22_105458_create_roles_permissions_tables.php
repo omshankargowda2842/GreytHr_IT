@@ -16,21 +16,21 @@ class CreateRolesPermissionsTables extends Migration
         // Create Roles Table
         Schema::create('roles', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // e.g., 'admin', 'user', 'editor'
+            $table->string('name')->unique(); // e.g., 'admin', 'user', 'editor'
             $table->timestamps();
         });
 
         // Create Permissions Table
         Schema::create('permissions', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // e.g., 'create-post', 'delete-user'
+            $table->string('name')->unique(); // e.g., 'create-post', 'delete-user'
             $table->timestamps();
         });
 
         // Create Role_User Pivot Table (Many-to-Many between Users and Roles)
         Schema::create('role_user', function (Blueprint $table) {
             $table->id();
-            $table->string('user_id'); // Ensuring the foreign key column is a string
+            $table->string('user_id')->unique(); // Ensuring the foreign key column is a string
             $table->foreign('user_id')->references('it_emp_id')->on('i_t')->onDelete('cascade');
 
             $table->unsignedBigInteger('role_id');

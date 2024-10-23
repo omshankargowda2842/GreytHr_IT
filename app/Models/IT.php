@@ -94,23 +94,23 @@ class IT extends Authenticatable
     }
 
     // Check if the user has a specific role
-    public function hasRole($role)
-    {
-        if (is_string($role)) {
-            return $this->roles()->where('name', $role)->exists();
-        }
-
-        return $this->roles()->where('name', $role->name)->exists();
-    }
-
     // public function hasRole($role)
     // {
-    //     $roleId = is_string($role) ? Role::where('name', $role)->value('id') : $role->id;
-    //     return DB::table('role_user')
-    //         ->where('user_id', $this->it_emp_id) // Use it_emp_id for the user_id
-    //         ->where('role_id', $roleId)
-    //         ->exists();
+    //     if (is_string($role)) {
+    //         return $this->roles()->where('name', $role)->exists();
+    //     }
+
+    //     return $this->roles()->where('name', $role->name)->exists();
     // }
+
+    public function hasRole($role)
+    {
+        $roleId = is_string($role) ? Role::where('name', $role)->value('id') : $role->id;
+        return DB::table('role_user')
+            ->where('user_id', $this->it_emp_id) // Use it_emp_id for the user_id
+            ->where('role_id', $roleId)
+            ->exists();
+    }
 
     // Assign a role to the user
     // public function assignRole($role)
