@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('vendors', function (Blueprint $table) {
             $table->smallInteger('id')->autoIncrement();
-            $table->string('vendor_id',10)->nullable()->default(null)->unique();
+            $table->string('vendor_id',10)->unique()->nullable();
             $table->string('vendor_name',100)->nullable();
             $table->string('contact_name',100)->nullable();
             $table->string('phone',20)->nullable();

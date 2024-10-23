@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('finance', function (Blueprint $table) {
             $table->smallInteger('id')->autoIncrement();
-            $table->string('fi_emp_id', 10)->nullable()->unique();
+            $table->string('fi_emp_id', 10)->unique()->nullable();
             $table->string('emp_id');
             $table->string('employee_name', 100);
             $table->string('email', 100)->unique();

@@ -124,7 +124,7 @@ class Dashboard extends Component
         } else {
             // Log an error if the route does not exist
             Log::warning("Route '{$route}' does not exist for role '{$role}'.");
-            $this->dispatchBrowserEvent('noPermissionAlert', [
+            $this->dispatch('noPermissionAlert', [
                 'message' => 'You don\'t have permissions to access this area.'
             ]);
         }

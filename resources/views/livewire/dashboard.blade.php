@@ -245,6 +245,7 @@ $completedCount = $closedCount;
 
     });
 </script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         Livewire.on('noPermissionAlert', event => {
