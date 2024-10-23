@@ -1,7 +1,6 @@
 <div class="main">
 
-<div wire:loading
-        wire:target="itRequest,assetMod,itMemeber,vendorMod">
+    <div wire:loading wire:target="itRequest,assetMod,itMemeber,vendorMod">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -30,7 +29,7 @@
                         <i class="fas fa-users fs-1"></i>
                     </div>
                     <div class="col-6">
-                        <p class="fs-1 mb-0">{{$activeCount}}</p>
+                        <p class="fs-1 mb-0">{{ $activeCount }}</p>
                     </div>
                 </div>
                 <div class="icons-text">
@@ -39,15 +38,15 @@
             </div>
         </div>
         <div class="col-md-3 mb-3">
-            <div class="card-home" wire:click='itMemeber'>
+            <div class="card-home" wire:click='itMember'>
                 <div class="text-home row m-0">
                     <div class="col-6">
                         <p class="badge dash-custom-bg-color text-black">Active</p>
-                        <p class="fs-1 mb-0">{{$activeItRelatedEmye}}</p>
+                        <p class="fs-1 mb-0">{{ $activeItRelatedEmye }}</p>
                     </div>
                     <div class="col-6">
                         <p class="badge dash-custom-bg-color3 text-black">InActive</p>
-                        <p class="fs-1 mb-0">{{$inactiveItRelatedEmye}}</p>
+                        <p class="fs-1 mb-0">{{ $inactiveItRelatedEmye }}</p>
                     </div>
                 </div>
                 <div class="icons-text">
@@ -63,7 +62,7 @@
                         <i class="fas fa-store fs-1"></i>
                     </div>
                     <div class="col-6">
-                        <p class="fs-1 mb-0">{{$vendors}}</p>
+                        <p class="fs-1 mb-0">{{ $vendors }}</p>
                     </div>
                 </div>
                 <div class="icons-text">
@@ -77,11 +76,11 @@
                 <div class="text-home row m-0">
                     <div class="col-6">
                         <p class="badge dash-custom-bg-color text-black">Active</p>
-                        <p class="fs-1 mb-0">{{$activeAssets}}</p>
+                        <p class="fs-1 mb-0">{{ $activeAssets }}</p>
                     </div>
                     <div class="col-6">
                         <p class="badge dash-custom-bg-color3 text-black">InActive</p>
-                        <p class="fs-1 mb-0">{{$inactiveAssets}}</p>
+                        <p class="fs-1 mb-0">{{ $inactiveAssets }}</p>
                     </div>
                 </div>
                 <div class="icons-text">
@@ -124,37 +123,38 @@
                     </thead>
 
                     <tbody>
-                        @foreach($sortedCategories as $category)
-                        <tr>
-                            <td>{{ $category }}</td> <!-- Display category in the Category column -->
-                            <td class="text-primary">
-                                @php
-                                $statuses = ['Open', 'Pending', 'Completed'];
-                                $filteredRequests = $countRequests->whereIn('status', $statuses)->where('category',
-                                $category);
-                                @endphp
-                                <div class="badge rounded-pill bg-primary text-white">
-                                    {{ $filteredRequests->count() }}
-                                </div>
-                            </td>
-                            <td>
-                                <span class="badge dash-custom-bg-color text-black">
-                                    Active <span
-                                        class="badge rounded-pill bg-white text-dark">{{ $countRequests->where('category', $category)->where('status', 'Open')->count() }}</span>
-                                </span>
-                                <span class="badge dash-custom-bg-color1 text-black">
-                                    Pending <span
-                                        class="badge rounded-pill  bg-white text-dark">{{ $countRequests->where('category', $category)->where('status', 'Pending')->count() }}</span>
-                                </span>
-                                <span class="badge dash-custom-bg-color2 text-black">
-                                    Completed <span
-                                        class="badge rounded-pill  bg-white text-dark">{{ $countRequests->where('category', $category)->where('status', 'Completed')->count() }}</span>
-                                </span>
-                            </td>
-                            <!-- <td>
+                        @foreach ($sortedCategories as $category)
+                            <tr>
+                                <td>{{ $category }}</td> <!-- Display category in the Category column -->
+                                <td class="text-primary">
+                                    @php
+                                        $statuses = ['Open', 'Pending', 'Completed'];
+                                        $filteredRequests = $countRequests
+                                            ->whereIn('status', $statuses)
+                                            ->where('category', $category);
+                                    @endphp
+                                    <div class="badge rounded-pill bg-primary text-white">
+                                        {{ $filteredRequests->count() }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge dash-custom-bg-color text-black">
+                                        Active <span
+                                            class="badge rounded-pill bg-white text-dark">{{ $countRequests->where('category', $category)->where('status', 'Open')->count() }}</span>
+                                    </span>
+                                    <span class="badge dash-custom-bg-color1 text-black">
+                                        Pending <span
+                                            class="badge rounded-pill  bg-white text-dark">{{ $countRequests->where('category', $category)->where('status', 'Pending')->count() }}</span>
+                                    </span>
+                                    <span class="badge dash-custom-bg-color2 text-black">
+                                        Completed <span
+                                            class="badge rounded-pill  bg-white text-dark">{{ $countRequests->where('category', $category)->where('status', 'Completed')->count() }}</span>
+                                    </span>
+                                </td>
+                                <!-- <td>
                                 <button class="btn btn-outline-secondary"><i class="ri-arrow-right-line"></i></button>
                             </td> -->
-                        </tr>
+                            </tr>
                         @endforeach
                     </tbody>
                 </table>
