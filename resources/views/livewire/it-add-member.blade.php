@@ -136,8 +136,16 @@
                         <td scope="row">{{ $loop->iteration }}</td>
                         <td>{{ $itemployee->its->it_emp_id ?? 'N/A' }}</td>
                         <td>{{ $itemployee->emp_id?? 'N/A'  }}</td>
-                        <td>{{ ucwords(strtolower($itemployee->first_name . ' ' . $itemployee->last_name)) ?? 'N/A' }}</td>
-                        <td><img src="{{ $itemployee->image_url }}" alt="Image" class="itAdd4"></td>
+                        <td>{{ ucwords(strtolower($itemployee->first_name . ' ' . $itemployee->last_name)) ?? 'N/A' }}
+                        </td>
+                        <td>
+                            @if(!empty($itemployee->image))
+                            <img class="profile-image" width="50" height="50"
+                                src="data:image/jpeg;base64,{{ $itemployee->image }}">
+                            @else
+                            N/A
+                            @endif
+                        </td>
                         <td>{{ \Carbon\Carbon::parse($itemployee->date_of_birth)->format('d-M-Y') ?? 'N/A'  }}</td>
                         <td>{{ $itemployee->emergency_contact ?? 'N/A'  }}</td>
                         <td>{{ $itemployee->email ?? 'N/A'  }}</td>
@@ -276,8 +284,7 @@
                         </div>
                         @error('reason') <span class="text-danger d-flex align-start">{{ $message }}</span> @enderror
                         <div class="d-flex justify-content-center p-3">
-                            <button type="submit" class="submit-btn mr-3"
-                              >Deactivate</button>
+                            <button type="submit" class="submit-btn mr-3">Deactivate</button>
                             <button type="button" class="cancel-btn1 ml-3" wire:click="Cancel">Cancel</button>
                         </div>
                     </form>
