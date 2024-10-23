@@ -230,6 +230,7 @@ public function delete()
             ->orderBy($this->sortColumn, $this->sortDirection)
             ->get();
 
+            
     return view('livewire.it-add-member');
 
     }
