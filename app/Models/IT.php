@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 
 class IT extends Authenticatable
 {
@@ -102,15 +103,45 @@ class IT extends Authenticatable
         return $this->roles()->where('name', $role->name)->exists();
     }
 
+    // public function hasRole($role)
+    // {
+    //     $roleId = is_string($role) ? Role::where('name', $role)->value('id') : $role->id;
+    //     return DB::table('role_user')
+    //         ->where('user_id', $this->it_emp_id) // Use it_emp_id for the user_id
+    //         ->where('role_id', $roleId)
+    //         ->exists();
+    // }
+
     // Assign a role to the user
+    // public function assignRole($role)
+    // {
+    //     return $this->roles()->attach($role);
+    // }
+
     public function assignRole($role)
     {
-        return $this->roles()->attach($role);
+        $roleId = is_string($role) ? Role::where('name', $role)->value('id') : $role;
+
+        return DB::table('role_user')->insert([
+            'user_id' => $this->it_emp_id, // Use it_emp_id for the user_id
+            'role_id' => $roleId,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 
     // Remove a role from the user
+    // public function removeRole($role)
+    // {
+    //     return $this->roles()->detach($role);
+    // }
     public function removeRole($role)
     {
-        return $this->roles()->detach($role);
+        $roleId = is_string($role) ? Role::where('name', $role)->value('id') : $role;
+
+        return DB::table('role_user')
+            ->where('user_id', $this->it_emp_id) // Use it_emp_id for the user_id
+            ->where('role_id', $roleId)
+            ->delete();
     }
 }

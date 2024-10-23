@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Models;
+
 use App\Models\Vendor;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -16,24 +18,25 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('vendor_assets', function (Blueprint $table) {
-            $table->string('vendor_id',10)->nullable();
-            $table->string('asset_id',10)->primary();
-            $table->string('manufacturer',100)->nullable();
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('vendor_id', 10)->nullable();
+            $table->string('asset_id', 10)->unique()->nullable();
+            $table->string('manufacturer', 100)->nullable();
             $table->integer('asset_type')->nullable();
-            $table->string('asset_model',50)->nullable();
-            $table->string('asset_specification',100)->nullable();
-            $table->string('color',20)->nullable();
-            $table->string('version',50)->nullable();
-            $table->string('serial_number',30)->nullable();
-            $table->string('barcode',50)->nullable();
-            $table->string('invoice_number',50)->nullable();
+            $table->string('asset_model', 50)->nullable();
+            $table->string('asset_specification', 100)->nullable();
+            $table->string('color', 20)->nullable();
+            $table->string('version', 50)->nullable();
+            $table->string('serial_number', 30)->nullable();
+            $table->string('barcode', 50)->nullable();
+            $table->string('invoice_number', 50)->nullable();
             $table->decimal('taxable_amount', 10, 2)->nullable();
             $table->decimal('invoice_amount', 10, 2)->nullable();
-            $table->string('gst_state',10)->nullable();
-            $table->string('gst_central',10)->nullable();
+            $table->string('gst_state', 10)->nullable();
+            $table->string('gst_central', 10)->nullable();
             $table->date('purchase_date')->nullable();
             $table->json('file_paths')->nullable();
-            $table->string('delete_asset_reason',100)->nullable();
+            $table->string('delete_asset_reason', 100)->nullable();
             $table->boolean('is_active')->default(true);
             $table->foreign('vendor_id')
                 ->references('vendor_id')
@@ -60,7 +63,6 @@ return new class extends Migration
         SQL;
 
         DB::unprepared($triggerSQL);
-
     }
 
     /**

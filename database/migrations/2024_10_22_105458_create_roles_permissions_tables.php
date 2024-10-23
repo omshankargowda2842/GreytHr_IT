@@ -31,10 +31,10 @@ class CreateRolesPermissionsTables extends Migration
         Schema::create('role_user', function (Blueprint $table) {
             $table->id();
             $table->string('user_id'); // Ensuring the foreign key column is a string
-            $table->foreign('user_id')->references('it_emp_id')->on('i_t');
+            $table->foreign('user_id')->references('it_emp_id')->on('i_t')->onDelete('cascade');
 
             $table->unsignedBigInteger('role_id');
-            $table->foreign('role_id')->references('id')->on('roles');
+            $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
 
             $table->timestamps();
         });
@@ -49,11 +49,11 @@ class CreateRolesPermissionsTables extends Migration
             // Manually define foreign key constraints
             $table->foreign('permission_id')
                 ->references('id')
-                ->on('permissions');
+                ->on('permissions')->onDelete('cascade');
 
             $table->foreign('role_id')
                 ->references('id')
-                ->on('roles');
+                ->on('roles')->onDelete('cascade');
         });
     }
 
