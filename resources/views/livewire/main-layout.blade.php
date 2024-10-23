@@ -23,7 +23,7 @@
     <div class="sidebar-overlay" data-dismiss="sidebar"></div>
     <div class="sidebar">
         <div class="sidebar-brand-wrapper">
-            <a href="#" class="sidebar-brand">
+            <a href="{{ route('dashboard') }}" class="sidebar-brand">
                 <img src="{{ asset('images/it-xpert.png') }}" alt="" class="sidebar-brand-image" />
                 <span class="sidebar-brand-name">IT Expert</span>
             </a>
