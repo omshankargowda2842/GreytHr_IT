@@ -13,7 +13,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('vendors', function (Blueprint $table) {
-            $table->string('vendor_id',10)->primary();
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('vendor_id',10)->unique()->nullable();
             $table->string('vendor_name',100)->nullable();
             $table->string('contact_name',100)->nullable();
             $table->string('phone',20)->nullable();

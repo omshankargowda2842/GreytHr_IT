@@ -13,7 +13,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('finance', function (Blueprint $table) {
-            $table->string('fi_emp_id', 10)->primary();
+            $table->smallInteger('id')->autoIncrement();
+            $table->string('fi_emp_id', 10)->unique()->nullable();
             $table->string('emp_id');
             $table->string('employee_name', 100);
             $table->string('email', 100)->unique();

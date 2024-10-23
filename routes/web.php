@@ -35,17 +35,29 @@ Route::middleware(['checkauth'])->group(function () {
 });
 
 Route::middleware(['auth:it', 'handleSession'])->group(function () {
-    // Root route, protected by auth:hr middleware
+    // Root route, protected by auth:it middleware
     Route::get('/', Dashboard::class)->name('dashboard');
-    // Group routes under the 'hr' prefix
+
+    // Group routes under the 'it' prefix
     Route::prefix('it')->group(function () {
-        // Super Admin Routes
-        Route::get('/itrequest', RequestProcess::class)->name('requests');
-        Route::get('/itMembers', ItAddMember::class)->name('itMembers'); // Updated name
-        Route::get('/oldItMembers', OldItMembers::class)->name('oldItMembers'); // Updated name
-        Route::get('/vendorAssets', VendorAssets::class)->name('vendorAssets'); // Updated name
-        Route::get('/employeeAssetList', AssignAssetEmployee::class)->name('employeeAssetList'); // Updated name
-        Route::get('/vendor', Vendors::class)->name('vendor'); // Updated name
+
+        // Super Admin Routes (accessible only to super_admin)
+        Route::middleware(['role:super_admin'])->group(function () {
+            Route::get('/itrequest', RequestProcess::class)->name('requests');
+            Route::get('/itMembers', ItAddMember::class)->name('itMembers');
+            Route::get('/oldItMembers', OldItMembers::class)->name('oldItMembers');
+        });
+
+        // Admin Routes (accessible to both admin and super_admin)
+        Route::middleware(['role:admin|super_admin'])->group(function () {
+            Route::get('/vendorAssets', VendorAssets::class)->name('vendorAssets');
+            Route::get('/employeeAssetList', AssignAssetEmployee::class)->name('employeeAssetList');
+        });
+
+        // User Routes (accessible to all roles: user, admin, and super_admin)
+        Route::middleware(['role:user|admin|super_admin'])->group(function () {
+            Route::get('/vendor', Vendors::class)->name('vendor');
+        });
     });
 });
 

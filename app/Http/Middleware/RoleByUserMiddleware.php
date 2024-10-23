@@ -17,10 +17,17 @@ class RoleByUserMiddleware
      */
     public function handle($request, Closure $next, $role)
     {
-        if (!Auth::check() || !Auth::user()->hasRole($role)) {
-            abort(403, 'Unauthorized access');
+        // Split the role parameter by '|', allowing for multiple roles
+        $roles = explode('|', $role);
+        $user = Auth::user();
+
+        // Check if the user has any of the specified roles
+        foreach ($roles as $role) {
+            if ($user->hasRole($role)) {
+                return $next($request);
+            }
         }
 
-        return $next($request);
+        return redirect('/')->with('error', 'You do not have access to this page.');
     }
 }
