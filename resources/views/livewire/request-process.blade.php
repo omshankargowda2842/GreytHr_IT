@@ -24,7 +24,7 @@
 
             <div class="col-lg-9 col-md-7 col-xs-12">
 
-                @php
+                <!-- @php
                 $employee = auth()->guard('it')->user();
                 @endphp
 
@@ -35,7 +35,7 @@
                         working fine
                     </h1>
                 </div>
-                @endif
+                @endif -->
 
                 <div class="req-pro-head">
 
