@@ -2,7 +2,7 @@
 
 
     <div wire:loading
-        wire:target="cancel,submit,createAssetType,showAddVendorMember,filter ,delete,clearFilters ,showEditAsset ,showViewVendor,showViewImage,showViewFile,showEditVendor,closeViewVendor,downloadImages,closeViewImage,closeViewFile,confirmDelete ,cancelLogout,restore">
+        wire:target="cancel,submit,createAssetType,showAddVendorMember ,delete,clearFilters ,showEditAsset ,showViewVendor,showViewImage,showViewFile,showEditVendor,closeViewVendor,downloadImages,closeViewImage,closeViewFile,confirmDelete ,cancelLogout,restore">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -43,7 +43,8 @@
                             wire:change="resetValidationForField('selectedVendorId')" class="vendor-selected-vendorID">
                             <option value="">Select Vendor</option>
                             @foreach($vendors as $vendor)
-                            <option value="{{ $vendor->vendor_id }}">{{ $vendor->vendor_name }}</option>
+                            <option value="{{ $vendor->vendor_id }}">{{ ucwords(strtolower($vendor->vendor_name)) }}
+                            </option>
                             @endforeach
                         </select>
                         @error('selectedVendorId')
@@ -82,7 +83,7 @@
                                 id="assetType" class="vendor-selected-AssetType">
                                 <option value="">Select Asset Type</option>
                                 @foreach($assetNames as $asset)
-                                <option value="{{ $asset->id }}">{{ $asset->asset_names }}</option>
+                                <option value="{{ $asset->id }}">{{ ucwords(strtolower($asset->asset_names)) }}</option>
                                 @endforeach
                                 <option value="others">Others</option>
                             </select>
@@ -281,44 +282,38 @@
 
 
     @if($showEditDeleteVendor)
-    <div class="d-flex justify-content-end mt-5">
-        <button class="btn text-white btn-sm" wire:click='showAddVendorMember'
-            style="margin-right: 9%; padding: 7px;background-color: #02114f;">
-            <i class="fas fa-box"></i> Add Asset
-        </button>
-    </div>
 
-    <div class="col-11 mt-4 ml-4">
+    @if($searchFilters)
 
-        @if($searchFilters)
-        <!-- Search Filters -->
-        <div class="row mb-3 mt-4 ml-4 employeeAssetList">
-            <!-- Employee ID Search Input -->
-            <div class="col-10 col-md-3 mb-2 mb-md-0">
-                <input type="text" class="form-control" placeholder="Search by Serial Number"
-                    wire:model.debounce.500ms="searchEmp" wire:keydown.enter="filter">
-            </div>
+    <div class="row mb-3 mt-4 ml-4 employeeAssetList">
+        <!-- Align items to the same row with space between -->
+        <div class="col-11 col-md-11 mb-2 mb-md-0">
+            <div class="row d-flex justify-content-between">
+                <!-- Employee ID Search Input -->
+                <div class="col-4">
+                    <div class="input-group task-input-group-container">
+                        <input type="text" class="form-control" placeholder="Search..." wire:model="searchEmp"
+                            wire:input="filter">
+                    </div>
+                </div>
 
-            <!-- Asset ID Search Input -->
-            <div class="col-10 col-md-3 mb-2 mb-md-0">
-                <input type="text" class="form-control" placeholder="Search by Asset ID"
-                    wire:model.debounce.500ms="searchAssetId" wire:keydown.enter="filter">
-            </div>
-
-            <!-- Buttons -->
-            <div class="col-10 col-md-3 d-flex gap-2 flex-column flex-md-row">
-                <button class="btn text-white" style="background-color: #02114f;" wire:click="filter">
-                    <i class="fa fa-search"></i> Search
-                </button>
-                <button class="btn btn-white text-dark border border-dark" wire:click="clearFilters">
-                    <i class="fa fa-times"></i> Clear
-                </button>
+                <!-- Add Member Button aligned to the right -->
+                <div class="col-auto">
+                    <button class="btn text-white btn-sm" wire:click='showAddVendorMember'
+                        style="margin-right: 9%; padding: 7px;background-color: #02114f;white-space:nowrap;">
+                        <i class="fas fa-box"></i> Add Asset
+                    </button>
+                </div>
             </div>
         </div>
+    </div>
 
-        @endif
+
+    @endif
 
 
+
+    <div class="col-11 mt-4 ml-4">
         <div class="table-responsive it-add-table-res">
             <table class="custom-table">
                 <thead>
@@ -776,7 +771,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header text-white logout2">
-                    <h6 class="modal-title logout3"  id="logoutModalLabel">Confirm Deactivation
+                    <h6 class="modal-title logout3" id="logoutModalLabel">Confirm Deactivation
                     </h6>
                 </div>
                 <div class="modal-body text-center logout4">
@@ -789,7 +784,7 @@
                             <div class="col-12 req-remarks-div">
 
                                 <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea logout5"
-                                     placeholder="Reason for deactivation"></textarea>
+                                    placeholder="Reason for deactivation"></textarea>
 
                             </div>
                         </div>

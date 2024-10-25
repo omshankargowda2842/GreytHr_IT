@@ -21,21 +21,39 @@
     </div>
 
 
+    @if($searchFilters)
+    <div class="row mb-3 mt-4 ml-4 employeeAssetList">
+        <!-- Align items to the same row with space between -->
+        <div class="col-11 col-md-11 mb-2 mb-md-0">
+            <div class="row d-flex justify-content-start">
+                <!-- Employee ID Search Input -->
+                <div class="col-4">
+                    <div class="input-group task-input-group-container">
+                        <input type="text" class="form-control" placeholder="Search..."
+                            wire:model="searchEmp" wire:input="filter">
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    @endif
     <div class="col-11  mt-4 ml-4">
 
         <div class="table-responsive it-add-table-res">
 
+
             <table class="custom-table">
                 <thead>
                     <tr>
-                        <th scope="col" class="req-table-head">S.No</th>
+                        <th class="req-table-head" scope="col">S.No</th>
+                        <!-- Non-sortable Image Column -->
+                        <th class="req-table-head">Image</th>
                         <th class="req-table-head" wire:click="toggleSortOrder('it_emp_id')" style="cursor: pointer;">IT
                             Employee ID
-                            @if($sortColumn == 'it_emp_id')
-                            <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
-                            @else
-                            <i class="fas fa-sort"></i>
-                            @endif
+
                         </th>
                         <!-- Sortable Employee ID Column -->
                         <th class="req-table-head" wire:click="toggleSortOrder('emp_id')" style="cursor: pointer;">
@@ -48,35 +66,9 @@
                         </th>
 
                         <!-- Sortable Employee Name Column -->
-                        <th class="req-table-head" wire:click="toggleSortOrder('employee_name')"
-                            style="cursor: pointer;">
+                        <th class="req-table-head" wire:click="toggleSortOrder('first_name')" style="cursor: pointer;">
                             Employee Name
-                            @if($sortColumn == 'employee_name')
-                            <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
-                            @else
-                            <i class="fas fa-sort"></i>
-                            @endif
-                        </th>
-
-                        <!-- Non-sortable Image Column -->
-                        <th class="req-table-head">Image</th>
-
-                        <!-- Sortable Date Of Birth Column -->
-                        <th class="req-table-head" wire:click="toggleSortOrder('date_of_birth')"
-                            style="cursor: pointer;">
-                            Date Of Birth
-                            @if($sortColumn == 'date_of_birth')
-                            <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
-                            @else
-                            <i class="fas fa-sort"></i>
-                            @endif
-                        </th>
-
-                        <!-- Sortable Phone Column -->
-                        <th class="req-table-head" wire:click="toggleSortOrder('phone_number')"
-                            style="cursor: pointer;">
-                            Phone
-                            @if($sortColumn == 'phone_number')
+                            @if($sortColumn == 'first_name' || $sortColumn == 'last_name')
                             <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
                             @else
                             <i class="fas fa-sort"></i>
@@ -97,30 +89,37 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if($itRelatedEmye->count() > 0)
+                    @if(!empty($itRelatedEmye) && $itRelatedEmye->isNotEmpty())
                     @foreach($itRelatedEmye as $itemployee)
                     <tr>
-                        <!-- <th scope="row">{{ $loop->iteration }}</th> -->
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $itemployee->it_emp_id }}</td>
-                        <td>{{ $itemployee->emp_id }}</td>
-                        <td>{{ ucwords(strtolower($itemployee->employee_name)) }}</td>
-                        <td><img src="{{ $itemployee->image_url }}" class="oldItMemImage" alt="Image"></td>
 
-                        <td>{{ \Carbon\Carbon::parse($itemployee->date_of_birth)->format('d-M-Y') }}</td>
-                        <td>{{ $itemployee->phone_number }}</td>
-                        <td>{{ $itemployee->email }}</td>
+                        <td scope="row">{{ $loop->iteration }}</td>
+                        <td>
+                            @if(!empty($itemployee->image))
+                            <img class="profile-image" width="50" height="38"
+                                src="data:image/jpeg;base64,{{ $itemployee->image }}"  style="border-radius: 50%; object-fit: cover;">
+                            @else
+                            N/A
+                            @endif
+                        </td>
+                        <td>{{ $itemployee->its->it_emp_id ?? 'N/A' }}</td>
+                        <td>{{ $itemployee->emp_id?? 'N/A'  }}</td>
+                        <td>{{ ucwords(strtolower($itemployee->first_name . ' ' . $itemployee->last_name)) ?? 'N/A' }}
+                        </td>
+
+                        <td>{{ $itemployee->email ?? 'N/A'  }}</td>
                         <td class="d-flex flex-direction-row">
 
-                            <!-- Delete Action -->
-                            <div class="col">
+                            <!-- Restore Action -->
+                            <div class="col mx-1">
                                 <button class="btn text-white border-white" style="background-color: #02114f;"
                                     wire:click='cancelLogout'>
-                                    <i class="fas fa-undo"></i>
+                                    <i class="fas fa-undo-alt"></i>
                                 </button>
                             </div>
                         </td>
                     </tr>
+
                     @endforeach
                     @else
                     <tr>
@@ -155,7 +154,7 @@
 
                 <div class="d-flex justify-content-center p-3">
                     <button type="button" class="submit-btn mr-3"
-                        wire:click="restore({{ $itemployee->id }})">Restore</button>
+                        wire:click="restore('{{ $itemployee->its->it_emp_id }}')">Restore</button>
                     <button type="button" class="cancel-btn1 ml-3" wire:click="cancel">Cancel</button>
                 </div>
             </div>

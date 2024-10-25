@@ -280,7 +280,7 @@ padding: 10px;
  }
 
  .req-pro-req-pro-nav {
-     width: 95%;
+     width: 100%;
      margin-top: 10px;
      background-color: #fff;
      z-index: 999;
@@ -362,7 +362,7 @@ padding: 10px;
  .req-pro-tab-content {
      display: none;
      margin-left: 20px;
-     width: 87%;
+     width:95%;
  }
 
  .req-pro-tab-content h3 {
@@ -433,7 +433,13 @@ padding: 10px;
     scrollbar-width: none; /* Hides the scrollbar for Firefox */
 }
 
+.requestAttachments{
+    text-decoration: none;
 
+}
+.requestAttachments:hover{
+    color: #02114f;
+}
  .request-card {
      flex: 1 1 calc(33.33% - 18px);
      box-sizing: border-box;
@@ -1622,6 +1628,15 @@ w
 
 /* assignAssetToEmployeee............................................................ */
 
+.assetAddPage{
+
+   border: 1px solid #ccc;
+   border-radius: 20px;
+   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+   padding: 3%;
+   margin-left: 4%;
+   background-color: #f6f6f661;
+}
 
 .assetEmpDetailsCard{
     border: 1px solid black;
@@ -1833,3 +1848,28 @@ w
     margin-right: 10px;
 }
 
+
+::-webkit-scrollbar {
+    width: 5px;
+}
+::-webkit-scrollbar-thumb {
+    background: #9f9e9e;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #9f9e9e;
+}
+
+/* Horizontal scrollbar */
+::-webkit-scrollbar:horizontal {
+    height: 5px; /* Height for horizontal scrollbar */
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+    background: #9f9e9e;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:horizontal:hover {
+    background: #9f9e9e;
+}

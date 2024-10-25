@@ -1,7 +1,7 @@
 <div class="main">
 
 <div wire:loading
-        wire:target="itRequest,assetMod,itMemeber,vendorMod">
+        wire:target="itRequest,assetMod,itMember,vendorMod">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -39,7 +39,7 @@
             </div>
         </div>
         <div class="col-md-3 mb-3">
-            <div class="card-home" wire:click='itMemeber'>
+            <div class="card-home" wire:click='itMember'>
                 <div class="text-home row m-0">
                     <div class="col-6">
                         <p class="badge dash-custom-bg-color text-black">Active</p>

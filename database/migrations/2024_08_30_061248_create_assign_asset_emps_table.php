@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('asset_type')->nullable();
             $table->string('employee_name',100)->nullable();
             $table->string('department',100)->nullable();
-            $table->string('delete_reason',100)->nullable();
+            $table->string('delete_reason',200)->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamp('deleted_at')->nullable();
             $table->foreign('asset_id')

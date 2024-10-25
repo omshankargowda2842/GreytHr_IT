@@ -1,7 +1,7 @@
 <div class="main">
 
     <div wire:loading
-        wire:target="cancel,submit,showAddVendorMember,filter ,clearFilters ,showViewVendor,showViewImage,showViewFile,showEditVendor,closeViewVendor,downloadImages,closeViewImage,closeViewFile,confirmDelete ,cancelLogout,">
+        wire:target="cancel,submit,showAddVendorMember ,clearFilters ,showViewVendor,showViewImage,showViewFile,showEditVendor,closeViewVendor,downloadImages,closeViewImage,closeViewFile,confirmDelete ,cancelLogout,">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -190,46 +190,36 @@
 
 
     @if($showEditDeleteVendor)
-    <div class="d-flex justify-content-end mt-5">
-        <button class="btn text-white btn-sm" wire:click='showAddVendorMember'
-            style="margin-right: 9%;padding: 7px;background-color: #02114f;"><i class="fas fa-user-plus"></i> Add
-            Vendor</button>
-    </div>
+
+    @if($searchFilters)
 
 
-
-
-    <div class="col-11 mt-4 ml-4">
-        @if($searchFilters)
-
-        <!-- Search Filters -->
-        <div class="row mb-3 mt-4 ml-4 employeeAssetList">
+<div class="row mb-3 mt-4 ml-4 employeeAssetList">
+    <!-- Align items to the same row with space between -->
+    <div class="col-11 col-md-11 mb-2 mb-md-0">
+        <div class="row d-flex justify-content-between">
             <!-- Employee ID Search Input -->
-            <div class="col-10 col-md-3 mb-2 mb-md-0">
-                <input type="text" class="form-control" placeholder="Search by Vendor ID/Name"
-                    wire:model.debounce.500ms="searchVendor" wire:keydown.enter="filter">
+            <div class="col-4">
+                <div class="input-group task-input-group-container">
+                    <input type="text" class="form-control" placeholder="Search..." wire:model="searchVendor"
+                        wire:input="filter">
+                </div>
             </div>
 
-            <!-- Asset ID Search Input -->
-            <div class="col-10 col-md-3 mb-2 mb-md-0">
-                <input type="text" class="form-control" placeholder="Search by Contact Name"
-                    wire:model.debounce.500ms="searchContactName" wire:keydown.enter="filter">
-            </div>
-
-            <!-- Buttons -->
-            <div class="col-10 col-md-3 d-flex gap-2 flex-column flex-md-row">
-                <button class="btn text-white" style="background-color: #02114f;" wire:click="filter">
-                    <i class="fa fa-search"></i> Search
-                </button>
-                <button class="btn btn-white text-dark border border-dark" wire:click="clearFilters">
-                    <i class="fa fa-times"></i> Clear
-                </button>
+            <!-- Add Member Button aligned to the right -->
+            <div class="col-auto">
+                <button class="btn text-white btn-sm" wire:click='showAddVendorMember'
+                    style="margin-right: 9%;padding: 7px;background-color: #02114f;white-space:nowrap;"><i
+                        class="fas fa-user-plus"></i> Add
+                    Vendor</button>
             </div>
         </div>
+    </div>
+</div>
 
-        @endif
+@endif
 
-
+    <div class="col-11 mt-4 ml-4">
         <div class="table-responsive it-add-table-res">
             <table class="custom-table">
                 <thead>
@@ -324,7 +314,7 @@
                     @endforeach
                     @else
                     <tr>
-                        <td colspan="7" >
+                        <td colspan="7">
                             <div class="req-td-norecords">
                                 <img src="{{ asset('images/Closed.webp') }}" alt="No Records" class="req-img-norecords">
                                 <h3 class="req-head-norecords">No records found</h3>

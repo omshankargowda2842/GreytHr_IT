@@ -919,7 +919,7 @@ body.sidebar-collapsed .main {
         width: 32px;
     }
     .topbar-page-name {
-        display: block;
+        display: none;
     }
 }
 
@@ -950,6 +950,11 @@ body.sidebar-collapsed .main {
     .topbar-search-form-autocomplete {
         max-width: calc(100% - 32px);
     }
+
+     .topbar-page-name {
+        display: block;
+    }
+
 }
 /* end: Breakpoints */
 ol, ul {

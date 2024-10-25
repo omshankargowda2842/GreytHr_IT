@@ -1,7 +1,7 @@
 <div class="main">
 
     <div wire:loading
-        wire:target="cancel,backVendor,oldAssetlisting,assignAsset,viewDetails,edit,selectedAsset,closeViewEmpAsset,viewOldAssetDetails,selectedEmployee,submit,createAssetType,showAddVendorMember,filter ,delete,clearFilters ,showEditAsset ,showViewVendor,showViewImage,showViewFile,showEditVendor,closeViewVendor,downloadImages,closeViewImage,closeViewFile,confirmDelete ,cancelLogout,restore">
+        wire:target="cancel,backVendor,oldAssetlisting,assignAsset,viewDetails,edit,selectedAsset,closeViewEmpAsset,viewOldAssetDetails,selectedEmployee,submit,createAssetType,showAddVendorMember,delete,clearFilters ,showEditAsset ,showViewVendor,showViewImage,showViewFile,showEditVendor,closeViewVendor,downloadImages,closeViewImage,closeViewFile,confirmDelete ,cancelLogout,restore">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -30,21 +30,10 @@
             </button>
         </div>
         @endif
-        <div class="col-11 d-flex justify-content-end">
-            <div class="">
-
-                @if ($showOldEMployeeAssetBtn)
-                <button class="btn text-white mr-3" style="background-color: #02114f;"
-                    wire:click="oldAssetlisting">Previous Owners </button>
-                @endif
-                @if ($showAssignAssetBtn)
-                <button class="btn text-white" style="background-color: #02114f;" wire:click="assignAsset">Assign
-                    Asset</button>
-                @endif
-            </div>
-        </div>
 
         @if($assetEmpCreateUpdate)
+
+        <div class="col-11 assetAddPage mb-3">
         <!-- Row for Dropdowns -->
         <div class="row mb-3 d-flex justify-content-around">
 
@@ -97,7 +86,7 @@
 
         <!-- Row for Details Cards -->
         <div class="row mt-4 d-flex justify-content-around">
-            <div class="col-md-4">
+            <div class="col-md-5">
                 @if ($empDetails)
                 <div class="assetEmpDetailsCard p-3 mb-3">
                     <h5><u>Employee Details</u></h5>
@@ -111,7 +100,7 @@
 
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-5">
                 @if ($assetDetails)
                 <div class="assetEmpDetailsCard p-3 mb-3">
                     <h5><u>Asset Details</u></h5>
@@ -133,6 +122,8 @@
             </button>
 
         </div>
+
+    </div>
         @endif
 
 
@@ -141,30 +132,38 @@
         @if($employeeAssetListing)
 
         @if($searchFilters)
-        <!-- Search Filters -->
+
         <div class="row mb-3 mt-4 ml-4 employeeAssetList">
-            <!-- Employee ID Search Input -->
-            <div class="col-10 col-md-3 mb-2 mb-md-0">
-                <input type="text" class="form-control" placeholder="Search by Employee ID/Name"
-                    wire:model.debounce.500ms="searchEmp" wire:keydown.enter="filter">
-            </div>
+            <!-- Align items to the same row with space between -->
+            <div class="col-11 col-md-11 mb-2 mb-md-0">
+                <div class="row d-flex justify-content-between">
+                    <!-- Employee ID Search Input -->
+                    <div class="col-4">
+                        <div class="input-group task-input-group-container">
+                            <input type="text" class="form-control" placeholder="Search..." wire:model="searchEmp"
+                                wire:input="filter">
+                        </div>
+                    </div>
 
-            <!-- Asset ID Search Input -->
-            <div class="col-10 col-md-3 mb-2 mb-md-0">
-                <input type="text" class="form-control" placeholder="Search by Asset ID"
-                    wire:model.debounce.500ms="searchAssetId" wire:keydown.enter="filter">
-            </div>
+                    <!-- Add Member Button aligned to the right -->
+                    <div class="col-auto">
+                        <div class="">
 
-            <!-- Buttons -->
-            <div class="col-10 col-md-3 d-flex gap-2 flex-column flex-md-row">
-                <button class="btn text-white" style="background-color: #02114f;" wire:click="filter">
-                    <i class="fa fa-search"></i> Search
-                </button>
-                <button class="btn btn-white text-dark border border-dark" wire:click="clearFilters">
-                    <i class="fa fa-times"></i> Clear
-                </button>
+                            @if ($showOldEMployeeAssetBtn)
+                            <button class="btn text-white mr-3" style="background-color: #02114f;"
+                                wire:click="oldAssetlisting">Previous Owners </button>
+                            @endif
+                            @if ($showAssignAssetBtn)
+                            <button class="btn text-white" style="background-color: #02114f;"
+                                wire:click="assignAsset">Assign
+                                Asset</button>
+                            @endif
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+
 
         @endif
         @if($showEditDeleteEmployeeAsset)
@@ -176,8 +175,7 @@
                     <thead>
                         <tr>
                             <th class="req-table-head" scope="col">Employee ID
-                                <span wire:click.debounce.500ms="toggleSortOrder('emp_id')"
-                                    style="cursor: pointer;">
+                                <span wire:click.debounce.500ms="toggleSortOrder('emp_id')" style="cursor: pointer;">
                                     @if($sortColumn == 'emp_id')
                                     <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
                                     @else
@@ -242,7 +240,13 @@
                     </thead>
                     <tbody>
 
-                        @if($employeeAssetLists->count() > 0)
+                        {{-- Ensure $employeeAssetLists is initialized --}}
+                        @php
+                        $employeeAssetLists = $employeeAssetLists ?? collect(); // Initialize as an empty collection if
+                        null
+                        @endphp
+
+                        @if($employeeAssetLists->count() > 0 && $employeeAssetLists->where('is_active', 1)->count() > 0)
                         @foreach($employeeAssetLists as $employeeAssetList)
                         @if($employeeAssetList->is_active == 1)
                         <tr>
@@ -403,42 +407,37 @@
 
         @if($oldAssetEmp)
 
-        @if($oldAssetBackButton)
-        <div class="col-11 d-flex justify-content-start mb-4" style="margin-left: 5%;">
-            <div class="">
-                <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewVendor"
-                    aria-label="Close">
-                    <i class="fas fa-arrow-left"></i> Back
-                </button>
-            </div>
-        </div>
-        @endif
+
 
         @if($searchFilters)
         <!-- Search Filters -->
         <div class="row mb-3 mt-4 ml-4 employeeAssetList">
-            <!-- Employee  Search Input -->
-            <div class="col-10 col-md-3 mb-2 mb-md-0">
-                <input type="text" class="form-control" placeholder="Search by Employee ID/Name"
-                    wire:model.debounce.500ms="searchEmp" wire:keydown.enter="filter">
-            </div>
+            <!-- Align items to the same row with space between -->
+            <div class="col-11 col-md-11 mb-2 mb-md-0">
+                <div class="row d-flex justify-content-between">
+                    <!-- Employee ID Search Input -->
+                    <div class="col-4">
+                        @if($oldAssetBackButton)
 
-            <!-- Asset ID Search Input -->
-            <div class="col-10 col-md-3 mb-2 mb-md-0">
-                <input type="text" class="form-control" placeholder="Search by Asset ID"
-                    wire:model.debounce.500ms="searchAssetId" wire:keydown.enter="filter">
-            </div>
+                                <button class="btn text-white" style="background-color: #02114f;"
+                                    wire:click="closeViewVendor" aria-label="Close">
+                                    <i class="fas fa-arrow-left"></i> Back
+                                </button>
 
-            <!-- Buttons -->
-            <div class="col-10 col-md-3 d-flex gap-2 flex-column flex-md-row">
-                <button class="btn text-white" style="background-color: #02114f;" wire:click="filter">
-                    <i class="fa fa-search"></i> Search
-                </button>
-                <button class="btn btn-white text-dark border border-dark" wire:click="clearFilters">
-                    <i class="fa fa-times"></i> Clear
-                </button>
+                        @endif
+                    </div>
+
+                    <!-- Add Member Button aligned to the right -->
+                    <div class="col-4">
+
+                        <input type="text" class="form-control" placeholder="Search..." wire:model="searchEmp"
+                            wire:input="filter">
+                    </div>
+                </div>
             </div>
         </div>
+
+
 
         @endif
         @if($showEditDeleteEmployeeAsset)
@@ -448,9 +447,8 @@
                 <table class="custom-table">
                     <thead>
                         <tr>
-                        <th class="req-table-head" scope="col">Employee ID
-                                <span wire:click.debounce.500ms="toggleSortOrder('emp_id')"
-                                    style="cursor: pointer;">
+                            <th class="req-table-head" scope="col">Employee ID
+                                <span wire:click.debounce.500ms="toggleSortOrder('emp_id')" style="cursor: pointer;">
                                     @if($sortColumn == 'emp_id')
                                     <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
                                     @else
@@ -514,7 +512,7 @@
                     </thead>
                     <tbody>
 
-                        @if($employeeAssetLists->count() > 0)
+                        @if($employeeAssetLists->count() > 0 && $employeeAssetLists->where('is_active', 0)->count() > 0)
                         @foreach($employeeAssetLists as $employeeAssetList)
                         @if($employeeAssetList->is_active == 0)
                         <tr>
@@ -670,7 +668,7 @@
 
 
     @if ($showLogoutModal)
-    <div class="modal logout1"  id="logoutModal" tabindex="-1">
+    <div class="modal logout1" id="logoutModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header text-white logout2">
@@ -686,7 +684,7 @@
                             <div class="col-12 req-remarks-div">
 
                                 <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea logout4"
-                                  placeholder="Reason for deactivation"></textarea>
+                                    placeholder="Reason for deactivation"></textarea>
 
                             </div>
                         </div>

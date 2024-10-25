@@ -57,6 +57,7 @@ Route::middleware(['auth:it', 'handleSession'])->group(function () {
         // User Routes (accessible to all roles: user, admin, and super_admin)
         Route::middleware(['role:user|admin|super_admin'])->group(function () {
             Route::get('/vendor', Vendors::class)->name('vendor');
+            Route::get('/itrequest', RequestProcess::class)->name('requests');
         });
     });
 });

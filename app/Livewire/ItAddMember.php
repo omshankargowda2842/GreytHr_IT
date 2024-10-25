@@ -130,8 +130,9 @@ public function delete()
     ], [
         'reason.required' => 'Reason is required.',
     ]);
-    // $this->resetErrorBag();
-    $itMember = IT::find($this->recordId);
+    // $this->resetErrorBag();]
+
+    $itMember = IT::where('it_emp_id', $this->recordId)->first();
 
     if ($itMember) {
         $itMember->update([
@@ -142,7 +143,6 @@ public function delete()
 
         FlashMessageHelper::flashSuccess("IT member deactivated successfully!");
         $this->showLogoutModal = false;
-        $this->itRelatedEmye = IT::where('status', 1)->get();
         // Reset the recordId and reason after processing
         $this->recordId = null;
         $this->reason = '';
@@ -181,56 +181,38 @@ public function delete()
         }
     }
 
-
     public function filter()
-    {
-        try {
-            $trimmedEmpId = trim($this->searchEmp);
-            // $trimmedAssetId = trim($this->searchAssetId);
+{
+    $trimmedEmpId = trim($this->searchEmp); // Trimmed search input
 
-            $this->filteredEmployeeAssets = IT::query()
-            ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
-                $query->where(function ($query) use ($trimmedEmpId) {
-                    $query->where('emp_id', 'like', '%' . $trimmedEmpId . '%')
-                        ->orWhere('it_emp_id', 'like', '%' . $trimmedEmpId . '%')
-                        ->orWhere('employee_name', 'like', '%' . $trimmedEmpId . '%')
-                        ->orWhere('email', 'like', '%' . $trimmedEmpId . '%');
-                });
-            })
-                ->get();
-
-            $this->assetsFound = count($this->filteredEmployeeAssets) > 0;
-        } catch (\Exception $e) {
-            Log::error('Error in filter method: ' . $e->getMessage());
-        }
-    }
-
-
-
-    public function clearFilters()
-    {
-        // Reset search fields and filtered results
-        // $this->searchEmp = '';
-        // $this->searchAssetId = '';
-        $this->reset();
-        $this->filteredEmployeeAssets = [];
-        $this->assetsFound = false;
-
-    }
+    return EmployeeDetails::with('its') // Eager load the 'its' relationship
+        ->whereHas('its', function ($query) {
+            $query->where('status', 1) // Add condition for status = 1
+            ->whereColumn('employee_details.emp_id', 'i_t.emp_id');
+        })
+        ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
+            // Apply the search filters based on input
+            $query->where(function ($query) use ($trimmedEmpId) {
+                $query->where('emp_id', 'like', '%' . $trimmedEmpId . '%')
+                    ->orWhereHas('its', function ($query) use ($trimmedEmpId) {
+                        // Filtering IT employee details as well
+                        $query->where('it_emp_id', 'like', '%' . $trimmedEmpId . '%');
+                    })
+                    ->orWhere('first_name', 'like', '%' . $trimmedEmpId . '%')
+                    ->orWhere('last_name', 'like', '%' . $trimmedEmpId . '%')
+                    ->orWhere('email', 'like', '%' . $trimmedEmpId . '%');
+            });
+        })
+        ->orderBy($this->sortColumn, $this->sortDirection)
+        ->get();
+}
 
 
     public function render()
     {
-        $this->itRelatedEmye = !empty($this->filteredEmployeeAssets)
-        ? $this->filteredEmployeeAssets
-        : EmployeeDetails::with('its') // Eager load the empIt relationship
-            ->whereHas('its', function ($query) {
-                $query->whereColumn('employee_details.emp_id', 'i_t.emp_id'); // Correctly reference the columns
-            })
-            ->orderBy($this->sortColumn, $this->sortDirection)
-            ->get();
 
-            
+        $this->itRelatedEmye = $this->filter();
+
     return view('livewire.it-add-member');
 
     }

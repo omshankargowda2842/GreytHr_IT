@@ -2,7 +2,7 @@
 
 
     <div wire:loading
-        wire:target="submit, showEditItMember,filter, Cancel, clearFilters,confirmDelete, delete, showAddItMember">
+        wire:target="submit, showEditItMember, Cancel, clearFilters,confirmDelete, delete, showAddItMember,addMember">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -24,31 +24,34 @@
 
 
     @if($itmember)
-    <div class="d-flex justify-content-end mt-5">
-        <button class="btn text-white btn-sm itAdd3" style="background-color: #02114f;" wire:click='addMember'><i
-                class="fas fa-user-plus "></i>
-            Add Member</button>
-    </div>
 
     @if($searchFilters)
     <!-- Search Filters -->
     <div class="row mb-3 mt-4 ml-4 employeeAssetList">
-        <!-- Employee ID Search Input -->
-        <div class="col-10 col-md-4 mb-2 mb-md-0">
-            <div class="input-group task-input-group-container">
-                <input type="text" class="form-control" placeholder="Search..." wire:model.debounce.500ms="searchEmp">
-                <div class="input-group-append">
-                    <button wire:click="filter" class="icon-search-btn" type="button">
-                        <i class="fa fa-search task-search-icon"></i>
-                    </button>
-                    <button class="btn btn-white text-dark border border-dark" wire:click="clearFilters">
-                        <i class="fa fa-times"></i> Clear
+        <!-- Align items to the same row with space between -->
+        <div class="col-11 col-md-11 mb-2 mb-md-0">
+            <div class="row d-flex justify-content-between">
+                <!-- Employee ID Search Input -->
+                <div class="col-4">
+                    <div class="input-group task-input-group-container">
+                        <input type="text" class="form-control" placeholder="Search..."
+                            wire:model="searchEmp" wire:input="filter">
+                    </div>
+                </div>
+
+                <!-- Add Member Button aligned to the right -->
+                <div class="col-auto">
+                    <button class="btn text-white btn-sm itAdd3" style="background-color: #02114f;white-space: nowrap;"
+                        wire:click='addMember'>
+                        <i class="fas fa-user-plus"></i> Add Member
                     </button>
                 </div>
             </div>
         </div>
-
     </div>
+
+
+
 
     @endif
     <div class="col-11  mt-4 ml-4">
@@ -60,14 +63,11 @@
                 <thead>
                     <tr>
                         <th class="req-table-head" scope="col">S.No</th>
-
+                        <!-- Non-sortable Image Column -->
+                        <th class="req-table-head">Image</th>
                         <th class="req-table-head" wire:click="toggleSortOrder('it_emp_id')" style="cursor: pointer;">IT
                             Employee ID
-                            @if($sortColumn == 'it_emp_id')
-                            <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
-                            @else
-                            <i class="fas fa-sort"></i>
-                            @endif
+
                         </th>
                         <!-- Sortable Employee ID Column -->
                         <th class="req-table-head" wire:click="toggleSortOrder('emp_id')" style="cursor: pointer;">
@@ -80,35 +80,9 @@
                         </th>
 
                         <!-- Sortable Employee Name Column -->
-                        <th class="req-table-head" wire:click="toggleSortOrder('employee_name')"
-                            style="cursor: pointer;">
+                        <th class="req-table-head" wire:click="toggleSortOrder('first_name')" style="cursor: pointer;">
                             Employee Name
-                            @if($sortColumn == 'employee_name')
-                            <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
-                            @else
-                            <i class="fas fa-sort"></i>
-                            @endif
-                        </th>
-
-                        <!-- Non-sortable Image Column -->
-                        <th class="req-table-head">Image</th>
-
-                        <!-- Sortable Date Of Birth Column -->
-                        <th class="req-table-head" wire:click="toggleSortOrder('date_of_birth')"
-                            style="cursor: pointer;">
-                            Date Of Birth
-                            @if($sortColumn == 'date_of_birth')
-                            <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
-                            @else
-                            <i class="fas fa-sort"></i>
-                            @endif
-                        </th>
-
-                        <!-- Sortable Phone Column -->
-                        <th class="req-table-head" wire:click="toggleSortOrder('phone_number')"
-                            style="cursor: pointer;">
-                            Phone
-                            @if($sortColumn == 'phone_number')
+                            @if($sortColumn == 'first_name' || $sortColumn == 'last_name')
                             <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
                             @else
                             <i class="fas fa-sort"></i>
@@ -129,32 +103,32 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if($itRelatedEmye)
+                    @if(!empty($itRelatedEmye) && $itRelatedEmye->isNotEmpty())
                     @foreach($itRelatedEmye as $itemployee)
                     <tr>
 
                         <td scope="row">{{ $loop->iteration }}</td>
-                        <td>{{ $itemployee->its->it_emp_id ?? 'N/A' }}</td>
-                        <td>{{ $itemployee->emp_id?? 'N/A'  }}</td>
-                        <td>{{ ucwords(strtolower($itemployee->first_name . ' ' . $itemployee->last_name)) ?? 'N/A' }}
-                        </td>
                         <td>
                             @if(!empty($itemployee->image))
-                            <img class="profile-image" width="50" height="50"
-                                src="data:image/jpeg;base64,{{ $itemployee->image }}">
+                            <img class="profile-image" width="50" height="38"
+                                src="data:image/jpeg;base64,{{ $itemployee->image }}"
+                                style="border-radius: 50%; object-fit: cover;">
                             @else
                             N/A
                             @endif
                         </td>
-                        <td>{{ \Carbon\Carbon::parse($itemployee->date_of_birth)->format('d-M-Y') ?? 'N/A'  }}</td>
-                        <td>{{ $itemployee->emergency_contact ?? 'N/A'  }}</td>
+                        <td>{{ $itemployee->its->it_emp_id ?? 'N/A' }}</td>
+                        <td>{{ $itemployee->emp_id?? 'N/A'  }}</td>
+                        <td>{{ ucwords(strtolower($itemployee->first_name . ' ' . $itemployee->last_name)) ?? 'N/A' }}
+                        </td>
+
                         <td>{{ $itemployee->email ?? 'N/A'  }}</td>
                         <td class="d-flex flex-direction-row">
 
                             <!-- Delete Action -->
                             <div class="col mx-1">
                                 <button class="btn text-white border-white" style="background-color: #02114f;"
-                                    wire:click='confirmDelete({{ $itemployee->id }})'>
+                                    wire:click="confirmDelete('{{ $itemployee->its->it_emp_id }}')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -167,11 +141,11 @@
                     <tr>
                         <td colspan="20">
 
-                            <div class="col mx-1">
-                                <button class="btn text-white border-white" style="background-color: #02114f;"
-                                    wire:click="confirmDelete({{ $itemployee->id }})">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                            <div class="req-td-norecords">
+                                <img src="{{ asset('images/Closed.webp') }}" alt="No Records" class="req-img-norecords">
+
+
+                                <h3 class="req-head-norecords">No data found</h3>
                             </div>
                         </td>
                     </tr>
@@ -219,9 +193,10 @@
                         <option value="">Choose Employee</option>
                         @foreach ($assetSelectEmp as $employee)
                         <option value="{{ $employee->emp_id }}" class="">
-                            {{ $employee->emp_id }} - {{ $employee->first_name }} {{ $employee->last_name }}
-
+                            {{ $employee->emp_id }} - {{ ucwords($employee->first_name) }}
+                            {{ ucwords($employee->last_name) }}
                         </option>
+
                         @endforeach
                     </select>
                     @error('selectedEmployee')
