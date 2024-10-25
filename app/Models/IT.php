@@ -79,13 +79,6 @@ class IT extends Authenticatable
     // }
 
     // Generalized role check
-    // public function hasRole($role)
-    // {
-    //     return $this->role === $role;
-    // }
-
-
-
 
     // Define the many-to-many relationship between users and roles
     public function roles()
@@ -94,6 +87,16 @@ class IT extends Authenticatable
     }
 
     // Check if the user has a specific role
+    ############################################# this hasRole() check with in the IT model or table #######################################
+    public function hasRole($roles)
+    {
+        if (is_array($roles)) {
+            return in_array($this->role, $roles); // Check if the role is in the array
+        }
+
+        return $this->role === $roles; // Single role check
+    }
+    #################################################### This hasRole function check with in the pivote table has role_users role ############################################
     // public function hasRole($role)
     // {
     //     if (is_string($role)) {
@@ -103,14 +106,14 @@ class IT extends Authenticatable
     //     return $this->roles()->where('name', $role->name)->exists();
     // }
 
-    public function hasRole($role)
-    {
-        $roleId = is_string($role) ? Role::where('name', $role)->value('id') : $role->id;
-        return DB::table('role_user')
-            ->where('user_id', $this->it_emp_id) // Use it_emp_id for the user_id
-            ->where('role_id', $roleId)
-            ->exists();
-    }
+    // public function hasRole($role)
+    // {
+    //     $roleId = is_string($role) ? Role::where('name', $role)->value('id') : $role->id;
+    //     return DB::table('role_user')
+    //         ->where('user_id', $this->it_emp_id) // Use it_emp_id for the user_id
+    //         ->where('role_id', $roleId)
+    //         ->exists();
+    // }
 
     // Assign a role to the user
     // public function assignRole($role)

@@ -26,7 +26,7 @@ class ItAddMember extends Component
     public $assetsFound = false;
     public $showLogoutModal = false;
     public $filteredEmployeeAssets = [];
-    public $reason =[];
+    public $reason = [];
 
     protected function rules()
     {
@@ -46,8 +46,8 @@ class ItAddMember extends Component
         $this->empDetails = null;
         $this->addItmember = true;
         $this->itmember = false;
-        $this->searchFilters =false;
-        $this->resetErrorBag( 'selectedEmployee');
+        $this->searchFilters = false;
+        $this->resetErrorBag('selectedEmployee');
     }
 
     public function Cancel()
@@ -56,8 +56,8 @@ class ItAddMember extends Component
         $this->showLogoutModal = false;
         $this->itmember = true;
         $this->empDetails = null;
-        $this->searchFilters =true;
-        $this->resetErrorBag( 'selectedEmployee');
+        $this->searchFilters = true;
+        $this->resetErrorBag('selectedEmployee');
     }
 
     public $sortColumn = 'emp_id'; // default sorting column
@@ -97,20 +97,19 @@ class ItAddMember extends Component
     public function loadAssetsAndEmployees()
     {
         $this->assetSelectEmp = EmployeeDetails::where('sub_dept_id', '9915')
-        ->where('dept_id', '8803')
-        ->orderBy('first_name', 'asc')->get();
+            ->where('dept_id', '8803')
+            ->orderBy('first_name', 'asc')->get();
     }
 
     private function resetForm()
     {
         $this->selectedEmployee = null;
-
     }
 
 
     public function cancelLogout()
     {
-         $this->showLogoutModal = true;
+        $this->showLogoutModal = true;
     }
 
     public $recordId;
@@ -122,9 +121,9 @@ class ItAddMember extends Component
     }
 
 
-public function delete()
-{
-    $this->validate([
+    public function delete()
+    {
+        $this->validate([
 
         'reason' => 'required|string|max:255', // Validate the remark input
     ], [
@@ -134,11 +133,11 @@ public function delete()
 
     $itMember = IT::where('it_emp_id', $this->recordId)->first();
 
-    if ($itMember) {
-        $itMember->update([
-            'delete_itmember_reason' => $this->reason,
-            'status' => 0
-        ]);
+        if ($itMember) {
+            $itMember->update([
+                'delete_itmember_reason' => $this->reason,
+                'status' => 0
+            ]);
 
 
         FlashMessageHelper::flashSuccess("IT member deactivated successfully!");
@@ -210,8 +209,15 @@ public function delete()
 
     public function render()
     {
+        $this->itRelatedEmye = !empty($this->filteredEmployeeAssets)
+        ? $this->filteredEmployeeAssets
+        : EmployeeDetails::with('its') // Eager load the empIt relationship
+            ->whereHas('its', function ($query) {
+                $query->whereColumn('employee_details.emp_id', 'i_t.emp_id'); // Correctly reference the columns
+            })
+            ->orderBy($this->sortColumn, $this->sortDirection)
+            ->get();
 
-        $this->itRelatedEmye = $this->filter();
 
     return view('livewire.it-add-member');
 

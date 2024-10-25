@@ -43,15 +43,15 @@ Route::middleware(['auth:it', 'handleSession'])->group(function () {
 
         // Super Admin Routes (accessible only to super_admin)
         Route::middleware(['role:super_admin'])->group(function () {
-            Route::get('/itrequest', RequestProcess::class)->name('requests');
             Route::get('/itMembers', ItAddMember::class)->name('itMembers');
-            Route::get('/oldItMembers', OldItMembers::class)->name('oldItMembers');
         });
 
         // Admin Routes (accessible to both admin and super_admin)
         Route::middleware(['role:admin|super_admin'])->group(function () {
+            Route::get('/oldItMembers', OldItMembers::class)->name('oldItMembers');
             Route::get('/vendorAssets', VendorAssets::class)->name('vendorAssets');
             Route::get('/employeeAssetList', AssignAssetEmployee::class)->name('employeeAssetList');
+            Route::get('/vendor', Vendors::class)->name('vendor');
         });
 
         // User Routes (accessible to all roles: user, admin, and super_admin)
