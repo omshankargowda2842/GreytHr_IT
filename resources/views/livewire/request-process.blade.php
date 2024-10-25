@@ -24,6 +24,19 @@
 
             <div class="col-lg-9 col-md-7 col-xs-12">
 
+                <!-- @php
+                $employee = auth()->guard('it')->user();
+                @endphp
+
+                @if ($employee && ($employee->role === 'super_admin' || $employee->role === 'admin'))
+
+                <div>
+                    <h1>
+                        working fine
+                    </h1>
+                </div>
+                @endif -->
+
                 <div class="req-pro-head">
 
                     <req-pro-nav class="req-pro-req-pro-nav">
@@ -90,8 +103,8 @@
                             @if($viewingDetails && $selectedRequest)
 
                             @if($viewingDetails)
-                            <button class="btn text-white float:right" style="background-color: #02114f;" wire:click="closeDetails" @if($loading)
-                                disabled @endif>
+                            <button class="btn text-white float:right" style="background-color: #02114f;"
+                                wire:click="closeDetails" @if($loading) disabled @endif>
                                 <i class="fas fa-arrow-left"></i> Back
                             </button>
                             @endif
@@ -174,7 +187,7 @@
                                         <tr>
                                             <td>Attach Files</td>
                                             <td>
-                                                <a href="#" data-toggle="modal"
+                                                <a href="#" data-toggle="modal" class="requestAttachments"
                                                     data-target="#attachmentsModal-{{ $selectedRequest->id }}">
                                                     <i class="fas fa-eye"></i> View Attachments
                                                 </a>
@@ -217,7 +230,8 @@
                                                         </div>
                                                     </div>
                                                     <div class="modal-footer">
-                                                        <button type="button" class="btn text-white" style="background-color: #02114f;"
+                                                        <button type="button" class="btn text-white"
+                                                            style="background-color: #02114f;"
                                                             data-dismiss="modal">Close</button>
                                                     </div>
                                                 </div>
@@ -281,7 +295,8 @@
                                                                 class="form-control"></textarea>
                                                         </div>
                                                         <div class="col-2 d-flex align-items-center">
-                                                            <button class="btn text-white" style="background-color: #02114f;"
+                                                            <button class="btn text-white"
+                                                                style="background-color: #02114f;"
                                                                 wire:click="postComment('{{ $selectedRequest->id }}')"
                                                                 @if($loading) disabled @endif>Post</button>
                                                         </div>
@@ -323,8 +338,8 @@
                                 </table>
 
                                 <div class="d-flex justify-content-center align-items-center">
-                                    <button class="btn text-white mb-3" style="background-color: #02114f;" wire:click="redirectBasedOnStatus" @if($loading)
-                                        disabled @endif>Save &
+                                    <button class="btn text-white mb-3" style="background-color: #02114f;"
+                                        wire:click="redirectBasedOnStatus" @if($loading) disabled @endif>Save &
                                         Continue</button>
                                 </div>
 
@@ -376,7 +391,7 @@
 
                             @else
                             <div class="req-requestnotfound">
-                                <td colspan="20" >
+                                <td colspan="20">
 
                                     <div class="req-td-norecords">
                                         <img src="{{ asset('images/Closed.webp') }}" alt="No Records"
@@ -411,11 +426,31 @@
 
                                                 <tr>
 
-                                                    <th scope="col" class="req-table-head">Employee ID</th>
+                                                    <th scope="col" class="req-table-head">Employee ID
+                                                        <span wire:click.debounce.500ms="toggleSortOrder('emp_id')"
+                                                            style="cursor: pointer;">
+                                                            @if($sortColumn == 'emp_id')
+                                                            <i
+                                                                class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                                            @else
+                                                            <i class="fas fa-sort"></i>
+                                                            @endif
+                                                        </span>
+                                                    </th>
 
                                                     <th class="req-table-head">Requested By</th>
 
-                                                    <th class="req-table-head">Service Request</th>
+                                                    <th class="req-table-head">Service Request
+                                                        <span wire:click.debounce.500ms="toggleSortOrder('category')"
+                                                            style="cursor: pointer;">
+                                                            @if($sortColumn == 'category')
+                                                            <i
+                                                                class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                                            @else
+                                                            <i class="fas fa-sort"></i>
+                                                            @endif
+                                                        </span>
+                                                    </th>
 
                                                     <th class="req-table-head">Subject</th>
 
@@ -423,9 +458,29 @@
 
                                                     <th class="req-table-head">Distributor</th>
 
-                                                    <th class="req-table-head">Phone</th>
+                                                    <th class="req-table-head">Phone
+                                                        <span wire:click.debounce.500ms="toggleSortOrder('mobile')"
+                                                            style="cursor: pointer;">
+                                                            @if($sortColumn == 'mobile')
+                                                            <i
+                                                                class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                                            @else
+                                                            <i class="fas fa-sort"></i>
+                                                            @endif
+                                                        </span>
+                                                    </th>
 
-                                                    <th class="req-table-head">MailBox</th>
+                                                    <th class="req-table-head">MailBox
+                                                        <span wire:click.debounce.500ms="toggleSortOrder('mail')"
+                                                            style="cursor: pointer;">
+                                                            @if($sortColumn == 'mail')
+                                                            <i
+                                                                class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                                            @else
+                                                            <i class="fas fa-sort"></i>
+                                                            @endif
+                                                        </span>
+                                                    </th>
 
                                                     <th class="req-table-head">Attach Files</th>
 
@@ -539,8 +594,11 @@
                                                                         style="flex-grow: 1;"></textarea>
 
                                                                     <!-- Button is small and aligned to the right -->
-                                                                    <button type="submit" style="background-color: #02114f;" class="btn text-white p-2"
-                                                                        style="height: fit-content;" @if($loading || empty($remarks[$record->id]))
+                                                                    <button type="submit"
+                                                                        style="background-color: #02114f;"
+                                                                        class="btn text-white p-2"
+                                                                        style="height: fit-content;" @if($loading ||
+                                                                        empty($remarks[$record->id]))
                                                                         disabled @endif>Post</button>
                                                                 </div>
                                                             </div>
@@ -556,7 +614,7 @@
                                                         <div class="req-cc-div">
                                                             <strong style="margin-left: 5px;">CC TO: </strong>
                                                             {{ (empty($ccToArray) || (count($ccToArray) === 1 && $ccToArray[0] === '-')) ? 'N/A' : implode(', ', $ccToArray) }}
-                                                            </div>
+                                                        </div>
                                                     </td>
                                                 </tr>
 
@@ -713,8 +771,9 @@
                                                     <td>
 
                                                         <button wire:click="closeForDesks('{{$record->id}}')"
-                                                            class="btn border-white text-white" style="background-color: #02114f;" @if($loading)
-                                                            disabled @endif>Open</button>
+                                                            class="btn border-white text-white"
+                                                            style="background-color: #02114f;" @if($loading) disabled
+                                                            @endif>Open</button>
                                                     </td>
 
 
@@ -727,7 +786,7 @@
                                                     <td colspan="19" class="req-cc-td">
                                                         <div class="req-cc-div">
                                                             <strong style="margin-left: 5px;">CC TO: </strong>
-                                                       {{ (empty($ccToArray) || (count($ccToArray) === 1 && $ccToArray[0] === '-')) ? 'N/A' : implode(', ', $ccToArray) }}</u>
+                                                            {{ (empty($ccToArray) || (count($ccToArray) === 1 && $ccToArray[0] === '-')) ? 'N/A' : implode(', ', $ccToArray) }}</u>
 
                                                         </div>
                                                     </td>
@@ -737,7 +796,7 @@
                                                 @endforeach
                                                 @else
                                                 <tr>
-                                                    <td colspan="20" >
+                                                    <td colspan="20">
 
                                                         <div class="req-td-norecords">
                                                             <img src="{{ asset('images/Closed.webp') }}"

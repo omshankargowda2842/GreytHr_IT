@@ -1,5 +1,28 @@
 <div class="container-fluid p-0">
 
+<div wire:loading
+        wire:target="itLogin,show,remove,createNewPassword,verifyLoginId,closeSuccessModal,showPasswordChangeModal,closePasswordChangedModal,closePasswordChangedModal">
+        <div class="loader-overlay">
+            <div>
+                <div class="logo">
+                    <!-- <i class="fas fa-user-headset"></i> -->
+                    <img src="{{ asset('images/Screenshot 2024-10-15 120204.png') }}" width="58" height="50"
+                        alt="">&nbsp;
+                    <span>IT</span>&nbsp;&nbsp;
+
+                    <span>EXPERT</span>
+                </div>
+            </div>
+            <div class="loader-bouncing">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+    </div>
+
+
+
     <div class="row m-0" style="background-image: linear-gradient(to right, #abb9d3, #ffffff); height: 100vh">
 
         <div class="container-login m-auto">

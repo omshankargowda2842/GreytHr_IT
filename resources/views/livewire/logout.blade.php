@@ -1,4 +1,24 @@
 <div>
+
+    <div wire:loading wire:target="confirmLogout,cancelLogout,handleLogout,">
+        <div class="loader-overlay">
+            <div>
+                <div class="logo">
+
+                    <img src="{{ asset('images/Screenshot 2024-10-15 120204.png') }}" width="58" height="50"
+                        alt="">&nbsp;
+                    <span>IT</span>&nbsp;&nbsp;
+                    <span>EXPERT</span>
+                </div>
+            </div>
+            <div class="loader-bouncing">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+    </div>
+
     <div class="logout-icon-container">
         <i wire:click="handleLogout" class="fas fa-sign-out-alt"></i>
         <div wire:click="handleLogout" class="tooltip">Logout</div>
@@ -12,7 +32,7 @@
                 <div class="modal-header text-white logout2">
                     <h6 class="modal-title logout3" id="logoutModalLabel">Confirm Logout</h6>
                 </div>
-                <div class="modal-body text-center logout4" >
+                <div class="modal-body text-center logout4">
                     Are you sure you want to logout?
                 </div>
                 <div class="d-flex justify-content-center p-3">

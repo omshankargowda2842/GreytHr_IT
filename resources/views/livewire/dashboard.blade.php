@@ -1,6 +1,7 @@
 <div class="main">
 
-    <div wire:loading wire:target="itRequest,assetMod,itMemeber,vendorMod">
+<div wire:loading
+        wire:target="itRequest,assetMod,itMember,vendorMod">
         <div class="loader-overlay">
             <div>
                 <div class="logo">

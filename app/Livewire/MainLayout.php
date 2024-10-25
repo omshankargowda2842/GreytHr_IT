@@ -27,13 +27,17 @@ class MainLayout extends Component
     public function mount()
     {
 
-        $employeeName = auth()->guard('it')->user()->employee_name;
-        if ($employeeName) {
-            $this->employeeInitials = $this->getInitials($employeeName);
+        $employee = auth()->guard('it')->user();
+    
+        if ($employee) {
+            $this->employeeName = $employee->employee_name;
+            $this->employeeInitials = $this->getInitials($this->employeeName);
         } else {
             $this->employeeInitials = 'N/A'; // Default or placeholder initials
+            $this->employeeName = 'N/A';
         }
     }
+
 
     public function getActiveTab()
     {
@@ -80,12 +84,6 @@ class MainLayout extends Component
     {
         return redirect()->route('vendorAssets');
     }
-
-    public function employeeAssetList()
-    {
-        return redirect()->route('employeeAssetList');
-    }
-
 
     public function assignAsset()
     {

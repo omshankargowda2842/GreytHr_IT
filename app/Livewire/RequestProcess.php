@@ -271,9 +271,27 @@ class RequestProcess extends Component
 
     }
 
+     public $sortColumn = 'emp_id'; // default sorting column
+    public $sortDirection = 'asc'; // default sorting direction
+
+    public function toggleSortOrder($column)
+    {
+        if ($this->sortColumn == $column) {
+            dd('if');
+            // If the column is the same, toggle the sort direction
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+
+            // If a different column is clicked, set it as the new sort column and default to ascending order
+            $this->sortColumn = $column;
+            $this->sortDirection = 'asc';
+        }
+    }
+
 
 
     public $forIT;
+    public $requestData;
     public $itData;
     public $requestCategories='';
     public function render()
@@ -301,6 +319,7 @@ class RequestProcess extends Component
             $this->forIT = HelpDesks::with('emp')
                 ->where('status', 'Open')
                 ->orderBy('created_at', 'desc')
+                ->orderBy($this->sortColumn, $this->sortDirection)
                 ->whereIn('category',  $requestCategories)
                 ->get();
 
@@ -308,6 +327,7 @@ class RequestProcess extends Component
             $this->forIT = HelpDesks::with('emp')
                 ->where('status', 'Pending')
                 ->orderBy('created_at', 'desc')
+                ->orderBy($this->sortColumn, $this->sortDirection)
                 ->whereIn('category',  $requestCategories)
                 ->get();
 
@@ -316,9 +336,11 @@ class RequestProcess extends Component
             $this->forIT = HelpDesks::with('emp')
                 ->where('status', 'Completed')
                 ->orderBy('created_at', 'desc')
+                ->orderBy($this->sortColumn, $this->sortDirection)
                 ->whereIn('category',  $requestCategories)
                 ->get();
         }
+
 
         if ($requestCategories->isNotEmpty()) {
             // Group categories by their request

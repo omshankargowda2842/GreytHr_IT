@@ -24,6 +24,8 @@ return new class extends Migration
              $table->text('inprogress_remarks')->nullable();
              $table->string('assign_to')->nullable();
             $table->string('file_path')->nullable(); // Path to attached file (nullable)
+            $table->string('file_name')->nullable();
+            $table->string('mime_type')->nullable();
             $table->string('cc_to')->nullable(); // CC to field (nullable)
             $table->string('status')->default('Recent'); // CC to field (nullable)
             $table->enum('selected_equipment',['keyboard', 'mouse', 'monitor','headset']);

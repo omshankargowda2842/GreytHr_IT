@@ -646,28 +646,45 @@ public function mount()
     public $searchEmp = '';
     public $searchAssetId = '';
 
+
     public function filter()
-    {
-        try {
-            $trimmedEmpId = trim($this->searchEmp);
-            $trimmedAssetId = trim($this->searchAssetId);
+{
+    try {
+    $trimmedEmpId = trim($this->searchEmp); // Trimmed search input
 
-            $this->filteredVendorAssets = VendorAsset::query()
-            ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
-                            $query->where(function ($query) use ($trimmedEmpId) {
-                                $query->where('serial_number', 'like', '%' . $trimmedEmpId . '%'); // Adjust the column name as needed
-                            });
-                        })
-                ->when($trimmedAssetId, function ($query) use ($trimmedAssetId) {
-                    $query->where('asset_id', 'like', '%' . $trimmedAssetId . '%');
-                })
-                ->get();
-
-            $this->assetsFound = count($this->filteredVendorAssets) > 0;
-        } catch (\Exception $e) {
-            Log::error('Error in filter method: ' . $e->getMessage());
-        }
+    return VendorAsset::with('vendor') // Eager load the 'vendor' relationship
+        ->whereHas('vendor', function ($query) {
+            $query->where('is_active', 1); // Ensure the vendor is active
+        })
+        ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
+            // Apply the search filters based on input
+            $query->where(function ($query) use ($trimmedEmpId) {
+                $query->where('vendor_id', 'like', '%' . $trimmedEmpId . '%')
+                    ->orWhereHas('vendor', function ($query) use ($trimmedEmpId) {
+                        // Search within vendor fields as well
+                        $query->where('vendor_id', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('vendor_name', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('contact_email', 'like', '%' . $trimmedEmpId . '%');
+                    })
+                    ->orWhere('asset_id', 'like', '%' . $trimmedEmpId . '%')
+                    ->orWhere('manufacturer', 'like', '%' . $trimmedEmpId . '%')
+                    ->orWhere('asset_type', 'like', '%' . $trimmedEmpId . '%')
+                    ->orWhere('invoice_number', 'like', '%' . $trimmedEmpId . '%')
+                    ->orWhere('serial_number', 'like', '%' . $trimmedEmpId . '%')
+                    ->orWhere('is_active', 'like', '%' . $trimmedEmpId . '%');
+            });
+        })
+        ->orderBy($this->sortColumn, $this->sortDirection) // Apply sorting
+        ->get();
     }
+    catch (\Exception $e) {
+        Log::error('Error in filter method: ' . $e->getMessage());
+    }
+
+}
+
+
+
 
     // Define the updateSearch method if you need it
     public function updateSearch()
@@ -709,10 +726,7 @@ public function mount()
         $assetTypes = asset_types_table::pluck('asset_names', 'id');
         // $this->assetNames = asset_types_table::all();
 
-        $this->vendorAssets =!empty($this->filteredVendorAssets)
-        ? $this->filteredVendorAssets:VendorAsset::with('vendor')
-        ->orderBy($this->sortColumn, $this->sortDirection)
-        ->get();
+        $this->vendorAssets =  $this->filter();
 
         $this->vendorAssets =  $this->vendorAssets->map(function ($vendorAsset) use ($assetTypes) {
             $vendorAsset['asset_type_name'] = $assetTypes[$vendorAsset['asset_type']] ?? 'N/A';

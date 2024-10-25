@@ -42,12 +42,14 @@ class AssignAssetEmployee extends Component
 public $currentVendorId = null;
 
     public function oldAssetlisting(){
-        $this->oldAssetEmp = true;
+
         $this->assetEmpCreateUpdate = false;
         $this->employeeAssetListing = false;
         $this->showEMployeeAssetBtn = false;
         $this->showAssignAssetBtn = false;
         $this->showOldEMployeeAssetBtn = false;
+        $this->searchEmp="";
+        $this->oldAssetEmp = true;
 
     }
 
@@ -126,6 +128,8 @@ public function closeViewVendor()
     $this->currentVendorId = null;
     $this->oldAssetEmp = false;
     $this->isUpdateMode = false;
+    $this->searchEmp="";
+    return redirect()->route('employeeAssetList');
 }
 
 public function backVendor()
@@ -192,7 +196,7 @@ public function closeViewEmpAsset()
         // Fetch asset and employee data, including already assigned ones
         $this->assetSelect = VendorAsset::where('is_active', 1)->get();
 
-        $this->assetSelectEmp = EmployeeDetails::all();
+        $this->assetSelectEmp = EmployeeDetails::orderBy('first_name')->orderBy('last_name')->get();
 
         $this->assignedAssetIds = AssignAssetEmp::where('is_active', 1)->pluck('asset_id')->toArray();
         $this->assignedEmployeeIds = AssignAssetEmp::pluck('emp_id')->toArray();
@@ -314,7 +318,8 @@ public function closeViewEmpAsset()
             }
 
             $this->resetForm();
-            return redirect()->route('EmployeeAssetList');
+
+            return redirect()->route('employeeAssetList');
         } catch (\Exception $e) {
             Log::error('Error while assigning asset: ' . $e->getMessage());
             FlashMessageHelper::flashError("An error occurred while saving the details. Please try again!");
@@ -326,18 +331,19 @@ public function closeViewEmpAsset()
     {
         try {
             $trimmedEmpId = trim($this->searchEmp);
-            $trimmedAssetId = trim($this->searchAssetId);
 
             $this->filteredEmployeeAssets = AssignAssetEmp::query()
             ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
                             $query->where(function ($query) use ($trimmedEmpId) {
                                 $query->where('emp_id', 'like', '%' . $trimmedEmpId . '%')
-                                    ->orWhere('employee_name', 'like', '%' . $trimmedEmpId . '%'); // Adjust the column name as needed
+                                    ->orWhere('employee_name', 'like', '%' . $trimmedEmpId . '%')
+                                    ->orWhere('asset_id', 'like', '%' . $trimmedEmpId . '%')
+                                    ->orWhere('manufacturer', 'like', '%' . $trimmedEmpId . '%')
+                                    ->orWhere('asset_type', 'like', '%' . $trimmedEmpId . '%')
+                                    ->orWhere('department', 'like', '%' . $trimmedEmpId . '%');
                             });
                         })
-                ->when($trimmedAssetId, function ($query) use ($trimmedAssetId) {
-                    $query->where('asset_id', 'like', '%' . $trimmedAssetId . '%');
-                })
+
                 ->get();
 
             $this->assetsFound = count($this->filteredEmployeeAssets) > 0;
@@ -445,6 +451,8 @@ public $oldEmployeeAssetLists;
          : AssignAssetEmp::with(['vendorAsset.vendor'])
          ->orderBy($this->sortColumn, $this->sortDirection)
          ->get();
+
+
 
          $employeeAssetLists = $employeeAssetLists->map(function ($employeeAssetList) use ($assetTypes) {
                 $employeeAssetList['asset_type_name'] = $assetTypes[$employeeAssetList['asset_type']] ?? 'N/A';

@@ -499,8 +499,7 @@ public function downloadImages($vendorId)
 
     public function mount()
     {
-        $this->vendors = Vendor::where('is_active', 1)->get();
-
+        $this->vendors =  $this->filter();
     }
 
     public $filteredVendor = [];
@@ -509,35 +508,35 @@ public function downloadImages($vendorId)
     public $searchVendor = '';
     public $searchContactName = '';
 
+
     public function filter()
-    {
-        try {
-            $trimmedEmpId = trim($this->searchVendor);
-            $trimmedAssetId = trim($this->searchContactName);
+{
+    // Trim the search input
+    $trimmedEmpId = trim($this->searchVendor);
 
-            $this->filteredVendor = Vendor::query()
-            ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
-                            $query->where(function ($query) use ($trimmedEmpId) {
-                                $query->where('vendor_id', 'like', '%' . $trimmedEmpId . '%')
-                                ->orWhere('vendor_name', 'like', '%' . $trimmedEmpId . '%');
-                            });
-                        })
-                ->when($trimmedAssetId, function ($query) use ($trimmedAssetId) {
-                    $query->where('contact_name', 'like', '%' . $trimmedAssetId . '%');
-                })
-                ->get();
+    // Start the query for filtering and sorting
+    $query = Vendor::query();
 
-            $this->assetsFound = count($this->filteredVendor) > 0;
-        } catch (\Exception $e) {
-            Log::error('Error in filter method: ' . $e->getMessage());
-        }
+    // Apply filtering if there's a search term
+    if ($trimmedEmpId) {
+        $query->where(function ($query) use ($trimmedEmpId) {
+            $query->where('vendor_id', 'like', '%' . $trimmedEmpId . '%')
+                ->orWhere('vendor_name', 'like', '%' . $trimmedEmpId . '%')
+                ->orWhere('contact_name', 'like', '%' . $trimmedEmpId . '%')
+                ->orWhere('gst', 'like', '%' . $trimmedEmpId . '%')
+                ->orWhere('contact_email', 'like', '%' . $trimmedEmpId . '%');
+
+        });
     }
 
-    // Define the updateSearch method if you need it
-    public function updateSearch()
-    {
-        $this->filter();
-    }
+    // dd($trimmedEmpId);
+    // Apply sorting based on selected column and direction
+    $query->orderBy($this->sortColumn, $this->sortDirection);
+
+    // Execute the query and get the results
+    return $query->get();
+}
+
 
     public function clearFilters()
     {
@@ -575,11 +574,7 @@ public function downloadImages($vendorId)
 
     public function render()
     {
-        $this->vendors =!empty($this->filteredVendor)
-        ? $this->filteredVendor :Vendor::where('is_active', 1)
-        ->orderBy($this->sortColumn, $this->sortDirection)
-        ->get();
-
+        $this->vendors = $this->filter();
 
         return view('livewire.vendors');
     }

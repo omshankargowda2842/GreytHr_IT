@@ -47,14 +47,14 @@
                     <a href="#"
                         class="{{ request()->routeIs('oldItMembers') || request()->routeIs('requests') || request()->routeIs('itMembers') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
                         <span class="sidebar-menu-item-link-icon"><i class="ri-group-line"></i></span>
-                        <span class="sidebar-menu-item-link-text">IT Requests</span>
+                        <span class="sidebar-menu-item-link-text">IT</span>
                         <span class="sidebar-menu-item-link-arrow"><i class="ri-arrow-right-s-line"></i></span>
                     </a>
                     <ul class="sidebar-submenu">
                         <li
                             class="{{ request()->routeIs('requests') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
                             <a href="#" wire:click='itRequest' class="sidebar-submenu-item-link">
-                                <span class="sidebar-submenu-item-link-text">IT Request</span>
+                                <span class="sidebar-submenu-item-link-text">IT Requests</span>
                             </a>
                         </li>
                         <li
@@ -71,10 +71,11 @@
                         </li>
                     </ul>
                 </li>
+
                 <li class="sidebar-menu-item">
                     <a href="#"
                         class="{{ request()->routeIs('assignAsset') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
-                        <span class="sidebar-menu-item-link-icon"><i class="ri-user-2-line"></i></span>
+                        <span class="sidebar-menu-item-link-icon"><i class="ri-store-2-line"></i></span>
                         <span class="sidebar-menu-item-link-text">Employee</span>
                         <span class="sidebar-menu-item-link-arrow"><i class="ri-arrow-right-s-line"></i></span>
                     </a>
@@ -85,8 +86,12 @@
                                 <span class="sidebar-submenu-item-link-text">Employee Assets</span>
                             </a>
                         </li>
+
                     </ul>
                 </li>
+
+
+
                 <li class="sidebar-menu-item">
                     <a href="#"
                         class="{{ request()->routeIs('vendor') || request()->routeIs('vendorAssets') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
@@ -109,13 +114,13 @@
                         </li>
                     </ul>
                 </li>
-                <li class="sidebar-menu-item">
+                <!-- <li class="sidebar-menu-item">
                     <a href="#"
                         class="{{ request()->routeIs('password') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
                         <span class="sidebar-menu-item-link-icon"><i class="ri-lock-line"></i></span>
                         <span class="sidebar-menu-item-link-text">Password</span>
                     </a>
-                </li>
+                </li> -->
             </ul>
 
             <ul class="sidebar-menu">
@@ -130,19 +135,9 @@
                         <span class="sidebar-menu-item-link-icon">
                             <h6 class="m-0 profile">{{ $employeeInitials }}</h6>
                         </span>
-                        <span class="sidebar-menu-item-link-text"> {{ ucwords(strtolower($employeeName)) }}</span>
+                        <span><strong>{{ ucwords(strtolower($employeeName)) }}</strong></span>
                     </a>
                 </li>
-                <!-- <li class="sidebar-menu-item">
-                        <a href="#" class="sidebar-menu-item-link">
-                            <span class="sidebar-menu-item-link-icon">
-                                <i class="ri-logout-circle-r-line"></i>
-                            </span>
-                            <span class="sidebar-menu-item-link-text"
-                                >Logout</span
-                            >
-                        </a>
-                    </li> -->
             </ul>
 
         </div>
@@ -176,16 +171,16 @@
                         Old IT Members
                     @break
 
+                    @case('assignAsset')
+                        Employee Assets
+                    @break
+
                     @case('vendor')
                         Vendor Request
                     @break
 
                     @case('vendorAssets')
                         Vendor Assets
-                    @break
-
-                    @case('assignAsset')
-                        Employee Assets
                     @break
 
                     @case('password')
@@ -220,6 +215,10 @@
                             Old IT Members
                         @break
 
+                        @case('assignAsset')
+                            Employee Assets
+                        @break
+
                         @case('vendor')
                             Vendor Request
                         @break
@@ -227,11 +226,6 @@
                         @case('vendorAssets')
                             Vendor Assets
                         @break
-
-                        @case('assignAsset')
-                            Employee Assets
-                        @break
-
                         @case('password')
                             Password
                         @break
