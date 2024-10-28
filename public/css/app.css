@@ -332,31 +332,31 @@ padding: 10px;
      right: -13px;
      border-top: 19px solid transparent;
      border-bottom: 18px solid transparent;
-     border-left: 15px solid #007BFF;
+     border-left: 15px solid #e6a1d7
  }
 
  req-pro-nav .tab:nth-child(1) {
-     background-color: #e2ad17;
+    background: linear-gradient(to bottom, #d89fcbe3, #a3cfc6);
  }
 
  req-pro-nav .tab:nth-child(2) {
-     background-color: #87B24B;
+    background: linear-gradient(to bottom, #d89fcbe3, #a3cfc6);
  }
 
  req-pro-nav .tab:nth-child(3) {
-     background-color: #4499DD;
+    background: linear-gradient(to bottom, #d89fcbe3, #a3cfc6);
  }
 
  req-pro-nav .tab:nth-child(1)::after {
-     border-left-color: #e2ad17;
+     border-left-color:linear-gradient(to bottom, #d89fcbe3, #a3cfc6);
  }
 
  req-pro-nav .tab:nth-child(2)::after {
-     border-left-color: #87B24B;
+     border-left-color:linear-gradient(to bottom, #d89fcbe3, #a3cfc6);
  }
 
  req-pro-nav .tab:nth-child(3)::after {
-     border-left-color: #4499DD;
+     border-left-color: linear-gradient(to bottom, #d89fcbe3, #a3cfc6);
  }
 
  .req-pro-tab-content {
@@ -375,7 +375,7 @@ padding: 10px;
      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
      margin-bottom: 20px;
      padding: 10px;
-     background-color: #eeeeee;
+     background: linear-gradient(to bottom, #d89fcbe3, #a3cfc6);
  }
 
  .req-pro-card {
@@ -405,18 +405,38 @@ padding: 10px;
  }
 
  .req-pro-view-details-btn {
-     background-color: #02114f;
-     color: white;
-     border: 3px solid white;
-     padding: 8px 16px;
+     background-color: #f0f0f0;
+     color: black;
+     border: 2px solid #02114f;
+     padding: 6px 14px;
      border-radius: 15px;
      cursor: pointer;
-     transition: background-color 0.3s ease;
+     transition: transform 0.3s ease;
  }
 
  .req-pro-view-details-btn:hover {
-     background-color: #061552;
+    background-color: #061552;
+    border: 2px solid white;
+    color: white;
  }
+
+ .req-pro-approve-btn{
+    background-color: #f0f0f0;
+     color: black;
+     border: 2px solid #02114f ;
+     padding: 5px 12px;
+     border-radius: 15px;
+     cursor: pointer;
+     transition: transform 0.3s ease;
+    }
+
+ .req-pro-approve-btn:hover {
+    background-color: #061552;
+    border: 2px solid white;
+    color: white;
+    transition: transform 0.3s ease;
+}
+
  .scrollable-container {
     max-height: 380px;
     overflow-y: scroll;
@@ -463,6 +483,8 @@ padding: 10px;
  }
 
  .req-pro-overview-card {
+    display: flex;
+    justify-content: center;
      position: relative;
      text-align: center;
      margin-bottom: 20px;
@@ -505,7 +527,7 @@ padding: 10px;
      align-items: center;
  }
 
- .req-pro-over-card1 {
+ /* .req-pro-over-card1 {
      background-color: rgb(251 221 132);
  }
 
@@ -515,8 +537,19 @@ padding: 10px;
 
  .req-pro-over-card3 {
      background-color: #8bc1e4;
- }
+ } */
 
+ .req-pro-over-card1 {
+    background: linear-gradient(to bottom, #d89fcbe3, #a3cfc6);
+}
+
+.req-pro-over-card2 {
+    background: linear-gradient(to bottom, #d89fcbe3, #a3cfc6);
+}
+
+.req-pro-over-card3 {
+    background: linear-gradient(to bottom, #d89fcbe3, #a3cfc6);
+}
  .req-pro-overview-val {
      width: 25px;
      height: 25px;
@@ -691,7 +724,11 @@ padding: 10px;
 
  .req-reqBy-Dep {
      white-space: nowrap;
+     font-weight: 600;
 
+ }
+ .req-reqBy-ser{
+    font-weight: 600;
  }
 
  .req-inprogress-heading {
@@ -834,11 +871,11 @@ padding: 10px;
 
 .req-res-depart{
     width:50%;
-    font-weight: 600;
+    font-weight: 400;
 }
 .req-res-depart1{
 
-    font-weight: 600;
+    font-weight: 400;
 }
 .req-table-head-Remarks{
     white-space: nowrap;width: 150px;
