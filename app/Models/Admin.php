@@ -6,17 +6,24 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+
 class Admin extends Authenticatable
 {
     use HasFactory;
     use Notifiable;
     protected $primaryKey = 'ad_emp_id';
     public $incrementing = false;
-    protected $table = 'admins';
+    protected $table = 'admin_employees';
 
     protected $fillable = [
-        'ad_emp_id','emp_id',
-        'password','email','image','employee_name','date_of_birth','emergency_contact_number',
+        'ad_emp_id',
+        'emp_id',
+        'password',
+        'email',
+        'image',
+        'employee_name',
+        'date_of_birth',
+        'emergency_contact_number',
         'phone_number'
     ];
 

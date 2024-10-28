@@ -3,39 +3,32 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\DB;
 
 class IT extends Authenticatable
 {
     use Notifiable;
     use HasFactory;
-
-    protected $table = 'i_t'; // Adjust the table name accordingly
-    const ROLE_USER = 'user';
-    const ROLE_ADMIN = 'admin';
-    const ROLE_SUPER_ADMIN = 'super_admin';
+    protected $table = 'it_employees'; // Adjust the table name accordingly
+    const ROLE_USER = 0;
+    const ROLE_ADMIN = 1;
+    const ROLE_SUPER_ADMIN = 2;
     protected $fillable = [
         'it_emp_id',
-        'image',
         'employee_name',
-        'date_of_birth',
         'emp_id',
-        'phone_number',
         'email',
         'password',
-        'status',
+        'is_active',
         'delete_itmember_reason',
-        'active_comment',
-        'inprogress_remarks',
         'role',
     ];
 
     protected $casts = [
-        'date_of_birth' => 'date',
+        'password',
         'is_active' => 'boolean',
-        'role' => 'string', // Casting the role as string for ENUM type
     ];
 
     public function com()
@@ -45,6 +38,7 @@ class IT extends Authenticatable
 
     public function empIt()
     {
+
         return $this->belongsTo(EmployeeDetails::class, 'emp_id', 'emp_id');
     }
 
@@ -57,94 +51,26 @@ class IT extends Authenticatable
     {
         return $value;
     }
-    // public function getImageUrlAttribute()
-    // {
-    //     return 'data:image/jpeg;base64,' . base64_encode($this->attributes['image']);
-    // }
-
-    // Check if the user has a specific role
-    // public function isUser()
-    // {
-    //     return $this->role === self::ROLE_USER;
-    // }
-
-    // public function isAdmin()
-    // {
-    //     return $this->role === self::ROLE_ADMIN;
-    // }
-
-    // public function isSuperAdmin()
-    // {
-    //     return $this->role === self::ROLE_SUPER_ADMIN;
-    // }
-
-    // Generalized role check
-
-    // Define the many-to-many relationship between users and roles
-    public function roles()
+    public function getImageUrlAttribute()
     {
-        return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id');
+        return 'data:image/jpeg;base64,' . base64_encode($this->attributes['image']);
     }
 
-    // Check if the user has a specific role
-    ############################################# this hasRole() check with in the IT model or table #######################################
-    public function hasRole($roles)
+    public function isUser()
     {
-        if (is_array($roles)) {
-            return in_array($this->role, $roles); // Check if the role is in the array
-        }
-
-        return $this->role === $roles; // Single role check
+        return $this->role === self::ROLE_USER;
     }
-    #################################################### This hasRole function check with in the pivote table has role_users role ############################################
-    // public function hasRole($role)
-    // {
-    //     if (is_string($role)) {
-    //         return $this->roles()->where('name', $role)->exists();
-    //     }
-
-    //     return $this->roles()->where('name', $role->name)->exists();
-    // }
-
-    // public function hasRole($role)
-    // {
-    //     $roleId = is_string($role) ? Role::where('name', $role)->value('id') : $role->id;
-    //     return DB::table('role_user')
-    //         ->where('user_id', $this->it_emp_id) // Use it_emp_id for the user_id
-    //         ->where('role_id', $roleId)
-    //         ->exists();
-    // }
-
-    // Assign a role to the user
-    // public function assignRole($role)
-    // {
-    //     return $this->roles()->attach($role);
-    // }
-
-    public function assignRole($role)
+    public function isAdmin()
     {
-        $roleId = is_string($role) ? Role::where('name', $role)->value('id') : $role;
-
-        return DB::table('role_user')->insert([
-            'user_id' => $this->it_emp_id, // Use it_emp_id for the user_id
-            'role_id' => $roleId,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        return $this->role === self::ROLE_ADMIN;
     }
 
-    // Remove a role from the user
-    // public function removeRole($role)
-    // {
-    //     return $this->roles()->detach($role);
-    // }
-    public function removeRole($role)
+    public function isSuperAdmin()
     {
-        $roleId = is_string($role) ? Role::where('name', $role)->value('id') : $role;
-
-        return DB::table('role_user')
-            ->where('user_id', $this->it_emp_id) // Use it_emp_id for the user_id
-            ->where('role_id', $roleId)
-            ->delete();
+        return $this->role === self::ROLE_SUPER_ADMIN;
+    }
+    public function hasRole($role)
+    {
+        return $this->role == $role;
     }
 }

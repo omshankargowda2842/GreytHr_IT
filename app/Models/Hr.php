@@ -13,7 +13,7 @@ class Hr extends Authenticatable
     use Notifiable;
     protected $primaryKey = 'hr_emp_id';
     public $incrementing = false;
-    protected $table = 'hr';
+    protected $table = 'hr_employees';
 
     protected $fillable = [
         'hr_emp_id','emp_id',

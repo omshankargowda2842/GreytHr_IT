@@ -13,7 +13,7 @@ class Finance extends Authenticatable
     use HasFactory;
     protected $primaryKey = 'fi_emp_id';
     public $incrementing = false;
-    protected $table = 'finance';
+    protected $table = 'finance_employees';
 
     protected $fillable = [
         'fi_emp_id','image','emp_id',

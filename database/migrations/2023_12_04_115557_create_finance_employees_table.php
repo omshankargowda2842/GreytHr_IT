@@ -12,9 +12,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('finance', function (Blueprint $table) {
+        Schema::create('finance_employees', function (Blueprint $table) {
             $table->smallInteger('id')->autoIncrement();
-            $table->string('fi_emp_id', 10)->unique()->nullable();
+            $table->string('fi_emp_id', 10)->nullable()->unique();
             $table->string('emp_id');
             $table->string('employee_name', 100);
             $table->string('email', 100)->unique();
@@ -30,12 +30,12 @@ return new class extends Migration
         });
 
         $triggerSQL = <<<SQL
-        CREATE TRIGGER generate_fi_emp_id BEFORE INSERT ON finance FOR EACH ROW
+        CREATE TRIGGER generate_fi_emp_id BEFORE INSERT ON finance_employees FOR EACH ROW
         BEGIN
             -- Check if bill_number is NULL
             IF NEW.fi_emp_id IS NULL THEN
                 -- Find the maximum bill_number value in the bills table
-                SET @max_id := IFNULL((SELECT MAX(CAST(SUBSTRING(fi_emp_id, 3) AS UNSIGNED)) + 1 FROM finance), 10000);
+                SET @max_id := IFNULL((SELECT MAX(CAST(SUBSTRING(fi_emp_id, 3) AS UNSIGNED)) + 1 FROM finance_employees), 10000);
 
                 -- Increment the max_id and assign it to the new bill_number
                 SET NEW.fi_emp_id = CONCAT('FI-', LPAD(@max_id, 5, '0'));
@@ -52,6 +52,6 @@ return new class extends Migration
     public function down(): void
     {
         DB::unprepared('DROP TRIGGER IF EXISTS generate_fi_emp_id');
-        Schema::dropIfExists('finance');
+        Schema::dropIfExists('finance_employees');
     }
 };
