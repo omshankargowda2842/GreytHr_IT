@@ -79,10 +79,10 @@ class IT extends Authenticatable
     // }
 
     // Generalized role check
-    // public function hasRole($role)
-    // {
-    //     return $this->role === $role;
-    // }
+    public function hasRole($role)
+    {
+        return $this->role === $role;
+    }
 
 
 
@@ -94,14 +94,14 @@ class IT extends Authenticatable
     }
 
     // Check if the user has a specific role
-    public function hasRole($role)
-    {
-        if (is_string($role)) {
-            return $this->roles()->where('name', $role)->exists();
-        }
+    // public function hasRole($role)
+    // {
+    //     if (is_string($role)) {
+    //         return $this->roles()->where('name', $role)->exists();
+    //     }
 
-        return $this->roles()->where('name', $role->name)->exists();
-    }
+    //     return $this->roles()->where('name', $role->name)->exists();
+    // }
 
     // public function hasRole($role)
     // {

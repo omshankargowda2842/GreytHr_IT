@@ -375,7 +375,7 @@ padding: 10px;
      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
      margin-bottom: 20px;
      padding: 10px;
-     background: linear-gradient(to bottom, #d89fcbe3, #a3cfc6);
+     background:linear-gradient(to bottom, #dbc5dde3, #a3cfc6)
  }
 
  .req-pro-card {
@@ -473,8 +473,12 @@ padding: 10px;
  }
 
  .req-pro-details {
-     display: flex;
-     justify-content: space-between;
+    background-color: #f0f0f0;
+    padding: 5px 15px;
+    align-items: center;
+    border-radius: 21px;
+    display: flex;
+    justify-content: space-between;
  }
 
  .req-pro-tablediv {
@@ -840,7 +844,7 @@ padding: 10px;
  }
 
  .req-overview-head {
-     background-color: white;
+     background-color: #f0f0f0;
      display: flex;
      justify-content: center;
      margin: 10px;

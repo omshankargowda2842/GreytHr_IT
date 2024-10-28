@@ -62,12 +62,13 @@ class RequestProcess extends Component
         $this->updateCounts();
     }
 
+    public $employee ;
+
     public function mount()
     {
-        $employee = Auth::guard('it')->user();
-
+        $employee = auth()->user();
         // Set flags based on user role
-        if ($employee && ($employee->role === 'super_admin' || $employee->role === 'admin')) {
+        if (auth()->check() && (auth()->user()->hasRole('admin') || auth()->user()->hasRole('super_admin'))) {
 
             $this->viewRecentRequests = true; // User can view recent requests
 
@@ -256,6 +257,7 @@ class RequestProcess extends Component
             $task->update(['status' => 'Open']);
 
             FlashMessageHelper::flashSuccess("Status has been set to Open!");
+            $this->updateCounts();
         }
     }
 
@@ -456,8 +458,10 @@ class RequestProcess extends Component
                 $currentDate->subDay(); // Move to the previous day
             }
 
+
             HelpDesks::where('status', 'Recent')
                 ->where('created_at', '<=', $thresholdDate)
+
                 ->update(['status' => 'Open']);
 
 
