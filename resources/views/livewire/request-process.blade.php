@@ -1,7 +1,7 @@
     <div class="main">
 
         <div wire:loading
-            wire:target="submit,setActiveTab,closeDetails,selectedStatus,updateStatus,postComment,updateAssigne,redirectBasedOnStatus,viewDetails,openForDesks,postRemarks,closeForDesks">
+            wire:target="submit,setActiveTab,closeDetails,closeDetailsBack,selectedStatus,viewApproveDetails,showAllRequest,showRecentRequest,approveStatus,updateStatus,postComment,updateAssigne,redirectBasedOnStatus,viewDetails,openForDesks,postRemarks,closeForDesks">
             <div class="loader-overlay">
                 <div>
                     <div class="logo">
@@ -22,28 +22,303 @@
 
         <div class="row req-pro-main-page">
 
-            <div class="col-lg-9 col-md-7 col-xs-12">
 
-                <!-- @php
-                $employee = auth()->guard('it')->user();
-                @endphp
 
-                @if ($employee && ($employee->role === 'super_admin' || $employee->role === 'admin'))
+            @php
+            $employee = auth()->guard('it')->user();
+            $isAuthorized = $employee && ($employee->role === 'super_admin' || $employee->role === 'admin');
+            @endphp
 
-                <div>
-                    <h1>
-                        working fine
-                    </h1>
+            @if ($isAuthorized)
+
+
+            @if($viewRecentRequests)
+            <div class="col-lg-9 col-md-10 col-xs-12" style="margin-left: 4%;">
+
+                <div class="req-pro-details mb-4">
+                    <div>
+                        <h3 class="d-flex justify-content-start mb-5">New Requests</h3>
+
+                    </div>
+                    <div>
+                        <button class="btn btn-success" style="background-color: #02114f;color:white"
+                            wire:click="showAllRequest"> Requests</button>
+                    </div>
+
                 </div>
-                @endif -->
 
+                @if($recentrequestDetails && $recentRequest)
+
+                @if($recentrequestDetails)
+                <button class="btn text-white float:right" style="background-color: #02114f;" wire:click="closeDetails"
+                    @if($loading) disabled @endif>
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+                @endif
+                <div class="req-pro-tablediv">
+
+                    <table class="table table-bordered mt-3 req-pro-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Field</th>
+
+                                <th>Value</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            <tr>
+
+                                <td>Requested By</td>
+
+                                <td>{{$recentRequest->emp->first_name }}
+                                    {{$recentRequest->emp->last_name }}
+                                </td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td>Service Request</td>
+
+                                <td>{{$recentRequest->category ?? 'N/A' }}</td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td>Subject</td>
+
+                                <td>{{$recentRequest->subject??'N/A' }}</td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td>Description</td>
+
+                                <td>{{$recentRequest->description ??'N/A' }}</td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td>Distributor</td>
+
+                                <td>{{$recentRequest->distributor_name ??'N/A' }}</td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td>Phone</td>
+
+                                <td>{{$recentRequest->mobile ??'N/A' }}</td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td>MailBox</td>
+
+                                <td>{{$recentRequest->mail ??'N/A' }}</td>
+
+                            </tr>
+
+                            <tr>
+                                <td>Attach Files</td>
+                                <td>
+                                    <a href="#" data-toggle="modal" class="requestAttachments"
+                                        data-target="#attachmentsModal-{{ $recentRequest->id }}">
+                                        <i class="fas fa-eye"></i> View Attachments
+                                    </a>
+                                </td>
+                            </tr>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="attachmentsModal-{{ $recentRequest->id }}" tabindex="-1"
+                                role="dialog" aria-labelledby="attachmentsModalLabel-{{ $recentRequest->id }}"
+                                aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="attachmentsModalLabel-{{ $recentRequest->id }}">
+                                                Attachments</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <!-- Swiper -->
+                                            <div class="swiper-container">
+                                                <div class="swiper-wrapper">
+
+                                                    <div class="swiper-slide reqResSwiper">
+
+                                                        <img src="{{ $recentRequest->image_url }}" class="req-Res-Image"
+                                                            alt="Image">
+                                                    </div>
+                                                </div>
+                                                <!-- Add Pagination -->
+                                                <div class="swiper-pagination"></div>
+                                                <!-- Add Navigation -->
+                                                <div class="swiper-button-next"></div>
+                                                <div class="swiper-button-prev"></div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn text-white"
+                                                style="background-color: #02114f;" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+
+
+                            <tr>
+
+                                <td>CC To</td>
+
+                                <td>{{$recentRequest->cc_to ??'N/A' }}</td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td>Priority</td>
+
+                                <td>{{$recentRequest->priority ??'N/A' }}</td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td>Select Equipment</td>
+
+                                <td>{{$recentRequest->selected_equipment ??'N/A' }}</td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+
+                @else
+
+                @if($recentDetails->where('status', 'Recent')->count() > 0)
+                <div class="scrollable-container">
+                    <div class="req-pro-card">
+
+                        @foreach ($recentDetails->where('status', 'Recent') as $index => $request)
+
+                        <div class="request-card">
+
+                            <div class="req-pro-card-body">
+
+                                <div>
+
+                                    <p class="req-reqBy-Dep">Requested By:
+                                        <span class="req-res-depart1">
+                                            {{ $request->emp->first_name }}
+                                            {{ $request->emp->last_name }}
+                                        </span>
+                                    </p>
+
+                                    <p title="{{ $request['category'] }}" class="req-reqBy-ser">
+                                        Service Request: <span
+                                            class="req-res-depart">{{ $request->category ?? 'N/A' }}</span>
+                                    </p>
+
+                                </div>
+
+                                <div class="p-3">
+                                    <button wire:click="viewApproveDetails({{ $index }})"
+                                        class="req-pro-view-details-btn" @if($loading) disabled @endif>View</button>
+
+                                    <button wire:click="approveStatus('{{ $request->id }}')" class="req-pro-approve-btn"
+                                        @if($loading) disabled @endif>Approve</button>
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+                        @endforeach
+
+                    </div>
+                </div>
+
+                @else
+                <div class="req-requestnotfound">
+                    <td colspan="20">
+
+                        <div class="req-td-norecords">
+                            <img src="{{ asset('images/Closed.webp') }}" alt="No Records" class="req-img-norecords">
+
+                            <h3 class="req-head-norecords">No requests found
+                            </h3>
+                        </div>
+                    </td>
+                </div>
+                @endif
+                @endif
+
+
+
+
+            </div>
+
+            <div class="col-lg-2 col-md-5 col-xs-12 " style="margin-top:8% ;">
+
+                <div class="req-pro-overview-container">
+
+                    <div class="card text-white shadow-sm border-0 d-flex align-items-center justify-content-center"
+                        style="width: 150px; height: 150px; border-radius: 50%;background: linear-gradient(to bottom, #d89fcbe3, #a3cfc6);">
+                        <div class="text-center p-3">
+                            <h5 class="card-title mb-2"> Total</h5>
+                            <p class="card-text mb-0">
+
+                                <span class="d-block mt-2 fs-4">
+                                    <strong>{{$newRequestCount}}</strong>
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </div>
+
+            @endif
+
+            @endif
+
+
+            @if($viewEmpRequest)
+
+            <div class="col-lg-10 col-md-7 col-xs-12">
                 <div class="req-pro-head">
 
-                    <req-pro-nav class="req-pro-req-pro-nav">
+                    <req-pro-nav class="req-pro-req-pro-nav mb-4">
 
                         <ul class="tabss">
 
-                            <li class="tab" wire:click="setActiveTab('active')">
+                            <li class="tab text-dark" wire:click="setActiveTab('active')">
 
                                 <i class="fas fa-check"></i> Active
 
@@ -54,7 +329,7 @@
                                 @endif
                             </li>
 
-                            <li class="tab" wire:click="setActiveTab('pending')">
+                            <li class="tab text-dark" wire:click="setActiveTab('pending')">
 
                                 <i class="fas fa-clock"></i> Inprogress
 
@@ -66,7 +341,7 @@
 
                             </li>
 
-                            <li class="tab" wire:click="setActiveTab('closed')">
+                            <li class="tab text-dark" wire:click="setActiveTab('closed')">
 
                                 <i class="fas fa-times"></i> Closed
 
@@ -94,9 +369,18 @@
                         <div id="active" class="req-pro-tab-content"
                             style="display: {{ $activeTab === 'active' ? 'block' : 'none' }};">
 
-                            <div class="req-pro-details">
+                            <div class="req-pro-details mb-5 ml-4">
 
-                                <h3 class="req-inprogress-heading mb-3">Request Details</h3>
+                                <div>
+                                    <h3 class=" mb-3">Request Details</h3>
+
+                                </div>
+                                @if ($employee && ($employee->role === 'super_admin' || $employee->role === 'admin'))
+                                <div>
+                                    <button class="btn" style="background-color: #02114f;color:white"
+                                        wire:click="showRecentRequest">Recent Requests</button>
+                                </div>
+                                @endif
 
                             </div>
 
@@ -104,7 +388,7 @@
 
                             @if($viewingDetails)
                             <button class="btn text-white float:right" style="background-color: #02114f;"
-                                wire:click="closeDetails" @if($loading) disabled @endif>
+                                wire:click="closeDetailsBack" @if($loading) disabled @endif>
                                 <i class="fas fa-arrow-left"></i> Back
                             </button>
                             @endif
@@ -362,15 +646,15 @@
 
                                             <div>
 
-                                                <p class="req-reqBy-Dep"><b>Requested By:</b>
+                                                <p class="req-reqBy-Dep">Requested By:
                                                     <span class="req-res-depart1">
                                                         {{ $request->emp->first_name }}
                                                         {{ $request->emp->last_name }}
                                                     </span>
                                                 </p>
 
-                                                <p title="{{ $request['category'] }}">
-                                                    <b>Service Request: </b><span
+                                                <p title="{{ $request['category'] }}" class="req-reqBy-ser">
+                                                    Service Request:<span
                                                         class="req-res-depart">{{ $request->category ?? 'N/A' }}</span>
                                                 </p>
 
@@ -404,6 +688,7 @@
                             </div>
                             @endif
                             @endif
+
                         </div>
 
                         <div id="pending" class="req-pro-tab-content"
@@ -821,8 +1106,9 @@
 
             </div>
 
-            <div class="col-lg-3 col-md-5 col-xs-12  req-pro-col3">
-                <div class="row req-overview-main">
+            <div class="col-lg-2 col-md-5 col-xs-12 ">
+
+            <div class="row req-overview-main">
                     <div class="col-10">
                         <h5 class="mb-3 req-overview-head">
                             Overview</h5>
@@ -838,26 +1124,18 @@
                 <div class="req-pro-overview-container">
                     <div class="req-pro-overview-card">
 
-                        <div class="card text-dark  req-pro-over-card1">
+                    <div class="card text-white shadow-sm border-0 d-flex align-items-center justify-content-center"
+                        style="width: 100px; height: 100px; border-radius: 50%;background: linear-gradient(to bottom, #d89fcbe3, #a3cfc6);">
+                        <div class="text-center p-3">
+                            <h5 class="card-title mb-2 mt-5" style="font-size: 12px;"> Open</h5>
+                            <p class="card-text mb-0">
 
-                            <div class="req-pro-card-body-overview">
-
-                                <h5 class="card-title"> Active</h5>
-
-                                <p class="card-text reqCardText">Total Active
-
-                                    <span
-                                        class="bg-white text-primary rounded-circle  p-2 d-inline-flex align-items-center justify-content-center req-pro-overview-val">
-
-                                        <strong> {{$activeCount}} </strong>
-
-                                    </span>
-
-                                </p>
-
-                            </div>
-
+                                <span class="d-block mt-2 fs-4">
+                                    <strong>{{$activeCount}}</strong>
+                                </span>
+                            </p>
                         </div>
+                    </div>
 
                         <i class="fas fa-arrow-down req-pro-arrow"></i>
 
@@ -865,26 +1143,18 @@
 
                     <div class="req-pro-overview-card">
 
-                        <div class="card text-dark  req-pro-over-card2">
+                    <div class="card text-white shadow-sm border-0 d-flex align-items-center justify-content-center"
+                        style="width: 100px; height: 100px; border-radius: 50%;background: linear-gradient(to bottom, #d89fcbe3, #a3cfc6);">
+                        <div class="text-center p-3">
+                            <h5 class="card-title mb-2  mt-5" style="font-size: 12px;"> Inprogress</h5>
+                            <p class="card-text mb-0">
 
-                            <div class="req-pro-card-body-overview">
-
-                                <h5 class="card-title">In Progress</h5>
-
-                                <p class="card-text reqCardText">Total In Progress
-
-                                    <span
-                                        class="bg-white text-primary rounded-circle p-2 d-inline-flex align-items-center justify-content-center req-pro-overview-val">
-
-                                        <strong>{{$pendingCount}}</strong>
-
-                                    </span>
-
-                                </p>
-
-                            </div>
-
+                                <span class="d-block mt-2 fs-4">
+                                    <strong>{{$pendingCount}}</strong>
+                                </span>
+                            </p>
                         </div>
+                    </div>
 
                         <i class="fas fa-arrow-down req-pro-arrow"></i>
 
@@ -892,27 +1162,26 @@
 
                     <div class="req-pro-overview-card">
 
-                        <div class="card text-dark  req-pro-over-card3">
+                    <div class="card text-white shadow-sm border-0 d-flex align-items-center justify-content-center"
+                        style="width: 100px; height: 100px; border-radius: 50%;background: linear-gradient(to bottom, #d89fcbe3, #a3cfc6);">
+                        <div class="text-center p-3">
+                            <h5 class="card-title mb-2  mt-5" style="font-size: 12px;"> Closed</h5>
+                            <p class="card-text mb-0">
 
-                            <div class="req-pro-card-body-overview">
-
-                                <h5 class="card-title">Closed</h5>
-
-                                <p class="card-text reqCardText">Total Closed
-
-                                    <span
-                                        class="bg-white text-primary rounded-circle p-2 d-inline-flex align-items-center justify-content-center req-pro-overview-val">
-
-                                        <strong>{{$closedCount}}</strong>
-
-                                    </span>
-
-                                </p>
-                            </div>
+                                <span class="d-block mt-2 fs-4">
+                                    <strong>{{$closedCount}}</strong>
+                                </span>
+                            </p>
                         </div>
+                    </div>
                     </div>
                 </div>
             </div>
+
+
+
+            @endif
+
         </div>
 
 

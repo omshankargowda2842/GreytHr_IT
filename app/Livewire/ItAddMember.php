@@ -182,6 +182,7 @@ class ItAddMember extends Component
 
     public function filter()
 {
+
     $trimmedEmpId = trim($this->searchEmp); // Trimmed search input
 
     return EmployeeDetails::with('its') // Eager load the 'its' relationship
@@ -209,14 +210,7 @@ class ItAddMember extends Component
 
     public function render()
     {
-        $this->itRelatedEmye = !empty($this->filteredEmployeeAssets)
-        ? $this->filteredEmployeeAssets
-        : EmployeeDetails::with('its') // Eager load the empIt relationship
-            ->whereHas('its', function ($query) {
-                $query->whereColumn('employee_details.emp_id', 'i_t.emp_id'); // Correctly reference the columns
-            })
-            ->orderBy($this->sortColumn, $this->sortDirection)
-            ->get();
+        $this->itRelatedEmye = $this->filter();
 
 
     return view('livewire.it-add-member');

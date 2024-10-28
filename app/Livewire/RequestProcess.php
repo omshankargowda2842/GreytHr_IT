@@ -6,6 +6,7 @@ use App\Helpers\FlashMessageHelper;
 use App\Models\HelpDesks;
 use App\Models\Request;
 use App\Models\IT;
+use Illuminate\Support\Facades\Auth;
 // use Illuminate\Http\Client\Request;
 use Livewire\Component;
 use Illuminate\Support\Facades\Log;
@@ -16,14 +17,20 @@ class RequestProcess extends Component
     public $activeTab = 'active';
     public $requests = [];
     public $viewingDetails = false;
+    public $recentrequestDetails = false;
+    public $viewRecentRequests = true;
+    public $viewEmpRequest = false;
+
     public $assignTo;
     public $comments;
     public $remarks =[];
     public $request;
     public $selectedRequest;
+    public $recentRequest;
     public $showOverview = false;
     public $attachments;
     public $currentRequestId;
+    public $newRequestCount;
     public $activeCount;
     public $pendingCount;
     public $closedCount;
@@ -47,6 +54,7 @@ class RequestProcess extends Component
 
         $this->activeTab = $tab;
         $this->viewingDetails = false;
+        $this->recentrequestDetails = false;
         $this->selectedStatus = '';
         $this->selectedAssigne = '';
         $this->updateCounts();
@@ -54,11 +62,34 @@ class RequestProcess extends Component
 
     public function mount()
     {
+        $employee = Auth::guard('it')->user();
+
+        // Set flags based on user role
+        if ($employee && ($employee->role === 'super_admin' || $employee->role === 'admin')) {
+
+            $this->viewRecentRequests = true; // User can view recent requests
+
+        } else {
+
+            $this->viewRecentRequests = false; // User cannot view recent requests
+            $this->recentrequestDetails = false; // No request details available
+            $this->viewEmpRequest =true;
+         }
+
         $this->selectedStatus = '';
         $this->selectedAssigne = '';
         $this->updateCounts();
     }
 
+    public function showAllRequest() {
+        $this->viewRecentRequests = false;
+        $this->viewEmpRequest = true;
+    }
+
+    public function showRecentRequest() {
+        $this->viewRecentRequests = true;
+        $this->viewEmpRequest = false;
+    }
 
     public function showAttachments($requestId)
     {
@@ -78,6 +109,21 @@ class RequestProcess extends Component
         return array_filter($this->requests, function ($request) {
             return $request['status'] == 'Completed';
         });
+    }
+
+    public function viewApproveDetails($index)
+    {
+        $this->comments = '';
+        $this->recentRequest = $this->recentDetails->where('status', 'Recent')->values()->get($index);
+
+
+        // Check if the selected request exists
+        if (!$this->recentRequest) {
+            abort(404, 'Request not found');
+        }
+
+        $this->recentrequestDetails = true;
+        $this->currentRequestId = $this->recentRequest->id;
     }
 
 
@@ -101,9 +147,21 @@ class RequestProcess extends Component
     }
 
 
+    public function closeDetailsBack()
+    {
+        $this->viewingDetails = false;
+        $this->viewRecentRequests = false;
+        $this->recentrequestDetails = false;
+
+        // $this->mount();
+        // $this->selectedRequest = true;
+    }
+
     public function closeDetails()
     {
         $this->viewingDetails = false;
+        $this->recentrequestDetails = false;
+
         $this->mount();
         // $this->selectedRequest = true;
     }
@@ -186,6 +244,21 @@ class RequestProcess extends Component
     }
 
 
+
+    public function approveStatus($taskId)
+    {
+        $task = HelpDesks::find($taskId);
+
+        if ($task) {
+            // Set the status to "Open" when approving
+            $task->update(['status' => 'Open']);
+
+            FlashMessageHelper::flashSuccess("Status has been set to Open!");
+        }
+    }
+
+
+
     public $selectedStatus;
 
     public function updateStatus($taskId)
@@ -206,6 +279,9 @@ class RequestProcess extends Component
             }
         }
     }
+
+
+
 
 
     public $selectedAssigne;
@@ -260,6 +336,9 @@ class RequestProcess extends Component
         ->where('Request', 'IT') // Adjust this to match the condition for IT requests
         ->pluck('category');
 
+        $this->newRequestCount = HelpDesks::where('status', 'Recent')
+        ->whereIn('category',  $requestCategories)->count();
+
         $this->activeCount = HelpDesks::where('status', 'Open')
         ->whereIn('category',  $requestCategories)->count();
 
@@ -277,7 +356,6 @@ class RequestProcess extends Component
     public function toggleSortOrder($column)
     {
         if ($this->sortColumn == $column) {
-            dd('if');
             // If the column is the same, toggle the sort direction
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
         } else {
@@ -291,6 +369,7 @@ class RequestProcess extends Component
 
 
     public $forIT;
+    public $recentDetails;
     public $requestData;
     public $itData;
     public $requestCategories='';
@@ -314,6 +393,12 @@ class RequestProcess extends Component
             ->get();
 
 
+            $this->recentDetails=  $this->forIT = HelpDesks::with('emp')
+            ->where('status', 'Recent')
+            ->orderBy('created_at', 'desc')
+            ->orderBy($this->sortColumn, $this->sortDirection)
+            ->whereIn('category',  $requestCategories)
+            ->get();
 
         if ($this->activeTab == 'active') {
             $this->forIT = HelpDesks::with('emp')
@@ -342,6 +427,8 @@ class RequestProcess extends Component
         }
 
 
+
+
         if ($requestCategories->isNotEmpty()) {
             // Group categories by their request
             $this->requestCategories = $requestCategories->groupBy('Request')->map(function ($group) {
@@ -353,12 +440,15 @@ class RequestProcess extends Component
         }
 
         return view('livewire.request-process', [
+            'newRequestCount' => $this->newRequestCount,
             'activeCount' => $this->activeCount,
             'pendingCount' => $this->pendingCount,
             'closedCount' => $this->closedCount,
             'ClosedRequests' => $this->ClosedRequests,
             'inProgressRequests' => $this->inProgressRequests,
             'viewingDetails' => $this->viewingDetails,
+            'recentrequestDetails' => $this->recentrequestDetails,
+
             'requests' => $this->requests,
             'activeTab' => $this->activeTab,
 
