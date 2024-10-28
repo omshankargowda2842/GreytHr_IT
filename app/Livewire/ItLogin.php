@@ -324,7 +324,7 @@ class ItLogin extends Component
         // Validate Employee ID
         $this->validate(
             [
-                'emp_id' => 'required|exists:i_t,it_emp_id',
+                'emp_id' => 'required|exists:it_employees,it_emp_id',
             ],
             [
                 'emp_id.required' => 'Enter your employee ID.',

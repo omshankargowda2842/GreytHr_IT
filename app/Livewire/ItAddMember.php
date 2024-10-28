@@ -188,7 +188,7 @@ class ItAddMember extends Component
     return EmployeeDetails::with('its') // Eager load the 'its' relationship
         ->whereHas('its', function ($query) {
             $query->where('status', 1) // Add condition for status = 1
-            ->whereColumn('employee_details.emp_id', 'i_t.emp_id');
+            ->whereColumn('employee_details.emp_id', 'it_employees.emp_id');
         })
         ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
             // Apply the search filters based on input

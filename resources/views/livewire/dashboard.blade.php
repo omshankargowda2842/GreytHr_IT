@@ -85,7 +85,7 @@
                     </div>
                 </div>
                 <div class="icons-text">
-                    <h6 class="m-0 fw-bold">Assest</h6>
+                    <h6 class="m-0 fw-bold">Assets</h6>
                 </div>
             </div>
         </div>
