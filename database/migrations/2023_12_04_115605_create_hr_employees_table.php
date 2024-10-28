@@ -12,9 +12,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('hr', function (Blueprint $table) {
+        Schema::create('hr_employees', function (Blueprint $table) {
             $table->smallInteger('id')->autoIncrement();
-            $table->string('hr_emp_id', 10)->unique()->nullable();
+            $table->string('hr_emp_id', 10)->nullable()->unique();
             $table->string('emp_id', 10);
             $table->string('email', 100)->unique();
             $table->string('employee_name', 100)->nullable();
@@ -33,12 +33,12 @@ return new class extends Migration
 
         // Trigger to auto-generate hr_emp_id
         $triggerSQL = <<<SQL
-        CREATE TRIGGER generate_hr_emp_id BEFORE INSERT ON hr FOR EACH ROW
+        CREATE TRIGGER generate_hr_emp_id BEFORE INSERT ON hr_employees FOR EACH ROW
         BEGIN
             IF NEW.hr_emp_id IS NULL THEN
                 -- Generate HR-10000 style ID
                 SET @max_id := IFNULL(
-                    (SELECT MAX(CAST(SUBSTRING(hr_emp_id, 4) AS UNSIGNED)) FROM hr),
+                    (SELECT MAX(CAST(SUBSTRING(hr_emp_id, 4) AS UNSIGNED)) FROM hr_employees),
                     9999
                 ) + 1;
 
@@ -59,6 +59,6 @@ return new class extends Migration
         DB::unprepared('DROP TRIGGER IF EXISTS generate_hr_emp_id');
 
         // Drop the 'hr' table
-        Schema::dropIfExists('hr');
+        Schema::dropIfExists('hr_employees');
     }
 };
