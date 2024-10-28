@@ -24,25 +24,20 @@
 
 
 
-            @php
-            $employee = auth()->guard('it')->user();
-            $isAuthorized = $employee && ($employee->role === 'super_admin' || $employee->role === 'admin');
-            @endphp
 
-            @if ($isAuthorized)
-
+        @if(auth()->check() && (auth()->user()->hasRole('admin') || auth()->user()->hasRole('super_admin')))
 
             @if($viewRecentRequests)
             <div class="col-lg-9 col-md-10 col-xs-12" style="margin-left: 4%;">
 
-                <div class="req-pro-details mb-4">
+                <div class="d-flex  justify-content-between mb-4">
                     <div>
                         <h3 class="d-flex justify-content-start mb-5">New Requests</h3>
 
                     </div>
                     <div>
                         <button class="btn btn-success" style="background-color: #02114f;color:white"
-                            wire:click="showAllRequest"> Requests</button>
+                            wire:click="showAllRequest">Approved Requests</button>
                     </div>
 
                 </div>
@@ -375,7 +370,7 @@
                                     <h3 class=" mb-3">Request Details</h3>
 
                                 </div>
-                                @if ($employee && ($employee->role === 'super_admin' || $employee->role === 'admin'))
+                                @if(auth()->check() && (auth()->user()->hasRole('admin') || auth()->user()->hasRole('super_admin')))
                                 <div>
                                     <button class="btn" style="background-color: #02114f;color:white"
                                         wire:click="showRecentRequest">Recent Requests</button>
@@ -1109,16 +1104,11 @@
             <div class="col-lg-2 col-md-5 col-xs-12 ">
 
             <div class="row req-overview-main">
-                    <div class="col-10">
+                    <div class="col-12">
                         <h5 class="mb-3 req-overview-head">
                             Overview</h5>
                     </div>
-                    <div class="col-2">
-                        <!-- <i wire:click="toggleOverview" class="fas fa-caret-down req-pro-dropdown-arrow" style="margin-left: auto; cursor: pointer;"></i> -->
-                        <!-- <i wire:click="toggleOverview"
-                            class="fas fa-caret-down req-pro-dropdown-arrow {{ $showOverview ? 'rotated' : '' }} req-overview-icon"></i> -->
 
-                    </div>
                 </div>
 
                 <div class="req-pro-overview-container">
