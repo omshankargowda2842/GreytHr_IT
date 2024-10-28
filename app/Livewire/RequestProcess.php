@@ -4,8 +4,10 @@ namespace App\Livewire;
 
 use App\Helpers\FlashMessageHelper;
 use App\Models\HelpDesks;
+use App\Models\HolidayCalendar;
 use App\Models\Request;
 use App\Models\IT;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 // use Illuminate\Http\Client\Request;
 use Livewire\Component;
@@ -427,7 +429,39 @@ class RequestProcess extends Component
         }
 
 
+        if (auth()->guard('it')->check()) {
+            $companyId = auth()->guard('it')->user()->company_id;
+            $thresholdDate = Carbon::now()->subDays(7);
 
+            // Get holidays within the last 7 days
+            $holidays = HolidayCalendar::whereBetween('date', [$thresholdDate->startOfDay(), Carbon::now()->endOfDay()])
+                ->pluck('date')
+                ->map(function($date) {
+                    return Carbon::parse($date)->format('Y-m-d'); // Normalize date format
+                })
+                ->toArray();
+
+            // Count the number of non-holiday days in the last 7 days
+            $nonHolidayDays = 0;
+            $currentDate = Carbon::now()->startOfDay();
+
+            while ($currentDate->greaterThanOrEqualTo($thresholdDate->startOfDay())) {
+                $formattedDate = $currentDate->format('Y-m-d');
+
+                // Check if it's a weekend or a holiday
+                if (!in_array($formattedDate, $holidays) && !in_array($currentDate->dayOfWeek, [Carbon::SATURDAY, Carbon::SUNDAY])) {
+                    $nonHolidayDays++;
+                }
+
+                $currentDate->subDay(); // Move to the previous day
+            }
+
+            HelpDesks::where('status', 'Recent')
+                ->where('created_at', '<=', $thresholdDate)
+                ->update(['status' => 'Open']);
+
+
+        }
 
         if ($requestCategories->isNotEmpty()) {
             // Group categories by their request

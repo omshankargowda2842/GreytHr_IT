@@ -31,7 +31,7 @@ class CreateRolesPermissionsTables extends Migration
         Schema::create('role_user', function (Blueprint $table) {
             $table->id();
             $table->string('user_id')->unique(); // Ensuring the foreign key column is a string
-            $table->foreign('user_id')->references('it_emp_id')->on('i_t')->onDelete('cascade');
+            $table->foreign('user_id')->references('it_emp_id')->on('it_employees')->onDelete('cascade');
 
             $table->unsignedBigInteger('role_id');
             $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');

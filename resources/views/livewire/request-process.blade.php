@@ -282,12 +282,12 @@
 
             </div>
 
-            <div class="col-lg-2 col-md-5 col-xs-12 " style="margin-top:8% ;">
+            <div class="col-lg-2 col-md-5 col-xs-12 " style="margin-top:10% ;">
 
                 <div class="req-pro-overview-container">
 
                     <div class="card text-white shadow-sm border-0 d-flex align-items-center justify-content-center"
-                        style="width: 150px; height: 150px; border-radius: 50%;background: linear-gradient(to bottom, #d89fcbe3, #a3cfc6);">
+                        style="width: 100px; height: 100px; border-radius: 50%;background: linear-gradient(to bottom, #d89fcbe3, #a3cfc6);">
                         <div class="text-center p-3">
                             <h5 class="card-title mb-2"> Total</h5>
                             <p class="card-text mb-0">
