@@ -303,12 +303,15 @@
                                 </button>
                             </div>
                             <!-- Delete Action -->
+                            @if(auth()->check() && (auth()->user()->hasRole('admin') || auth()->user()->hasRole('super_admin')))
+
                             <div class="col mx-1">
                                 <button class="btn text-white border-white" style="background-color: #02114f;"
                                     wire:click='confirmDelete({{ $vendor->id }})'>
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
+                            @endif
                         </td>
                     </tr>
                     @endforeach

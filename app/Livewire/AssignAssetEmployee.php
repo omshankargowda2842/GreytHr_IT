@@ -37,6 +37,18 @@ class AssignAssetEmployee extends Component
     public $showOldEMployeeAssetBtn = true;
     public $showLogoutModal = false;
     public $oldAssetEmp = false;
+    public $showSystemUpdateForm = false;
+    public $systemName;
+    public $macAddress;
+    public $laptopReceived;
+    public $sophosAntivirus ="";
+    public $vpnCreation ="";
+    public $teramind ="";
+    public $systemUpgradation ="";
+    public $oneDrive ="";
+    public $screenshotPrograms ="";
+    public $isRotated = false;
+    public $showOverview = false;
 
     public $showViewEmployeeAsset = false;
 public $currentVendorId = null;
@@ -72,6 +84,7 @@ public $currentVendorId = null;
         $this->showEMployeeAssetBtn = true;
         $this->showOldEMployeeAssetBtn =false;
         $this->showEditDeleteEmployeeAsset = false;
+        $this->showSystemUpdateForm =false;
         $this->isUpdateMode = false;
         $this->resetErrorBag(['selectedAsset', 'selectedEmployee']);
     }
@@ -171,12 +184,21 @@ public function closeViewEmpAsset()
     $this->currentVendorId = null;
     $this->oldAssetEmp = true;
     $this->isUpdateMode = false;
+
 }
 
 
 
     private function resetForm()
     {
+        $this->sophosAntivirus = null;
+        $this->vpnCreation = null;
+        $this->teramind = null;
+        $this->systemUpgradation = null;
+        $this->oneDrive = null;
+        $this->screenshotPrograms = null;
+        $this->macAddress = '';
+        $this->laptopReceived = null;
         $this->selectedAsset = null;
         $this->selectedEmployee = null;
         $this->assetDetails = null;
@@ -235,6 +257,7 @@ public function closeViewEmpAsset()
     $this->showAssignAssetBtn = false;
     $this->assetEmpCreateUpdate = true;
     $this->employeeAssetListing = false;
+    $this->showSystemUpdateForm =false;
     $this->isUpdateMode = true;
 
     // Fetch the assignment record
@@ -244,6 +267,17 @@ public function closeViewEmpAsset()
     $this->assignmentId = $assignment->id;
     $this->selectedAsset = $assignment->asset_id;
     $this->selectedEmployee = $assignment->emp_id;
+
+
+    $this->sophosAntivirus = $assignment->sophos_antivirus;
+    $this->vpnCreation = $assignment->vpn_creation;
+    $this->teramind = $assignment->teramind;
+    $this->systemUpgradation = $assignment->system_upgradation;
+    $this->oneDrive = $assignment->one_drive;
+    $this->screenshotPrograms = $assignment->screenshot_programs;
+    $this->macAddress = $assignment->mac_address;
+    $this->laptopReceived = $assignment->laptop_received;
+
     $this->validateOnly('selectedAsset');
     $this->validateOnly('selectedEmployee');
 
@@ -273,24 +307,34 @@ public function closeViewEmpAsset()
 //     }
 
 
-    public function submit()
+    public function toggleSystemUpdateForm()
     {
-        $this->validate();
+        $this->showSystemUpdateForm = !$this->showSystemUpdateForm;
+        $this->isRotated = !$this->isRotated;
+    }
 
-        try {
-            if ($this->isUpdateMode && $this->assignmentId) {
-                // Archive the current assignment
-                $currentAssignment = AssignAssetEmp::findOrFail($this->assignmentId);
-
-                if ($currentAssignment->is_active) {
-
+    public function toggleOverview()
+    {
+        $this->showOverview = !$this->showOverview;
+        $this->toggleSystemUpdateForm();
+    }
 
 
+    public function submit()
+{
+    $this->validate();
 
-                    $currentAssignment->update([
-                        'is_active' => false,
-                    ]);
-                }
+    try {
+        if ($this->isUpdateMode && $this->assignmentId) {
+            // Retrieve the current assignment
+            $currentAssignment = AssignAssetEmp::findOrFail($this->assignmentId);
+
+            // Check if asset_id has changed
+            if ($currentAssignment->asset_id !== $this->selectedAsset) {
+                // Archive the current assignment by setting is_active to false
+                $currentAssignment->update([
+                    'is_active' => false,
+                ]);
 
                 // Create new assignment
                 AssignAssetEmp::create([
@@ -300,31 +344,71 @@ public function closeViewEmpAsset()
                     'asset_type' => $this->assetDetails->asset_type,
                     'employee_name' => $this->empDetails->first_name . ' ' . $this->empDetails->last_name,
                     'department' => $this->empDetails->job_role,
+                    'sophos_antivirus' => $this->sophosAntivirus,
+                    'vpn_creation' => $this->vpnCreation,
+                    'teramind' => $this->teramind,
+                    'system_upgradation' => $this->systemUpgradation,
+                    'one_drive' => $this->oneDrive,
+                    'screenshot_programs' => $this->screenshotPrograms,
+                    'mac_address' => $this->macAddress,
+                    'laptop_received' => $this->laptopReceived,
                     'is_active' => true,
                 ]);
+
                 FlashMessageHelper::flashSuccess("Assignee updated successfully!");
             } else {
-                // Create new assignment
-                AssignAssetEmp::create([
-                    'asset_id' => $this->selectedAsset,
+                // No change in asset_id, so just update the existing assignment without creating a new record
+                $currentAssignment->update([
                     'emp_id' => $this->empDetails->emp_id,
                     'manufacturer' => $this->assetDetails->manufacturer,
                     'asset_type' => $this->assetDetails->asset_type,
                     'employee_name' => $this->empDetails->first_name . ' ' . $this->empDetails->last_name,
                     'department' => $this->empDetails->job_role,
+                    'sophos_antivirus' => $this->sophosAntivirus,
+                    'vpn_creation' => $this->vpnCreation,
+                    'teramind' => $this->teramind,
+                    'system_upgradation' => $this->systemUpgradation,
+                    'one_drive' => $this->oneDrive,
+                    'screenshot_programs' => $this->screenshotPrograms,
+                    'mac_address' => $this->macAddress,
+                    'laptop_received' => $this->laptopReceived,
                     'is_active' => true,
                 ]);
-                FlashMessageHelper::flashSuccess("Asset Assigned to employee successfully!");
+
+                FlashMessageHelper::flashSuccess("Assignment updated successfully!");
             }
+        } else {
+            // Create new assignment as there is no existing one
+            AssignAssetEmp::create([
+                'asset_id' => $this->selectedAsset,
+                'emp_id' => $this->empDetails->emp_id,
+                'manufacturer' => $this->assetDetails->manufacturer,
+                'asset_type' => $this->assetDetails->asset_type,
+                'employee_name' => $this->empDetails->first_name . ' ' . $this->empDetails->last_name,
+                'department' => $this->empDetails->job_role,
+                'sophos_antivirus' => $this->sophosAntivirus,
+                'vpn_creation' => $this->vpnCreation,
+                'teramind' => $this->teramind,
+                'system_upgradation' => $this->systemUpgradation,
+                'one_drive' => $this->oneDrive,
+                'screenshot_programs' => $this->screenshotPrograms,
+                'mac_address' => $this->macAddress,
+                'laptop_received' => $this->laptopReceived,
+                'is_active' => true,
+            ]);
 
-            $this->resetForm();
-
-            return redirect()->route('employeeAssetList');
-        } catch (\Exception $e) {
-            Log::error('Error while assigning asset: ' . $e->getMessage());
-            FlashMessageHelper::flashError("An error occurred while saving the details. Please try again!");
+            FlashMessageHelper::flashSuccess("Asset assigned to employee successfully!");
         }
+
+        $this->resetForm();
+
+        return redirect()->route('employeeAssetList');
+    } catch (\Exception $e) {
+        Log::error('Error while assigning asset: ' . $e->getMessage());
+        FlashMessageHelper::flashError("An error occurred while saving the details. Please try again!");
     }
+}
+
 
 
     public function filter()
