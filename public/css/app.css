@@ -375,7 +375,7 @@ padding: 10px;
      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
      margin-bottom: 20px;
      padding: 10px;
-     background:linear-gradient(to bottom, #dbc5dde3, #a3cfc6)
+     background-color: #f5f5f5;;
  }
 
  .req-pro-card {
@@ -405,9 +405,9 @@ padding: 10px;
  }
 
  .req-pro-view-details-btn {
-     background-color: #f0f0f0;
+     background-color: white;
      color: black;
-     border: 2px solid #02114f;
+     border: 1px solid #02114f;
      padding: 6px 14px;
      border-radius: 15px;
      cursor: pointer;
@@ -416,14 +416,14 @@ padding: 10px;
 
  .req-pro-view-details-btn:hover {
     background-color: #061552;
-    border: 2px solid white;
+    border: 1px solid white;
     color: white;
  }
 
  .req-pro-approve-btn{
-    background-color: #f0f0f0;
+    background-color: white;
      color: black;
-     border: 2px solid #02114f ;
+     border: 1px solid #02114f ;
      padding: 5px 12px;
      border-radius: 15px;
      cursor: pointer;
@@ -432,7 +432,7 @@ padding: 10px;
 
  .req-pro-approve-btn:hover {
     background-color: #061552;
-    border: 2px solid white;
+    border: 1px solid white;
     color: white;
     transition: transform 0.3s ease;
 }
@@ -561,11 +561,10 @@ padding: 10px;
  }
 
  .req-pro-dropdown-arrow {
-     background: white;
+     background: #02114f;
      width: fit-content;
      padding: 6px;
      border-radius: 15px;
-     border: 2px solid black;
      transition: transform 0.3s ease;
  }
 
@@ -1668,7 +1667,20 @@ w
 
 
 /* assignAssetToEmployeee............................................................ */
+.rotate-180 {
+    transform: rotate(180deg);
+}
+.transition-icon {
+    transition: transform 0.3s ease;
+}
 
+.system-details-head{
+    background-color: #e2e2e2b3;
+    width: fit-content;
+    padding: 1%;
+    border-radius: 15px;
+    margin-bottom: 5%;
+}
 .assetAddPage{
 
    border: 1px solid #ccc;

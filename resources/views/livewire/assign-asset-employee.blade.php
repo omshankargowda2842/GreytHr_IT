@@ -34,96 +34,240 @@
         @if($assetEmpCreateUpdate)
 
         <div class="col-11 assetAddPage mb-3">
-        <!-- Row for Dropdowns -->
-        <div class="row mb-3 d-flex justify-content-around">
+            <!-- Row for Dropdowns -->
+            <div class="row mb-3 d-flex justify-content-around">
 
-            <!-- Employee ID Dropdown -->
-            <div class="col-md-5">
-                <label for="employeeSelect" class="form-label">Select Employee ID</label>
-                <select id="employeeSelect" class="form-select" wire:model="selectedEmployee"
-                    wire:change="fetchEmployeeDetails" {{ $isUpdateMode ? 'disabled' : '' }}>
-                    <option value="">Choose Employee</option>
-                    @foreach ($assetSelectEmp as $employee)
-                    <option value="{{ $employee->emp_id }}"
-                        class="{{ in_array($employee->emp_id, $assignedEmployeeIds) ? 'inactive-option' : 'active-option' }}"
-                        {{ (in_array($employee->emp_id, $assignedEmployeeIds) && $employee->emp_id !== $selectedEmployee) ? 'disabled' : '' }}
-                        {{ $isUpdateMode && $employee->emp_id == $selectedEmployee ? 'selected' : '' }}>
-                        {{ $employee->emp_id }} - {{ $employee->first_name }} {{ $employee->last_name }}
-                    </option>
-                    @endforeach
-                </select>
-                @error('selectedEmployee')
-                <span class="text-danger">{{ $message }}</span>
-                @enderror
+                <!-- Employee ID Dropdown -->
+                <div class="col-md-5">
+                    <label for="employeeSelect" class="form-label">Select Employee ID</label>
+                    <select id="employeeSelect" class="form-select" wire:model="selectedEmployee"
+                        wire:change="fetchEmployeeDetails" {{ $isUpdateMode ? 'disabled' : '' }}>
+                        <option value="">Choose Employee</option>
+                        @foreach ($assetSelectEmp as $employee)
+                        <option value="{{ $employee->emp_id }}"
+                            class="{{ in_array($employee->emp_id, $assignedEmployeeIds) ? 'inactive-option' : 'active-option' }}"
+                            {{ (in_array($employee->emp_id, $assignedEmployeeIds) && $employee->emp_id !== $selectedEmployee) ? 'disabled' : '' }}
+                            {{ $isUpdateMode && $employee->emp_id == $selectedEmployee ? 'selected' : '' }}>
+                            {{ $employee->emp_id }} - {{ $employee->first_name }} {{ $employee->last_name }}
+                        </option>
+                        @endforeach
+                    </select>
+                    @error('selectedEmployee')
+                    <span class="text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <!-- Asset Dropdown -->
+                <div class="col-md-5">
+                    @if (session()->has('message'))
+                    <div id="flash-message" class="alert alert-success mt-1">
+                        {{ session('message') }}
+                    </div>
+                    @endif
+                    <label for="assetSelect" class="form-label">Select Asset</label>
+                    <select id="assetSelect" class="form-select" wire:model="selectedAsset"
+                        wire:change="fetchAssetDetails">
+                        <option value="">Choose Asset</option>
+                        @foreach ($assetSelect as $asset)
+                        <option value="{{ $asset->asset_id }}"
+                            class="{{ in_array($asset->asset_id, $assignedAssetIds) ? 'inactive-option' : 'active-option' }}"
+                            {{ (in_array($asset->asset_id, $assignedAssetIds) && $asset->asset_id !== $selectedAsset) ? 'disabled' : '' }}
+                            {{ $isUpdateMode && $asset->asset_id == $selectedAsset ? 'selected' : '' }}>
+                            {{ $asset->asset_id }}
+                        </option>
+
+                        @endforeach
+                    </select>
+                    @error('selectedAsset')
+                    <span class="text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+
             </div>
 
-            <!-- Asset Dropdown -->
-            <div class="col-md-5">
-                @if (session()->has('message'))
-                <div id="flash-message" class="alert alert-success mt-1">
-                    {{ session('message') }}
-                </div>
-                @endif
-                <label for="assetSelect" class="form-label">Select Asset</label>
-                <select id="assetSelect" class="form-select" wire:model="selectedAsset" wire:change="fetchAssetDetails">
-                    <option value="">Choose Asset</option>
-                    @foreach ($assetSelect as $asset)
-                    <option value="{{ $asset->asset_id }}"
-                        class="{{ in_array($asset->asset_id, $assignedAssetIds) ? 'inactive-option' : 'active-option' }}"
-                        {{ (in_array($asset->asset_id, $assignedAssetIds) && $asset->asset_id !== $selectedAsset) ? 'disabled' : '' }}
-                        {{ $isUpdateMode && $asset->asset_id == $selectedAsset ? 'selected' : '' }}>
-                        {{ $asset->asset_id }}
-                    </option>
+            <!-- Row for Details Cards -->
+            <div class="row mt-4 d-flex justify-content-around">
+                <div class="col-md-5">
+                    @if ($empDetails)
+                    <div class="assetEmpDetailsCard p-3 mb-3">
+                        <h5><u>Employee Details</u></h5>
+                        <p><strong>Employee ID:</strong> {{ $empDetails->emp_id }}</p>
+                        <p><strong>Employee Name:</strong> {{ $empDetails->first_name }} {{ $empDetails->last_name }}
+                        </p>
+                        <p><strong>Email:</strong> {{ $empDetails->email }}</p>
+                        <p><strong>Department:</strong> {{ $empDetails->job_role }}</p>
+                        <p><strong>Job Mode:</strong> {{ $empDetails->job_mode }}</p>
+                    </div>
+                    @endif
 
-                    @endforeach
-                </select>
-                @error('selectedAsset')
-                <span class="text-danger">{{ $message }}</span>
-                @enderror
+                </div>
+
+                <div class="col-md-5">
+                    @if ($assetDetails)
+                    <div class="assetEmpDetailsCard p-3 mb-3">
+                        <h5><u>Asset Details</u></h5>
+                        <p><strong>Manufacturer:</strong> <span>{{ $assetDetails->manufacturer }}</span></p>
+                        <p><strong>Asset Type:</strong> {{ $assetDetails->asset_type }}</p>
+                        <p><strong>Asset Model:</strong> {{ $assetDetails->asset_model }}</p>
+                        <p><strong>Serial Number:</strong> {{ $assetDetails->serial_number }}</p>
+                        <p><strong>Specifications:</strong> {{ $assetDetails->asset_specification }}</p>
+                    </div>
+                    @endif
+                </div>
+            </div>
+
+
+            <div class="mt-4" style="margin-left: 4%;">
+                <div>
+                    <button class="btn text-white d-flex align-items-center" style="background-color: #02114f;"
+                        wire:click="toggleOverview">
+                        System Update
+                        <!-- <i wire:click="toggleOverview" class="fas fa-caret-down req-pro-dropdown-arrow" style="margin-left: auto; cursor: pointer;"></i> -->
+                        <i
+                            class="fas fa-caret-down req-pro-dropdown-arrow {{ $showOverview ? 'rotated' : '' }} req-overview-icon"></i>
+
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Form for System Update Fields -->
+            @if($showSystemUpdateForm)
+            <div class="p-4 border mt-3">
+                <h5 class="system-details-head">System Update Details</h5>
+
+
+                <div class="row mb-5">
+                    <div class="form-group col-md-4">
+                        <label>Sophos Antivirus:</label>
+                        <div class="input-group">
+                            <div class="form-check form-check-inline mb-0 mx-2">
+                                <input class="form-check-input" type="radio" wire:model="sophosAntivirus" value="Yes"
+                                    id="sophosYes" name="sophosAntivirus">
+                                <label class="form-check-label mb-0" for="sophosYes">Yes</label>
+                            </div>
+                            <div class="form-check form-check-inline mb-0 mx-2">
+                                <input class="form-check-input" type="radio" wire:model="sophosAntivirus" value="No"
+                                    id="sophosNo" name="sophosAntivirus">
+                                <label class="form-check-label mb-0" for="sophosNo">No</label>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        <label>VPN Creation:</label>
+                        <div class="input-group">
+                            <div class="form-check form-check-inline mb-0 mx-2">
+                                <input class="form-check-input" type="radio" wire:model="vpnCreation" value="Yes"
+                                    id="vpnYes" name="vpnCreation">
+                                <label class="form-check-label mb-0" for="vpnYes">Yes</label>
+                            </div>
+                            <div class="form-check form-check-inline mb-0 mx-2">
+                                <input class="form-check-input" type="radio" wire:model="vpnCreation" value="No"
+                                    id="vpnNo" name="vpnCreation">
+                                <label class="form-check-label mb-0" for="vpnNo">No</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        <label>Teramind:</label>
+                        <div class="input-group">
+                            <div class="form-check form-check-inline mb-0 mx-2">
+                                <input class="form-check-input" type="radio" wire:model="teramind" value="Yes"
+                                    id="teramindYes" name="teramind">
+                                <label class="form-check-label mb-0" for="teramindYes">Yes</label>
+                            </div>
+                            <div class="form-check form-check-inline mb-0 mx-2">
+                                <input class="form-check-input" type="radio" wire:model="teramind" value="No"
+                                    id="teramindNo" name="teramind">
+                                <label class="form-check-label mb-0" for="teramindNo">No</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-5">
+                    <div class="form-group col-md-4">
+                        <label>System Upgradation:</label>
+                        <div class="input-group">
+                            <div class="form-check form-check-inline mb-0 mx-2">
+                                <input class="form-check-input" type="radio" wire:model="systemUpgradation" value="Yes"
+                                    id="upgradeYes" name="systemUpgradation">
+                                <label class="form-check-label mb-0" for="upgradeYes">Yes</label>
+                            </div>
+                            <div class="form-check form-check-inline mb-0 mx-2">
+                                <input class="form-check-input" type="radio" wire:model="systemUpgradation" value="No"
+                                    id="upgradeNo" name="systemUpgradation">
+                                <label class="form-check-label mb-0" for="upgradeNo">No</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        <label>OneDrive:</label>
+                        <div class="input-group">
+                            <div class="form-check form-check-inline mb-0 mx-2">
+                                <input class="form-check-input" type="radio" wire:model="oneDrive" value="Yes"
+                                    id="oneDriveYes" name="oneDrive">
+                                <label class="form-check-label mb-0" for="oneDriveYes">Yes</label>
+                            </div>
+                            <div class="form-check form-check-inline mb-0 mx-2">
+                                <input class="form-check-input" type="radio" wire:model="oneDrive" value="No"
+                                    id="oneDriveNo" name="oneDrive">
+                                <label class="form-check-label mb-0" for="oneDriveNo">No</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        <label>Screenshot Programs:</label>
+                        <div class="input-group">
+                            <div class="form-check form-check-inline mb-0 mx-2">
+                                <input class="form-check-input" type="radio" wire:model="screenshotPrograms" value="Yes"
+                                    id="screenshotYes" name="screenshotPrograms">
+                                <label class="form-check-label mb-0" for="screenshotYes">Yes</label>
+                            </div>
+                            <div class="form-check form-check-inline mb-0 mx-2">
+                                <input class="form-check-input" type="radio" wire:model="screenshotPrograms" value="No"
+                                    id="screenshotNo" name="screenshotPrograms">
+                                <label class="form-check-label mb-0" for="screenshotNo">No</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row mb-5">
+                    <div class="form-group col-md-4">
+
+                        <label>Mac Address:</label>
+                        <input type="text" class="form-control" wire:model="macAddress">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>Laptop Received (Date):</label>
+                        <input type="date" class="form-control" wire:model="laptopReceived">
+                    </div>
+                </div>
+
+
+            </div>
+            @endif
+
+
+
+
+            <!-- Submit Button -->
+            <div class="mt-4 text-center">
+
+                <button class="btn text-white" style="background-color: #02114f;" wire:click="submit">
+                    {{ $isUpdateMode ? 'Update Asset' : 'Assign' }}
+                </button>
+
             </div>
 
         </div>
-
-        <!-- Row for Details Cards -->
-        <div class="row mt-4 d-flex justify-content-around">
-            <div class="col-md-5">
-                @if ($empDetails)
-                <div class="assetEmpDetailsCard p-3 mb-3">
-                    <h5><u>Employee Details</u></h5>
-                    <p><strong>Employee ID:</strong> {{ $empDetails->emp_id }}</p>
-                    <p><strong>Employee Name:</strong> {{ $empDetails->first_name }} {{ $empDetails->last_name }}</p>
-                    <p><strong>Email:</strong> {{ $empDetails->email }}</p>
-                    <p><strong>Department:</strong> {{ $empDetails->job_role }}</p>
-                    <p><strong>Job Mode:</strong> {{ $empDetails->job_mode }}</p>
-                </div>
-                @endif
-
-            </div>
-
-            <div class="col-md-5">
-                @if ($assetDetails)
-                <div class="assetEmpDetailsCard p-3 mb-3">
-                    <h5><u>Asset Details</u></h5>
-                    <p><strong>Manufacturer:</strong> <span>{{ $assetDetails->manufacturer }}</span></p>
-                    <p><strong>Asset Type:</strong> {{ $assetDetails->asset_type }}</p>
-                    <p><strong>Asset Model:</strong> {{ $assetDetails->asset_model }}</p>
-                    <p><strong>Serial Number:</strong> {{ $assetDetails->serial_number }}</p>
-                    <p><strong>Specifications:</strong> {{ $assetDetails->asset_specification }}</p>
-                </div>
-                @endif
-            </div>
-        </div>
-
-
-        <!-- Submit Button -->
-        <div class="mt-4 text-center">
-            <button class="btn text-white" style="background-color: #02114f;" wire:click="submit">
-                {{ $isUpdateMode ? 'Update Asset' : 'Assign' }}
-            </button>
-
-        </div>
-
-    </div>
         @endif
 
 
@@ -419,10 +563,10 @@
                     <div class="col-4">
                         @if($oldAssetBackButton)
 
-                                <button class="btn text-white" style="background-color: #02114f;"
-                                    wire:click="closeViewVendor" aria-label="Close">
-                                    <i class="fas fa-arrow-left"></i> Back
-                                </button>
+                        <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewVendor"
+                            aria-label="Close">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
 
                         @endif
                     </div>

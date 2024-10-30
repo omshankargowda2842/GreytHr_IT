@@ -17,6 +17,15 @@ class AssignAssetEmp extends Model
         'asset_type',
         'employee_name',
         'department',
+        'sophos_antivirus',
+        'vpn_creation',
+        'teramind',
+        'system_upgradation',
+        'system_name',
+        'one_drive',
+        'screenshot_programs',
+        'mac_address',
+        'laptop_received',
         'deleted_at',
         'delete_reason',
         'is_active'
@@ -45,7 +54,7 @@ class AssignAssetEmp extends Model
         );
     }
 
-    
+
 
 
 }
