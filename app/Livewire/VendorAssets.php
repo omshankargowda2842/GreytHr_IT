@@ -452,11 +452,8 @@ public function submit()
 
     $barcode = $generator->getBarcode($this->serialNumber, $generator::TYPE_CODE_128);
 
-    // Save the barcode image in storage (public path)
-    $barcodePath = 'barcodes/' . $this->serialNumber . '.png';
 
-    Storage::disk('public')->put($barcodePath, $barcode);
-
+    $barcodeBase64 = base64_encode($barcode);
 
 
     $fileDataArray = [];
@@ -555,7 +552,7 @@ public function submit()
                 'invoice_number' => $this->invoiceNumber,
                 'taxable_amount' => $this->taxableAmount,
                 'invoice_amount' => $this->invoiceAmount,
-                'barcode' => $barcodePath,
+                'barcode' => $barcodeBase64,
                 'gst_state' => $this->gstState,
                 'gst_central' => $this->gstCentral,
                 'purchase_date' => $this->purchaseDate ? $this->purchaseDate : null,
@@ -578,7 +575,7 @@ public function submit()
             'invoice_number' => $this->invoiceNumber,
             'taxable_amount' => $this->taxableAmount,
             'invoice_amount' => $this->invoiceAmount,
-            'barcode' => $barcodePath,
+            'barcode' => $barcodeBase64,
             'gst_state' => $this->gstState,
             'gst_central' => $this->gstCentral,
             'purchase_date' => $this->purchaseDate ? $this->purchaseDate : null,
@@ -727,6 +724,7 @@ public function mount()
         // $this->assetNames = asset_types_table::all();
 
         $this->vendorAssets =  $this->filter();
+
 
         $this->vendorAssets =  $this->vendorAssets->map(function ($vendorAsset) use ($assetTypes) {
             $vendorAsset['asset_type_name'] = $assetTypes[$vendorAsset['asset_type']] ?? 'N/A';

@@ -93,12 +93,16 @@ class ItAddMember extends Component
 
         $this->loadAssetsAndEmployees();
     }
-
+    public $assignedEmployeeIds;
     public function loadAssetsAndEmployees()
     {
         $this->assetSelectEmp = EmployeeDetails::where('sub_dept_id', '9915')
             ->where('dept_id', '8803')
+            ->where('status', 1)
             ->orderBy('first_name', 'asc')->get();
+
+            $this->assignedEmployeeIds = IT::pluck('emp_id')->toArray();
+
     }
 
     private function resetForm()

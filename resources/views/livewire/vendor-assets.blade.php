@@ -253,7 +253,7 @@
 
                         @if($barcode)
                         <h6>Generated Barcode:</h6>
-                        <img src="{{ asset('storage/' . $barcode) }}" alt="Barcode">
+                        <img src="data:image/png;base64,{{ $barcode }}" alt="Barcode" style="max-width: 100%; height: auto;">
                         @endif
 
                     </div>
@@ -438,7 +438,7 @@
                                                 aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body text-center">
-                                            <img src="{{ asset('storage/' . $vendorAsset->barcode) }}" alt="Barcode"
+                                            <img src="data:image/png;base64,{{ $vendorAsset->barcode }}" alt="Barcode"
                                                 style="max-width: 100%; height: auto;">
                                         </div>
                                     </div>

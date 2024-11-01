@@ -148,7 +148,7 @@
                                             class="badge rounded-pill  bg-white text-dark">{{ $countRequests->where('category', $category)->where('status', 'Pending')->count() }}</span>
                                     </span>
                                     <span class="badge dash-custom-bg-color2 text-black">
-                                        Completed <span
+                                        Closed <span
                                             class="badge rounded-pill  bg-white text-dark">{{ $countRequests->where('category', $category)->where('status', 'Completed')->count() }}</span>
                                     </span>
                                 </td>

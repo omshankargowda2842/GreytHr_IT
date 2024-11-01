@@ -1,7 +1,7 @@
 <div class="main">
 
     <div wire:loading
-        wire:target="cancel,backVendor,oldAssetlisting,assignAsset,viewDetails,edit,selectedAsset,closeViewEmpAsset,viewOldAssetDetails,selectedEmployee,submit,createAssetType,showAddVendorMember,delete,clearFilters ,showEditAsset ,showViewVendor,showViewImage,showViewFile,showEditVendor,closeViewVendor,downloadImages,closeViewImage,closeViewFile,confirmDelete ,cancelLogout,restore">
+        wire:target="cancel,backVendor,oldAssetlisting,toggleOverview,assignAsset,viewDetails,edit,selectedAsset,closeViewEmpAsset,viewOldAssetDetails,selectedEmployee,submit,createAssetType,showAddVendorMember,delete,clearFilters ,showEditAsset ,showViewVendor,showViewImage,showViewFile,showEditVendor,closeViewVendor,downloadImages,closeViewImage,closeViewFile,confirmDelete ,cancelLogout,restore">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -121,7 +121,7 @@
                 <div>
                     <button class="btn text-white d-flex align-items-center" style="background-color: #02114f;"
                         wire:click="toggleOverview">
-                        System Update
+                        System Updates
                         <!-- <i wire:click="toggleOverview" class="fas fa-caret-down req-pro-dropdown-arrow" style="margin-left: auto; cursor: pointer;"></i> -->
                         <i
                             class="fas fa-caret-down req-pro-dropdown-arrow {{ $showOverview ? 'rotated' : '' }} req-overview-icon"></i>
@@ -487,6 +487,10 @@
                         <td>{{ $vendor->vendorAsset->vendor_id ?? 'N/A' }}</td>
                     </tr>
                     <tr>
+                        <td>Vendor Name</td>
+                        <td>{{ $vendor->vendorAsset->vendor->vendor_name ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
                         <td>Asset ID</td>
                         <td>{{ $vendor->asset_id ?? 'N/A' }}</td>
                     </tr>
@@ -526,7 +530,7 @@
                     <tr>
                         <td>Asset Purchase Date</td>
                         <td>
-                            {{ $vendor->vendorAsset->purchase_date ? \Carbon\Carbon::parse($vendor->vendorAsset->purchase_date)->format('d-m-Y') : 'N/A' }}
+                        {{ $vendor->vendorAsset->purchase_date ? \Carbon\Carbon::parse($vendor->vendorAsset->purchase_date)->format('d-M-Y') : 'N/A' }}
                         </td>
                     </tr>
 
