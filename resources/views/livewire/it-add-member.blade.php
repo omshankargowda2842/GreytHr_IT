@@ -34,8 +34,8 @@
                 <!-- Employee ID Search Input -->
                 <div class="col-4">
                     <div class="input-group task-input-group-container">
-                        <input type="text" class="form-control" placeholder="Search..."
-                            wire:model="searchEmp" wire:input="filter">
+                        <input type="text" class="form-control" placeholder="Search..." wire:model="searchEmp"
+                            wire:input="filter">
                     </div>
                 </div>
 
@@ -56,7 +56,7 @@
     @endif
     <div class="col-11  mt-4 ml-4">
 
-            <div class="table-responsive it-add-table-res">
+        <div class="table-responsive it-add-table-res">
 
 
             <table class="custom-table">
@@ -89,15 +89,15 @@
                             @endif
                         </th>
 
-                            <!-- Sortable Email Column -->
-                            <th class="req-table-head" wire:click="toggleSortOrder('email')" style="cursor: pointer;">
-                                Email
-                                @if ($sortColumn == 'email')
-                                    <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
-                                @else
-                                    <i class="fas fa-sort"></i>
-                                @endif
-                            </th>
+                        <!-- Sortable Email Column -->
+                        <th class="req-table-head" wire:click="toggleSortOrder('email')" style="cursor: pointer;">
+                            Email
+                            @if ($sortColumn == 'email')
+                            <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                            @else
+                            <i class="fas fa-sort"></i>
+                            @endif
+                        </th>
 
                         <th class="req-table-head">Actions</th>
                     </tr>
@@ -164,27 +164,26 @@
 
     @if ($addItmember)
 
-        <div class="col-11 d-flex justify-content-start mb-4" style="margin-left: 5%;">
-            <div class="">
-                <button class="btn text-white" style="background-color: #02114f;" wire:click="Cancel"
-                    aria-label="Close">
-                    <i class="fas fa-arrow-left"></i> Back
-                </button>
-            </div>
+    <div class="col-11 d-flex justify-content-start mb-4" style="margin-left: 5%;">
+        <div class="">
+            <button class="btn text-white" style="background-color: #02114f;" wire:click="Cancel" aria-label="Close">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+        </div>
+    </div>
+
+
+
+
+    <div class="col-11  mt-4 itadd-maincolumn">
+
+        <div class="d-flex justify-content-between align-items-center ">
+            <h2 class="mb-4 addEditHeading">Add IT Member</h2>
         </div>
 
-
-
-
-        <div class="col-11  mt-4 itadd-maincolumn">
-
-            <div class="d-flex justify-content-between align-items-center ">
-                <h2 class="mb-4 addEditHeading">Add IT Member</h2>
-            </div>
-
-            <div class="border rounded p-3 bg-light itAdd1">
-                <!-- Row for Dropdowns -->
-                <div class="row mb-3 d-flex justify-content-around">
+        <div class="border rounded p-3 bg-light itAdd1">
+            <!-- Row for Dropdowns -->
+            <div class="row mb-3 d-flex justify-content-around">
 
                 <!-- Employee ID Dropdown -->
                 <div class="col-md-5">
@@ -193,11 +192,15 @@
                         wire:change="fetchEmployeeDetails">
                         <option value="">Choose Employee</option>
                         @foreach ($assetSelectEmp as $employee)
-                        <option value="{{ $employee->emp_id }}" class="">
+                        <option value="{{ $employee->emp_id }}" @if (in_array($employee->emp_id, $assignedEmployeeIds))
+                            disabled
+                            @endif>
                             {{ $employee->emp_id }} - {{ ucwords($employee->first_name) }}
                             {{ ucwords($employee->last_name) }}
+                            @if (in_array($employee->emp_id, $assignedEmployeeIds))
+                           
+                            @endif
                         </option>
-
                         @endforeach
                     </select>
                     @error('selectedEmployee')
@@ -205,72 +208,72 @@
                     @enderror
                 </div>
 
-                </div>
+            </div>
 
-                <!-- Row for Details Cards -->
-                <div class="row mt-4 d-flex justify-content-around">
-                    <div class="col-md-4">
-                        @if ($empDetails)
-                            <div class="assetEmpDetailsCard p-3 mb-3">
-                                <h5><u>Employee Details</u></h5>
-                                <p><strong>Employee ID:</strong> {{ $empDetails->emp_id }}</p>
-                                <p><strong>Employee Name:</strong> {{ $empDetails->first_name }}
-                                    {{ $empDetails->last_name }}</p>
-                                <p><strong>Email:</strong> {{ $empDetails->email }}</p>
-                                <p><strong>Department:</strong> {{ $empDetails->job_role }}</p>
-                            </div>
-                        @endif
-
+            <!-- Row for Details Cards -->
+            <div class="row mt-4 d-flex justify-content-around">
+                <div class="col-md-4">
+                    @if ($empDetails)
+                    <div class="assetEmpDetailsCard p-3 mb-3">
+                        <h5><u>Employee Details</u></h5>
+                        <p><strong>Employee ID:</strong> {{ $empDetails->emp_id }}</p>
+                        <p><strong>Employee Name:</strong> {{ $empDetails->first_name }}
+                            {{ $empDetails->last_name }}</p>
+                        <p><strong>Email:</strong> {{ $empDetails->email }}</p>
+                        <p><strong>Department:</strong> {{ $empDetails->job_role }}</p>
                     </div>
-                </div>
-
-
-                <!-- Submit Button -->
-                <div class="mt-4 text-center">
-                    <button class="btn text-white" style="background-color: #02114f;" wire:click="submit">
-                        Submit
-                    </button>
+                    @endif
 
                 </div>
             </div>
+
+
+            <!-- Submit Button -->
+            <div class="mt-4 text-center">
+                <button class="btn text-white" style="background-color: #02114f;" wire:click="submit">
+                    Submit
+                </button>
+
+            </div>
         </div>
+    </div>
 
     @endif
 
 
 
     @if ($showLogoutModal)
-        <div class="modal logout1" id="logoutModal" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header text-white logout2">
-                        <h6 class="modal-title logout3" id="logoutModalLabel">Confirm Deactivation</h6>
-                    </div>
-                    <div class="modal-body text-center logout4">
-                        Are you sure you want to deactivate?
-                    </div>
-                    <div class="modal-body text-center">
-                        <form wire:submit.prevent="delete">
-                            <span class="text-danger d-flex align-start">*</span>
-                            <div class="row">
-                                <div class="col-12 req-remarks-div">
-                                    <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea logout5"
-                                        placeholder="Reason for deactivation"></textarea>
-                                </div>
+    <div class="modal logout1" id="logoutModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header text-white logout2">
+                    <h6 class="modal-title logout3" id="logoutModalLabel">Confirm Deactivation</h6>
+                </div>
+                <div class="modal-body text-center logout4">
+                    Are you sure you want to deactivate?
+                </div>
+                <div class="modal-body text-center">
+                    <form wire:submit.prevent="delete">
+                        <span class="text-danger d-flex align-start">*</span>
+                        <div class="row">
+                            <div class="col-12 req-remarks-div">
+                                <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea logout5"
+                                    placeholder="Reason for deactivation"></textarea>
                             </div>
-                            @error('reason')
-                                <span class="text-danger d-flex align-start">{{ $message }}</span>
-                            @enderror
-                            <div class="d-flex justify-content-center p-3">
-                                <button type="submit" class="submit-btn mr-3">Deactivate</button>
-                                <button type="button" class="cancel-btn1 ml-3" wire:click="Cancel">Cancel</button>
-                            </div>
-                        </form>
-                    </div>
+                        </div>
+                        @error('reason')
+                        <span class="text-danger d-flex align-start">{{ $message }}</span>
+                        @enderror
+                        <div class="d-flex justify-content-center p-3">
+                            <button type="submit" class="submit-btn mr-3">Deactivate</button>
+                            <button type="button" class="cancel-btn1 ml-3" wire:click="Cancel">Cancel</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-        <div class="modal-backdrop fade show"></div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
     @endif
 
 

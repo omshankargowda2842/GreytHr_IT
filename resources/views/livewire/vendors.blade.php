@@ -66,12 +66,14 @@
                         <input type="text" id="phone" wire:model.lazy="phone"
                             wire:keydown="resetValidationForField('phone')" maxlength="10"
                             oninput="formatPhoneNumber(this)" class="form-control">
+                            @if($phoneError) <div class="text-danger">{{ $phoneError }}</div> @endif
+
                         @error('phone') <div class="text-danger">{{ $message }}</div> @enderror
                     </div>
 
                     <!-- GST -->
                     <div class="col-md-6">
-                        <label for="gst" class="form-label"><span class="text-danger">*</span>GST</label>
+                        <label for="gst" class="form-label"><span class="text-danger">*</span>GSTIN</label>
                         <input type="text" id="gst" wire:model.lazy="gst" wire:keydown="resetValidationForField('gst')"
                             class="form-control">
                         @error('gst') <div class="text-danger">{{ $message }}</div> @enderror
@@ -255,7 +257,7 @@
                             </span>
                         </th>
 
-                        <th class="vendor-table-head">GST
+                        <th class="vendor-table-head">GSTIN
                             <span wire:click="toggleSortOrder('gst')" style="cursor: pointer;">
                                 @if($sortColumn == 'gst')
                                 <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
@@ -377,7 +379,7 @@
                     <td>{{ $vendor->phone ?? 'N/A' }}</td>
                 </tr>
                 <tr>
-                    <td class="fs-6 fs-md-3 fs-lg-2">GST</td>
+                    <td class="fs-6 fs-md-3 fs-lg-2">GSTIN</td>
                     <td>{{ $vendor->gst ?? 'N/A' }}</td>
                 </tr>
                 <tr>

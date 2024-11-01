@@ -188,10 +188,7 @@ public function updatedContactName()
 {
     $this->validateOnly('contactName');
 }
-public function updatedPhone()
-{
-    $this->validateOnly('phone');
-}
+
 public function updatedGst()
 {
     $this->validateOnly('gst');
@@ -548,6 +545,19 @@ public function downloadImages($vendorId)
         $this->assetsFound = false;
 
     }
+
+    public $phoneError = '';
+    public function updatedPhone($value,$field)
+{
+
+    // Check if the phone number starts with an allowed digit (6-9) and has up to 10 digits
+    if (!preg_match('/^[6-9][0-9]{0,9}$/', $value)) {
+        $this->phoneError = 'Phone number must start with 6, 7, 8, or 9 and be up to 10 digits.';
+    } else {
+        $this->phoneError = ''; // Clear error message if valid
+    }
+    $this->resetErrorBag($field);
+}
 
     public function resetValidationForField($field)
     {
