@@ -79,6 +79,7 @@ class Vendors extends Component
         'phone.required' => 'Phone number is required.',
         'phone.string' => 'Phone number must be a number.',
         'phone.max' => 'Phone number may not be greater than 10 characters.',
+        'gst.required' => 'The GSTIN field is required.',
         'gst.regex' => 'The GST number format is invalid.',
         'contactEmail.required' => 'Contact Email is required.',
         'contactEmail.email' => 'Contact Email must be a valid email address.',

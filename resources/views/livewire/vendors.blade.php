@@ -29,7 +29,7 @@
                 class="fas fa-arrow-left"></i> Back</button>
 
     </div>
-    <div class="col-11 mt-4 itadd-maincolumn">
+    <div class="col-11 mt-4 view-details-modal">
 
         <div class="d-flex justify-content-between align-items-center">
             <h2 class="mb-4 addEditHeading">{{ $editMode ? 'Edit Vendor' : 'Add Vendor' }}</h2>
@@ -42,163 +42,251 @@
                 <div class="row mb-3">
                     <!-- Vendor Name -->
                     <div class="col-md-6">
-                        <label for="vendorName" class="form-label"><span class="text-danger">*</span> Vendor
-                            Name</label>
-                        <input type="text" id="vendorName" wire:model.lazy="vendorName"
-                            wire:keydown="resetValidationForField('vendorName')" class="form-control">
-                        @error('vendorName') <div class="text-danger">{{ $message }}</div> @enderror
+                        <div class="row">
+
+
+                            <div class="col-4">
+                                <label for="vendorName" class="vendor-label"><span class="text-danger">*</span> Vendor
+                                    Name</label>
+                            </div>
+
+                            <div class="col-8">
+                                <input type="text" id="vendorName" wire:model.lazy="vendorName"
+                                    wire:keydown="resetValidationForField('vendorName')" class="form-control">
+                                @error('vendorName') <div class="text-danger">{{ $message }}</div> @enderror
+                            </div>
+
+                        </div>
+
                     </div>
 
                     <!-- Contact Name -->
                     <div class="col-md-6">
-                        <label for="contactName" class="form-label"><span class="text-danger">*</span>Contact
-                            Name</label>
-                        <input type="text" id="contactName" wire:model.lazy="contactName"
-                            wire:keydown="resetValidationForField('contactName')" class="form-control">
-                        @error('contactName') <div class="text-danger">{{ $message }}</div> @enderror
+                        <div class="row">
+                            <div class="col-4">
+                                <label for="contactName" class="vendor-label"><span class="text-danger">*</span>Contact
+                                    Name</label>
+                            </div>
+                            <div class="col-8">
+                                <input type="text" id="contactName" wire:model.lazy="contactName"
+                                    wire:keydown="resetValidationForField('contactName')" class="form-control">
+                                @error('contactName') <div class="text-danger">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <!-- Phone -->
                     <div class="col-md-6">
-                        <label for="phone" class="form-label"><span class="text-danger">*</span>Phone</label>
-                        <input type="text" id="phone" wire:model.lazy="phone"
-                            wire:keydown="resetValidationForField('phone')" maxlength="10"
-                            oninput="formatPhoneNumber(this)" class="form-control">
-                        @if($phoneError) <div class="text-danger">{{ $phoneError }}</div> @endif
+                        <div class="row">
+                            <div class="col-4">
+                                <label for="phone" class="vendor-label"><span class="text-danger">*</span>Phone</label>
+                            </div>
 
-                        @error('phone') <div class="text-danger">{{ $message }}</div> @enderror
+                            <div class="col-8">
+                                <input type="text" id="phone" wire:model.lazy="phone"
+                                    wire:keydown="resetValidationForField('phone')" maxlength="10"
+                                    oninput="formatPhoneNumber(this)" class="form-control">
+                                @if($phoneError) <div class="text-danger">{{ $phoneError }}</div> @endif
+
+                                @error('phone') <div class="text-danger">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+
                     </div>
 
                     <!-- GST -->
                     <div class="col-md-6">
-                        <label for="gst" class="form-label"><span class="text-danger">*</span>GSTIN</label>
-                        <input type="text" id="gst" wire:model.lazy="gst" wire:keydown="resetValidationForField('gst')"
-                            class="form-control">
-                        @error('gst') <div class="text-danger">{{ $message }}</div> @enderror
+                        <div class="row">
+                            <div class="col-4">
+                                <label for="gst" class="vendor-label"><span class="text-danger">*</span>GSTIN</label>
+                            </div>
+
+                            <div class="col-8">
+                                <input type="text" id="gst" wire:model.lazy="gst"
+                                    wire:keydown="resetValidationForField('gst')" class="form-control">
+                                @error('gst') <div class="text-danger">{{ $message }}</div> @enderror
+                            </div>
+
+
+                        </div>
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <!-- Bank Name -->
                     <div class="col-md-6">
-                        <label for="bankName" class="form-label">Bank Name</label>
-                        <input type="text" id="bankName" wire:model="bankName" class="form-control">
-
+                        <div class="row">
+                            <div class="col-4">
+                                <label for="bankName" class="vendor-label">Bank Name</label>
+                            </div>
+                            <div class="col-8">
+                                <input type="text" id="bankName" wire:model="bankName" class="form-control">
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Account Number -->
                     <div class="col-md-6">
-                        <label for="accountNumber" class="form-label">Account Number</label>
-                        <input type="text" id="accountNumber" wire:model.lazy="accountNumber"
-                            wire:keydown="resetValidationForField('accountNumber')" maxlength="19"
-                            oninput="formatAccountNumber(this)" class="form-control">
-                        @error('accountNumber')
-                        <div class="text-danger">{{ $message }}</div>
-                        @enderror
+                        <div class="row">
+                            <div class="col-4">
+                                <label for="accountNumber" class="vendor-label">Account Number</label>
+                            </div>
+                            <div class="col-8">
+                                <input type="text" id="accountNumber" wire:model.lazy="accountNumber"
+                                    wire:keydown="resetValidationForField('accountNumber')" maxlength="19"
+                                    oninput="formatAccountNumber(this)" class="form-control">
+                                @error('accountNumber') <div class="text-danger">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <!-- IFSC Code -->
                     <div class="col-md-6">
-                        <label for="ifscCode" class="form-label">IFSC Code</label>
-                        <input type="text" id="ifscCode" wire:model="ifscCode" class="form-control">
-
+                        <div class="row">
+                            <div class="col-4">
+                                <label for="ifscCode" class="vendor-label">IFSC Code</label>
+                            </div>
+                            <div class="col-8">
+                                <input type="text" id="ifscCode" wire:model="ifscCode" class="form-control">
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Branch -->
                     <div class="col-md-6">
-                        <label for="branch" class="form-label">Branch</label>
-                        <input type="text" id="branch" wire:model="branch" class="form-control">
-
+                        <div class="row">
+                            <div class="col-4">
+                                <label for="branch" class="vendor-label">Branch</label>
+                            </div>
+                            <div class="col-8">
+                                <input type="text" id="branch" wire:model="branch" class="form-control">
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <!-- Contact Email -->
                     <div class="col-md-6">
-                        <label for="contactEmail" class="form-label"><span class="text-danger">*</span>Contact
-                            Email</label>
-                        <input type="email" id="contactEmail" wire:model.lazy="contactEmail"
-                            wire:keydown="resetValidationForField('contactEmail')" class="form-control">
-                        @error('contactEmail') <div class="text-danger">{{ $message }}</div> @enderror
+                        <div class="row">
+                            <div class="col-4">
+                                <label for="contactEmail" class="vendor-label"><span class="text-danger">*</span>Contact
+                                    Email</label>
+                            </div>
+                            <div class="col-8">
+                                <input type="email" id="contactEmail" wire:model.lazy="contactEmail"
+                                    wire:keydown="resetValidationForField('contactEmail')" class="form-control">
+                                @error('contactEmail') <div class="text-danger">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Pin Code -->
                     <div class="col-md-6">
-                        <label for="pinCode" class="form-label">Pin Code</label>
-                        <input type="text" id="pinCode" wire:model.lazy="pinCode" maxlength="6" class="form-control">
-                        @error('pinCode')
-                        <div class="text-danger">{{ $message }}</div>
-                        @enderror
+                        <div class="row">
+                            <div class="col-4">
+                                <label for="pinCode" class="vendor-label">Pin Code</label>
+                            </div>
+                            <div class="col-8">
+                                <input type="text" id="pinCode" wire:model.lazy="pinCode" maxlength="6"
+                                    class="form-control">
+                                @error('pinCode') <div class="text-danger">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
                     </div>
-
-
-
                 </div>
 
                 <div class="row mb-3">
-
                     <!-- Street -->
                     <div class="col-md-6">
-                        <label for="street" class="form-label">Town/Mandal</label>
-                        <select id="street" wire:model="street" class="vendor-selected-vendorID">
-                            <option disabled hidden>Select Town/Mandal</option>
-                            @foreach($postOffices as $office)
-                            <option value="{{ $office['name'] }} - {{ $office['mandal'] }}"
-                                @if($street===$office['name'] . ' - ' . $office['mandal']) selected @endif>
-                                {{ $office['name'] }} - {{ $office['mandal'] }}
-                            </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-
-
-                    <!-- City -->
-                    <div class="col-md-6">
-
-                        <label for="city" class="form-label">District</label>
-                        <div id="city" class="input-div-vendor p-2" wire:model='city' readonly>
-                            {{ $city }}
+                        <div class="row">
+                            <div class="col-4">
+                                <label for="street" class="vendor-label">Town/Mandal</label>
+                            </div>
+                            <div class="col-8">
+                                <select id="street" wire:model="street" class="input-div-vendor">
+                                    <option disabled hidden>Select Town/Mandal</option>
+                                    @foreach($postOffices as $office)
+                                    <option value="{{ $office['name'] }} - {{ $office['mandal'] }}"
+                                        @if($street===$office['name'] . ' - ' . $office['mandal']) selected @endif>
+                                        {{ $office['name'] }} - {{ $office['mandal'] }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
                     </div>
 
-
+                    <!-- City -->
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-4">
+                                <label for="city" class="vendor-label">District</label>
+                            </div>
+                            <div class="col-8">
+                                <div id="city" class="input-div-vendor" wire:model="city" readonly>
+                                    {{ $city }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="row mb-3">
-
                     <!-- State -->
                     <div class="col-md-6">
-                        <label for="state" class="form-label">State</label>
-                        <div id="state" class="input-div-vendor p-2" wire:model='state' readonly>
-                            {{ $state }}
+                        <div class="row">
+                            <div class="col-4">
+                                <label for="state" class="vendor-label">State</label>
+                            </div>
+                            <div class="col-8">
+                                <div id="state" class="input-div-vendor" wire:model="state" readonly>
+                                    {{ $state }}
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Note/Description -->
                     <div class="col-md-6">
-                        <label for="noteDescription" class="form-label">Description</label>
-                        <textarea id="noteDescription" wire:model="noteDescription" class="form-control"></textarea>
+                        <div class="row">
+                            <div class="col-4">
+                                <label for="noteDescription" class="vendor-label">Description</label>
+                            </div>
+                            <div class="col-8">
+                                <textarea id="noteDescription" wire:model="noteDescription"
+                                    class="form-control"></textarea>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Image -->
-                <div class="mb-3">
-                    <p class="text-primary"><label for="file">Attachments
-                        </label><i class="fas fa-paperclip"></i></p>
-
-                    <input id="file" type="file" wire:model="file_paths" wire:loading.attr="disabled" multiple
-                        style="font-size: 12px;" />
-                    <div wire:loading wire:target="file_paths" class="mt-2">
-                        <i class="fas fa-spinner fa-spin"></i> Uploading...
+                <!-- Image Upload -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-4">
+                                <p class="text-primary"><label for="file" class="vendor-label">Attachments</label> <i
+                                        class="fas fa-paperclip"></i>
+                                </p>
+                            </div>
+                            <div class="col-8">
+                                <input id="file" type="file" wire:model="file_paths" wire:loading.attr="disabled"
+                                    multiple style="font-size: 12px;" />
+                                <div wire:loading wire:target="file_paths" class="mt-2">
+                                    <i class="fas fa-spinner fa-spin"></i> Uploading...
+                                </div>
+                                @error('file_paths.*') <span class="text-danger">{{ $message }}</span> @enderror
+                            </div>
+                        </div>
                     </div>
-
-                    @error('file_paths.*') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
+
+
                 <div class="d-flex justify-content-center">
                     <button type="submit" class="btn text-white border-white"
                         style="background-color: #02114f;">{{ $editMode ? 'Update' : 'Submit' }}</button>
@@ -358,7 +446,7 @@
     @php
     $vendor = \App\Models\Vendor::find($currentVendorId);
     @endphp
-    <div class="col-10 mt-4 itadd-maincolumn">
+    <div class="col-10 mt-4 view-details-modal">
 
         <div class="d-flex justify-content-between align-items-center">
             <div>
