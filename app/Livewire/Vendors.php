@@ -6,6 +6,7 @@ use App\Helpers\FlashMessageHelper;
 use App\Models\IT;
 use App\Models\Vendor;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
@@ -250,13 +251,14 @@ public function updatedContactEmail()
         $this->branch = $vendor->branch;
         $this->contactEmail = $vendor->contact_email;
         $this->street = $vendor->street;
+
         $this->city = $vendor->city;
         $this->state = $vendor->state;
         $this->pinCode = $vendor->pin_code;
         $this->noteDescription = $vendor->description;
         $this->existingFilePaths = json_decode($vendor->file_paths, true) ?? [];
         // $this->file_paths = $vendor->file_paths ? json_decode($vendor->file_paths, true) : [];
-
+        $this->updatedPinCode($this->pinCode);
         $this->showAddVendor = true;
         $this->showEditDeleteVendor = false;
         $this->editMode = true;
@@ -494,10 +496,65 @@ public function downloadImages($vendorId)
         $this->showLogoutModal = true;
     }
 
+    public $states=[];
+
     public function mount()
     {
+
         $this->vendors =  $this->filter();
+
     }
+    public $mandal='';
+    public $postOffices = []; // To store PostOffice data for dropdown
+    public function updatedPinCode($pinCode)
+{
+    if (strlen($pinCode) === 6) { // Validate pin code length
+        $locationData = $this->getLocationFromIndiaPost($pinCode);
+
+        if ($locationData) {
+            // Set the dropdown options and district/state automatically
+            $this->postOffices = $locationData['postOffices'];
+            $this->city = $locationData['city'];
+            $this->state = $locationData['state'];
+        } else {
+            // Reset if no data found
+            $this->resetLocationData();
+        }
+    }
+}
+
+protected function resetLocationData()
+{
+    $this->postOffices = [];
+    $this->street = null;
+    $this->city = '';
+    $this->state = '';
+}
+
+public function getLocationFromIndiaPost($pinCode)
+{
+    // India Post API endpoint
+    $url = "https://api.postalpincode.in/pincode/{$pinCode}";
+    $response = Http::get($url);
+    $locationData = $response->json();
+
+    if (isset($locationData[0]['PostOffice']) && !empty($locationData[0]['PostOffice'])) {
+        $postOffices = array_map(function($office) {
+            return [
+                'name' => $office['Name'] ?? '',
+                'mandal' => $office['Block'] ?? ''
+            ];
+        }, $locationData[0]['PostOffice']);
+
+        return [
+            'postOffices' => $postOffices,
+            'city' => $locationData[0]['PostOffice'][0]['District'] ?? '',
+            'state' => $locationData[0]['PostOffice'][0]['State'] ?? ''
+        ];
+    }
+
+    return null; // Return null if no data found
+}
 
     public $filteredVendor = [];
     public $assetsFound = false;

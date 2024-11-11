@@ -45,13 +45,15 @@
                         <option value="">Choose Employee</option>
                         @foreach ($assetSelectEmp as $employee)
                         <option value="{{ $employee->emp_id }}"
-                            class="{{ in_array($employee->emp_id, $assignedEmployeeIds) ? 'inactive-option' : 'active-option' }}"
-                            {{ (in_array($employee->emp_id, $assignedEmployeeIds) && $employee->emp_id !== $selectedEmployee) ? 'disabled' : '' }}
+                            class=""
                             {{ $isUpdateMode && $employee->emp_id == $selectedEmployee ? 'selected' : '' }}>
-                            {{ $employee->emp_id }} - {{ $employee->first_name }} {{ $employee->last_name }}
+                            {{ $employee->emp_id }} - {{ ucwords(strtolower($employee->first_name ))}} {{ ucwords(strtolower($employee->last_name ))}}
                         </option>
                         @endforeach
+
                     </select>
+
+
                     @error('selectedEmployee')
                     <span class="text-danger">{{ $message }}</span>
                     @enderror
@@ -59,11 +61,7 @@
 
                 <!-- Asset Dropdown -->
                 <div class="col-md-5">
-                    @if (session()->has('message'))
-                    <div id="flash-message" class="alert alert-success mt-1">
-                        {{ session('message') }}
-                    </div>
-                    @endif
+
                     <label for="assetSelect" class="form-label">Select Asset</label>
                     <select id="assetSelect" class="form-select" wire:model="selectedAsset"
                         wire:change="fetchAssetDetails">
@@ -73,7 +71,7 @@
                             class="{{ in_array($asset->asset_id, $assignedAssetIds) ? 'inactive-option' : 'active-option' }}"
                             {{ (in_array($asset->asset_id, $assignedAssetIds) && $asset->asset_id !== $selectedAsset) ? 'disabled' : '' }}
                             {{ $isUpdateMode && $asset->asset_id == $selectedAsset ? 'selected' : '' }}>
-                            {{ $asset->asset_id }}
+                            {{ $asset->asset_id }} - {{ $asset->asset_names }}
                         </option>
 
                         @endforeach
@@ -107,7 +105,7 @@
                     <div class="assetEmpDetailsCard p-3 mb-3">
                         <h5><u>Asset Details</u></h5>
                         <p><strong>Manufacturer:</strong> <span>{{ $assetDetails->manufacturer }}</span></p>
-                        <p><strong>Asset Type:</strong> {{ $assetDetails->asset_type }}</p>
+                        <p><strong>Asset Type:</strong> {{ $assetDetails->asset_type_name }}</p>
                         <p><strong>Asset Model:</strong> {{ $assetDetails->asset_model }}</p>
                         <p><strong>Serial Number:</strong> {{ $assetDetails->serial_number }}</p>
                         <p><strong>Specifications:</strong> {{ $assetDetails->asset_specification }}</p>
@@ -459,7 +457,7 @@
         @if($vendor)
         <div class="col-10 mt-4 itadd-maincolumn">
             <div class="d-flex justify-content-between align-items-center">
-                <h3>View Details</h3>
+                <h5>View Details</h5>
                 <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewVendor"
                     aria-label="Close">
                     Close
@@ -467,76 +465,115 @@
             </div>
 
             <table class="table table-bordered mt-3 req-pro-table">
-                <thead>
-                    <tr>
-                        <th>Field</th>
-                        <th>Value</th>
-                    </tr>
-                </thead>
+
                 <tbody>
                     <tr>
                         <td>Employee ID</td>
-                        <td>{{ $vendor->emp_id ?? 'N/A' }}</td>
+                        <td class="view-td">{{ $vendor->emp_id ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Employee Name</td>
-                        <td>{{ucwords(strtolower($vendor->employee_name)) ?? 'N/A' }}</td>
+                        <td class="view-td">{{ucwords(strtolower($vendor->employee_name)) ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Vendor ID</td>
-                        <td>{{ $vendor->vendorAsset->vendor_id ?? 'N/A' }}</td>
+                        <td class="view-td">{{ $vendor->vendorAsset->vendor_id ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Vendor Name</td>
-                        <td>{{ $vendor->vendorAsset->vendor->vendor_name ?? 'N/A' }}</td>
+                        <td class="view-td">{{ $vendor->vendorAsset->vendor->vendor_name ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Asset ID</td>
-                        <td>{{ $vendor->asset_id ?? 'N/A' }}</td>
+                        <td class="view-td">{{ $vendor->asset_id ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Manufacturer</td>
-                        <td>{{ ucwords(strtolower($vendor->manufacturer)) ?? 'N/A' }}</td>
+                        <td class="view-td">{{ ucwords(strtolower($vendor->manufacturer)) ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Asset Type</td>
-                        <td>{{ ucwords(strtolower($vendor['asset_type_name'])) ?? 'N/A' }}</td>
+                        <td class="view-td">{{ ucwords(strtolower($vendor['asset_type_name'])) ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Asset Model</td>
-                        <td>{{ ucwords(strtolower($vendor->vendorAsset->asset_model)) ?? 'N/A' }}</td>
+                        <td class="view-td">{{ ucwords(strtolower($vendor->vendorAsset->asset_model)) ?? 'N/A' }}</td>
                     </tr>
 
                     <tr>
                         <td>Department</td>
-                        <td>{{ $vendor->department ?? 'N/A' }}</td>
+                        <td class="view-td">{{ $vendor->department ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Color</td>
-                        <td>{{ ucwords(strtolower($vendor->vendorAsset->color)) ?? 'N/A' }}</td>
+                        <td class="view-td">{{ ucwords(strtolower($vendor->vendorAsset->color)) ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Invoice Amount</td>
-                        <td>Rs. {{ $vendor->vendorAsset->invoice_amount ?? 'N/A' }}</td>
+                        <td class="view-td">Rs. {{ $vendor->vendorAsset->invoice_amount ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Invoice Number</td>
-                        <td>{{ $vendor->vendorAsset->invoice_number ?? 'N/A' }}</td>
+                        <td class="view-td">{{ $vendor->vendorAsset->invoice_number ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Serial Number</td>
-                        <td>{{ $vendor->vendorAsset->serial_number ?? 'N/A' }}</td>
+                        <td class="view-td">{{ $vendor->vendorAsset->serial_number ?? 'N/A' }}</td>
+                    </tr>
+
+
+
+
+                    <tr>
+                        <td>Sophos Antivirus</td>
+                        <td class="view-td">{{ $vendor->sophos_antivirus ?? 'N/A' }}</td>
                     </tr>
                     <tr>
+                        <td>VPN Creation</td>
+                        <td class="view-td">{{ $vendor->vpn_creation ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Teramind</td>
+                        <td class="view-td">{{ $vendor->teramind ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td>System Upgradation</td>
+                        <td class="view-td">{{ $vendor->system_upgradation ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td>System Name</td>
+                        <td class="view-td">{{ $vendor->system_name ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td>One Drive</td>
+                        <td class="view-td">{{ $vendor->one_drive ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Screenshot Of Programs</td>
+                        <td class="view-td">{{ $vendor->screenshot_programs ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td>MAC Address</td>
+                        <td class="view-td">{{ $vendor->mac_address ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Laptop Received Date</td>
+                        <td class="view-td">{{ \Carbon\Carbon::parse($vendor->laptop_received)->format('d-M-Y') ?? 'N/A' }}</td>
+                    </tr>
+
+
+
+
+                    <tr>
                         <td>Asset Purchase Date</td>
-                        <td>
-                        {{ $vendor->vendorAsset->purchase_date ? \Carbon\Carbon::parse($vendor->vendorAsset->purchase_date)->format('d-M-Y') : 'N/A' }}
+                        <td class="view-td">
+                            {{ $vendor->vendorAsset->purchase_date ? \Carbon\Carbon::parse($vendor->vendorAsset->purchase_date)->format('d-M-Y') : 'N/A' }}
                         </td>
                     </tr>
 
                     <tr>
                         <td>No of Days</td>
-                        <td>
+                        <td class="view-td">
                             {{ $vendor->created_at ? \Carbon\Carbon::parse($vendor->created_at)->diffInDays(\Carbon\Carbon::now()) . ' days' : 'N/A' }}
                         </td>
                     </tr>
@@ -718,7 +755,7 @@
         @if($vendor)
         <div class="col-10 mt-4 itadd-maincolumn">
             <div class="d-flex justify-content-between align-items-center">
-                <h3>View Details</h3>
+                <h5>View Details</h5>
                 <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewEmpAsset"
                     aria-label="Close">
                     Close
@@ -726,74 +763,106 @@
             </div>
 
             <table class="table table-bordered mt-3 req-pro-table">
-                <thead>
-                    <tr>
-                        <th>Field</th>
-                        <th>Value</th>
-                    </tr>
-                </thead>
+
                 <tbody>
                     <tr>
                         <td>Employee ID</td>
-                        <td>{{ $vendor->emp_id ?? 'N/A' }}</td>
+                        <td class="view-td">{{ $vendor->emp_id ?? 'N/A' }}</td>
                     </tr>
 
                     <tr>
                         <td>Employee Name</td>
-                        <td>{{ ucwords(strtolower($vendor->employee_name)) ?? 'N/A' }}</td>
+                        <td class="view-td">{{ ucwords(strtolower($vendor->employee_name)) ?? 'N/A' }}</td>
                     </tr>
 
                     <tr>
                         <td>Vendor Id</td>
-                        <td>{{ $vendor->vendorAsset->vendor_id ?? 'N/A' }}</td>
+                        <td class="view-td">{{ $vendor->vendorAsset->vendor_id ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Asset ID</td>
-                        <td>{{ $vendor->asset_id ?? 'N/A' }}</td>
+                        <td class="view-td">{{ $vendor->asset_id ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Manufacturer</td>
-                        <td>{{ ucwords(strtolower($vendor->manufacturer)) ?? 'N/A' }}</td>
+                        <td class="view-td">{{ ucwords(strtolower($vendor->manufacturer)) ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Asset Type</td>
-                        <td>{{ ucwords(strtolower($vendor['asset_type_name'])) ?? 'N/A' }}</td>
+                        <td class="view-td">{{ ucwords(strtolower($vendor['asset_type_name'])) ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Asset Model</td>
-                        <td>{{ ucwords(strtolower($vendor->vendorAsset->asset_model)) ?? 'N/A' }}</td>
+                        <td class="view-td">{{ ucwords(strtolower($vendor->vendorAsset->asset_model)) ?? 'N/A' }}</td>
                     </tr>
 
                     <tr>
                         <td>Department</td>
-                        <td>{{$vendor->department ?? 'N/A' }}</td>
+                        <td class="view-td">{{$vendor->department ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Color</td>
-                        <td>{{ ucwords(strtolower($vendor->vendorAsset->color)) ?? 'N/A' }}</td>
+                        <td class="view-td">{{ ucwords(strtolower($vendor->vendorAsset->color)) ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Invoice Amount</td>
-                        <td>Rs. {{$vendor->vendorAsset->invoice_amount ?? 'N/A' }}</td>
+                        <td class="view-td">Rs. {{$vendor->vendorAsset->invoice_amount ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Invoice Number</td>
-                        <td>{{ $vendor->vendorAsset->invoice_number ?? 'N/A' }}</td>
+                        <td class="view-td">{{ $vendor->vendorAsset->invoice_number ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Serial Number</td>
-                        <td>{{ $vendor->vendorAsset->serial_number ?? 'N/A' }}</td>
+                        <td class="view-td">{{ $vendor->vendorAsset->serial_number ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Sophos Antivirus</td>
+                        <td class="view-td">{{ $vendor->sophos_antivirus ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td>VPN Creation</td>
+                        <td class="view-td">{{ $vendor->vpn_creation ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Teramind</td>
+                        <td class="view-td">{{ $vendor->teramind ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td>System Upgradation</td>
+                        <td class="view-td">{{ $vendor->system_upgradation ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td>System Name</td>
+                        <td class="view-td">{{ $vendor->system_name ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td>One Drive</td>
+                        <td class="view-td">{{ $vendor->one_drive ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Screenshot Of Programs</td>
+                        <td class="view-td">{{ $vendor->screenshot_programs ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td>MAC Address</td>
+                        <td class="view-td">{{ $vendor->mac_address ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Laptop Received Date</td>
+                        <td class="view-td">{{ \Carbon\Carbon::parse($vendor->laptop_received)->format('d-M-Y') ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Purchase Date</td>
-                        <td>
-                            {{ $vendor->vendorAsset->purchase_date ? \Carbon\Carbon::parse($vendor->vendorAsset->purchase_date)->format('d-m-Y') : 'N/A' }}
+                        <td class="view-td">
+                            {{ $vendor->vendorAsset->purchase_date ? \Carbon\Carbon::parse($vendor->vendorAsset->purchase_date)->format('d-M-Y') : 'N/A' }}
                         </td>
                     </tr>
 
+
                     <tr>
                         <td>No of Days</td>
-                        <td>
+                        <td class="view-td">
                             @if($vendor->deleted_at)
                             {{ $vendor->created_at ? \Carbon\Carbon::parse($vendor->created_at)->diffInDays(\Carbon\Carbon::parse($vendor->deleted_at)) . ' days' : 'N/A' }}
                             @else

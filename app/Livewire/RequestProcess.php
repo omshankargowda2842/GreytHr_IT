@@ -20,7 +20,9 @@ class RequestProcess extends Component
     public $requests = [];
     public $viewingDetails = false;
     public $recentrequestDetails = false;
+    public $rejectedrequestDetails = false;
     public $viewRecentRequests = true;
+    public $viewRejectedRequests = false;
     public $viewEmpRequest = false;
 
     public $assignTo;
@@ -29,10 +31,13 @@ class RequestProcess extends Component
     public $request;
     public $selectedRequest;
     public $recentRequest;
+    public $rejectedRequest;
     public $showOverview = false;
+    public $showRejectionModal = false;
     public $attachments;
     public $currentRequestId;
     public $newRequestCount;
+    public $newRejectionCount;
     public $activeCount;
     public $pendingCount;
     public $closedCount;
@@ -57,6 +62,8 @@ class RequestProcess extends Component
         $this->activeTab = $tab;
         $this->viewingDetails = false;
         $this->recentrequestDetails = false;
+        $this->rejectedrequestDetails = false;
+
         $this->selectedStatus = '';
         $this->selectedAssigne = '';
         $this->updateCounts();
@@ -71,11 +78,14 @@ class RequestProcess extends Component
         if (auth()->check() && (auth()->user()->hasRole('admin') || auth()->user()->hasRole('super_admin'))) {
 
             $this->viewRecentRequests = true; // User can view recent requests
+            $this->viewRejectedRequests = false; // User can view recent requests
 
         } else {
 
             $this->viewRecentRequests = false; // User cannot view recent requests
+            $this->viewRejectedRequests = false; // User cannot view recent requests
             $this->recentrequestDetails = false; // No request details available
+            $this->rejectedrequestDetails = false; // No request details available
             $this->viewEmpRequest =true;
          }
 
@@ -86,11 +96,19 @@ class RequestProcess extends Component
 
     public function showAllRequest() {
         $this->viewRecentRequests = false;
+        $this->viewRejectedRequests = false;
         $this->viewEmpRequest = true;
+    }
+
+    public function showRejectedRequest() {
+        $this->viewRecentRequests = false;
+        $this->viewRejectedRequests = true;
+        $this->viewEmpRequest = false;
     }
 
     public function showRecentRequest() {
         $this->viewRecentRequests = true;
+        $this->viewRejectedRequests = false;
         $this->viewEmpRequest = false;
     }
 
@@ -112,6 +130,20 @@ class RequestProcess extends Component
         return array_filter($this->requests, function ($request) {
             return $request['status'] == 'Completed';
         });
+    }
+
+    public function viewRejectDetails($index)
+    {
+        $this->comments = '';
+        $this->rejectedRequest = $this->rejectDetails->where('status', 'Reject')->values()->get($index);
+
+        // Check if the selected request exists
+        if (!$this->rejectedRequest) {
+            abort(404, 'Request not found');
+        }
+
+        $this->rejectedrequestDetails = true;
+        $this->currentRequestId = $this->rejectedRequest->id;
     }
 
     public function viewApproveDetails($index)
@@ -164,6 +196,20 @@ class RequestProcess extends Component
     {
         $this->viewingDetails = false;
         $this->recentrequestDetails = false;
+
+        $this->mount();
+        // $this->selectedRequest = true;
+    }
+
+    public function closeRejectDetails()
+    {
+
+        $this->viewingDetails = false;
+        $this->viewRejectedRequests = true;
+        $this->rejectedrequestDetails = false;
+
+
+        $this->viewEmpRequest = false;
 
         $this->mount();
         // $this->selectedRequest = true;
@@ -256,12 +302,49 @@ class RequestProcess extends Component
             // Set the status to "Open" when approving
             $task->update(['status' => 'Open']);
 
-            FlashMessageHelper::flashSuccess("Status has been set to Open!");
+            FlashMessageHelper::flashSuccess("Request has been approved!");
             $this->updateCounts();
         }
     }
 
+    public $recordId;
+    public $reason = [];
 
+    public function rejectionModal($taskId)
+    {
+        $this->recordId = $taskId;
+        $this->showRejectionModal =true;
+
+    }
+
+
+    public function rejectStatus()
+    {
+
+
+        $recentRequest = HelpDesks::where('id', $this->recordId)->first();
+
+    if ($recentRequest) {
+            // Set the status to "Reject" when approving
+            $recentRequest->update(['status' => 'Reject']);
+
+            FlashMessageHelper::flashSuccess("Request has been rejected!");
+            $this->updateCounts();
+
+            $this->showRejectionModal = false;
+            // Reset the recordId and reason after processing
+            $this->recordId = null;
+            $this->reason = '';
+        }
+    }
+
+
+    public function Cancel()
+    {
+
+        $this->showRejectionModal = false;
+
+    }
 
     public $selectedStatus;
 
@@ -343,6 +426,10 @@ class RequestProcess extends Component
         $this->newRequestCount = HelpDesks::where('status', 'Recent')
         ->whereIn('category',  $requestCategories)->count();
 
+        $this->newRejectionCount = HelpDesks::where('status', 'Reject')
+        ->whereIn('category',  $requestCategories)->count();
+
+
         $this->activeCount = HelpDesks::where('status', 'Open')
         ->whereIn('category',  $requestCategories)->count();
 
@@ -374,6 +461,7 @@ class RequestProcess extends Component
 
     public $forIT;
     public $recentDetails;
+    public $rejectDetails;
     public $requestData;
     public $itData;
     public $requestCategories='';
@@ -404,6 +492,13 @@ class RequestProcess extends Component
             ->whereIn('category',  $requestCategories)
             ->get();
 
+            $this->rejectDetails=  $this->forIT = HelpDesks::with('emp')
+            ->where('status', 'Reject')
+            ->orderBy('created_at', 'desc')
+            ->orderBy($this->sortColumn, $this->sortDirection)
+            ->whereIn('category',  $requestCategories)
+            ->get();
+
         if ($this->activeTab == 'active') {
             $this->forIT = HelpDesks::with('emp')
                 ->where('status', 'Open')
@@ -414,19 +509,20 @@ class RequestProcess extends Component
 
         } elseif ($this->activeTab == 'pending') {
             $this->forIT = HelpDesks::with('emp')
-                ->where('status', 'Pending')
-                ->orderBy('created_at', 'desc')
-                ->orderBy($this->sortColumn, $this->sortDirection)
-                ->whereIn('category',  $requestCategories)
-                ->get();
+            ->where('status', 'Pending')
+            ->whereIn('category', $requestCategories)
+            ->orderBy($this->sortColumn, $this->sortDirection) // sortColumn and sortDirection applied first
+            ->orderBy('created_at', 'desc') // add additional ordering here if needed
+            ->get();
+
 
 
         } elseif ($this->activeTab == 'closed') {
             $this->forIT = HelpDesks::with('emp')
                 ->where('status', 'Completed')
-                ->orderBy('created_at', 'desc')
-                ->orderBy($this->sortColumn, $this->sortDirection)
                 ->whereIn('category',  $requestCategories)
+                ->orderBy($this->sortColumn, $this->sortDirection)
+                ->orderBy('created_at', 'desc')
                 ->get();
         }
 
@@ -479,6 +575,7 @@ class RequestProcess extends Component
 
         return view('livewire.request-process', [
             'newRequestCount' => $this->newRequestCount,
+            'newRejectionCount' => $this->newRejectionCount,
             'activeCount' => $this->activeCount,
             'pendingCount' => $this->pendingCount,
             'closedCount' => $this->closedCount,
@@ -486,6 +583,7 @@ class RequestProcess extends Component
             'inProgressRequests' => $this->inProgressRequests,
             'viewingDetails' => $this->viewingDetails,
             'recentrequestDetails' => $this->recentrequestDetails,
+            'rejectedrequestDetails' => $this->rejectedrequestDetails,
 
             'requests' => $this->requests,
             'activeTab' => $this->activeTab,
