@@ -96,7 +96,7 @@
         <div class="recentOrders">
             <div class="cardHeader row m-0">
                 <div class="col-md-6">
-                    <h4>Category Wise Requests</h4>
+                    <h4 class="headingForAllModules">Category Wise Requests</h4>
                 </div>
                 <div class="col-md-6 text-end">
                     <!-- <a href="#" class="btn btn-outline-primary fs-6 mb-3">Month</a>
@@ -166,7 +166,7 @@
         <!-- ================= New Customers ================ -->
         <div class="recentCustomers">
             <div>
-                <h2 class="mb-5">Graph Data</h2>
+                <h2 class="headingForAllModules mb-5">Graph Data</h2>
                 <canvas id="myDonutChart" wire:ignore width="300" height="300"></canvas>
                 <!-- <canvas id="myPieChart" width="400" height="400"></canvas> -->
             </div>

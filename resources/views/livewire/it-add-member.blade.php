@@ -99,7 +99,7 @@
                             @endif
                         </th>
 
-                        <th class="req-table-head">Actions</th>
+                        <th class="req-table-head">Deactivate</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -152,6 +152,7 @@
                     @endif
                 </tbody>
             </table>
+
         </div>
     </div>
     @endif
@@ -190,7 +191,7 @@
                     <label for="employeeSelect" class="form-label">Select Employee ID</label>
                     <select id="employeeSelect" class="form-select" wire:model="selectedEmployee"
                         wire:change="fetchEmployeeDetails">
-                        <option value="">Choose Employee</option>
+                        <option value="" disabled hidden>Choose Employee</option>
                         @foreach ($assetSelectEmp as $employee)
                         <option value="{{ $employee->emp_id }}" @if (in_array($employee->emp_id, $assignedEmployeeIds))
                             disabled
@@ -198,7 +199,7 @@
                             {{ $employee->emp_id }} - {{ ucwords($employee->first_name) }}
                             {{ ucwords($employee->last_name) }}
                             @if (in_array($employee->emp_id, $assignedEmployeeIds))
-                           
+
                             @endif
                         </option>
                         @endforeach

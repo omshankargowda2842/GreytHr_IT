@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('asset_types_tables', function (Blueprint $table) {
             $table->smallInteger('id')->autoIncrement();
-            $table->string('asset_names',100)->nullable();
+            $table->string('asset_names',100)->unique()->nullable();
             $table->timestamps();
         });
     }

@@ -24,7 +24,7 @@
 <body>
     <section>
         <div class="m-auto row text-center">
-            <img src="{{ asset('images/timeout.png') }}" class="m-auto" style="width: 20em;" />
+            <img src="{{ asset('images/timeout.png') }}" class="m-auto" style="width: 20rem;" />
             <h6 class="mb-3">Your session has timed out. Please log in again to continue.</h6>
             <div class="text-center">
                 <form action="{{ $loginUrl }}" method="GET">

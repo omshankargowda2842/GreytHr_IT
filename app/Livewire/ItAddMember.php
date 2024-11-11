@@ -19,7 +19,7 @@ class ItAddMember extends Component
     public $itRelatedEmye = [];
     public $assetSelectEmp = [];
     public $empDetails = null;
-    public $selectedEmployee = null;
+    public $selectedEmployee = "";
     public $searchFilters = true;
     public $searchEmp = '';
     public $searchAssetId = '';
@@ -107,7 +107,7 @@ class ItAddMember extends Component
 
     private function resetForm()
     {
-        $this->selectedEmployee = null;
+        $this->selectedEmployee = "";
     }
 
 

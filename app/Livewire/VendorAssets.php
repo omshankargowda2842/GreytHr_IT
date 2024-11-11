@@ -681,6 +681,26 @@ public function mount()
 }
 
 
+    public function updated($propertyName)
+    {
+        // Trigger calculation when any of these three fields are updated
+        if (in_array($propertyName, ['gstState', 'gstCentral', 'taxableAmount'])) {
+            $this->calculateInvoiceAmount();
+        }
+    }
+
+    public function calculateInvoiceAmount()
+    {
+        // Ensure inputs are numeric to avoid errors
+        $gstState = is_numeric($this->gstState) ? (float) $this->gstState : 0;
+        $gstCentral = is_numeric($this->gstCentral) ? (float) $this->gstCentral : 0;
+        $taxableAmount = is_numeric($this->taxableAmount) ? (float) $this->taxableAmount : 0;
+
+        // Calculate total
+        $this->invoiceAmount = $gstState + $gstCentral + $taxableAmount;
+    }
+
+
 
 
     // Define the updateSearch method if you need it

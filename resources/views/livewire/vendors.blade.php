@@ -1,7 +1,7 @@
 <div class="main">
 
     <div wire:loading
-        wire:target="cancel,submit,showAddVendorMember ,clearFilters ,showViewVendor,showViewImage,showViewFile,showEditVendor,closeViewVendor,downloadImages,closeViewImage,closeViewFile,confirmDelete ,cancelLogout,">
+        wire:target="cancel,submit,showAddVendorMember ,pinCode,clearFilters ,showViewVendor,showViewImage,showViewFile,showEditVendor,closeViewVendor,downloadImages,closeViewImage,closeViewFile,confirmDelete ,cancelLogout,">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -66,7 +66,7 @@
                         <input type="text" id="phone" wire:model.lazy="phone"
                             wire:keydown="resetValidationForField('phone')" maxlength="10"
                             oninput="formatPhoneNumber(this)" class="form-control">
-                            @if($phoneError) <div class="text-danger">{{ $phoneError }}</div> @endif
+                        @if($phoneError) <div class="text-danger">{{ $phoneError }}</div> @endif
 
                         @error('phone') <div class="text-danger">{{ $message }}</div> @enderror
                     </div>
@@ -126,38 +126,57 @@
                         @error('contactEmail') <div class="text-danger">{{ $message }}</div> @enderror
                     </div>
 
-                    <!-- Street -->
+                    <!-- Pin Code -->
                     <div class="col-md-6">
-                        <label for="street" class="form-label">Street</label>
-                        <input type="text" id="street" wire:model="street" class="form-control">
-
+                        <label for="pinCode" class="form-label">Pin Code</label>
+                        <input type="text" id="pinCode" wire:model.lazy="pinCode" maxlength="6" class="form-control">
+                        @error('pinCode')
+                        <div class="text-danger">{{ $message }}</div>
+                        @enderror
                     </div>
+
+
+
                 </div>
 
                 <div class="row mb-3">
+
+                    <!-- Street -->
+                    <div class="col-md-6">
+                        <label for="street" class="form-label">Town/Mandal</label>
+                        <select id="street" wire:model="street" class="vendor-selected-vendorID">
+                            <option disabled hidden>Select Town/Mandal</option>
+                            @foreach($postOffices as $office)
+                            <option value="{{ $office['name'] }} - {{ $office['mandal'] }}"
+                                @if($street===$office['name'] . ' - ' . $office['mandal']) selected @endif>
+                                {{ $office['name'] }} - {{ $office['mandal'] }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+
+
                     <!-- City -->
                     <div class="col-md-6">
-                        <label for="city" class="form-label">City</label>
-                        <input type="text" id="city" wire:model="city" class="form-control">
 
+                        <label for="city" class="form-label">District</label>
+                        <div id="city" class="input-div-vendor p-2" wire:model='city' readonly>
+                            {{ $city }}
+                        </div>
                     </div>
+
+
+                </div>
+
+                <div class="row mb-3">
 
                     <!-- State -->
                     <div class="col-md-6">
                         <label for="state" class="form-label">State</label>
-                        <input type="text" id="state" wire:model="state" class="form-control">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <!-- Pin Code -->
-                    <div class="col-md-6">
-                        <label for="pinCode" class="form-label">Pin Code</label>
-                        <input type="text" id="pinCode" wire:model.lazy="pinCode" maxlength="6"
-                            oninput="formatPinCode(this)" class="form-control">
-                        @error('pinCode')
-                        <div class="text-danger">{{ $message }}</div>
-                        @enderror
+                        <div id="state" class="input-div-vendor p-2" wire:model='state' readonly>
+                            {{ $state }}
+                        </div>
                     </div>
 
                     <!-- Note/Description -->
@@ -196,30 +215,30 @@
     @if($searchFilters)
 
 
-<div class="row mb-3 mt-4 ml-4 employeeAssetList">
-    <!-- Align items to the same row with space between -->
-    <div class="col-11 col-md-11 mb-2 mb-md-0">
-        <div class="row d-flex justify-content-between">
-            <!-- Employee ID Search Input -->
-            <div class="col-4">
-                <div class="input-group task-input-group-container">
-                    <input type="text" class="form-control" placeholder="Search..." wire:model="searchVendor"
-                        wire:input="filter">
+    <div class="row mb-3 mt-4 ml-4 employeeAssetList">
+        <!-- Align items to the same row with space between -->
+        <div class="col-11 col-md-11 mb-2 mb-md-0">
+            <div class="row d-flex justify-content-between">
+                <!-- Employee ID Search Input -->
+                <div class="col-4">
+                    <div class="input-group task-input-group-container">
+                        <input type="text" class="form-control" placeholder="Search..." wire:model="searchVendor"
+                            wire:input="filter">
+                    </div>
                 </div>
-            </div>
 
-            <!-- Add Member Button aligned to the right -->
-            <div class="col-auto">
-                <button class="btn text-white btn-sm" wire:click='showAddVendorMember'
-                    style="margin-right: 9%;padding: 7px;background-color: #02114f;white-space:nowrap;"><i
-                        class="fas fa-user-plus"></i> Add
-                    Vendor</button>
+                <!-- Add Member Button aligned to the right -->
+                <div class="col-auto">
+                    <button class="btn text-white btn-sm" wire:click='showAddVendorMember'
+                        style="margin-right: 9%;padding: 7px;background-color: #02114f;white-space:nowrap;"><i
+                            class="fas fa-user-plus"></i> Add
+                        Vendor</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-@endif
+    @endif
 
     <div class="col-11 mt-4 ml-4">
         <div class="table-responsive it-add-table-res">
@@ -305,7 +324,8 @@
                                 </button>
                             </div>
                             <!-- Delete Action -->
-                            @if(auth()->check() && (auth()->user()->hasRole('admin') || auth()->user()->hasRole('super_admin')))
+                            @if(auth()->check() && (auth()->user()->hasRole('admin') ||
+                            auth()->user()->hasRole('super_admin')))
 
                             <div class="col mx-1">
                                 <button class="btn text-white border-white" style="background-color: #02114f;"
@@ -342,7 +362,7 @@
 
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <h3>View Details</h3>
+                <h5>View Details</h5>
             </div>
             <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewVendor"
                 aria-label="Close">
@@ -353,74 +373,69 @@
 
 
         <table class="table table-bordered mt-3 req-pro-table">
-            <thead>
-                <tr>
-                    <th>Field</th>
-                    <th>Value</th>
-                </tr>
-            </thead>
+
             <tbody>
 
 
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Vendor ID</td>
-                    <td>{{ $vendor->vendor_id ?? 'N/A' }}</td>
+                    <td class="view-td">{{ $vendor->vendor_id ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Vendor Name</td>
-                    <td>{{ ucwords(strtolower($vendor->vendor_name)) ?? 'N/A' }}</td>
+                    <td class="view-td">{{ ucwords(strtolower($vendor->vendor_name)) ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Contact Name</td>
-                    <td>{{ ucwords(strtolower($vendor->contact_name)) ?? 'N/A' }}</td>
+                    <td class="view-td">{{ ucwords(strtolower($vendor->contact_name)) ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Phone</td>
-                    <td>{{ $vendor->phone ?? 'N/A' }}</td>
+                    <td class="view-td">{{ $vendor->phone ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">GSTIN</td>
-                    <td>{{ $vendor->gst ?? 'N/A' }}</td>
+                    <td class="view-td">{{ $vendor->gst ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Contact Email</td>
-                    <td>{{ $vendor->contact_email ?? 'N/A' }}</td>
+                    <td class="view-td">{{ $vendor->contact_email ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Bank Name</td>
-                    <td>{{ $vendor->bank_name ?? 'N/A' }}</td>
+                    <td class="view-td">{{ $vendor->bank_name ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Account Number</td>
-                    <td>{{ $vendor->account_number ?? 'N/A' }}</td>
+                    <td class="view-td">{{ $vendor->account_number ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">IFSC Code</td>
-                    <td>{{ $vendor->ifsc_code ?? 'N/A' }}</td>
+                    <td class="view-td">{{ $vendor->ifsc_code ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Branch</td>
-                    <td>{{ $vendor->branch ?? 'N/A' }}</td>
+                    <td class="view-td">{{ $vendor->branch ?? 'N/A' }}</td>
                 </tr>
                 <tr>
-                    <td class="fs-6 fs-md-3 fs-lg-2">Street</td>
-                    <td>{{ $vendor->street ?? 'N/A' }}</td>
+                    <td class="fs-6 fs-md-3 fs-lg-2">City/Village</td>
+                    <td class="view-td">{{ $vendor->street ?? 'N/A' }}</td>
                 </tr>
                 <tr>
-                    <td class="fs-6 fs-md-3 fs-lg-2">City</td>
-                    <td>{{ $vendor->city ?? 'N/A' }}</td>
+                    <td class="fs-6 fs-md-3 fs-lg-2">District</td>
+                    <td class="view-td">{{ $vendor->city ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">State</td>
-                    <td>{{ $vendor->state ?? 'N/A' }}</td>
+                    <td class="view-td">{{ $vendor->state ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Pin Code</td>
-                    <td>{{ $vendor->pin_code ?? 'N/A' }}</td>
+                    <td class="view-td">{{ $vendor->pin_code ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Note/Description</td>
-                    <td>{{ $vendor->description ?? 'N/A' }}</td>
+                    <td class="view-td">{{ $vendor->description ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Attachments</td>

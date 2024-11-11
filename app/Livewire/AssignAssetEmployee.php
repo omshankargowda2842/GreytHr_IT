@@ -8,6 +8,7 @@ use App\Models\AssetAssignments;
 use App\Models\AssignAssetEmp;
 use App\Models\EmployeeDetails;
 use App\Models\VendorAsset;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
@@ -216,7 +217,10 @@ public function closeViewEmpAsset()
     public function loadAssetsAndEmployees()
     {
         // Fetch asset and employee data, including already assigned ones
-        $this->assetSelect = VendorAsset::where('is_active', 1)->get();
+        $this->assetSelect = VendorAsset::join('asset_types_tables', 'vendor_assets.asset_type', '=', 'asset_types_tables.id')
+        ->where('vendor_assets.is_active', 1)
+        ->select('vendor_assets.asset_id', 'asset_types_tables.asset_names') // Select asset_id and asset_name
+        ->get();
 
         $this->assetSelectEmp = EmployeeDetails::where('status', 1)
         ->orderBy('first_name')
@@ -245,7 +249,13 @@ public function closeViewEmpAsset()
 
         if ($this->selectedAsset !== "" && $this->selectedAsset !== null) {
 
-            $this->assetDetails = VendorAsset::where('asset_id', $this->selectedAsset)->first();
+            // $this->assetDetails = VendorAsset::where('asset_id', $this->selectedAsset)->first();
+
+            $this->assetDetails = VendorAsset::join('asset_types_tables', 'vendor_assets.asset_type', '=', 'asset_types_tables.id')
+            ->where('vendor_assets.asset_id', $this->selectedAsset)
+            ->select('vendor_assets.*', 'asset_types_tables.asset_names as asset_type_name')
+            ->first();
+
         } else {
 
             $this->assetDetails = null;
@@ -323,10 +333,30 @@ public function closeViewEmpAsset()
         $this->toggleSystemUpdateForm();
     }
 
-
+public $selectedAssetType='';
     public function submit()
 {
-    $this->validate();
+    // $this->validate();
+
+    // Get the asset type of the currently assigned asset for the selected employee
+    $selectedAssetType = AssignAssetEmp::where('emp_id', $this->selectedEmployee)
+    ->where('is_active', 1)  // Add the condition for 'is_active'
+    ->pluck('asset_type')  // Get the 'asset_type' column
+    ->toArray();  // Convert to an array
+
+    $existingAssignment = VendorAsset::where('asset_id', $this->selectedAsset)->value('asset_type');
+
+
+    $assetName = asset_types_table::where('id', $existingAssignment)->value('asset_names');
+
+
+    if (in_array($existingAssignment, $selectedAssetType)) {
+
+        // Show error message if the asset type already exists
+        FlashMessageHelper::flashError("Asset type '{$assetName}' is already assigned to this Employee!");
+        return;
+    }
+
 
     try {
         if ($this->isUpdateMode && $this->assignmentId) {

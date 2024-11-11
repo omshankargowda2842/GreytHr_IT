@@ -41,7 +41,7 @@
                         <label for="vendor" class="form-label"><span class="text-danger">*</span> Vendor</label>
                         <select id="vendor" wire:model.lazy="selectedVendorId"
                             wire:change="resetValidationForField('selectedVendorId')" class="vendor-selected-vendorID">
-                            <option value="">Select Vendor</option>
+                            <option value="" disabled hidden>Select Vendor</option>
                             @foreach($vendors as $vendor)
                             <option value="{{ $vendor->vendor_id }}">{{ ucwords(strtolower($vendor->vendor_name)) }}
                             </option>
@@ -81,7 +81,7 @@
                         <div class="input-group">
                             <select wire:model.lazy="assetType" wire:change="handleAssetTypeChangeAndResetValidation"
                                 id="assetType" class="vendor-selected-AssetType">
-                                <option value="">Select Asset Type</option>
+                                <option value="" disabled hidden>Select Asset Type</option>
                                 @foreach($assetNames as $asset)
                                 <option value="{{ $asset->id }}">{{ ucwords(strtolower($asset->asset_names)) }}</option>
                                 @endforeach
@@ -199,8 +199,8 @@
                 <div class="row mb-3">
                     <!-- GST State -->
                     <div class="col-md-6">
-                        <label for="gstState" class="form-label"><span class="text-danger">*</span>GST State</label>
-                        <input type="text" id="gstState" wire:model.lazy="gstState"
+                        <label for="gstState" class="form-label"><span class="text-danger">*</span>State GSTIN</label>
+                        <input type="text" id="gstState" wire:model.lazy="gstState" placeholder="Rs"
                             wire:keydown="resetValidationForField('gstState')" class="form-control">
                         @error('gstState') <div class="text-danger">{{ $message }}</div> @enderror
 
@@ -208,8 +208,8 @@
 
                     <!-- GST Central -->
                     <div class="col-md-6">
-                        <label for="gstCentral" class="form-label"><span class="text-danger">*</span>GST Central</label>
-                        <input type="text" id="gstCentral" wire:model.lazy="gstCentral"
+                        <label for="gstCentral" class="form-label"><span class="text-danger">*</span>Central GSTIN</label>
+                        <input type="text" id="gstCentral" wire:model.lazy="gstCentral" placeholder="Rs"
                             wire:keydown="resetValidationForField('gstCentral')" class="form-control">
                         @error('gstCentral') <div class="text-danger">{{ $message }}</div> @enderror
 
@@ -221,7 +221,7 @@
                     <div class="col-md-6">
                         <label for="taxableAmount" class="form-label"><span class="text-danger">*</span> Taxable
                             Amount</label>
-                        <input type="number" id="taxableAmount" wire:model.lazy="taxableAmount"
+                        <input type="number" id="taxableAmount" wire:model.lazy="taxableAmount" placeholder="Rs"
                             wire:keydown="resetValidationForField('taxableAmount')" class="form-control">
                         @error('taxableAmount') <div class="text-danger">{{ $message }}</div> @enderror
 
@@ -230,8 +230,9 @@
                     <div class="col-md-6">
                         <label for="invoiceAmount" class="form-label"><span class="text-danger">*</span> Invoice
                             Amount</label>
-                        <input type="number" id="invoiceAmount" wire:model.lazy="invoiceAmount"
-                            wire:keydown="resetValidationForField('invoiceAmount')" class="form-control">
+                            <div id="street" class="input-div-vendor p-2" wire:model.lazy="invoiceAmount">
+                            {{$invoiceAmount }}
+                        </div>
                         @error('invoiceAmount') <div class="text-danger">{{ $message }}</div> @enderror
 
                     </div>
@@ -529,7 +530,7 @@
 
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <h3>View Details</h3>
+                <h5>View Details</h5>
             </div>
             <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewVendor"
                 aria-label="Close">
@@ -540,69 +541,65 @@
 
 
         <table class="table table-bordered mt-3 req-pro-table">
-            <thead>
-                <tr>
-                    <th>Field</th>
-                    <th>Value</th>
-                </tr>
-            </thead>
+
             <tbody>
 
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Vendor ID</td>
-                    <td>{{ ucwords(strtolower($vendorAsset->vendor_id)) ?? 'N/A' }}</td>
+                    <td class="view-td">{{ ucwords(strtolower($vendorAsset->vendor_id)) ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Manufacturer</td>
-                    <td>{{ ucwords(strtolower($vendorAsset->manufacturer)) ?? 'N/A' }}</td>
+                    <td class="view-td">{{ ucwords(strtolower($vendorAsset->manufacturer)) ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Asset Type</td>
-                    <td>{{ ucwords(strtolower($vendorAsset->asset_type)) ?? 'N/A' }}</td>
+                    <td class="view-td">{{ ucwords(strtolower($vendorAsset->asset_type)) ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Asset Model</td>
-                    <td>{{ ucwords(strtolower($vendorAsset->asset_model)) ?? 'N/A' }}</td>
+                    <td class="view-td">{{ ucwords(strtolower($vendorAsset->asset_model)) ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Asset Specification</td>
-                    <td>{{ ucwords(strtolower($vendorAsset->asset_specification)) ?? 'N/A' }}</td>
+                    <td class="view-td">{{ ucwords(strtolower($vendorAsset->asset_specification)) ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Color</td>
-                    <td>{{ ucwords(strtolower($vendorAsset->color)) ?? 'N/A' }}</td>
+                    <td class="view-td">{{ ucwords(strtolower($vendorAsset->color)) ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Version</td>
-                    <td>{{ ucwords(strtolower($vendorAsset->version)) ?? 'N/A' }}</td>
+                    <td class="view-td">{{ ucwords(strtolower($vendorAsset->version)) ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Serial Number</td>
-                    <td>{{ $vendorAsset->serial_number ?? 'N/A' }}</td>
+                    <td class="view-td">{{ $vendorAsset->serial_number ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Invoice Number</td>
-                    <td> {{ $vendorAsset->invoice_number ?? 'N/A' }}</td>
+                    <td class="view-td"> {{ $vendorAsset->invoice_number ?? 'N/A' }}</td>
                 </tr>
-                <tr>
-                    <td class="fs-6 fs-md-3 fs-lg-2">Taxable Amount</td>
-                    <td>Rs. {{ $vendorAsset->taxable_amount ?? 'N/A' }}</td>
-                </tr>
-                <tr>
-                    <td class="fs-6 fs-md-3 fs-lg-2">Invoice Amount</td>
-                    <td>Rs. {{$vendorAsset->invoice_amount ?? 'N/A' }}</td>
-                </tr>
+
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">GST State</td>
-                    <td>{{ $vendorAsset->gst_state ?? 'N/A' }}</td>
+                    <td class="view-td">{{ $vendorAsset->gst_state ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">GST Central</td>
-                    <td>{{ $vendorAsset->gst_central ?? 'N/A' }}</td>
+                    <td class="view-td">{{ $vendorAsset->gst_central ?? 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <td class="fs-6 fs-md-3 fs-lg-2">Taxable Amount</td>
+                    <td class="view-td">Rs. {{ $vendorAsset->taxable_amount ?? 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <td class="fs-6 fs-md-3 fs-lg-2">Invoice Amount</td>
+                    <td class="view-td">Rs. {{$vendorAsset->invoice_amount ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Purchase Date</td>
-                    <td>{{ \Carbon\Carbon::parse($vendorAsset->purchase_date)->format('d-M-Y') }}</td>
+                    <td class="view-td">{{ \Carbon\Carbon::parse($vendorAsset->purchase_date)->format('d-M-Y') }}</td>
                 </tr>
                 <tr>
                     <td class="fs-6 fs-md-3 fs-lg-2">Attachments</td>
