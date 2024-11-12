@@ -971,8 +971,17 @@ padding: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border: 1px solid #e0e0e0;
     background-color: #ffffff;
+    margin-left: 21%;
+}
+.view-details-modal {
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+    background-color: #ffffff;
     margin-left: 5%;
 }
+
 .addEditHeading{
     font-size: 1.2rem;
 }
@@ -1613,6 +1622,8 @@ w
     background-color: white;
     height: 32px;
     border-radius: 5px;
+    width: 100%;
+    padding: 5px;
 }
 
 .vendor-selected-vendorID{
@@ -1639,6 +1650,19 @@ w
 .vendor-table-head{
     white-space: nowrap;
 }
+
+.vendor-asset-label{
+    font-size: 16px;
+    color: black;
+    font-weight: 400;
+}
+
+.vendor-label{
+    font-size: 16px;
+    color: black;
+    font-weight: 400;
+}
+
 
 .custom-modal-dialog.custom-modal-lg {
     height: 100vh;

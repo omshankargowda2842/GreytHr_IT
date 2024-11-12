@@ -50,7 +50,8 @@ class AssignAssetEmployee extends Component
     public $screenshotPrograms ="";
     public $isRotated = false;
     public $showOverview = false;
-
+    public $categories;
+    public $selectedCategory="";
     public $showViewEmployeeAsset = false;
 public $currentVendorId = null;
 
@@ -211,16 +212,42 @@ public function closeViewEmpAsset()
     public function mount()
     {
 
+        $this->categories = asset_types_table::select('id', 'asset_names')->get();
+
         $this->loadAssetsAndEmployees();
+
     }
+
+    public function loadAssets()
+    {
+        // Check if a category is selected
+        if ($this->selectedCategory == null || $this->selectedCategory == '') {
+
+            // Load all assets if no category is selected
+            $this->assetSelect = VendorAsset::join('asset_types_tables', 'vendor_assets.asset_type', '=', 'asset_types_tables.id')
+                ->where('vendor_assets.is_active', 1)
+                ->select('vendor_assets.asset_id', 'asset_types_tables.asset_names')
+                ->get();
+        } else {
+    
+            // Load assets based on selected category
+            $this->assetSelect = VendorAsset::join('asset_types_tables', 'vendor_assets.asset_type', '=', 'asset_types_tables.id')
+                ->where('vendor_assets.is_active', 1)
+                ->where('asset_types_tables.id', $this->selectedCategory)
+                ->select('vendor_assets.asset_id', 'asset_types_tables.asset_names')
+                ->get();
+        }
+    }
+
 
     public function loadAssetsAndEmployees()
     {
         // Fetch asset and employee data, including already assigned ones
-        $this->assetSelect = VendorAsset::join('asset_types_tables', 'vendor_assets.asset_type', '=', 'asset_types_tables.id')
-        ->where('vendor_assets.is_active', 1)
-        ->select('vendor_assets.asset_id', 'asset_types_tables.asset_names') // Select asset_id and asset_name
-        ->get();
+        // $this->assetSelect = VendorAsset::join('asset_types_tables', 'vendor_assets.asset_type', '=', 'asset_types_tables.id')
+        // ->where('vendor_assets.is_active', 1)
+        // ->where('asset_types_tables.id', $this->selectedCategory)
+        // ->select('vendor_assets.asset_id', 'asset_types_tables.asset_names') // Select asset_id and asset_name
+        // ->get();
 
         $this->assetSelectEmp = EmployeeDetails::where('status', 1)
         ->orderBy('first_name')
@@ -577,7 +604,7 @@ public $oldEmployeeAssetLists;
                 return $employeeAssetList; // Ensure you're returning the entire modified array
 
         });
-
+        $this->loadAssets();
         $this->loadAssetsAndEmployees();
         return view('livewire.assign-asset-employee', compact('employeeAssetLists'));
     }

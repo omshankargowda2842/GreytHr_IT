@@ -581,8 +581,9 @@ public function submit()
             'purchase_date' => $this->purchaseDate ? $this->purchaseDate : null,
             'file_paths' => json_encode($fileDataArray),
         ]);
-        FlashMessageHelper::flashSuccess("Asset created successfully!");
+
     }
+    FlashMessageHelper::flashSuccess("Asset created successfully!");
     }
 
             $this->reset();

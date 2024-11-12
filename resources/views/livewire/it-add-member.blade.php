@@ -176,7 +176,7 @@
 
 
 
-    <div class="col-11  mt-4 itadd-maincolumn">
+    <div class="col-7  mt-4 itadd-maincolumn">
 
         <div class="d-flex justify-content-between align-items-center ">
             <h2 class="mb-4 addEditHeading">Add IT Member</h2>
@@ -187,7 +187,7 @@
             <div class="row mb-3 d-flex justify-content-around">
 
                 <!-- Employee ID Dropdown -->
-                <div class="col-md-5">
+                <div class="col-md-7">
                     <label for="employeeSelect" class="form-label">Select Employee ID</label>
                     <select id="employeeSelect" class="form-select" wire:model="selectedEmployee"
                         wire:change="fetchEmployeeDetails">

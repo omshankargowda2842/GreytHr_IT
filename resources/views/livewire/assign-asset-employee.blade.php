@@ -24,11 +24,35 @@
     <div class="container AssetEmployee mt-4">
 
         @if ($showEMployeeAssetBtn)
-        <div class="col-11 d-flex justify-content-start mb-4" style="margin-left: 4%;">
-            <button class="btn text-white" style="background-color: #02114f;" wire:click="backVendor"><i
-                    class="fas fa-arrow-left"></i> Back
-            </button>
+        <div class="col-11 d-flex justify-content-between mb-4" style="margin-left: 4%;">
+            <!-- Button aligned to the left -->
+            <div class="col-md-5 d-flex justify-content-start">
+                <button class="btn text-white" style="background-color: #02114f;" wire:click="backVendor">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+            </div>
+
+            <!-- Category Dropdown aligned to the right -->
+            <div class="col-md-5 d-flex justify-content-end">
+                <div class="d-flex flex-column align-items-end">
+                    <label for="categorySelect" class="form-label" style="margin-right: 31%;">Select Category</label>
+                    <select id="categorySelect" class="form-select" wire:model="selectedCategory"
+                        wire:change="loadAssets">
+                        <option value="" disabled hidden>Choose Category</option>
+                        @foreach ($categories as $category)
+                        <option value="{{ $category->id }}">
+                            {{ $category->asset_names }}
+                        </option>
+                        @endforeach
+                    </select>
+                    @error('selectedCategory')
+                    <span class="text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
+
         </div>
+
         @endif
 
         @if($assetEmpCreateUpdate)
@@ -44,10 +68,10 @@
                         wire:change="fetchEmployeeDetails" {{ $isUpdateMode ? 'disabled' : '' }}>
                         <option value="">Choose Employee</option>
                         @foreach ($assetSelectEmp as $employee)
-                        <option value="{{ $employee->emp_id }}"
-                            class=""
+                        <option value="{{ $employee->emp_id }}" class=""
                             {{ $isUpdateMode && $employee->emp_id == $selectedEmployee ? 'selected' : '' }}>
-                            {{ $employee->emp_id }} - {{ ucwords(strtolower($employee->first_name ))}} {{ ucwords(strtolower($employee->last_name ))}}
+                            {{ $employee->emp_id }} - {{ ucwords(strtolower($employee->first_name ))}}
+                            {{ ucwords(strtolower($employee->last_name ))}}
                         </option>
                         @endforeach
 
@@ -59,9 +83,9 @@
                     @enderror
                 </div>
 
+
                 <!-- Asset Dropdown -->
                 <div class="col-md-5">
-
                     <label for="assetSelect" class="form-label">Select Asset</label>
                     <select id="assetSelect" class="form-select" wire:model="selectedAsset"
                         wire:change="fetchAssetDetails">
@@ -73,7 +97,6 @@
                             {{ $isUpdateMode && $asset->asset_id == $selectedAsset ? 'selected' : '' }}>
                             {{ $asset->asset_id }} - {{ $asset->asset_names }}
                         </option>
-
                         @endforeach
                     </select>
                     @error('selectedAsset')
@@ -455,7 +478,7 @@
         @endphp
 
         @if($vendor)
-        <div class="col-10 mt-4 itadd-maincolumn">
+        <div class="col-10 mt-4 view-details-modal">
             <div class="d-flex justify-content-between align-items-center">
                 <h5>View Details</h5>
                 <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewVendor"
@@ -558,7 +581,8 @@
                     </tr>
                     <tr>
                         <td>Laptop Received Date</td>
-                        <td class="view-td">{{ \Carbon\Carbon::parse($vendor->laptop_received)->format('d-M-Y') ?? 'N/A' }}</td>
+                        <td class="view-td">
+                            {{ \Carbon\Carbon::parse($vendor->laptop_received)->format('d-M-Y') ?? 'N/A' }}</td>
                     </tr>
 
 
@@ -582,7 +606,7 @@
             </table>
         </div>
         @else
-        <div class="col-10 mt-4 itadd-maincolumn">
+        <div class="col-10 mt-4 view-details-modal">
             <p>No details available.</p>
         </div>
         @endif
@@ -753,7 +777,7 @@
         @endphp
 
         @if($vendor)
-        <div class="col-10 mt-4 itadd-maincolumn">
+        <div class="col-10 mt-4 view-details-modal">
             <div class="d-flex justify-content-between align-items-center">
                 <h5>View Details</h5>
                 <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewEmpAsset"
@@ -850,7 +874,8 @@
                     </tr>
                     <tr>
                         <td>Laptop Received Date</td>
-                        <td class="view-td">{{ \Carbon\Carbon::parse($vendor->laptop_received)->format('d-M-Y') ?? 'N/A' }}</td>
+                        <td class="view-td">
+                            {{ \Carbon\Carbon::parse($vendor->laptop_received)->format('d-M-Y') ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <td>Purchase Date</td>
@@ -874,7 +899,7 @@
             </table>
         </div>
         @else
-        <div class="col-10 mt-4 itadd-maincolumn">
+        <div class="col-10 mt-4 view-details-modal">
             <p>No details available.</p>
         </div>
         @endif

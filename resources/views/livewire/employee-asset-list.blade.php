@@ -101,7 +101,7 @@
     @endphp
 
     @if($vendor)
-    <div class="col-10 mt-4 itadd-maincolumn">
+    <div class="col-10 mt-4 view-details-modal">
         <div class="d-flex justify-content-between align-items-center">
             <h3>View Details</h3>
             <button class="btn btn-dark" wire:click="closeViewVendor" aria-label="Close">
@@ -175,7 +175,7 @@
         </table>
     </div>
     @else
-    <div class="col-10 mt-4 itadd-maincolumn">
+    <div class="col-10 mt-4 view-details-modal">
         <p>No details available.</p>
     </div>
     @endif
