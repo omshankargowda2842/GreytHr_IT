@@ -2,7 +2,7 @@
 
 
     <div wire:loading
-        wire:target="submit, showEditItMember, Cancel, clearFilters,confirmDelete, delete, showAddItMember,addMember">
+        wire:target="submit, showEditItMember,fetchEmployeeDetails, Cancel, clearFilters,confirmDelete, delete, showAddItMember,addMember">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -213,7 +213,7 @@
 
             <!-- Row for Details Cards -->
             <div class="row mt-4 d-flex justify-content-around">
-                <div class="col-md-4">
+                <div class="col-md-7">
                     @if ($empDetails)
                     <div class="assetEmpDetailsCard p-3 mb-3">
                         <h5><u>Employee Details</u></h5>

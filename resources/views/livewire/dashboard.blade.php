@@ -199,9 +199,9 @@ $completedCount = $closedCount;
                     label: 'Request Status',
                     data: [activeCount, pendingCount, completedCount], // Use the PHP variables
                     backgroundColor: [
-                        '#ffcc80', // Orange
-                        '#a5d6a7', // Green
-                        '#64b5f6' // Blue
+                        '#dab42e', // Orange
+                        '#3dd371', // Green
+                        '#297de1' // Blue
                     ],
                     borderColor: [
                         'rgba(255, 159, 64, 1)', // Orange

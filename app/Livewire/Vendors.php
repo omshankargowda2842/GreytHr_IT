@@ -84,8 +84,6 @@ class Vendors extends Component
         'contactEmail.required' => 'Contact Email is required.',
         'contactEmail.email' => 'Contact Email must be a valid email address.',
         'contactEmail.max' => 'Contact Email may not be greater than 255 characters.',
-
-
     ];
 
     public function validateAccountNumber()
@@ -114,6 +112,8 @@ class Vendors extends Component
     $this->pinCode = '';
     $this->noteDescription = '';
     $this->file_paths='';
+    $this->reason='';
+    $this->reason=null;
     $this->selectedVendorId; // Update this to the correct field name for the selected Vendor
     $this->editMode = false;
     $this->showAddVendor = false; // Update this to match your field name
@@ -201,73 +201,90 @@ public function updatedContactEmail()
     $this->validateOnly('contactEmail');
 }
 
-    public function delete()
+public function delete()
 {
-
-
     $this->validate([
-
         'reason' => 'required|string|max:255', // Validate the remark input
     ], [
         'reason.required' => 'Reason is required.',
     ]);
-    $this->resetErrorBag();
 
-    $vendormember = Vendor::find($this->recordId);
-    if ($vendormember) {
+    try {
 
-        $vendormember->update([
-            'delete_vendor_reason' => $this->reason,
-            'is_active' => 0
-        ]);
 
-        FlashMessageHelper::flashSuccess("Vendor deactivated successfully!");
-        $this->showLogoutModal = false;
+        $vendormember = Vendor::find($this->recordId);
 
-        //Refresh
-        $this->vendors = Vendor::where('is_active', 1)->get();
-        $this->recordId = null;
-        $this->reason = '';
+        if ($vendormember) {
+            // Update vendor details to deactivate
+            $vendormember->update([
+                'delete_vendor_reason' => $this->reason,
+                'is_active' => 0
+            ]);
 
+            FlashMessageHelper::flashSuccess("Vendor deactivated successfully!");
+            $this->showLogoutModal = false;
+
+            // Refresh vendor list
+            $this->vendors = Vendor::where('is_active', 1)->get();
+            $this->recordId = null;
+            $this->reason = '';
+        }
+    } catch (\Exception $e) {
+        // Log the exception message
+        Log::error('Error in delete method: ' . $e->getMessage());
+
+        // Optionally, display an error message to the user
+        FlashMessageHelper::flashError('An error occurred while deactivating the vendor. Please try again later.');
     }
 }
 
-    public function showEditVendor($id)
+
+public function showEditVendor($id)
 {
-    $this->resetForm();
-    $this->resetErrorBag();
+    try {
+        $this->resetForm();
+        $this->resetErrorBag();
 
-    // Fetch the vendor record by ID
-    $vendor = Vendor::find($id);
-    if ($vendor) {
-        // Populate the form fields with the vendor's data
-        $this->selectedVendorId = $id;
-        $this->vendorName = $vendor->vendor_name;
-        $this->contactName = $vendor->contact_name;
-        $this->phone = $vendor->phone;
-        $this->gst = $vendor->gst;
-        $this->bankName = $vendor->bank_name;
-        $this->accountNumber = $vendor->account_number;
-        $this->ifscCode = $vendor->ifsc_code;
-        $this->branch = $vendor->branch;
-        $this->contactEmail = $vendor->contact_email;
-        $this->street = $vendor->street;
+        // Fetch the vendor record by ID
+        $vendor = Vendor::find($id);
+        if ($vendor) {
+            // Populate the form fields with the vendor's data
+            $this->selectedVendorId = $id;
+            $this->vendorName = $vendor->vendor_name;
+            $this->contactName = $vendor->contact_name;
+            $this->phone = $vendor->phone;
+            $this->gst = $vendor->gst;
+            $this->bankName = $vendor->bank_name;
+            $this->accountNumber = $vendor->account_number;
+            $this->ifscCode = $vendor->ifsc_code;
+            $this->branch = $vendor->branch;
+            $this->contactEmail = $vendor->contact_email;
+            $this->street = $vendor->street;
+            $this->city = $vendor->city;
+            $this->state = $vendor->state;
+            $this->pinCode = $vendor->pin_code;
+            $this->noteDescription = $vendor->description;
+            $this->existingFilePaths = json_decode($vendor->file_paths, true) ?? [];
 
-        $this->city = $vendor->city;
-        $this->state = $vendor->state;
-        $this->pinCode = $vendor->pin_code;
-        $this->noteDescription = $vendor->description;
-        $this->existingFilePaths = json_decode($vendor->file_paths, true) ?? [];
-        // $this->file_paths = $vendor->file_paths ? json_decode($vendor->file_paths, true) : [];
-        $this->updatedPinCode($this->pinCode);
-        $this->showAddVendor = true;
-        $this->showEditDeleteVendor = false;
-        $this->editMode = true;
+            // Optionally, call a method to update the pin code or perform other operations
+            $this->updatedPinCode($this->pinCode);
+            // Show the vendor edit form
+            $this->showAddVendor = true;
+            $this->showEditDeleteVendor = false;
+            $this->editMode = true;
+        }
+    } catch (\Exception $e) {
+        // Log the exception message
+        Log::error('Error in showEditVendor method: ' . $e->getMessage());
+
+        // Optionally, display an error message to the user
+        FlashMessageHelper::flashError('An error occurred while loading the vendor details. Please try again later.');
     }
 }
 
 public function downloadImages($vendorId)
 {
+    try {
 
     $vendor = collect($this->vendors)->firstWhere('id', $vendorId);
 
@@ -328,11 +345,20 @@ public function downloadImages($vendorId)
         $zip->close();
 
         return response()->download(storage_path($zipFileName))->deleteFileAfterSend(true);
-    }
+        }
 
-    // If no images, return an appropriate response
-    return response()->json(['message' => 'No images found'], 404);
-}
+        // If no images, return an appropriate response
+        return response()->json(['message' => 'No images found'], 404);
+
+
+    } catch (\Exception $e) {
+        // Log the exception message
+        Log::error('Error in downloadImages method: ' . $e->getMessage());
+
+        // Optionally, display an error message to the user
+        return response()->json(['message' => 'An error occurred while processing the images. Please try again later.'], 500);
+    }
+    }
 
 
     public function submit()
@@ -494,6 +520,7 @@ public function downloadImages($vendorId)
     public function confirmDelete($id)
     {
         $this->recordId = $id;
+
         $this->showLogoutModal = true;
     }
 
@@ -508,21 +535,33 @@ public function downloadImages($vendorId)
     public $mandal='';
     public $postOffices = []; // To store PostOffice data for dropdown
     public function updatedPinCode($pinCode)
-{
-    if (strlen($pinCode) === 6) { // Validate pin code length
-        $locationData = $this->getLocationFromIndiaPost($pinCode);
+    {
+        try {
+            if (strlen($pinCode) === 6) { // Validate pin code length
+                $locationData = $this->getLocationFromIndiaPost($pinCode);
 
-        if ($locationData) {
-            // Set the dropdown options and district/state automatically
-            $this->postOffices = $locationData['postOffices'];
-            $this->city = $locationData['city'];
-            $this->state = $locationData['state'];
-        } else {
-            // Reset if no data found
+                if ($locationData) {
+                    // Set the dropdown options and district/state automatically
+                    $this->postOffices = $locationData['postOffices'];
+                    $this->city = $locationData['city'];
+                    $this->state = $locationData['state'];
+                } else {
+                    // Reset if no data found
+                    $this->resetLocationData();
+                }
+            }
+        } catch (\Exception $e) {
+            // Log the exception message for debugging purposes
+            Log::error('Error in updatedPinCode method: ' . $e->getMessage());
+
+            // Optionally, reset location data in case of an error
             $this->resetLocationData();
+
+            // You can also show a user-friendly message
+            session()->flash('error', 'An error occurred while retrieving location data. Please try again.');
         }
     }
-}
+
 
 protected function resetLocationData()
 {
@@ -534,28 +573,43 @@ protected function resetLocationData()
 
 public function getLocationFromIndiaPost($pinCode)
 {
-    // India Post API endpoint
-    $url = "https://api.postalpincode.in/pincode/{$pinCode}";
-    $response = Http::get($url);
-    $locationData = $response->json();
+    try {
+        // India Post API endpoint
+        $url = "https://api.postalpincode.in/pincode/{$pinCode}";
+        $response = Http::get($url);
 
-    if (isset($locationData[0]['PostOffice']) && !empty($locationData[0]['PostOffice'])) {
-        $postOffices = array_map(function($office) {
-            return [
-                'name' => $office['Name'] ?? '',
-                'mandal' => $office['Block'] ?? ''
-            ];
-        }, $locationData[0]['PostOffice']);
+        // Check if the response is successful
+        if ($response->successful()) {
+            $locationData = $response->json();
 
-        return [
-            'postOffices' => $postOffices,
-            'city' => $locationData[0]['PostOffice'][0]['District'] ?? '',
-            'state' => $locationData[0]['PostOffice'][0]['State'] ?? ''
-        ];
+            if (isset($locationData[0]['PostOffice']) && !empty($locationData[0]['PostOffice'])) {
+                $postOffices = array_map(function($office) {
+                    return [
+                        'name' => $office['Name'] ?? '',
+                        'mandal' => $office['Block'] ?? ''
+                    ];
+                }, $locationData[0]['PostOffice']);
+
+                return [
+                    'postOffices' => $postOffices,
+                    'city' => $locationData[0]['PostOffice'][0]['District'] ?? '',
+                    'state' => $locationData[0]['PostOffice'][0]['State'] ?? ''
+                ];
+            }
+        }
+
+        // Return null if no data found or if the response is not successful
+        return null;
+
+        } catch (\Exception $e) {
+            // Log the exception message for debugging purposes
+            Log::error('Error fetching location data: ' . $e->getMessage());
+
+            // Optionally, you can return null or an empty array if an error occurs
+            return null;
+        }
     }
 
-    return null; // Return null if no data found
-}
 
     public $filteredVendor = [];
     public $assetsFound = false;
@@ -565,32 +619,41 @@ public function getLocationFromIndiaPost($pinCode)
 
 
     public function filter()
-{
-    // Trim the search input
-    $trimmedEmpId = trim($this->searchVendor);
+    {
+        try {
+            // Trim the search input
+            $trimmedEmpId = trim($this->searchVendor);
 
-    // Start the query for filtering and sorting
-    $query = Vendor::query();
+            // Start the query for filtering and sorting
+            $query = Vendor::query();
+            $query->where('is_active', 1);
 
-    // Apply filtering if there's a search term
-    if ($trimmedEmpId) {
-        $query->where(function ($query) use ($trimmedEmpId) {
-            $query->where('vendor_id', 'like', '%' . $trimmedEmpId . '%')
-                ->orWhere('vendor_name', 'like', '%' . $trimmedEmpId . '%')
-                ->orWhere('contact_name', 'like', '%' . $trimmedEmpId . '%')
-                ->orWhere('gst', 'like', '%' . $trimmedEmpId . '%')
-                ->orWhere('contact_email', 'like', '%' . $trimmedEmpId . '%');
+            // Apply filtering if there's a search term
+            if ($trimmedEmpId) {
+                $query->where(function ($query) use ($trimmedEmpId) {
+                    $query->where('vendor_id', 'like', '%' . $trimmedEmpId . '%')
+                        ->orWhere('vendor_name', 'like', '%' . $trimmedEmpId . '%')
+                        ->orWhere('contact_name', 'like', '%' . $trimmedEmpId . '%')
+                        ->orWhere('gst', 'like', '%' . $trimmedEmpId . '%')
+                        ->orWhere('contact_email', 'like', '%' . $trimmedEmpId . '%');
+                });
+            }
 
-        });
+            // Apply sorting based on selected column and direction
+            $query->orderBy($this->sortColumn, $this->sortDirection);
+
+            // Execute the query and get the results
+            return $query->get();
+
+        } catch (\Exception $e) {
+            // Log the error message for debugging purposes
+            Log::error('Error during vendor filter: ' . $e->getMessage());
+
+            // Optionally, return an empty collection or null to indicate an error
+            return collect(); // Returning an empty collection
+        }
     }
 
-    // dd($trimmedEmpId);
-    // Apply sorting based on selected column and direction
-    $query->orderBy($this->sortColumn, $this->sortDirection);
-
-    // Execute the query and get the results
-    return $query->get();
-}
 
 
     public function clearFilters()
@@ -629,6 +692,7 @@ public function getLocationFromIndiaPost($pinCode)
 
     public function toggleSortOrder($column)
     {
+        try {
         if ($this->sortColumn == $column) {
             // If the column is the same, toggle the sort direction
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
@@ -637,13 +701,33 @@ public function getLocationFromIndiaPost($pinCode)
             $this->sortColumn = $column;
             $this->sortDirection = 'asc';
         }
+    } catch (\Exception $e) {
+        // Log the error message
+        Log::error('Error in toggleSortOrder: ' . $e->getMessage());
+
+        // Optionally, set default sort direction or handle the error gracefully
+        $this->sortColumn = 'vendor_id'; // Example default sort column
+        $this->sortDirection = 'asc'; // Example default sort direction
+
+        // You may want to display an error message to the user, if needed
+        session()->flash('error', 'An error occurred while changing the sort order.');
     }
+}
 
 
-    public function render()
-    {
+public function render()
+{
+    try {
+        // Attempt to filter vendors
         $this->vendors = $this->filter();
-
+        return view('livewire.vendors');
+    } catch (\Exception $e) {
+        // Log the error
+        Log::error('Error rendering vendors: ' . $e->getMessage());
+        $this->vendors = [];
+        session()->flash('error', 'An error occurred while fetching vendor data.');
         return view('livewire.vendors');
     }
+}
+
 }
