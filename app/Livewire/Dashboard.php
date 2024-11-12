@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Helpers\FlashMessageHelper;
 use App\Models\HelpDesks;
 use App\Models\IT;
 use App\Models\Request;
@@ -36,12 +37,23 @@ class Dashboard extends Component
     // Toggle sorting order (asc/desc)
     public function toggleSortOrder()
     {
-        $this->sortOrder = $this->sortOrder === 'asc' ? 'desc' : 'asc';
-        $this->sortCategories(); // Re-sort categories when toggling
+        try {
+            // Toggle the sort order between 'asc' and 'desc'
+            $this->sortOrder = $this->sortOrder === 'asc' ? 'desc' : 'asc';
 
-        // Log the sorting order change
-        Log::info("Sorting order changed to: {$this->sortOrder}");
+            // Re-sort categories when toggling
+            $this->sortCategories();
+            Log::info("Sorting order changed to: {$this->sortOrder}");
+
+        } catch (\Exception $e) {
+            Log::error("Error toggling sort order: " . $e->getMessage(), [
+                'exception' => $e,
+            ]);
+            FlashMessageHelper::flashError('An error occurred while toggling the sort order.');
+            $this->sortOrder = 'asc';
+        }
     }
+
 
     // Sort the categories based on the current sort order
     public function sortCategories()
@@ -56,26 +68,45 @@ class Dashboard extends Component
 
     public function updateCounts()
     {
-        $requestCategories = Request::select('Request', 'category')
-            ->where('Request', 'IT') // Adjust this to match the condition for IT requests
-            ->pluck('category');
+        try {
+            // Fetch the categories for IT requests
+            $requestCategories = Request::select('Request', 'category')
+                ->where('Request', 'IT') // Adjust this to match the condition for IT requests
+                ->pluck('category');
 
-        $this->activeCount = HelpDesks::where('status', 'Open')
-            ->whereIn('category', $requestCategories)->count();
+            // Fetch counts based on categories for various statuses in HelpDesks
+            $this->activeCount = HelpDesks::where('status', 'Open')
+                ->whereIn('category', $requestCategories)->count();
 
-        $this->pendingCount = HelpDesks::where('status', 'Pending')
-            ->whereIn('category', $requestCategories)->count();
+            $this->pendingCount = HelpDesks::where('status', 'Pending')
+                ->whereIn('category', $requestCategories)->count();
 
-        $this->closedCount = HelpDesks::where('status', 'Completed')
-            ->whereIn('category', $requestCategories)->count();
+            $this->closedCount = HelpDesks::where('status', 'Completed')
+                ->whereIn('category', $requestCategories)->count();
 
-        // Log data fetching actions
-        Log::info('Updated counts for HelpDesks', [
-            'activeCount' => $this->activeCount,
-            'pendingCount' => $this->pendingCount,
-            'closedCount' => $this->closedCount,
-        ]);
+            // Log data fetching actions
+            Log::info('Updated counts for HelpDesks', [
+                'activeCount' => $this->activeCount,
+                'pendingCount' => $this->pendingCount,
+                'closedCount' => $this->closedCount,
+            ]);
+
+        } catch (\Exception $e) {
+            // Handle any exceptions that occur during data fetching
+            Log::error('Error updating HelpDesks counts: ' . $e->getMessage(), [
+                'exception' => $e,
+            ]);
+
+            // Optionally, flash an error message to the user
+            FlashMessageHelper::flashError('An error occurred while updating HelpDesks counts.');
+
+            // Optionally, you could reset the counts to zero or some default value
+            $this->activeCount = 0;
+            $this->pendingCount = 0;
+            $this->closedCount = 0;
+        }
     }
+
 
     // Redirection based on role and request type
     public function itRequest()
@@ -158,7 +189,9 @@ class Dashboard extends Component
 
 
     public function render()
-    {
+{
+    try {
+        // Fetch distinct categories for IT requests and order them
         $categories = Request::where('Request', 'IT')
             ->select('category')
             ->distinct() // Get unique categories
@@ -174,15 +207,18 @@ class Dashboard extends Component
         // Log the number of categories fetched
         Log::info('Fetched categories for IT requests', ['categories' => $categories->toArray()]);
 
-        // Other data fetching for dashboard metrics
+        // Fetch dashboard metrics for requests
         $this->countRequests = HelpDesks::get()->map(function ($request) {
             $request->category = trim($request->category); // Clean category whitespace
             return $request;
         });
 
+        // Fetch asset and vendor metrics
         $this->activeAssets = VendorAsset::where('is_active', 1)->count();
         $this->inactiveAssets = VendorAsset::where('is_active', 0)->count();
         $this->vendors = Vendor::where('is_active', 1)->count();
+
+        // Fetch IT-related employee metrics
         $this->activeItRelatedEmye = IT::where('status', 1)->count();
         $this->inactiveItRelatedEmye = IT::where('status', 0)->count();
 
@@ -196,5 +232,28 @@ class Dashboard extends Component
         ]);
 
         return view('livewire.dashboard');
+
+    } catch (\Exception $e) {
+        // Handle any errors that occur during the data fetching process
+        // Log the error message
+        Log::error('Error in rendering dashboard: ' . $e->getMessage(), [
+            'exception' => $e,
+        ]);
+
+        // Optionally, flash an error message to the user or handle the error gracefully
+        FlashMessageHelper::flashError('An error occurred while fetching dashboard data.');
+
+        // Return a fallback view or empty data in case of error
+        return view('livewire.dashboard', [
+            'categories' => collect(), // Provide empty collection if categories fetching fails
+            'countRequests' => collect(), // Provide empty collection for requests
+            'activeAssets' => 0, // Provide fallback values for other metrics
+            'inactiveAssets' => 0,
+            'vendors' => 0,
+            'activeItRelatedEmye' => 0,
+            'inactiveItRelatedEmye' => 0,
+        ]);
     }
+}
+
 }

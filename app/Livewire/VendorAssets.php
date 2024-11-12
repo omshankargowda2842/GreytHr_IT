@@ -221,78 +221,79 @@ class VendorAssets extends Component
         $this->showViewImageDialog = false;
     }
 
+    public function downloadImages($vendorId)
+    {
+        try {
+            $vendor = collect($this->vendorAssets)->firstWhere('id', $vendorId);
 
-public function downloadImages($vendorId)
-{
+            if (!$vendor) {
+                // Vendor not found
+                return response()->json(['message' => 'Vendor not found'], 404);
+            }
 
-    $vendor = collect($this->vendorAssets)->firstWhere('id', $vendorId);
+            $fileDataArray = is_string($vendor->file_paths)
+                ? json_decode($vendor->file_paths, true)
+                : $vendor->file_paths;
 
-    if (!$vendor) {
-        // Vendor not found
-        return response()->json(['message' => 'Vendor not found'], 404);
-    }
+            // Filter images
+            $images = array_filter(
+                $fileDataArray,
+                function ($fileData) {
+                    // Ensure 'mime_type' key exists and is valid
+                    return isset($fileData['mime_type']) && strpos($fileData['mime_type'], 'image') !== false;
+                }
+            );
 
+            // If only one image, provide direct download
+            if (count($images) === 1) {
+                $image = reset($images); // Get the single image
+                $base64File = $image['data'];
+                $mimeType = $image['mime_type'];
+                $originalName = $image['original_name'];
 
-    $fileDataArray = is_string($vendor->file_paths)
-        ? json_decode($vendor->file_paths, true)
-        : $vendor->file_paths;
+                // Decode base64 content
+                $fileContent = base64_decode($base64File);
 
-    // Filter images
-    $images = array_filter(
-        $fileDataArray,
-        function ($fileData) {
-            // Ensure 'mime_type' key exists and is valid
-            return isset($fileData['mime_type']) && strpos($fileData['mime_type'], 'image') !== false;
+                // Return the image directly
+                return response()->stream(
+                    function () use ($fileContent) {
+                        echo $fileContent;
+                    },
+                    200,
+                    [
+                        'Content-Type' => $mimeType,
+                        'Content-Disposition' => 'attachment; filename="' . $originalName . '"',
+                    ]
+                );
+            }
+
+            // If multiple images, create a ZIP file
+            if (count($images) > 1) {
+                $zipFileName = 'images.zip';
+                $zip = new \ZipArchive();
+                $zip->open(storage_path($zipFileName), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+
+                foreach ($images as $image) {
+                    $base64File = $image['data'];
+                    $mimeType = $image['mime_type'];
+                    $extension = explode('/', $mimeType)[1];
+                    $imageName = uniqid() . '.' . $extension;
+
+                    $zip->addFromString($imageName, base64_decode($base64File));
+                }
+
+                $zip->close();
+
+                return response()->download(storage_path($zipFileName))->deleteFileAfterSend(true);
+            }
+
+            // If no images, return an appropriate response
+            return response()->json(['message' => 'No images found'], 404);
+        } catch (\Exception $e) {
+            // Handle any exception that occurs and return a proper response
+            return response()->json(['message' => 'An error occurred while processing the images', 'error' => $e->getMessage()], 500);
         }
-    );
-
-
-    // If only one image, provide direct download
-    if (count($images) === 1) {
-        $image = reset($images); // Get the single image
-        $base64File = $image['data'];
-        $mimeType = $image['mime_type'];
-        $originalName = $image['original_name'];
-
-        // Decode base64 content
-        $fileContent = base64_decode($base64File);
-
-        // Return the image directly
-        return response()->stream(
-            function () use ($fileContent) {
-                echo $fileContent;
-            },
-            200,
-            [
-                'Content-Type' => $mimeType,
-                'Content-Disposition' => 'attachment; filename="' . $originalName . '"',
-            ]
-        );
     }
-
-    // If multiple images, create a ZIP file
-    if (count($images) > 1) {
-        $zipFileName = 'images.zip';
-        $zip = new \ZipArchive();
-        $zip->open(storage_path($zipFileName), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
-
-        foreach ($images as $image) {
-            $base64File = $image['data'];
-            $mimeType = $image['mime_type'];
-            $extension = explode('/', $mimeType)[1];
-            $imageName = uniqid() . '.' . $extension;
-
-            $zip->addFromString($imageName, base64_decode($base64File));
-        }
-
-        $zip->close();
-
-        return response()->download(storage_path($zipFileName))->deleteFileAfterSend(true);
-    }
-
-    // If no images, return an appropriate response
-    return response()->json(['message' => 'No images found'], 404);
-}
 
 
     public function showAddVendorMember()
@@ -344,15 +345,18 @@ public function downloadImages($vendorId)
     }
     public function delete()
     {
-        $this->validate([
+        try {
+            $this->validate([
 
-            'reason' => 'required|string|max:255', // Validate the remark input
-        ], [
-            'reason.required' => 'Reason is required.',
-        ]);
-        $this->resetErrorBag();
+                'reason' => 'required|string|max:255', // Validate the remark input
+            ], [
+                'reason.required' => 'Reason is required.',
+            ]);
 
-        $vendormember = VendorAsset::find($this->recordId);
+            $this->resetErrorBag();
+
+            $vendormember = VendorAsset::find($this->recordId);
+
             if ($vendormember) {
                 // Perform the update (deactivation)
                 $vendormember->update([
@@ -360,14 +364,23 @@ public function downloadImages($vendorId)
                     'is_active' => 0,
                 ]);
 
-            FlashMessageHelper::flashSuccess("Asset deactivated successfully!");
-            $this->showLogoutModal = false;
+                FlashMessageHelper::flashSuccess("Asset deactivated successfully!");
+                $this->showLogoutModal = false;
 
-            //Refresh
-            $this->vendorAssets =VendorAsset::get();
-            $this->recordId = null;
-             $this->reason = '';
+                // Refresh the vendor assets and reset fields
+                $this->vendorAssets = VendorAsset::get();
+                $this->recordId = null;
+                $this->reason = '';
+            } else {
+                return response()->json(['message' => 'Vendor asset not found'], 404);
+            }
 
+        } catch (\Exception $e) {
+            // Handle any exception that occurs and return a proper response
+            return response()->json([
+                'message' => 'An error occurred while deactivating the asset.',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -380,55 +393,74 @@ public function downloadImages($vendorId)
     }
 
     public function showEditAsset($id)
-{
-    // $this->resetForm();
-    // $this->resetErrorBag();
+    {
+        try {
+            // Fetch the asset record by ID
+            $asset = VendorAsset::find($id);
 
-    // Fetch the asset record by ID
-    $asset = VendorAsset::find($id);
-    if ($asset) {
+            if ($asset) {
+                $this->selectedAssetId = $id;
+                $this->manufacturer = $asset->manufacturer;
+                $this->assetType = $asset->asset_type;
+                $this->assetModel = $asset->asset_model;
+                $this->assetSpecification = $asset->asset_specification;
+                $this->color = $asset->color;
+                $this->version = $asset->version;
+                $this->serialNumber = $asset->serial_number;
+                $this->invoiceNumber = $asset->invoice_number;
+                $this->taxableAmount = $asset->taxable_amount;
+                $this->invoiceAmount = $asset->invoice_amount;
+                $this->barcode = $asset->barcode;
+                $this->gstState = $asset->gst_state;
+                $this->selectedVendorId = $asset->vendor_id;
+                $this->gstCentral = $asset->gst_central;
+                $this->purchaseDate = $asset->purchase_date ? Carbon::parse($asset->purchase_date)->format('Y-m-d') : null;
 
-        $this->selectedAssetId = $id;
-        $this->manufacturer = $asset->manufacturer;
-        $this->assetType = $asset->asset_type;
-        $this->assetModel = $asset->asset_model;
-        $this->assetSpecification = $asset->asset_specification;
-        $this->color = $asset->color;
-        $this->version = $asset->version;
-        $this->serialNumber = $asset->serial_number;
-        $this->invoiceNumber = $asset->invoice_number;
-        $this->taxableAmount = $asset->taxable_amount;
-        $this->invoiceAmount = $asset->invoice_amount;
-        $this->barcode = $asset->barcode;
-        $this->gstState = $asset->gst_state;
-        $this->selectedVendorId = $asset->vendor_id;
-        $this->gstCentral = $asset->gst_central;
-        $this->purchaseDate = $asset->purchase_date ? Carbon::parse($asset->purchase_date)->format('Y-m-d') : null;
+                $this->existingFilePaths = json_decode($asset->file_paths, true) ?? [];
 
-        $this->existingFilePaths = json_decode($asset->file_paths, true) ?? [];
-
-        $this->showAddVendor = true;
-        $this->showEditDeleteVendor = false;
-        $this->editMode = true;
-    }
-}
-
-
-
-public function restore($id)
-{
-
-
-    $vnrAst = VendorAsset::find($id);
-    if ($vnrAst) {
-        $vnrAst->is_active = 1;
-        $vnrAst->save();
-        FlashMessageHelper::flashSuccess("Asset restored successfully!");
-        $this->restoreModal = false;
-        $this->vendorAssets = VendorAsset::get();
+                $this->showAddVendor = true;
+                $this->showEditDeleteVendor = false;
+                $this->editMode = true;
+            } else {
+                return response()->json(['message' => 'Asset not found'], 404);
+            }
+        } catch (\Exception $e) {
+            // Handle any exception that occurs and return a proper response
+            return response()->json([
+                'message' => 'An error occurred while fetching the asset details.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
-}
+
+
+    public function restore($id)
+    {
+        try {
+            // Fetch the vendor asset by ID
+            $vnrAst = VendorAsset::find($id);
+
+            if ($vnrAst) {
+                // Restore the asset by setting is_active to 1
+                $vnrAst->is_active = 1;
+                $vnrAst->save();
+
+                FlashMessageHelper::flashSuccess("Asset restored successfully!");
+                $this->restoreModal = false;
+                $this->vendorAssets = VendorAsset::get();
+            } else {
+                return response()->json(['message' => 'Asset not found'], 404);
+            }
+        } catch (\Exception $e) {
+            // Handle any exception that occurs and return a proper response
+            return response()->json([
+                'message' => 'An error occurred while restoring the asset.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
 
 public $vendorAssetIdToRestore;
 
@@ -611,32 +643,57 @@ public function showModal()
         $this->isModalOpen = false; // Close modal
     }
 
-public function createAssetType()
+    public function createAssetType()
     {
+        try {
+            // Validate if needed (uncomment and adjust validation if necessary)
             // $this->validate([
             //     'newAssetName' => 'required|string|max:255|unique:asset_types_tables,asset_names',
             // ]);
 
-        asset_types_table::create([
-            'asset_names' => $this->newAssetName,
-        ]);
+            // Create the new asset type
+            asset_types_table::create([
+                'asset_names' => $this->newAssetName,
+            ]);
 
-        // Refresh the asset types list
-        $this->assetNames = asset_types_table::orderBy('asset_names', 'asc')->get();
-        // Reset the form
-        $this->newAssetName = '';
-        // Close the modal`
-        $this->closeModal();
+            // Refresh the asset types list
+            $this->assetNames = asset_types_table::orderBy('asset_names', 'asc')->get();
 
+            // Reset the form
+            $this->newAssetName = '';
 
+            // Close the modal
+            $this->closeModal();
 
+            // Optionally, flash a success message
+            FlashMessageHelper::flashSuccess("Asset type created successfully!");
+
+        } catch (\Exception $e) {
+            // Handle any exception that occurs and return a proper response
+            return response()->json([
+                'message' => 'An error occurred while creating the asset type.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
 
-public function mount()
-{
-    $this->assetNames = asset_types_table::orderBy('asset_names', 'asc')->get();
-}
+
+    public function mount()
+    {
+        try {
+            // Attempt to fetch asset names from the database
+            $this->assetNames = asset_types_table::orderBy('asset_names', 'asc')->get();
+        } catch (\Exception $e) {
+
+            Log::error('Error fetching asset names: ' . $e->getMessage());
+            $this->assetNames = collect();  // Set an empty collection in case of an error
+
+            // Optionally, you can flash an error message to the user
+            FlashMessageHelper::flashError('An error occurred while loading asset names.');
+        }
+    }
+
 
     public $filteredVendorAssets = [];
     public $assetsFound = false;
@@ -726,6 +783,7 @@ public function mount()
 
     public function toggleSortOrder($column)
     {
+        try {
         if ($this->sortColumn == $column) {
             // If the column is the same, toggle the sort direction
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
@@ -734,28 +792,59 @@ public function mount()
             $this->sortColumn = $column;
             $this->sortDirection = 'asc';
         }
+    } catch (\Exception $e) {
+        // Log the error message
+        Log::error('Error in toggleSortOrder: ' . $e->getMessage());
+
+        // Optionally, set default sort direction or handle the error gracefully
+        $this->sortColumn = 'vendor_id'; // Example default sort column
+        $this->sortDirection = 'asc'; // Example default sort direction
+
+        // You may want to display an error message to the user, if needed
+        session()->flash('error', 'An error occurred while changing the sort order.');
+    }
     }
 
 
 
     public function render()
     {
-        $this->assetNames = asset_types_table::orderBy('asset_names', 'asc')->get();
-        $assetTypes = asset_types_table::pluck('asset_names', 'id');
-        // $this->assetNames = asset_types_table::all();
+        try {
+            // Fetch asset names ordered by asset_names
+            $this->assetNames = asset_types_table::orderBy('asset_names', 'asc')->get();
+            // Fetch asset types with their ids for mapping
+            $assetTypes = asset_types_table::pluck('asset_names', 'id');
 
-        $this->vendorAssets =  $this->filter();
+            // Apply any filters to the vendor assets
+            $this->vendorAssets = $this->filter();
 
+            // Map the asset type name to each vendor asset
+            $this->vendorAssets = $this->vendorAssets->map(function ($vendorAsset) use ($assetTypes) {
+                $vendorAsset['asset_type_name'] = $assetTypes[$vendorAsset['asset_type']] ?? 'N/A';
+                return $vendorAsset;
+            });
 
-        $this->vendorAssets =  $this->vendorAssets->map(function ($vendorAsset) use ($assetTypes) {
-            $vendorAsset['asset_type_name'] = $assetTypes[$vendorAsset['asset_type']] ?? 'N/A';
-            return $vendorAsset; // Ensure you're returning the entire modified array
+            // Fetch all vendors
+            $this->vendors = Vendor::all();
 
-    });
+            // Return the view with filtered asset types
+            return view('livewire.vendor-assets', [
+                'filteredAssetTypes' => $this->filteredAssetTypes,
+            ]);
 
-        $this->vendors = Vendor::all();
-        return view('livewire.vendor-assets',[
-            'filteredAssetTypes' => $this->filteredAssetTypes,
-        ]);
+        } catch (\Exception $e) {
+            // Handle any errors that occur during the process
+            // Optionally, log the error
+            Log::error('Error in rendering vendor assets: ' . $e->getMessage());
+
+            // Optionally, flash an error message to the user
+            FlashMessageHelper::flashError('An error occurred while rendering the vendor assets.');
+
+            // You can also return a fallback view or empty data
+            return view('livewire.vendor-assets', [
+                'filteredAssetTypes' => collect(), // Provide an empty collection or default data
+            ]);
+        }
     }
+
 }

@@ -52,6 +52,7 @@ Route::middleware(['auth:it', 'handleSession'])->group(function () {
             Route::get('/vendorAssets', VendorAssets::class)->name('vendorAssets');
             Route::get('/employeeAssetList', AssignAssetEmployee::class)->name('employeeAssetList');
             Route::get('/vendor', Vendors::class)->name('vendor');
+            Route::get('/itMembers', ItAddMember::class)->name('itMembers');
         });
 
         // User Routes (accessible to all roles: user, admin, and super_admin)

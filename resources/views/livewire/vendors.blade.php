@@ -1,7 +1,7 @@
 <div class="main">
 
     <div wire:loading
-        wire:target="cancel,submit,showAddVendorMember ,pinCode,clearFilters ,showViewVendor,showViewImage,showViewFile,showEditVendor,closeViewVendor,downloadImages,closeViewImage,closeViewFile,confirmDelete ,cancelLogout,">
+        wire:target="cancel,submit,showAddVendorMember,delete ,pinCode,clearFilters ,showViewVendor,showViewImage,showViewFile,showEditVendor,closeViewVendor,downloadImages,closeViewImage,closeViewFile,confirmDelete ,cancelLogout,">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -713,7 +713,7 @@
                         @error('reason') <span class="text-danger d-flex align-start">{{ $message }}</span>@enderror
                         <div class="d-flex justify-content-center p-3">
                             <button type="submit" class="submit-btn mr-3"
-                                wire:click="confirmDelete({{ $vendor->id }})">Delete</button>
+                               >Delete</button>
                             <button type="button" class="cancel-btn1 ml-3" wire:click="cancel">Cancel</button>
                         </div>
                     </form>

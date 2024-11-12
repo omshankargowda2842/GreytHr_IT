@@ -65,44 +65,82 @@ class ItAddMember extends Component
 
     public function toggleSortOrder($column)
     {
-        if ($this->sortColumn == $column) {
-            // If the column is the same, toggle the sort direction
-            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            // If a different column is clicked, set it as the new sort column and default to ascending order
-            $this->sortColumn = $column;
+        try {
+            if ($this->sortColumn === $column) {
+                // If the column is the same, toggle the sort direction
+                $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                // If a different column is clicked, set it as the new sort column and default to ascending order
+                $this->sortColumn = $column;
+                $this->sortDirection = 'asc';
+            }
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            Log::error('Error toggling sort order: ' . $e->getMessage());
+
+            // Reset to default sorting as a fallback
+            $this->sortColumn = 'emp_id'; // Replace with a relevant default column
             $this->sortDirection = 'asc';
+
+            // Flash a user-friendly error message
+            FlashMessageHelper::flashError("An error occurred while toggling the sort order. Please try again.");
         }
     }
 
+
     public function fetchEmployeeDetails()
     {
-
-        if ($this->selectedEmployee !== "" && $this->selectedEmployee !== null) {
-            $this->empDetails = EmployeeDetails::find($this->selectedEmployee);
-            $this->resetErrorBag('selectedEmployee');
-        } else {
-
+        try {
+            if ($this->selectedEmployee !== "" && $this->selectedEmployee !== null) {
+                // Fetch the employee details using the selected employee ID
+                $this->empDetails = EmployeeDetails::find($this->selectedEmployee);
+                $this->resetErrorBag('selectedEmployee');
+            } else {
+                $this->empDetails = null;
+            }
+        } catch (\Exception $e) {
+            Log::error('Error fetching employee details: ' . $e->getMessage());
             $this->empDetails = null;
+            FlashMessageHelper::flashError("An error occurred while fetching employee details. Please try again.");
         }
     }
 
 
     public function mount()
     {
+        try {
+            // Call the method to load assets and employees
+            $this->loadAssetsAndEmployees();
+        } catch (\Exception $e) {
+            // Log the error for debugging purposes
+            Log::error('Error during component initialization: ' . $e->getMessage());
+            // Optionally, reset properties to avoid undefined behavior
+            $this->assetSelectEmp = collect();
+            $this->assignedEmployeeIds = [];
 
-        $this->loadAssetsAndEmployees();
+            // Flash a user-friendly error message
+            FlashMessageHelper::flashError("An error occurred while initializing the component. Please try again.");
+        }
     }
+
+
     public $assignedEmployeeIds;
     public function loadAssetsAndEmployees()
     {
-        $this->assetSelectEmp = EmployeeDetails::where('sub_dept_id', '9915')
-            ->where('dept_id', '8803')
-            ->where('status', 1)
-            ->orderBy('first_name', 'asc')->get();
+        try {
+            $this->assetSelectEmp = EmployeeDetails::where('sub_dept_id', '9915')
+                ->where('dept_id', '8803')
+                ->where('status', 1)
+                ->orderBy('first_name', 'asc')
+                ->get();
 
             $this->assignedEmployeeIds = IT::pluck('emp_id')->toArray();
-
+        } catch (\Exception $e) {
+            Log::error('Error loading assets and employees: ' . $e->getMessage());
+            $this->assetSelectEmp = collect(); // Empty collection for employees
+            $this->assignedEmployeeIds = []; // Empty array for employee IDs
+            FlashMessageHelper::flashError("An error occurred while loading data. Please try again.");
+        }
     }
 
     private function resetForm()
@@ -128,29 +166,52 @@ class ItAddMember extends Component
     public function delete()
     {
         $this->validate([
+            'reason' => 'required|string|max:255', // Validate the remark input
+        ], [
+            'reason.required' => 'Reason is required.',
+        ]);
 
-        'reason' => 'required|string|max:255', // Validate the remark input
-    ], [
-        'reason.required' => 'Reason is required.',
-    ]);
-    // $this->resetErrorBag();]
+        try {
+            // Find the IT member record by ID
+            $itMember = IT::where('it_emp_id', $this->recordId)->first();
 
-    $itMember = IT::where('it_emp_id', $this->recordId)->first();
+            if ($itMember) {
+                $itMember->update([
+                    'delete_itmember_reason' => $this->reason,
+                    'status' => 0
+                ]);
 
-        if ($itMember) {
-            $itMember->update([
-                'delete_itmember_reason' => $this->reason,
-                'status' => 0
-            ]);
+                if ($itMember->it_emp_id === Auth::guard('it')->user()->it_emp_id) {
+
+                    Auth::guard('it')->logout();
+                       // Redirect the user to the login page
+                FlashMessageHelper::flashSuccess("Your account has been deactivated. Please contact support.");
+                return redirect()->route('itlogin'); // Redirect to the login route
+
+                }
 
 
-        FlashMessageHelper::flashSuccess("IT member deactivated successfully!");
-        $this->showLogoutModal = false;
-        // Reset the recordId and reason after processing
-        $this->recordId = null;
-        $this->reason = '';
+
+                // Flash success message
+                FlashMessageHelper::flashSuccess("IT member deactivated successfully!");
+
+                // Reset the modal state and form data
+                $this->showLogoutModal = false;
+                $this->recordId = null;
+                $this->reason = '';
+            } else {
+                // Flash error if the record is not found
+                FlashMessageHelper::flashError("IT member not found.");
+            }
+        } catch (\Exception $e) {
+            // Log the error for debugging purposes
+            Log::error('Error deactivating IT member: ' . $e->getMessage());
+
+            // Flash error message for the user
+            FlashMessageHelper::flashError("An error occurred while deactivating the IT member. Please try again.");
+        }
     }
-}
+
 
 
 
@@ -185,39 +246,55 @@ class ItAddMember extends Component
     }
 
     public function filter()
-{
+    {
+        try {
+            $trimmedEmpId = trim($this->searchEmp); // Trimmed search input
 
-    $trimmedEmpId = trim($this->searchEmp); // Trimmed search input
+            $employees = EmployeeDetails::with('its') // Eager load the 'its' relationship
+                ->whereHas('its', function ($query) {
+                    $query->where('status', 1) // Add condition for status = 1
+                        ->whereColumn('employee_details.emp_id', 'it_employees.emp_id');
+                })
+                ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
+                    // Apply the search filters based on input
+                    $query->where(function ($query) use ($trimmedEmpId) {
+                        $query->where('emp_id', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhereHas('its', function ($query) use ($trimmedEmpId) {
+                                // Filtering IT employee details as well
+                                $query->where('it_emp_id', 'like', '%' . $trimmedEmpId . '%');
+                            })
+                            ->orWhere('first_name', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('last_name', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('email', 'like', '%' . $trimmedEmpId . '%');
+                    });
+                })
+                ->orderBy($this->sortColumn, $this->sortDirection)
+                ->get();
 
-    return EmployeeDetails::with('its') // Eager load the 'its' relationship
-        ->whereHas('its', function ($query) {
-            $query->where('status', 1) // Add condition for status = 1
-            ->whereColumn('employee_details.emp_id', 'it_employees.emp_id');
-        })
-        ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
-            // Apply the search filters based on input
-            $query->where(function ($query) use ($trimmedEmpId) {
-                $query->where('emp_id', 'like', '%' . $trimmedEmpId . '%')
-                    ->orWhereHas('its', function ($query) use ($trimmedEmpId) {
-                        // Filtering IT employee details as well
-                        $query->where('it_emp_id', 'like', '%' . $trimmedEmpId . '%');
-                    })
-                    ->orWhere('first_name', 'like', '%' . $trimmedEmpId . '%')
-                    ->orWhere('last_name', 'like', '%' . $trimmedEmpId . '%')
-                    ->orWhere('email', 'like', '%' . $trimmedEmpId . '%');
-            });
-        })
-        ->orderBy($this->sortColumn, $this->sortDirection)
-        ->get();
-}
+            return $employees; // Return the filtered collection
+        } catch (\Exception $e) {
+            // Log the error for debugging purposes
+            Log::error('Error filtering employees: ' . $e->getMessage());
+
+            // Optionally, return an empty collection or handle the error gracefully
+            FlashMessageHelper::flashError("An error occurred while filtering employees. Please try again.");
+            return collect(); // Return an empty collection to avoid breaking the caller
+        }
+    }
+
 
 
     public function render()
     {
-        $this->itRelatedEmye = $this->filter();
+        try {
+            $this->itRelatedEmye = $this->filter();
+        } catch (\Exception $e) {
+            Log::error('Error rendering IT Add Member component: ' . $e->getMessage());
+            $this->itRelatedEmye = collect();
+            FlashMessageHelper::flashError("An error occurred while loading data. Please try again.");
+        }
 
-
-    return view('livewire.it-add-member');
-
+        return view('livewire.it-add-member');
     }
+
 }
