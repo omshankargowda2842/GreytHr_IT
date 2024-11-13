@@ -40,12 +40,15 @@
                 </div>
 
                 <!-- Add Member Button aligned to the right -->
+                @if(auth()->check() && (auth()->user()->hasRole('admin') ||
+                auth()->user()->hasRole('super_admin')))
                 <div class="col-auto">
                     <button class="btn text-white btn-sm itAdd3" style="background-color: #02114f;white-space: nowrap;"
                         wire:click='addMember'>
                         <i class="fas fa-user-plus"></i> Add Member
                     </button>
                 </div>
+                @endif
             </div>
         </div>
     </div>
@@ -99,7 +102,10 @@
                             @endif
                         </th>
 
+                        @if(auth()->check() && (auth()->user()->hasRole('super_admin')))
+
                         <th class="req-table-head">Deactivate</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -123,16 +129,21 @@
                         </td>
 
                         <td>{{ $itemployee->email ?? 'N/A'  }}</td>
+                        @if(auth()->check() && (auth()->user()->hasRole('super_admin')))
                         <td class="d-flex flex-direction-row">
 
                             <!-- Delete Action -->
+
+
                             <div class="col mx-1">
                                 <button class="btn text-white border-white" style="background-color: #02114f;"
                                     wire:click="confirmDelete('{{ $itemployee->its->it_emp_id }}')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
+
                         </td>
+                        @endif
                     </tr>
 
                     @endforeach

@@ -318,10 +318,13 @@
                             <button class="btn text-white mr-3" style="background-color: #02114f;"
                                 wire:click="oldAssetlisting">Previous Owners </button>
                             @endif
+                            @if(auth()->check() && (auth()->user()->hasRole('admin') ||
+                            auth()->user()->hasRole('super_admin')))
                             @if ($showAssignAssetBtn)
                             <button class="btn text-white" style="background-color: #02114f;"
                                 wire:click="assignAsset">Assign
                                 Asset</button>
+                            @endif
                             @endif
                         </div>
                     </div>
@@ -430,19 +433,25 @@
                                     </button>
                                 </div>
                                 <!-- Edit Action -->
+                                @if(auth()->check() && (auth()->user()->hasRole('admin') ||
+                                auth()->user()->hasRole('super_admin')))
                                 <div class="col mx-1">
                                     <button class="btn btn-sm btn-white border-dark"
                                         wire:click="edit({{ $employeeAssetList->id }})" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                 </div>
+                                @endif
                                 <!-- Delete Action -->
+                                @if(auth()->check() && (
+                                auth()->user()->hasRole('super_admin')))
                                 <div class="col mx-1">
                                     <button class="btn text-white btn-sm border-dark" style="background-color: #02114f;"
                                         wire:click="confirmDelete({{ $employeeAssetList->id }})" title="Delete">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
+                                @endif
                             </td>
                         </tr>
                         @endif
