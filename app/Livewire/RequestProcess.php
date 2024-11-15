@@ -3,6 +3,11 @@
 namespace App\Livewire;
 
 use App\Helpers\FlashMessageHelper;
+use App\Mail\ApproveRequestMail;
+use App\Mail\assigneRequestMail;
+use App\Mail\RejectRequestMail;
+use App\Mail\statusRequestMail;
+use App\Models\EmployeeDetails;
 use App\Models\HelpDesks;
 use App\Models\HolidayCalendar;
 use App\Models\Request;
@@ -12,6 +17,8 @@ use Illuminate\Support\Facades\Auth;
 // use Illuminate\Http\Client\Request;
 use Livewire\Component;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+
 use function Termwind\render;
 
 class RequestProcess extends Component
@@ -368,13 +375,56 @@ class RequestProcess extends Component
 
     public function approveStatus($taskId)
     {
-        $task = HelpDesks::find($taskId);
+
+        $task = HelpDesks::with('emp')->where('id', $taskId)->find($taskId);
+
+        $admindetails = EmployeeDetails::with('its')
+        ->whereHas('its', function ($query) {
+            $query->where('role', 'admin');
+        })
+        ->get();
+
+
+        $adminEmail = $admindetails[0]->email;
+
+        $adminEmail = preg_replace('/\s+/', '', $adminEmail); // Removes all whitespace characters
+        if (!filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
+            // Log or handle the invalid email scenario
+            FlashMessageHelper::flashError("Invalid email address: ");
+            Log::error("Invalid email address: " . $adminEmail);
+            return back()->withErrors(['error' => 'Invalid email address.']);
+        }
+
+
+        if (empty($adminEmail)) {
+            Log::error("No email address provided for request ID: " . $admindetails[0]->request_id);
+            return back()->withErrors(['error' => 'No email address associated with this request.']);
+        }
+
+
+        $employeeName = $task ->emp->first_name . ' ' . $task ->emp->last_name;
+
+        $employee = auth()->guard('it')->user();
+        $requestId = $task->request_id;
+
+        $category = $task->category;
+        $shortDescription = $task->description; // Assuming this field exists
+        $RejetedEmployeeName = $employee->employee_name;
+
+    // Send rejection email
+       Mail::to($adminEmail)->send(new ApproveRequestMail(
+        $employeeName,
+        $RejetedEmployeeName ,
+        $requestId,
+        $shortDescription,
+        $category,
+
+    ));
 
         if ($task) {
             // Set the status to "Open" when approving
             $task->update(['status' => 'Open']);
-
-            FlashMessageHelper::flashSuccess("Request has been approved!");
+            FlashMessageHelper::flashSuccess("Request has been approved, and email has been sent!");
             $this->updateCounts();
         }
     }
@@ -392,14 +442,77 @@ class RequestProcess extends Component
 
     public function rejectStatus()
     {
+        $this->validate();
         try {
-            $recentRequest = HelpDesks::where('id', $this->recordId)->first();
+            $recentRequest = HelpDesks::with('emp')->where('id', $this->recordId)->first();
 
             if ($recentRequest) {
                 // Set the status to "Reject" when rejecting the request
                 $recentRequest->update(['status' => 'Reject']);
+                $employee = auth()->guard('it')->user();
+                $employeeEmail = $recentRequest->cc_to;  // The input string
 
-                FlashMessageHelper::flashSuccess("Request has been rejected!");
+                // Step 1: Match everything inside parentheses
+                $pattern = '/\((.*?)\)/';  // This will match everything inside parentheses
+                preg_match_all($pattern, $employeeEmail, $matches);
+
+                // Step 2: Filter the results to extract only "XSS-####"
+                $ids = [];
+                foreach ($matches[1] as $match) {
+
+                    // Use another regex to match the XSS-#### pattern inside the parentheses
+                    if (preg_match('/XSS-\d{4}/', $match, $idMatch)) {
+                        $ids[] = $idMatch[0];  // Add the matched ID (e.g., "XSS-0476")
+                    }
+                }
+
+                // Output the extracted XSS-IDs
+
+                $ccTOMails =EmployeeDetails::whereIn('emp_id', $ids)  // Match emp_id with the extracted IDs
+                ->pluck('email');
+
+
+                // Output the matched IDs
+
+
+                if (empty($ccTOMails)) {
+                    Log::error("No email address provided for request ID: " . $recentRequest->request_id);
+                    return back()->withErrors(['error' => 'No email address associated with this request.']);
+                }
+
+                foreach ($ccTOMails as $email) {
+                    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                        // Log or handle the invalid email scenario
+                        FlashMessageHelper::flashError("Invalid email address: " . $email);
+                        Log::error("Invalid email address: " . $email);
+                        return back()->withErrors(['error' => 'Invalid email address: ' . $email]);
+                    }
+                }
+
+                $employeeName = $recentRequest->emp->first_name . ' ' . $recentRequest->emp->last_name;
+
+                $requestId = $recentRequest->request_id;
+
+                $shortDescription = $recentRequest->description; // Assuming this field exists
+
+                $RejetedEmployeeName = $employee->employee_name;
+
+            // Send rejection email
+               Mail::to($ccTOMails)->send(new RejectRequestMail(
+                $employeeName,
+                $this->reason,
+                $requestId,
+                $shortDescription,
+                $RejetedEmployeeName,
+                $recentRequest->category,
+
+
+            ));
+
+
+
+            FlashMessageHelper::flashSuccess("Request has been rejected, and email has been sent!");
+
                 $this->updateCounts();
 
                 $this->showRejectionModal = false;
@@ -435,8 +548,11 @@ class RequestProcess extends Component
 
     public function updateStatus($taskId)
     {
+
+        $this->validateOnly('selectedStatus');
+
         try {
-            $this->validateOnly('selectedStatus');
+
             $this->resetErrorBag('selectedStatus');
 
             // Find the task by ID
@@ -444,14 +560,76 @@ class RequestProcess extends Component
 
             // Check if the task exists and a valid status is selected
             if ($task && $this->selectedStatus) {
+
+                $employee = auth()->guard('it')->user();
+                $employeeEmail = $task->cc_to;  // The input string
+
+                // Step 1: Match everything inside parentheses
+                $pattern = '/\((.*?)\)/';  // This will match everything inside parentheses
+                preg_match_all($pattern, $employeeEmail, $matches);
+
+                // Step 2: Filter the results to extract only "XSS-####"
+                $ids = [];
+                foreach ($matches[1] as $match) {
+
+                    // Use another regex to match the XSS-#### pattern inside the parentheses
+                    if (preg_match('/XSS-\d{4}/', $match, $idMatch)) {
+                        $ids[] = $idMatch[0];  // Add the matched ID (e.g., "XSS-0476")
+                    }
+                }
+                // Output the extracted XSS-IDs
+                $ccTOMails =EmployeeDetails::whereIn('emp_id', $ids)  // Match emp_id with the extracted IDs
+                ->pluck('email');
+                // Output the matched IDs
+                if (empty($ccTOMails)) {
+                    Log::error("No email address provided for request ID: " . $task->request_id);
+                    return back()->withErrors(['error' => 'No email address associated with this request.']);
+                }
+
+                foreach ($ccTOMails as $email) {
+                    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                        // Log or handle the invalid email scenario
+                        FlashMessageHelper::flashError("Invalid email address: " . $email);
+                        Log::error("Invalid email address: " . $email);
+                        return back()->withErrors(['error' => 'Invalid email address: ' . $email]);
+                    }
+                }
+
+                $employeeName = $task->emp->first_name . ' ' . $task->emp->last_name;
+
+                $requestId = $task->request_id;
+                $shortDescription = $task->description; // Assuming this field exists
+
+                if ($this->selectedStatus === 'Pending') {
+                    // Send Pending email
+                    Mail::to($ccTOMails)->send(new StatusRequestMail(
+                        $employeeName,
+                        $requestId,
+                        $shortDescription,
+                        $task->category,
+                        'Pending'  // Passing a flag for Pending
+                    ));
+                } elseif ($this->selectedStatus === 'Completed') {
+                    // Send Completed email
+                    Mail::to($ccTOMails)->send(new StatusRequestMail(
+                        $employeeName,
+                        $requestId,
+                        $shortDescription,
+
+                        $task->category,
+                        'Completed'  // Passing a flag for Completed
+                    ));
+                }
+
                 // Update the task status
                 $task->update(['status' => $this->selectedStatus]);
 
+
                 // Flash a success message based on the selected status
                 if ($this->selectedStatus === 'Pending') {
-                    FlashMessageHelper::flashSuccess("Status has been set to Pending!");
+                    FlashMessageHelper::flashSuccess("Status has been set to Pending, and email has been sent!");
                 } elseif ($this->selectedStatus === 'Completed') {
-                    FlashMessageHelper::flashSuccess("Status has been set to Completed!");
+                    FlashMessageHelper::flashSuccess("Status has been set to Completed, and email has been sent!");
                 } else {
                     FlashMessageHelper::flashSuccess("Status Updated successfully!");
                 }
@@ -490,11 +668,50 @@ class RequestProcess extends Component
             // Find the task by ID
             $task = HelpDesks::find($taskId);
 
+
+
             // Check if the task exists and a valid assignee is selected
             if ($task && $this->selectedAssigne) {
                 // Update the task with the selected assignee
+
+                $fullNameAndEmpId = $this->selectedAssigne;
+
+                // Split the string by space
+                $parts = explode(' ', $fullNameAndEmpId);
+
+                // Extract emp_id (last element in the array)
+                $empId = array_pop($parts);
+
+                // Join the remaining parts to get the full name
+                $fullName = implode(' ', $parts);
+
+                $employee = auth()->guard('it')->user();
+
+             $assignedAssigne = EmployeeDetails::where('emp_id' ,   $empId )->get();
+
+                $fullName = $assignedAssigne[0]->first_name . ' ' . $assignedAssigne[0]->last_name;  // Concatenate first and last name
+                $email = $assignedAssigne[0]->email;
+
+
+            $employeeName = $fullName;
+            $requestId = $task->request_id;
+            $shortDescription = $task->description; // Assuming this field exists
+            $assigneName = $employee->employee_name;
+
+
+                // Send Pending email
+                Mail::to($email)->send(new assigneRequestMail(
+                    $assigneName,
+                    $requestId,
+                    $shortDescription,
+                    $task->category,
+
+                ));
+
+
                 $task->update(['assign_to' => $this->selectedAssigne]);
 
+                FlashMessageHelper::flashSuccess("Task assigned successfully, and email has been sent!");
                 // Optionally, you can add a success message here
                 // session()->flash('message', 'Task assigned successfully!');
             } else {

@@ -9,38 +9,49 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class RejectRequestMail extends Mailable
+class statusRequestMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-
+    /**
+     * Create a new message instance.
+     */
     public $employeeName;
     public $rejectionReason;
     public $requestId;
     public $shortDescription;
     public $viewRequestUrl;
-    public $rejectedEmpName;
-
+    public $superAdmin;
+    public $category;
+    public $status;
     /**
      * Create a new message instance.
      */
-    public function __construct($employeeName, $rejectionReason, $requestId, $shortDescription,$RejetedEmployeeName)
+    public function __construct( $employeeName,
+    $requestId,
+    $shortDescription,
+    $category,$status)
     {
         $this->employeeName = $employeeName;
-        $this->rejectionReason = $rejectionReason;
-        $this->requestId = $requestId;
-        $this->shortDescription = $shortDescription;
-        $this->rejectedEmpName =$RejetedEmployeeName;
 
+        $this->requestId = $requestId;
+
+        $this->shortDescription = $shortDescription;
+
+        $this->category =$category;
+       
+        $this->status = $status;
 
     }
 
     public function build()
     {
-      return $this->subject('Request Rejected')
-                    ->view('emails.reject-request-mail');
+      return $this->subject('Status Approved')
+                    ->view('emails.status-request-mail');
 
     }
+
+
 
     /**
      * Get the message envelope.
@@ -48,7 +59,7 @@ class RejectRequestMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Reject Request Mail',
+            subject: 'Status Request Mail',
         );
     }
 
@@ -58,7 +69,7 @@ class RejectRequestMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.reject-request-mail',
+            view: 'emails.status-request-mail',
         );
     }
 

@@ -475,7 +475,9 @@ public function cancelLogout($id)
 
 public function submit()
 {
+
     $this->validate($this->rules());
+
 
     try {
 

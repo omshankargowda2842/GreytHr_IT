@@ -9,38 +9,44 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class RejectRequestMail extends Mailable
+class ApproveRequestMail extends Mailable
 {
     use Queueable, SerializesModels;
-
-
     public $employeeName;
     public $rejectionReason;
     public $requestId;
     public $shortDescription;
     public $viewRequestUrl;
-    public $rejectedEmpName;
+    public $superAdmin;
+    public $category;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($employeeName, $rejectionReason, $requestId, $shortDescription,$RejetedEmployeeName)
+    public function __construct( $employeeName,
+    $RejetedEmployeeName ,
+    $requestId,
+    $shortDescription,
+    $category,)
     {
         $this->employeeName = $employeeName;
-        $this->rejectionReason = $rejectionReason;
         $this->requestId = $requestId;
+
         $this->shortDescription = $shortDescription;
-        $this->rejectedEmpName =$RejetedEmployeeName;
+        $this->superAdmin =$RejetedEmployeeName;
+        $this->category =$category;
+
 
 
     }
 
     public function build()
     {
-      return $this->subject('Request Rejected')
-                    ->view('emails.reject-request-mail');
+      return $this->subject('Request Approved')
+                    ->view('emails.approve-request-mail');
 
     }
+
 
     /**
      * Get the message envelope.
@@ -48,7 +54,7 @@ class RejectRequestMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Reject Request Mail',
+            subject: 'Approve Request Mail',
         );
     }
 
@@ -58,7 +64,7 @@ class RejectRequestMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.reject-request-mail',
+            view: 'emails.approve-request-mail',
         );
     }
 

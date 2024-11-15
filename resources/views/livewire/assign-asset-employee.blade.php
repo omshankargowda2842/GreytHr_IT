@@ -723,7 +723,7 @@
                                     @endif
                                 </span>
                             </th>
-                            <th class="req-table-head">Actions</th>
+                            <th class="req-table-head">View</th>
 
 
                         </tr>

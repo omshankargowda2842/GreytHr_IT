@@ -235,6 +235,7 @@
 
                 <div class="row mb-3">
                     <!-- Serial Number -->
+                    @if($quantity == 1)
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
@@ -249,6 +250,7 @@
                             </div>
                         </div>
                     </div>
+                    @endif
 
                     <!-- Invoice Number -->
                     <div class="col-md-6">
@@ -353,7 +355,7 @@
                             </div>
                             <div class="col-8">
                                 <input type="date" id="purchaseDate" wire:model.lazy="purchaseDate"
-                                    wire:change="resetValidationForField('purchaseDate')" class="form-control">
+                                    wire:change="resetValidationForField('purchaseDate')" class="form-control" max="{{ \Carbon\Carbon::today()->toDateString() }}">
                                 @error('purchaseDate') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -479,7 +481,7 @@
                             </span>
                         </th>
                         <th class="vendor-table-head">Asset Type
-                            <span wire:click.debounce.500ms="toggleSortOrder('asset_type')" style="cursor: pointer;">
+                            <span wire:click.debounce.500ms="toggleSortOrder('$vendorAssets->asset_type_name')" style="cursor: pointer;">
                                 @if($sortColumn == 'asset_type')
                                 <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
                                 @else
