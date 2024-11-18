@@ -442,7 +442,15 @@ class RequestProcess extends Component
 
     public function rejectStatus()
     {
-        $this->validate();
+        $this->validate([
+
+            'reason' => 'required|string|max:255', // Validate the remark input
+        ], [
+            'reason.required' => 'Reason is required.',
+        ]);
+
+        $this->resetErrorBag();
+
         try {
             $recentRequest = HelpDesks::with('emp')->where('id', $this->recordId)->first();
 

@@ -61,7 +61,7 @@
                         </div>
                     </div>
 
-                    @if($editMode == false)
+
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
@@ -77,7 +77,7 @@
                             </div>
                         </div>
                     </div>
-                    @endif
+                   
                 </div>
 
                 <div class="row mb-3">
