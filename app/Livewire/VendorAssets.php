@@ -59,7 +59,7 @@ class VendorAssets extends Component
             'assetSpecification' => 'required|string|max:255',
             'color' => 'nullable|string|max:50',
             'version' => 'nullable|string|max:50',
-            'serialNumber' => 'required|string|max:255',
+
             'invoiceNumber' => 'required|string|max:255', // Ensure this is required
             'taxableAmount' => 'required|numeric|min:0', // Ensure this is required
             'invoiceAmount' => 'required|numeric|min:0', // Ensure this is required
@@ -71,9 +71,22 @@ class VendorAssets extends Component
             'file_paths.*' => 'nullable|file|mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif|max:40960',
         ];
 
+
+        if ($this->quantity === null || $this->quantity < 1) {
+            $rules['quantity'] = 'required|integer|min:1';  // Ensure it's required if missing or invalid
+        }
+
+        // Conditional rule for 'serialNumber' based on 'quantity'
+        if ($this->quantity == 1) {
+            $rules['serialNumber'] = 'required|string|max:255|unique:vendor_assets,serial_number';
+        } else {
+            $rules['serialNumber'] = 'nullable|string|max:255'; // No need for serial number if quantity > 1
+        }
+
         if (!$this->editMode) {
             $rules['quantity'] = 'required|integer|min:1';
         }
+
 
 
         if ($this->editMode) {
@@ -83,8 +96,6 @@ class VendorAssets extends Component
                 'max:255',
                 'unique:vendor_assets,serial_number,' . $this->selectedAssetId . ',id',
             ];
-        } else {
-            $rules['serialNumber'] = 'required|string|max:255|unique:vendor_assets,serial_number';
         }
 
         return $rules;
@@ -394,6 +405,7 @@ class VendorAssets extends Component
 
     public function showEditAsset($id)
     {
+        $this->resetErrorBag();
         try {
             // Fetch the asset record by ID
             $asset = VendorAsset::find($id);
@@ -479,8 +491,11 @@ public function submit()
     $this->validate($this->rules());
 
 
+
     try {
 
+        $barcodeBase64 = null;
+        if (!empty($this->serialNumber)) {
 
     $generator = new BarcodeGeneratorPNG();
 
@@ -489,7 +504,7 @@ public function submit()
 
     $barcodeBase64 = base64_encode($barcode);
 
-
+        }
     $fileDataArray = [];
 
     if ($this->editMode) {
@@ -595,6 +610,7 @@ public function submit()
             FlashMessageHelper::flashSuccess("Asset updated successfully!");
         }
     } else {
+
         // Create new asset record
         for ($i = 0; $i < $this->quantity; $i++) {
         VendorAsset::create([

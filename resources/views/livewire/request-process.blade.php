@@ -32,7 +32,7 @@
 
                 <div class="d-flex  justify-content-between mb-4">
                     <div>
-                        <h3 class="d-flex justify-content-start mb-5 headingForAllModules">New Requests</h3>
+                        <h3 class="d-flex justify-content-start mb-5 headingForAllModules1">New Requests</h3>
 
                     </div>
 
@@ -137,10 +137,14 @@
                             <tr>
                                 <td>Attach Files</td>
                                 <td class="view-td">
+                                    @if($recentRequest->image_url)
                                     <a href="#" data-toggle="modal" class="requestAttachments"
                                         data-target="#attachmentsModal-{{ $recentRequest->id }}">
                                         <i class="fas fa-eye"></i> View Attachments
                                     </a>
+                                    @else
+                                    <span>-</span>
+                                    @endif
                                 </td>
                             </tr>
 
@@ -404,7 +408,7 @@
 
                                 <td>Request ID</td>
 
-                                <td class="view-td">{{$recentRequest->request_id ?? 'N/A' }}</td>
+                                <td class="view-td">{{$rejectedRequest->request_id ?? 'N/A' }}</td>
 
                             </tr>
 
@@ -470,10 +474,15 @@
                             <tr>
                                 <td>Attach Files</td>
                                 <td class="view-td">
+                                @if($rejectedRequest->image_url)
                                     <a href="#" data-toggle="modal" class="requestAttachments"
                                         data-target="#attachmentsModal-{{ $rejectedRequest->id }}">
                                         <i class="fas fa-eye"></i> View Attachments
                                     </a>
+                                    @else
+                                    <span>-</span>
+                                    @endif
+
                                 </td>
                             </tr>
 
@@ -569,6 +578,7 @@
                                 <div>
                                     <p class="req-reqBy-Dep">Request ID:
                                         <span class="req-res-depart1">
+
                                             {{ $request->request_id }}
 
                                         </span>
@@ -721,7 +731,7 @@
                             <div
                                 class="req-pro-details mb-5 ml-4 {{ auth()->check() && (auth()->user()->hasRole('admin') || auth()->user()->hasRole('super_admin')) ? '' : 'd-flex justify-content-center' }}">
                                 <div>
-                                    <h3 class="mb-3 headingForAllModules">Request Details</h3>
+                                    <h3 class=" headingForAllModules">Request Details</h3>
                                 </div>
 
                                 @if(auth()->check() && (auth()->user()->hasRole('admin') ||
@@ -759,7 +769,7 @@
 
                                             <td>Request ID</td>
 
-                                            <td class="view-td">{{$recentRequest->request_id ?? 'N/A' }}</td>
+                                            <td class="view-td">{{$selectedRequest->request_id ?? 'N/A' }}</td>
 
                                         </tr>
 
@@ -825,10 +835,14 @@
                                         <tr>
                                             <td>Attach Files</td>
                                             <td class="view-td">
+                                            @if($selectedRequest->image_url)
                                                 <a href="#" data-toggle="modal" class="requestAttachments"
                                                     data-target="#attachmentsModal-{{ $selectedRequest->id }}">
                                                     <i class="fas fa-eye"></i> View Attachments
                                                 </a>
+                                                @else
+                                                <span>-</span>
+                                                @endif
                                             </td>
                                         </tr>
 
@@ -905,23 +919,6 @@
                                         </tr>
 
                                         <tr>
-                                            <td>Status <span class="text-danger">*</span></td>
-
-                                            <td class="view-td">
-                                                <select wire:model="selectedStatus" class="req-selected-status"
-                                                    wire:change="updateStatus('{{ $selectedRequest->id }}')">
-                                                    <option value="" disabled hidden>Select Status </option>
-                                                    <option value="Pending">Pending</option>
-                                                    <option value="Completed">Completed</option>
-                                                    <!-- Add other status options as needed -->
-                                                </select>
-                                                @error('selectedStatus') <span class="text-danger">{{ $message }}</span>
-                                                @enderror
-
-                                            </td>
-                                        </tr>
-
-                                        <tr>
                                             <td>Assign to <span class="text-danger">*</span></td>
                                             <td class="view-td">
                                                 <select class="req-selected-status" wire:model="selectedAssigne"
@@ -942,6 +939,23 @@
 
                                             </td>
 
+                                        </tr>
+
+                                        <tr>
+                                            <td>Status <span class="text-danger">*</span></td>
+
+                                            <td class="view-td">
+                                                <select wire:model="selectedStatus" class="req-selected-status"
+                                                    wire:change="updateStatus('{{ $selectedRequest->id }}')">
+                                                    <option value="" disabled hidden>Select Status </option>
+                                                    <option value="Pending">Pending</option>
+                                                    <option value="Completed">Completed</option>
+                                                    <!-- Add other status options as needed -->
+                                                </select>
+                                                @error('selectedStatus') <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+
+                                            </td>
                                         </tr>
 
                                         <tr>
