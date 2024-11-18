@@ -98,7 +98,7 @@ class PostLoginMessage
             </head>
             <body>
                 <div id="message">
-                    Hi <span class="name">' . $userName . '</span>, just a moment, we\'re getting things ready for you
+                    Hi <span class="name">' . $userName . '</span>, just a moment, we are getting things ready for you
                     <span class="dots">
                         <span>.</span><span>.</span><span>.</span>
                     </span>

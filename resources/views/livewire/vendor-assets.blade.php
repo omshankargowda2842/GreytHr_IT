@@ -40,7 +40,8 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="vendor" class="vendor-asset-label"><span class="text-danger">*</span> Vendor</label>
+                                <label for="vendor" class="vendor-asset-label"><span class="text-danger">*</span>
+                                    Vendor</label>
                             </div>
                             <div class="col-8">
                                 <select id="vendor" wire:model.lazy="selectedVendorId"
@@ -100,7 +101,8 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="assetType" class="vendor-asset-label"><span class="text-danger">*</span> Asset
+                                <label for="assetType" class="vendor-asset-label"><span class="text-danger">*</span>
+                                    Asset
                                     Type</label>
                             </div>
                             <div class="col-8">
@@ -172,7 +174,8 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="assetModel" class="vendor-asset-label"><span class="text-danger">*</span> Asset
+                                <label for="assetModel" class="vendor-asset-label"><span class="text-danger">*</span>
+                                    Asset
                                     Model</label>
                             </div>
                             <div class="col-8">
@@ -188,7 +191,8 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="assetSpecification" class="vendor-asset-label"><span class="text-danger">*</span>
+                                <label for="assetSpecification" class="vendor-asset-label"><span
+                                        class="text-danger">*</span>
                                     Asset
                                     Specification</label>
                             </div>
@@ -231,10 +235,12 @@
 
                 <div class="row mb-3">
                     <!-- Serial Number -->
+                    @if($quantity == 1)
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="serialNumber" class="vendor-asset-label"><span class="text-danger">*</span> Serial
+                                <label for="serialNumber" class="vendor-asset-label"><span class="text-danger">*</span>
+                                    Serial
                                     Number</label>
                             </div>
                             <div class="col-8">
@@ -244,12 +250,14 @@
                             </div>
                         </div>
                     </div>
+                    @endif
 
                     <!-- Invoice Number -->
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="invoiceNumber" class="vendor-asset-label"><span class="text-danger">*</span> Invoice
+                                <label for="invoiceNumber" class="vendor-asset-label"><span class="text-danger">*</span>
+                                    Invoice
                                     Number</label>
                             </div>
                             <div class="col-8">
@@ -285,7 +293,8 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="gstCentral" class="vendor-asset-label"><span class="text-danger">*</span>Central
+                                <label for="gstCentral" class="vendor-asset-label"><span
+                                        class="text-danger">*</span>Central
                                     GSTIN</label>
                             </div>
                             <div class="col-8">
@@ -302,7 +311,8 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="taxableAmount" class="vendor-asset-label"><span class="text-danger">*</span> Taxable
+                                <label for="taxableAmount" class="vendor-asset-label"><span class="text-danger">*</span>
+                                    Taxable
                                     Amount</label>
                             </div>
                             <div class="col-8">
@@ -317,7 +327,8 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="invoiceAmount" class="vendor-asset-label"><span class="text-danger">*</span> Invoice
+                                <label for="invoiceAmount" class="vendor-asset-label"><span class="text-danger">*</span>
+                                    Invoice
                                     Amount</label>
                             </div>
                             <div class="col-8">
@@ -338,12 +349,13 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="purchaseDate" class="vendor-asset-label"><span class="text-danger">*</span>Purchase
+                                <label for="purchaseDate" class="vendor-asset-label"><span
+                                        class="text-danger">*</span>Purchase
                                     Date</label>
                             </div>
                             <div class="col-8">
                                 <input type="date" id="purchaseDate" wire:model.lazy="purchaseDate"
-                                    wire:change="resetValidationForField('purchaseDate')" class="form-control">
+                                    wire:change="resetValidationForField('purchaseDate')" class="form-control" max="{{ \Carbon\Carbon::today()->toDateString() }}">
                                 @error('purchaseDate') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -371,8 +383,9 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <p class="text-primary"><label for="file" class="vendor-asset-label">Attachments</label><i
-                                        class="fas fa-paperclip"></i></p>
+                                <p class="text-primary"><label for="file"
+                                        class="vendor-asset-label">Attachments</label><i class="fas fa-paperclip"></i>
+                                </p>
                             </div>
                             <div class="col-8">
                                 <input id="file" type="file" wire:model="file_paths" wire:loading.attr="disabled"
@@ -414,12 +427,15 @@
                 </div>
 
                 <!-- Add Member Button aligned to the right -->
+                @if(auth()->check() && (auth()->user()->hasRole('admin') ||
+                auth()->user()->hasRole('super_admin')))
                 <div class="col-auto">
                     <button class="btn text-white btn-sm" wire:click='showAddVendorMember'
                         style="margin-right: 9%; padding: 7px;background-color: #02114f;white-space:nowrap;">
                         <i class="fas fa-box"></i> Add Asset
                     </button>
                 </div>
+                @endif
             </div>
         </div>
     </div>
@@ -465,7 +481,7 @@
                             </span>
                         </th>
                         <th class="vendor-table-head">Asset Type
-                            <span wire:click.debounce.500ms="toggleSortOrder('asset_type')" style="cursor: pointer;">
+                            <span wire:click.debounce.500ms="toggleSortOrder('$vendorAssets->asset_type_name')" style="cursor: pointer;">
                                 @if($sortColumn == 'asset_type')
                                 <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
                                 @else
@@ -578,6 +594,8 @@
                                 </button>
                             </div>
 
+                            @if(auth()->check() && (auth()->user()->hasRole('admin') ||
+                            auth()->user()->hasRole('super_admin')))
 
                             <div class="col mx-1">
 
@@ -589,7 +607,9 @@
                                 </button>
 
                             </div>
+                            @endif
 
+                            @if(auth()->check() && (auth()->user()->hasRole('super_admin')))
 
                             @if($vendorAsset->is_active == 1)
                             <div class="col mx-1">
@@ -603,6 +623,9 @@
                                 </button>
                             </div>
                             @endif
+                            @endif
+
+                            @if(auth()->check() && (auth()->user()->hasRole('super_admin')))
 
                             @if($vendorAsset->is_active == 0)
                             <div class="col mx-1">
@@ -615,7 +638,7 @@
                                 </button>
                             </div>
                             @endif
-
+                            @endif
                         </td>
                     </tr>
                     @endforeach

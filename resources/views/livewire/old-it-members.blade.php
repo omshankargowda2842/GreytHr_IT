@@ -84,8 +84,10 @@
                             <i class="fas fa-sort"></i>
                             @endif
                         </th>
-
-                        <th class="req-table-head">Actions</th>
+                        @if(auth()->check() && (
+                            auth()->user()->hasRole('super_admin')))
+                        <th class="req-table-head">Restore</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -111,12 +113,15 @@
                         <td class="d-flex flex-direction-row">
 
                             <!-- Restore Action -->
+                            @if(auth()->check() && (
+                            auth()->user()->hasRole('super_admin')))
                             <div class="col mx-1">
                                 <button class="btn text-white border-white" style="background-color: #02114f;"
                                     wire:click='cancelLogout'>
                                     <i class="fas fa-undo-alt"></i>
                                 </button>
                             </div>
+                            @endif
                         </td>
                     </tr>
 

@@ -316,12 +316,15 @@
                 </div>
 
                 <!-- Add Member Button aligned to the right -->
+                @if(auth()->check() && (auth()->user()->hasRole('admin') ||
+                auth()->user()->hasRole('super_admin')))
                 <div class="col-auto">
                     <button class="btn text-white btn-sm" wire:click='showAddVendorMember'
                         style="margin-right: 9%;padding: 7px;background-color: #02114f;white-space:nowrap;"><i
                             class="fas fa-user-plus"></i> Add
                         Vendor</button>
                 </div>
+                @endif
             </div>
         </div>
     </div>
@@ -405,14 +408,17 @@
                                 </button>
                             </div>
                             <!-- Edit Action -->
+                            @if(auth()->check() && (auth()->user()->hasRole('admin') || auth()->user()->hasRole('super_admin')))
+
                             <div class="col mx-1">
                                 <button class="btn btn-white border-dark"
                                     wire:click="showEditVendor({{ $vendor->id }})">
                                     <i class="fas fa-edit"></i>
                                 </button>
                             </div>
+                            @endif
                             <!-- Delete Action -->
-                            @if(auth()->check() && (auth()->user()->hasRole('admin') ||
+                            @if(auth()->check() && (
                             auth()->user()->hasRole('super_admin')))
 
                             <div class="col mx-1">

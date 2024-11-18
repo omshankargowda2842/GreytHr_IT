@@ -70,6 +70,14 @@
 
                             <tr>
 
+                                <td>Request ID</td>
+
+                                <td class="view-td">{{$recentRequest->request_id ?? 'N/A' }}</td>
+
+                            </tr>
+
+                            <tr>
+
                                 <td>Requested By</td>
 
                                 <td class="view-td">{{$recentRequest->emp->first_name }}
@@ -225,6 +233,13 @@
 
                                 <div>
 
+                                    <p class="req-reqBy-Dep">Request ID:
+                                        <span class="req-res-depart1">
+                                            {{ $request->request_id }}
+
+                                        </span>
+                                    </p>
+
                                     <p class="req-reqBy-Dep">Requested By:
                                         <span class="req-res-depart1">
                                             {{ $request->emp->first_name }}
@@ -233,13 +248,12 @@
                                     </p>
 
                                     <p title="{{ $request['category'] }}" class="req-reqBy-ser">
-                                        Service Request: <span
-                                            class="req-res-depart">{{ $request->category ?? 'N/A' }}</span>
+                                        Category <span class="req-res-depart">{{ $request->category ?? 'N/A' }}</span>
                                     </p>
 
                                 </div>
 
-                                <div class="p-3">
+                                <div class="p-2">
                                     <button wire:click="viewApproveDetails({{ $index }})"
                                         class="req-pro-view-details-btn" @if($loading) disabled @endif>View</button>
 
@@ -386,6 +400,14 @@
 
 
                         <tbody>
+                            <tr>
+
+                                <td>Request ID</td>
+
+                                <td class="view-td">{{$recentRequest->request_id ?? 'N/A' }}</td>
+
+                            </tr>
+
 
                             <tr>
 
@@ -545,6 +567,12 @@
                             <div class="req-pro-card-body">
 
                                 <div>
+                                    <p class="req-reqBy-Dep">Request ID:
+                                        <span class="req-res-depart1">
+                                            {{ $request->request_id }}
+
+                                        </span>
+                                    </p>
 
                                     <p class="req-reqBy-Dep">Requested By:
                                         <span class="req-res-depart1">
@@ -554,8 +582,7 @@
                                     </p>
 
                                     <p title="{{ $request['category'] }}" class="req-reqBy-ser">
-                                        Service Request: <span
-                                            class="req-res-depart">{{ $request->category ?? 'N/A' }}</span>
+                                        Category <span class="req-res-depart">{{ $request->category ?? 'N/A' }}</span>
                                     </p>
 
                                 </div>
@@ -730,6 +757,15 @@
 
                                         <tr>
 
+                                            <td>Request ID</td>
+
+                                            <td class="view-td">{{$recentRequest->request_id ?? 'N/A' }}</td>
+
+                                        </tr>
+
+
+                                        <tr>
+
                                             <td>Requested By</td>
 
                                             <td class="view-td">{{$selectedRequest->emp->first_name }}
@@ -893,9 +929,10 @@
                                                     <option value="" disabled hidden>Select Assignee</option>
                                                     @foreach($itData as $itName)
                                                     <option
-                                                        value="{{ $itName->empIt->first_name }} {{ $itName->empIt->last_name }} ">
+                                                        value="{{ $itName->empIt->first_name }} {{ $itName->empIt->last_name }} {{ $itName->empIt->emp_id }}">
                                                         {{ ucwords(strtolower($itName->empIt->first_name)) }}
                                                         {{ ucwords(strtolower($itName->empIt->last_name)) }}
+                                                        {{ ucwords(strtolower($itName->empIt->emp_id)) }}
                                                     </option>
                                                     @endforeach
                                                 </select>
@@ -940,8 +977,7 @@
 
                                 <div class="d-flex justify-content-center align-items-center">
                                     <button class="btn text-white mb-3" style="background-color: #02114f;"
-                                        wire:click="redirectBasedOnStatus" @if($loading) disabled @endif>Save &
-                                        Continue</button>
+                                        wire:click="redirectBasedOnStatus" @if($loading) disabled @endif>Submit</button>
                                 </div>
 
 
@@ -963,6 +999,13 @@
 
                                             <div>
 
+                                                <p class="req-reqBy-Dep">Request ID:
+                                                    <span class="req-res-depart1">
+                                                        {{ $request->request_id }}
+
+                                                    </span>
+                                                </p>
+
                                                 <p class="req-reqBy-Dep">Requested By:
                                                     <span class="req-res-depart1">
                                                         {{ $request->emp->first_name }}
@@ -971,7 +1014,7 @@
                                                 </p>
 
                                                 <p title="{{ $request['category'] }}" class="req-reqBy-ser">
-                                                    Service Request: <span
+                                                    Category <span
                                                         class="req-res-depart">{{ $request->category ?? 'N/A' }}</span>
                                                 </p>
 
@@ -1057,7 +1100,7 @@
                                                     </th>
 
                                                     <th class="req-table-head">Subject
-                                                    <span wire:click.debounce.500ms="toggleSortOrder('subject')"
+                                                        <span wire:click.debounce.500ms="toggleSortOrder('subject')"
                                                             style="cursor: pointer;">
                                                             @if($sortColumn == 'subject')
                                                             <i
@@ -1071,7 +1114,8 @@
                                                     <th class="req-table-head">Description</th>
 
                                                     <th class="req-table-head">Distributor
-                                                    <span wire:click.debounce.500ms="toggleSortOrder('distributor_name')"
+                                                        <span
+                                                            wire:click.debounce.500ms="toggleSortOrder('distributor_name')"
                                                             style="cursor: pointer;">
                                                             @if($sortColumn == 'distributor_name')
                                                             <i
@@ -1111,7 +1155,7 @@
 
 
                                                     <th class="req-table-head">Priority
-                                                    <span wire:click.debounce.500ms="toggleSortOrder('priority')"
+                                                        <span wire:click.debounce.500ms="toggleSortOrder('priority')"
                                                             style="cursor: pointer;">
                                                             @if($sortColumn == 'priority')
                                                             <i
@@ -1123,7 +1167,8 @@
                                                     </th>
 
                                                     <th class="req-table-head">Select Equipment
-                                                    <span wire:click.debounce.500ms="toggleSortOrder('selected_equipment')"
+                                                        <span
+                                                            wire:click.debounce.500ms="toggleSortOrder('selected_equipment')"
                                                             style="cursor: pointer;">
                                                             @if($sortColumn == 'selected_equipment')
                                                             <i
@@ -1139,7 +1184,7 @@
                                                     </th>
 
                                                     <th class="req-table-head">Assigned to
-                                                    <span wire:click.debounce.500ms="toggleSortOrder('assign_to')"
+                                                        <span wire:click.debounce.500ms="toggleSortOrder('assign_to')"
                                                             style="cursor: pointer;">
                                                             @if($sortColumn == 'assign_to')
                                                             <i
@@ -1317,7 +1362,7 @@
                                                 <tr>
 
                                                     <th scope="col" class="req-closed-th">Employee ID
-                                                    <span wire:click.debounce.500ms="toggleSortOrder('emp_id')"
+                                                        <span wire:click.debounce.500ms="toggleSortOrder('emp_id')"
                                                             style="cursor: pointer;">
                                                             @if($sortColumn == 'emp_id')
                                                             <i
@@ -1331,7 +1376,7 @@
                                                     <th class="req-closed-th">Requested By</th>
 
                                                     <th class="req-closed-th">Service Request
-                                                    <span wire:click.debounce.500ms="toggleSortOrder('category')"
+                                                        <span wire:click.debounce.500ms="toggleSortOrder('category')"
                                                             style="cursor: pointer;">
                                                             @if($sortColumn == 'category')
                                                             <i
@@ -1343,7 +1388,7 @@
                                                     </th>
 
                                                     <th class="req-closed-th">Subject
-                                                    <span wire:click.debounce.500ms="toggleSortOrder('subject')"
+                                                        <span wire:click.debounce.500ms="toggleSortOrder('subject')"
                                                             style="cursor: pointer;">
                                                             @if($sortColumn == 'subject')
                                                             <i
@@ -1359,7 +1404,7 @@
                                                     <th class="req-closed-th">Distributor</th>
 
                                                     <th class="req-closed-th">Phone
-                                                    <span wire:click.debounce.500ms="toggleSortOrder('mobile')"
+                                                        <span wire:click.debounce.500ms="toggleSortOrder('mobile')"
                                                             style="cursor: pointer;">
                                                             @if($sortColumn == 'mobile')
                                                             <i
@@ -1371,7 +1416,7 @@
                                                     </th>
 
                                                     <th class="req-closed-th">MailBox
-                                                    <span wire:click.debounce.500ms="toggleSortOrder('mail')"
+                                                        <span wire:click.debounce.500ms="toggleSortOrder('mail')"
                                                             style="cursor: pointer;">
                                                             @if($sortColumn == 'mail')
                                                             <i
@@ -1387,7 +1432,7 @@
 
 
                                                     <th class="req-closed-th">Priority
-                                                    <span wire:click.debounce.500ms="toggleSortOrder('priority')"
+                                                        <span wire:click.debounce.500ms="toggleSortOrder('priority')"
                                                             style="cursor: pointer;">
                                                             @if($sortColumn == 'priority')
                                                             <i
@@ -1399,7 +1444,8 @@
                                                     </th>
 
                                                     <th class="req-closed-th">Select Equipment
-                                                    <span wire:click.debounce.500ms="toggleSortOrder('selected_equipment')"
+                                                        <span
+                                                            wire:click.debounce.500ms="toggleSortOrder('selected_equipment')"
                                                             style="cursor: pointer;">
                                                             @if($sortColumn == 'selected_equipment')
                                                             <i
@@ -1413,7 +1459,7 @@
                                                     <th class="req-closed-th">Status</th>
 
                                                     <th class="req-closed-th">Assigned to
-                                                    <span wire:click.debounce.500ms="toggleSortOrder('assign_to')"
+                                                        <span wire:click.debounce.500ms="toggleSortOrder('assign_to')"
                                                             style="cursor: pointer;">
                                                             @if($sortColumn == 'assign_to')
                                                             <i
@@ -1517,7 +1563,6 @@
 
 
                                                 <tr class="req-cc-tr">
-
 
                                                     <td colspan="19" class="req-cc-td">
                                                         <div class="req-cc-div">

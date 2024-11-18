@@ -1,7 +1,6 @@
 <div class="main">
 
-<div wire:loading
-        wire:target="itRequest,assetMod,itMember,vendorMod">
+    <div wire:loading wire:target="itRequest,assetMod,itMember,vendorMod">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -125,37 +124,37 @@
 
                     <tbody>
                         @foreach ($sortedCategories as $category)
-                            <tr>
-                                <td>{{ $category }}</td> <!-- Display category in the Category column -->
-                                <td class="text-primary">
-                                    @php
-                                        $statuses = ['Open', 'Pending', 'Completed'];
-                                        $filteredRequests = $countRequests
-                                            ->whereIn('status', $statuses)
-                                            ->where('category', $category);
-                                    @endphp
-                                    <div class="badge rounded-pill bg-primary text-white">
-                                        {{ $filteredRequests->count() }}
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="badge dash-custom-bg-color text-black">
-                                        Active <span
-                                            class="badge rounded-pill bg-white text-dark">{{ $countRequests->where('category', $category)->where('status', 'Open')->count() }}</span>
-                                    </span>
-                                    <span class="badge dash-custom-bg-color1 text-black">
-                                        Pending <span
-                                            class="badge rounded-pill  bg-white text-dark">{{ $countRequests->where('category', $category)->where('status', 'Pending')->count() }}</span>
-                                    </span>
-                                    <span class="badge dash-custom-bg-color2 text-black">
-                                        Closed <span
-                                            class="badge rounded-pill  bg-white text-dark">{{ $countRequests->where('category', $category)->where('status', 'Completed')->count() }}</span>
-                                    </span>
-                                </td>
-                                <!-- <td>
+                        <tr>
+                            <td>{{ $category }}</td> <!-- Display category in the Category column -->
+                            <td class="text-primary">
+                                @php
+                                $statuses = ['Open', 'Pending', 'Completed'];
+                                $filteredRequests = $countRequests
+                                ->whereIn('status', $statuses)
+                                ->where('category', $category);
+                                @endphp
+                                <div class="badge rounded-pill bg-primary text-white">
+                                    {{ $filteredRequests->count() }}
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge dash-custom-bg-color text-black">
+                                    Active <span
+                                        class="badge rounded-pill bg-white text-dark">{{ $countRequests->where('category', $category)->where('status', 'Open')->count() }}</span>
+                                </span>
+                                <span class="badge dash-custom-bg-color1 text-black">
+                                    Pending <span
+                                        class="badge rounded-pill  bg-white text-dark">{{ $countRequests->where('category', $category)->where('status', 'Pending')->count() }}</span>
+                                </span>
+                                <span class="badge dash-custom-bg-color2 text-black">
+                                    Closed <span
+                                        class="badge rounded-pill  bg-white text-dark">{{ $countRequests->where('category', $category)->where('status', 'Completed')->count() }}</span>
+                                </span>
+                            </td>
+                            <!-- <td>
                                 <button class="btn btn-outline-secondary"><i class="ri-arrow-right-line"></i></button>
                             </td> -->
-                            </tr>
+                        </tr>
                         @endforeach
                     </tbody>
                 </table>
@@ -167,8 +166,25 @@
         <div class="recentCustomers">
             <div>
                 <h2 class="headingForAllModules mb-5">Graph Data</h2>
+                @if($this->activeCount == 0 && $this->pendingCount == 0 && $this->closedCount == 0)
+                <!-- If counts are zero or null, show a "No Data Found" message -->
+                <div class="no-data-message">
+                    <td colspan="20">
+
+                        <div class="req-td-norecords">
+                            <img src="{{ asset('images/Closed.webp') }}" alt="No Records" class="req-img-norecords">
+
+                            <h3 class="req-head-norecords">No data found
+                            </h3>
+                        </div>
+                    </td>
+                </div>
+
+                @else
+                <!-- If counts have values, display the chart -->
                 <canvas id="myDonutChart" wire:ignore width="300" height="300"></canvas>
-                <!-- <canvas id="myPieChart" width="400" height="400"></canvas> -->
+
+                @endif
             </div>
         </div>
     </div>
@@ -182,80 +198,80 @@ $completedCount = $closedCount;
 ?>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const drawChart = () => {
-            const ctx = document.getElementById('myDonutChart').getContext('2d');
-            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+document.addEventListener('DOMContentLoaded', () => {
+    const drawChart = () => {
+        const ctx = document.getElementById('myDonutChart').getContext('2d');
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
 
-            // Sample data - these should be PHP variables in your actual implementation
-            const activeCount = <?php echo json_encode($activeCount); ?>;
-            const pendingCount = <?php echo json_encode($pendingCount); ?>;
-            const completedCount = <?php echo json_encode($completedCount); ?>;
+        // Sample data - these should be PHP variables in your actual implementation
+        const activeCount = <?php echo json_encode($activeCount); ?>;
+        const pendingCount = <?php echo json_encode($pendingCount); ?>;
+        const completedCount = <?php echo json_encode($completedCount); ?>;
 
-            const data = {
-                labels: ['Active', 'Pending', 'Completed'],
-                datasets: [{
-                    label: 'Request Status',
-                    data: [activeCount, pendingCount, completedCount], // Use the PHP variables
-                    backgroundColor: [
-                        '#dab42e', // Orange
-                        '#3dd371', // Green
-                        '#297de1' // Blue
-                    ],
-                    borderColor: [
-                        'rgba(255, 159, 64, 1)', // Orange
-                        'rgba(75, 192, 192, 1)', // Green
-                        'rgba(54, 162, 235, 1)', // Blue
-                    ],
-                    borderWidth: 1
-                }]
-            };
+        const data = {
+            labels: ['Active', 'Pending', 'Completed'],
+            datasets: [{
+                label: 'Request Status',
+                data: [activeCount, pendingCount, completedCount], // Use the PHP variables
+                backgroundColor: [
+                    '#dab42e', // Orange
+                    '#3dd371', // Green
+                    '#297de1' // Blue
+                ],
+                borderColor: [
+                    'rgba(255, 159, 64, 1)', // Orange
+                    'rgba(75, 192, 192, 1)', // Green
+                    'rgba(54, 162, 235, 1)', // Blue
+                ],
+                borderWidth: 1
+            }]
+        };
 
-            const config = {
-                type: 'doughnut',
-                data: data,
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(tooltipItem) {
-                                    return tooltipItem.label + ': ' + tooltipItem.raw;
-                                }
+        const config = {
+            type: 'doughnut',
+            data: data,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.label + ': ' + tooltipItem.raw;
                             }
                         }
                     }
                 }
-            };
-
-            new Chart(ctx, config);
+            }
         };
 
-        // Initial chart draw
-        drawChart();
+        new Chart(ctx, config);
+    };
 
-        // Redraw chart on Livewire updates
-        document.addEventListener('livewire:load', drawChart);
-        document.addEventListener('livewire:updated', () => {
-            setTimeout(drawChart, 100); // Adjust the delay if necessary
-        });
+    // Initial chart draw
+    drawChart();
 
+    // Redraw chart on Livewire updates
+    document.addEventListener('livewire:load', drawChart);
+    document.addEventListener('livewire:updated', () => {
+        setTimeout(drawChart, 100); // Adjust the delay if necessary
     });
+
+});
 </script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        Livewire.on('noPermissionAlert', event => {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Access Denied',
-                text: event[0].message || 'You dont have access',
-                confirmButtonText: 'OK'
-            });
+document.addEventListener('DOMContentLoaded', function() {
+    Livewire.on('noPermissionAlert', event => {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Access Denied',
+            text: event[0].message || 'You dont have access',
+            confirmButtonText: 'OK'
         });
     });
+});
 </script>
