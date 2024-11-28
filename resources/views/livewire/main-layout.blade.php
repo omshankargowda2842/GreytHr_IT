@@ -155,415 +155,102 @@
 
             <h5 class="mb-0 page-name topbar-page-name">
                 @switch(Route::currentRouteName())
-                    @case('dashboard')
-                        Dashboard
-                    @break
+                @case('dashboard')
+                Dashboard
+                @break
 
-                    @case('requests')
-                        IT Requests
-                    @break
+                @case('requests')
+                IT Requests
+                @break
 
-                    @case('itMembers')
-                        IT Members
-                    @break
+                @case('itMembers')
+                IT Members
+                @break
 
-                    @case('oldItMembers')
-                        Old IT Members
-                    @break
+                @case('oldItMembers')
+                Old IT Members
+                @break
 
-                    @case('assignAsset')
-                        Employee Assets
-                    @break
+                @case('assignAsset')
+                Employee Assets
+                @break
 
-                    @case('vendor')
-                        Vendor Request
-                    @break
+                @case('vendor')
+                Vendor Request
+                @break
 
-                    @case('vendorAssets')
-                        Vendor Assets
-                    @break
+                @case('vendorAssets')
+                Vendor Assets
+                @break
 
-                    @case('password')
-                        Password
-                    @break
+                @case('password')
+                Password
+                @break
 
-                    @default
-                        IT Admin
+                @default
+                IT Admin
                 @endswitch
             </h5>
 
             <div class="topbar-search-form-wrapper" id="topbar-search-form-wrapper">
-                <button type="button" class="topbar-button topbar-button-search-form-back"
-                    data-dismiss="topbar-search">
+                <button type="button" class="topbar-button topbar-button-search-form-back" data-dismiss="topbar-search">
                     <i class="ri-arrow-left-line"></i>
                 </button>
                 <h5 class="mb-0 page-name">
                     @switch(Route::currentRouteName())
-                        @case('dashboard')
-                            Dashboard
-                        @break
+                    @case('dashboard')
+                    Dashboard
+                    @break
 
-                        @case('requests')
-                            IT Requests
-                        @break
+                    @case('requests')
+                    IT Requests
+                    @break
 
-                        @case('itMembers')
-                            IT Members
-                        @break
+                    @case('itMembers')
+                    IT Members
+                    @break
 
-                        @case('oldItMembers')
-                            Old IT Members
-                        @break
+                    @case('oldItMembers')
+                    Old IT Members
+                    @break
 
-                        @case('assignAsset')
-                            Employee Assets
-                        @break
+                    @case('assignAsset')
+                    Employee Assets
+                    @break
 
-                        @case('vendor')
-                            Vendor Request
-                        @break
+                    @case('vendor')
+                    Vendor Request
+                    @break
 
-                        @case('vendorAssets')
-                            Vendor Assets
-                        @break
-                        @case('password')
-                            Password
-                        @break
+                    @case('vendorAssets')
+                    Vendor Assets
+                    @break
+                    @case('password')
+                    Password
+                    @break
 
-                        @default
-                            IT Admin
+                    @default
+                    IT Admin
                     @endswitch
                 </h5>
-                <!-- <form action="" class="topbar-search-form">
-                        <span class="topbar-search-form-icon"
-                            ><i class="ri-search-line"></i
-                        ></span>
-                        <button
-                            type="button"
-                            class="topbar-search-form-clear"
-                            id="topbar-search-clear"
-                        >
-                            <i class="ri-close-circle-fill"></i>
-                        </button>
-                        <input
-                            type="text"
-                            class="topbar-search-form-control"
-                            placeholder="Search"
-                            id="topbar-search-input"
-                        />
-                    </form> -->
             </div>
             <div class="topbar-right">
-                <!-- <button
-                        type="button"
-                        class="topbar-button topbar-button-search"
-                        data-toggle="topbar-search"
-                    >
-                        <i class="ri-search-line"></i>
-                    </button> -->
-                <!-- <div class="dropdown" id="topbar-language-dropdown">
-                        <button
-                            type="button"
-                            class="topbar-button"
-                            data-toggle="dropdown"
-                        >
-                            <img
-                                src="https://flagsapi.com/US/shiny/64.png"
-                                class="topbar-language-image"
-                            />
+
+                <div class="d-flex align-items-center actions-container">
+
+
+                    <div class="dropdown ml-3">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Requests
                         </button>
-                        <div class="dropdown-menu">
-                            <button
-                                type="button"
-                                class="dropdown-menu-item"
-                                data-language-image="https://flagsapi.com/US/shiny/64.png"
-                            >
-                                <img
-                                    src="https://flagsapi.com/US/shiny/64.png"
-                                    alt=""
-                                    class="dropdown-menu-item-image"
-                                />
-                                <span class="dropdown-menu-item-text"
-                                    >United State</span
-                                >
-                            </button>
-                            <button
-                                type="button"
-                                class="dropdown-menu-item"
-                                data-language-image="https://flagsapi.com/ES/shiny/64.png"
-                            >
-                                <img
-                                    src="https://flagsapi.com/ES/shiny/64.png"
-                                    alt=""
-                                    class="dropdown-menu-item-image"
-                                />
-                                <span class="dropdown-menu-item-text"
-                                    >Spanish</span
-                                >
-                            </button>
-                            <button
-                                type="button"
-                                class="dropdown-menu-item"
-                                data-language-image="https://flagsapi.com/ID/shiny/64.png"
-                            >
-                                <img
-                                    src="https://flagsapi.com/ID/shiny/64.png"
-                                    alt=""
-                                    class="dropdown-menu-item-image"
-                                />
-                                <span class="dropdown-menu-item-text"
-                                    >Indonesia</span
-                                >
-                            </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" href="#" wire:click='serRequest'>Service Request</a>
+                            <a class="dropdown-item" href="#" wire:click='incRequest'>Incident Request</a>
+                            <a class="dropdown-item" href="#">Catalogue Request</a>
                         </div>
                     </div>
-                    <div class="dropdown">
-                        <button
-                            type="button"
-                            class="topbar-button"
-                            data-toggle="dropdown"
-                        >
-                            <i class="ri-notification-3-line"></i>
-                            <span
-                                class="topbar-button-total topbar-button-total-notification"
-                                >5</span
-                            >
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-notification">
-                            <div class="dropdown-menu-header">
-                                <p class="dropdown-menu-title">Notifications</p>
-                                <span class="badge badge-primary">4 items</span>
-                            </div>
-                            <div class="dropdown-menu-notification-wrapper">
-                                <a
-                                    href="#"
-                                    class="dropdown-menu-notification-item"
-                                >
-                                    <span
-                                        class="dropdown-menu-notification-item-icon success"
-                                    >
-                                        <i class="ri-check-line"></i>
-                                    </span>
-                                    <div
-                                        class="dropdown-menu-notification-item-right"
-                                    >
-                                        <p
-                                            class="dropdown-menu-notification-item-text"
-                                        >
-                                            Lorem ipsum dolor sit amet
-                                            consectetur adipisicing.
-                                        </p>
-                                        <p
-                                            class="dropdown-menu-notification-item-time"
-                                        >
-                                            3 days ago
-                                        </p>
-                                    </div>
-                                </a>
-                                <a
-                                    href="#"
-                                    class="dropdown-menu-notification-item"
-                                >
-                                    <span
-                                        class="dropdown-menu-notification-item-icon danger"
-                                    >
-                                        <i class="ri-alert-line"></i>
-                                    </span>
-                                    <div
-                                        class="dropdown-menu-notification-item-right"
-                                    >
-                                        <p
-                                            class="dropdown-menu-notification-item-text"
-                                        >
-                                            Lorem ipsum dolor sit amet
-                                            consectetur adipisicing.
-                                        </p>
-                                        <p
-                                            class="dropdown-menu-notification-item-time"
-                                        >
-                                            3 days ago
-                                        </p>
-                                    </div>
-                                </a>
-                                <a
-                                    href="#"
-                                    class="dropdown-menu-notification-item"
-                                >
-                                    <span
-                                        class="dropdown-menu-notification-item-icon warning"
-                                    >
-                                        <i class="ri-alarm-warning-line"></i>
-                                    </span>
-                                    <div
-                                        class="dropdown-menu-notification-item-right"
-                                    >
-                                        <p
-                                            class="dropdown-menu-notification-item-text"
-                                        >
-                                            Lorem ipsum dolor sit amet
-                                            consectetur adipisicing.
-                                        </p>
-                                        <p
-                                            class="dropdown-menu-notification-item-time"
-                                        >
-                                            3 days ago
-                                        </p>
-                                    </div>
-                                </a>
-                                <a
-                                    href="#"
-                                    class="dropdown-menu-notification-item"
-                                >
-                                    <span
-                                        class="dropdown-menu-notification-item-icon success"
-                                    >
-                                        <i class="ri-check-line"></i>
-                                    </span>
-                                    <div
-                                        class="dropdown-menu-notification-item-right"
-                                    >
-                                        <p
-                                            class="dropdown-menu-notification-item-text"
-                                        >
-                                            Lorem ipsum dolor sit amet
-                                            consectetur adipisicing.
-                                        </p>
-                                        <p
-                                            class="dropdown-menu-notification-item-time"
-                                        >
-                                            3 days ago
-                                        </p>
-                                    </div>
-                                </a>
-                                <a
-                                    href="#"
-                                    class="dropdown-menu-notification-item"
-                                >
-                                    <span
-                                        class="dropdown-menu-notification-item-icon danger"
-                                    >
-                                        <i class="ri-alert-line"></i>
-                                    </span>
-                                    <div
-                                        class="dropdown-menu-notification-item-right"
-                                    >
-                                        <p
-                                            class="dropdown-menu-notification-item-text"
-                                        >
-                                            Lorem ipsum dolor sit amet
-                                            consectetur adipisicing.
-                                        </p>
-                                        <p
-                                            class="dropdown-menu-notification-item-time"
-                                        >
-                                            3 days ago
-                                        </p>
-                                    </div>
-                                </a>
-                                <a
-                                    href="#"
-                                    class="dropdown-menu-notification-item"
-                                >
-                                    <span
-                                        class="dropdown-menu-notification-item-icon warning"
-                                    >
-                                        <i class="ri-alarm-warning-line"></i>
-                                    </span>
-                                    <div
-                                        class="dropdown-menu-notification-item-right"
-                                    >
-                                        <p
-                                            class="dropdown-menu-notification-item-text"
-                                        >
-                                            Lorem ipsum dolor sit amet
-                                            consectetur adipisicing.
-                                        </p>
-                                        <p
-                                            class="dropdown-menu-notification-item-time"
-                                        >
-                                            3 days ago
-                                        </p>
-                                    </div>
-                                </a>
-                                <a
-                                    href="#"
-                                    class="dropdown-menu-notification-item"
-                                >
-                                    <span
-                                        class="dropdown-menu-notification-item-icon success"
-                                    >
-                                        <i class="ri-check-line"></i>
-                                    </span>
-                                    <div
-                                        class="dropdown-menu-notification-item-right"
-                                    >
-                                        <p
-                                            class="dropdown-menu-notification-item-text"
-                                        >
-                                            Lorem ipsum dolor sit amet
-                                            consectetur adipisicing.
-                                        </p>
-                                        <p
-                                            class="dropdown-menu-notification-item-time"
-                                        >
-                                            3 days ago
-                                        </p>
-                                    </div>
-                                </a>
-                                <a
-                                    href="#"
-                                    class="dropdown-menu-notification-item"
-                                >
-                                    <span
-                                        class="dropdown-menu-notification-item-icon danger"
-                                    >
-                                        <i class="ri-alert-line"></i>
-                                    </span>
-                                    <div
-                                        class="dropdown-menu-notification-item-right"
-                                    >
-                                        <p
-                                            class="dropdown-menu-notification-item-text"
-                                        >
-                                            Lorem ipsum dolor sit amet
-                                            consectetur adipisicing.
-                                        </p>
-                                        <p
-                                            class="dropdown-menu-notification-item-time"
-                                        >
-                                            3 days ago
-                                        </p>
-                                    </div>
-                                </a>
-                                <a
-                                    href="#"
-                                    class="dropdown-menu-notification-item"
-                                >
-                                    <span
-                                        class="dropdown-menu-notification-item-icon warning"
-                                    >
-                                        <i class="ri-alarm-warning-line"></i>
-                                    </span>
-                                    <div
-                                        class="dropdown-menu-notification-item-right"
-                                    >
-                                        <p
-                                            class="dropdown-menu-notification-item-text"
-                                        >
-                                            Lorem ipsum dolor sit amet
-                                            consectetur adipisicing.
-                                        </p>
-                                        <p
-                                            class="dropdown-menu-notification-item-time"
-                                        >
-                                            3 days ago
-                                        </p>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div> -->
-                <div class="d-flex align-items-center actions-container">
+
                     <a class="notify" href=""><i class="fa-regular fa-bell"></i></a>
                     <!-- <h6 class="ml-2 profile">{{ $employeeInitials }}</h6> -->
                     @livewire('logOut')

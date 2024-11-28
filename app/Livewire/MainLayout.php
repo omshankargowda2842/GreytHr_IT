@@ -28,7 +28,7 @@ class MainLayout extends Component
     {
 
         $employee = auth()->guard('it')->user();
-    
+
         if ($employee) {
             $this->employeeName = $employee->employee_name;
             $this->employeeInitials = $this->getInitials($this->employeeName);
@@ -38,6 +38,13 @@ class MainLayout extends Component
         }
     }
 
+    public function incRequest(){
+        return redirect()->route('incidentRequests');
+    }
+
+    public function serRequest(){
+        return redirect()->route('serviceRequests');
+    }
 
     public function getActiveTab()
     {

@@ -23,13 +23,14 @@ class VendorAsset extends Model
         'serial_number',
         'invoice_number',
         'taxable_amount',
-        'invoice_amount',
+        'gst_ig',
         'gst_state',
         'gst_central',
         'barcode',
         'manufacturer',
         'purchase_date',
         'file_paths',
+        'status',
         'is_active'
     ];
 

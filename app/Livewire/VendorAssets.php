@@ -33,6 +33,7 @@ class VendorAssets extends Component
     public $invoiceAmount;
     public $gstState;
     public $gstCentral;
+    public $gstIg;
     public $manufacturer;
     public $purchaseDate;
     public $file_paths = [];
@@ -63,8 +64,9 @@ class VendorAssets extends Component
             'invoiceNumber' => 'required|string|max:255', // Ensure this is required
             'taxableAmount' => 'required|numeric|min:0', // Ensure this is required
             'invoiceAmount' => 'required|numeric|min:0', // Ensure this is required
-            'gstState' => 'required|string|max:255', // Ensure this is required
-            'gstCentral' => 'required|string|max:255', // Ensure this is required
+            'gstIg' => 'nullable|numeric|min:0',
+            'gstState' => 'required_if:gstIg,null|string|max:255',
+            'gstCentral' => 'required_if:gstIg,null|string|max:255',
             'manufacturer' => 'required|string|max:255',
             'selectedVendorId' => 'required|string|max:255',
            'purchaseDate' => 'required|date|before_or_equal:today',
@@ -333,6 +335,7 @@ class VendorAssets extends Component
     $this->invoiceAmount = '';
     $this->gstState = '';
     $this->gstCentral = '';
+    $this->gstIg = '';
     $this->manufacturer = '';
     $this->purchaseDate = null;
     $this->file_paths = [];
@@ -426,6 +429,7 @@ class VendorAssets extends Component
                 $this->gstState = $asset->gst_state;
                 $this->selectedVendorId = $asset->vendor_id;
                 $this->gstCentral = $asset->gst_central;
+                $this->gstCentral = $asset->gst_ig;
                 $this->purchaseDate = $asset->purchase_date ? Carbon::parse($asset->purchase_date)->format('Y-m-d') : null;
 
                 $this->existingFilePaths = json_decode($asset->file_paths, true) ?? [];
@@ -483,6 +487,19 @@ public function cancelLogout($id)
      $this->restoreModal = true;
 }
 
+public function updateStatus($vendorAssetId, $newStatus)
+{
+    $vendorAsset = VendorAsset::find($vendorAssetId);
+
+    if ($vendorAsset) {
+        $vendorAsset->status = $newStatus;
+        $vendorAsset->save();
+
+        // Optionally, you can emit an event to notify the UI or log actions.
+        FlashMessageHelper::flashSuccess("Vendor status updated successfully.");
+     
+    }
+}
 
 
 public function submit()
@@ -604,6 +621,7 @@ public function submit()
                 'barcode' => $barcodeBase64,
                 'gst_state' => $this->gstState,
                 'gst_central' => $this->gstCentral,
+                'gst_ig' => $this->gstIg,
                 'purchase_date' => $this->purchaseDate ? $this->purchaseDate : null,
                 'file_paths' => json_encode($fileDataArray),
             ]);
@@ -628,6 +646,7 @@ public function submit()
             'barcode' => $barcodeBase64,
             'gst_state' => $this->gstState,
             'gst_central' => $this->gstCentral,
+            'gst_ig' => $this->gstIg,
             'purchase_date' => $this->purchaseDate ? $this->purchaseDate : null,
             'file_paths' => json_encode($fileDataArray),
         ]);
@@ -759,8 +778,8 @@ public function showModal()
 
     public function updated($propertyName)
     {
-        // Trigger calculation when any of these three fields are updated
-        if (in_array($propertyName, ['gstState', 'gstCentral', 'taxableAmount'])) {
+        // Trigger calculation when any of these fields are updated
+        if (in_array($propertyName, ['gstIg', 'gstState', 'gstCentral', 'taxableAmount'])) {
             $this->calculateInvoiceAmount();
         }
     }
@@ -768,12 +787,18 @@ public function showModal()
     public function calculateInvoiceAmount()
     {
         // Ensure inputs are numeric to avoid errors
+        $gstIg = is_numeric($this->gstIg) ? (float) $this->gstIg : 0;
         $gstState = is_numeric($this->gstState) ? (float) $this->gstState : 0;
         $gstCentral = is_numeric($this->gstCentral) ? (float) $this->gstCentral : 0;
         $taxableAmount = is_numeric($this->taxableAmount) ? (float) $this->taxableAmount : 0;
 
-        // Calculate total
-        $this->invoiceAmount = $gstState + $gstCentral + $taxableAmount;
+        // If IGST is entered, we sum it with the taxable amount and update invoice amount
+        if ($gstIg > 0) {
+            $this->invoiceAmount = $gstIg + $taxableAmount;
+        } else {
+            // If IGST is not provided, calculate based on state and central GST
+            $this->invoiceAmount = $gstState + $gstCentral + $taxableAmount;
+        }
     }
 
 
