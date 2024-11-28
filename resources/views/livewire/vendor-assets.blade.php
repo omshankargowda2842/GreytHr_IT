@@ -2,7 +2,7 @@
 
 
     <div wire:loading
-        wire:target="cancel,submit,createAssetType,showAddVendorMember ,delete,clearFilters ,showEditAsset ,showViewVendor,showViewImage,showViewFile,showEditVendor,closeViewVendor,downloadImages,closeViewImage,closeViewFile,confirmDelete ,cancelLogout,restore">
+        wire:target="cancel,submit,createAssetType,showAddVendorMember,updateStatus ,delete,clearFilters ,showEditAsset ,showViewVendor,showViewImage,showViewFile,showEditVendor,closeViewVendor,downloadImages,closeViewImage,closeViewFile,confirmDelete ,cancelLogout,restore">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -77,7 +77,7 @@
                             </div>
                         </div>
                     </div>
-                   
+
                 </div>
 
                 <div class="row mb-3">
@@ -271,14 +271,36 @@
 
                 </div>
 
-
+                @if (empty($gstState) && empty($gstCentral))
                 <div class="row mb-3">
+
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-4">
+                                <label for="gstIg" class="vendor-asset-label">Igst
+                                </label>
+                            </div>
+                            <div class="col-8">
+                                <input type="text" id="gstIg" wire:model.lazy="gstIg" placeholder="Rs"
+                                    wire:keydown="resetValidationForField('gstIg')" class="form-control">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                @endif
+
+                @if (empty($gstIg))
+                <div class="row mb-3">
+
                     <!-- GST State -->
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
                                 <label for="gstState" class="vendor-asset-label"><span class="text-danger">*</span>State
-                                    GSTIN</label>
+                                    GST
+                                </label>
                             </div>
                             <div class="col-8">
                                 <input type="text" id="gstState" wire:model.lazy="gstState" placeholder="Rs"
@@ -294,8 +316,8 @@
                         <div class="row">
                             <div class="col-4">
                                 <label for="gstCentral" class="vendor-asset-label"><span
-                                        class="text-danger">*</span>Central
-                                    GSTIN</label>
+                                        class="text-danger">*</span>Central GST
+                                </label>
                             </div>
                             <div class="col-8">
                                 <input type="text" id="gstCentral" wire:model.lazy="gstCentral" placeholder="Rs"
@@ -305,6 +327,9 @@
                         </div>
                     </div>
                 </div>
+
+                @endif
+
 
                 <div class="row mb-3">
                     <!-- Taxable Amount -->
@@ -355,7 +380,8 @@
                             </div>
                             <div class="col-8">
                                 <input type="date" id="purchaseDate" wire:model.lazy="purchaseDate"
-                                    wire:change="resetValidationForField('purchaseDate')" class="form-control" max="{{ \Carbon\Carbon::today()->toDateString() }}">
+                                    wire:change="resetValidationForField('purchaseDate')" class="form-control"
+                                    max="{{ \Carbon\Carbon::today()->toDateString() }}">
                                 @error('purchaseDate') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -398,6 +424,7 @@
                         </div>
 
                     </div>
+
                 </div>
                 <div class="d-flex justify-content-center">
                     <button type="button" wire:click="submit" class="btn text-white border-white"
@@ -481,7 +508,8 @@
                             </span>
                         </th>
                         <th class="vendor-table-head">Asset Type
-                            <span wire:click.debounce.500ms="toggleSortOrder('$vendorAssets->asset_type_name')" style="cursor: pointer;">
+                            <span wire:click.debounce.500ms="toggleSortOrder('$vendorAssets->asset_type_name')"
+                                style="cursor: pointer;">
                                 @if($sortColumn == 'asset_type')
                                 <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
                                 @else
@@ -518,6 +546,7 @@
                             </span>
                         </th>
                         <th class="vendor-table-head">Barcode Image</th>
+
                         <th class="vendor-table-head d-flex justify-content-center">Actions</th>
                     </tr>
                 </thead>
@@ -539,13 +568,7 @@
                         <td class="vendor-table-head">{{ $vendorAsset->serial_number ?? 'N/A'}}</td>
 
 
-                        <td class="vendor-table-head">
-                            @if ($vendorAsset->is_active == 1)
-                            <span class="text-primary f-3"> Active</span>
-                            @else
-                            <span class="text-danger f-3"> Inactive</span>
-                            @endif
-                        </td>
+                        <td class="vendor-table-head">{{ $vendorAsset->status ?? 'N/A'}}</td>
 
                         <td class="vendor-table-head">
                             @if($vendorAsset->barcode)
@@ -580,8 +603,6 @@
                             No Barcode
                             @endif
                         </td>
-
-
 
 
                         <td class="d-flex flex-direction-row">
@@ -639,7 +660,26 @@
                             </div>
                             @endif
                             @endif
+
+
+                            <div class="col mx-1">
+                                <select id="vendorStatus" wire:model.lazy="selectedStatus"
+                                    wire:change="updateStatus({{ $vendorAsset->id }}, $event.target.value)"
+                                    class="vendor-status-select">
+                                    <option value="" disabled selected>Select Status</option>
+                                    <!-- Placeholder option -->
+                                    <option value="In Use">In Use</option>
+                                    <option value="In Repair">In Repair</option>
+                                    <option value="Available">Available</option>
+                                </select>
+                            </div>
+
+
                         </td>
+
+
+
+
                     </tr>
                     @endforeach
                     @else

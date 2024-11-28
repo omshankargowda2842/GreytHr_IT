@@ -4,14 +4,25 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
 
-class HelpDesks extends Model
+class ServiceRequest extends Model
 {
     use HasFactory;
-    protected $fillable=[
-        'emp_id', 'category', 'subject', 'description', 'file_path','mime_type','file_name', 'cc_to', 'priority','status_code','mail','mobile','distributor_name','selected_equipment','rejection_reason','active_comment','inprogress_remarks','assign_to'
-     ];
+    protected $fillable = [
+        'service_id',
+        'category',
+        'emp_id',
+        'short_description',
+        'description',
+        'priority',
+        'assigned_dept',
+        'file_path',
+        'file_name',
+        'mime_type',
+        'status_code',
+    ];
+
+
     public function emp()
     {
         return $this->belongsTo(EmployeeDetails::class, 'emp_id', 'emp_id');
@@ -20,6 +31,15 @@ class HelpDesks extends Model
     {
         return $this->belongsTo(Request::class, 'emp_id');// Update the foreign key as necessary
     }
+ // HelpDesks Model
+
+ // In HelpDesks model (HelpDesks.php)
+// In HelpDesks model (HelpDesks.php)
+    public function status()
+    {
+        return $this->belongsTo(StatusType::class, 'status_code', 'status_code');
+    }
+
 
     public function isImage()
     {
@@ -29,6 +49,4 @@ class HelpDesks extends Model
     {
         return $this->file_path ? 'data:image/jpeg;base64,' . base64_encode($this->file_path) : null;
     }
-
-
 }

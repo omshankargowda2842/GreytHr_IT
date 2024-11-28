@@ -1,7 +1,7 @@
     <div class="main">
 
         <div wire:loading
-            wire:target="submit,setActiveTab,rejectionModal,showRejectedRequest,rejectStatus,Cancel,viewRejectDetails,closeRejectDetails,closeDetails,closeDetailsBack,selectedStatus,viewApproveDetails,showAllRequest,showRecentRequest,approveStatus,updateStatus,postComment,updateAssigne,redirectBasedOnStatus,viewDetails,openForDesks,postRemarks,closeForDesks">
+            wire:target="submit,setActiveTab,rejectionModal,selectPriority,showRejectedRequest,rejectStatus,cancelModal,cancelStatus,viewRecord,Cancel,viewRejectDetails,closeRejectDetails,closeDetails,closeDetailsBack,selectedStatus,viewApproveDetails,showAllRequest,showRecentRequest,approveStatus,updateStatus,postComment,updateAssigne,redirectBasedOnStatus,viewDetails,openForDesks,postRemarks,closeForDesks">
             <div class="loader-overlay">
                 <div>
                     <div class="logo">
@@ -203,7 +203,21 @@
 
                                 <td>Priority</td>
 
-                                <td class="view-td">{{$recentRequest->priority ??'N/A' }}</td>
+                                <td class="view-td">
+                                    <!-- Dropdown for Priority -->
+                                    <select wire:model="priority" class="form-control"
+                                        wire:change="selectPriority($event.target.value)">
+                                        <option value="High" @if($recentRequest->priority == 'High') selected
+                                            @endif>High
+                                        </option>
+                                        <option value="Medium" @if($recentRequest->priority == 'Medium') selected
+                                            @endif>Medium
+                                        </option>
+                                        <option value="Lowclose" @if($recentRequest->priority == 'Low') selected
+                                            @endif>Low
+                                        </option>
+                                    </select>
+                                </td>
 
                             </tr>
 
@@ -225,11 +239,16 @@
 
                 @else
 
-                @if($recentDetails->where('status', 'Recent')->count() > 0)
+                <!-- <div class="search-container">
+                <input type="text" class="form-control" placeholder="Search..." wire:model="searchEmp"
+                wire:input="filter">
+                </div> -->
+                @if($recentDetails && $recentDetails->where('status_code', '8')->count() > 0)
+
                 <div class="scrollable-container">
                     <div class="req-pro-card">
 
-                        @foreach ($recentDetails->where('status', 'Recent') as $index => $request)
+                        @foreach ($recentDetails->where('status_code', '8') as $index => $request)
 
                         <div class="request-card">
 
@@ -266,6 +285,9 @@
 
                                     <button wire:click="rejectionModal('{{ $request->id }}')"
                                         class="req-pro-approve-btn" @if($loading) disabled @endif>Reject</button>
+
+                                    <button wire:click="cancelModal('{{ $request->id }}')" class="req-pro-approve-btn"
+                                        @if($loading) disabled @endif>Cancel</button>
                                 </div>
 
 
@@ -362,6 +384,42 @@
             <div class="modal-backdrop fade show"></div>
             @endif
 
+
+
+            @if ($showCancelModal)
+            <div class="modal logout1" id="logoutModal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header text-white logout2">
+                            <h6 class="modal-title logout3" id="logoutModalLabel">Confirm Cancel</h6>
+                        </div>
+                        <div class="modal-body text-center logout4">
+                            Are you sure you want to Cancel?
+                        </div>
+                        <div class="modal-body text-center">
+                            <form wire:submit.prevent="cancelStatus">
+                                <span class="text-danger d-flex align-start">*</span>
+                                <div class="row">
+                                    <div class="col-12 req-remarks-div">
+                                        <textarea wire:model.lazy="reason"
+                                            class="form-control req-remarks-textarea logout5"
+                                            placeholder="Reason for Cancel"></textarea>
+                                    </div>
+                                </div>
+                                @error('reason')
+                                <span class="text-danger d-flex align-start">{{ $message }}</span>
+                                @enderror
+                                <div class="d-flex justify-content-center p-3">
+                                    <button type="submit" class="submit-btn mr-3">Cancel Request</button>
+                                    <button type="button" class="cancel-btn1 ml-3" wire:click="Cancel">Close</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-backdrop fade show"></div>
+            @endif
 
             <!-- Rejection details -->
 
@@ -474,7 +532,7 @@
                             <tr>
                                 <td>Attach Files</td>
                                 <td class="view-td">
-                                @if($rejectedRequest->image_url)
+                                    @if($rejectedRequest->image_url)
                                     <a href="#" data-toggle="modal" class="requestAttachments"
                                         data-target="#attachmentsModal-{{ $rejectedRequest->id }}">
                                         <i class="fas fa-eye"></i> View Attachments
@@ -564,12 +622,12 @@
 
                 @else
 
-                @if($rejectDetails->where('status', 'Reject')->count() > 0)
+                @if($rejectDetails->where('status_code', '3')->count() > 0)
 
                 <div class="scrollable-container">
                     <div class="req-pro-card">
 
-                        @foreach ($rejectDetails->where('status', 'Reject') as $index => $request)
+                        @foreach ($rejectDetails->where('status_code', '3') as $index => $request)
 
                         <div class="request-card">
 
@@ -835,7 +893,7 @@
                                         <tr>
                                             <td>Attach Files</td>
                                             <td class="view-td">
-                                            @if($selectedRequest->image_url)
+                                                @if($selectedRequest->image_url)
                                                 <a href="#" data-toggle="modal" class="requestAttachments"
                                                     data-target="#attachmentsModal-{{ $selectedRequest->id }}">
                                                     <i class="fas fa-eye"></i> View Attachments
@@ -851,7 +909,7 @@
                                             tabindex="-1" role="dialog"
                                             aria-labelledby="attachmentsModalLabel-{{ $selectedRequest->id }}"
                                             aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                            <div class="modal-dialog1 modal-dialog-centered modal-lg" role="document">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
                                                         <h5 class="modal-title"
@@ -946,10 +1004,11 @@
 
                                             <td class="view-td">
                                                 <select wire:model="selectedStatus" class="req-selected-status"
-                                                    wire:change="updateStatus('{{ $selectedRequest->id }}')">
+                                                    wire:change="handleStatusChange('{{ $selectedRequest->id }}')">
                                                     <option value="" disabled hidden>Select Status </option>
-                                                    <option value="Pending">Pending</option>
-                                                    <option value="Completed">Completed</option>
+                                                    <option value="5">Inprogress</option>
+                                                    <option value="11">Completed</option>
+                                                    <option value="15">Cancel</option>
                                                     <!-- Add other status options as needed -->
                                                 </select>
                                                 @error('selectedStatus') <span class="text-danger">{{ $message }}</span>
@@ -1001,11 +1060,11 @@
 
                             @else
 
-                            @if($forIT->where('status', 'Open')->count() > 0)
+                            @if($forIT->where('status_code', '10')->count() > 0)
                             <div class="scrollable-container">
                                 <div class="req-pro-card">
 
-                                    @foreach ($forIT->where('status', 'Open') as $index => $request)
+                                    @foreach ($forIT->where('status_code', '10') as $index => $request)
 
                                     <div class="request-card">
 
@@ -1080,7 +1139,7 @@
                                     <div class="table-responsive req-table-res">
 
                                         <table class="custom-table">
-
+                                            @if($forIT->where('status_code', '5')->count() > 0)
                                             <thead>
 
                                                 <tr>
@@ -1218,11 +1277,11 @@
                                                 </tr>
 
                                             </thead>
-
+                                            @endif
                                             <tbody>
 
-                                                @if($forIT->where('status', 'Pending')->count() > 0)
-                                                @foreach ($forIT->where('status', 'Pending') as $index =>$record)
+                                                @if($forIT->where('status_code', '5')->count() > 0)
+                                                @foreach ($forIT->where('status_code', '5') as $index =>$record)
                                                 @php
                                                 $ccToArray = explode(',', $record->cc_to);
                                                 @endphp
@@ -1283,7 +1342,7 @@
                                                     <td>{{ $record->selected_equipment?? 'N/A' }}</td>
 
                                                     <td>
-                                                        <div class="req-status"> {{ $record['status'] }}
+                                                        <div class="req-status"> {{ $record['status_code'] }}
                                                         </div>
                                                     </td>
 
@@ -1370,7 +1429,7 @@
 
 
                                         <table class="custom-table">
-
+                                            @if($forIT->whereIn('status_code', ['11', '15'])->count() > 0)
                                             <thead>
 
                                                 <tr>
@@ -1400,102 +1459,17 @@
                                                             @endif
                                                         </span>
                                                     </th>
-
-                                                    <th class="req-closed-th">Subject
-                                                        <span wire:click.debounce.500ms="toggleSortOrder('subject')"
-                                                            style="cursor: pointer;">
-                                                            @if($sortColumn == 'subject')
-                                                            <i
-                                                                class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
-                                                            @else
-                                                            <i class="fas fa-sort"></i>
-                                                            @endif
-                                                        </span>
-                                                    </th>
-
-                                                    <th class="req-closed-th">Description</th>
-
-                                                    <th class="req-closed-th">Distributor</th>
-
-                                                    <th class="req-closed-th">Phone
-                                                        <span wire:click.debounce.500ms="toggleSortOrder('mobile')"
-                                                            style="cursor: pointer;">
-                                                            @if($sortColumn == 'mobile')
-                                                            <i
-                                                                class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
-                                                            @else
-                                                            <i class="fas fa-sort"></i>
-                                                            @endif
-                                                        </span>
-                                                    </th>
-
-                                                    <th class="req-closed-th">MailBox
-                                                        <span wire:click.debounce.500ms="toggleSortOrder('mail')"
-                                                            style="cursor: pointer;">
-                                                            @if($sortColumn == 'mail')
-                                                            <i
-                                                                class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
-                                                            @else
-                                                            <i class="fas fa-sort"></i>
-                                                            @endif
-                                                        </span>
-                                                    </th>
-
-                                                    <th class="req-closed-th">Attach Files</th>
-
-
-
-                                                    <th class="req-closed-th">Priority
-                                                        <span wire:click.debounce.500ms="toggleSortOrder('priority')"
-                                                            style="cursor: pointer;">
-                                                            @if($sortColumn == 'priority')
-                                                            <i
-                                                                class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
-                                                            @else
-                                                            <i class="fas fa-sort"></i>
-                                                            @endif
-                                                        </span>
-                                                    </th>
-
-                                                    <th class="req-closed-th">Select Equipment
-                                                        <span
-                                                            wire:click.debounce.500ms="toggleSortOrder('selected_equipment')"
-                                                            style="cursor: pointer;">
-                                                            @if($sortColumn == 'selected_equipment')
-                                                            <i
-                                                                class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
-                                                            @else
-                                                            <i class="fas fa-sort"></i>
-                                                            @endif
-                                                        </span>
-                                                    </th>
-
                                                     <th class="req-closed-th">Status</th>
-
-                                                    <th class="req-closed-th">Assigned to
-                                                        <span wire:click.debounce.500ms="toggleSortOrder('assign_to')"
-                                                            style="cursor: pointer;">
-                                                            @if($sortColumn == 'assign_to')
-                                                            <i
-                                                                class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
-                                                            @else
-                                                            <i class="fas fa-sort"></i>
-                                                            @endif
-                                                        </span>
-                                                    </th>
-
-                                                    <th class="req-closed-th">Comments</th>
-                                                    <th class="req-closed-th">Remarks</th>
-                                                    <th class="req-closed-th">Re Open</th>
+                                                    <th class="req-closed-th">View</th>
 
                                                 </tr>
 
                                             </thead>
-
+                                            @endif
                                             <tbody>
 
-                                                @if($forIT->where('status', 'Completed')->count() > 0)
-                                                @foreach ($forIT->where('status', 'Completed') as $record)
+                                                @if($forIT->whereIn('status_code', ['11', '15'])->count() > 0)
+                                                @foreach ($forIT as $record)
                                                 @php
                                                 $ccToArray = explode(',', $record->cc_to);
                                                 @endphp
@@ -1509,69 +1483,25 @@
                                                     </td>
 
                                                     <td>{{ $record->category ?? 'N/A'}}</td>
-
-                                                    <td>{{ $record->subject ?? 'N/A' }}</td>
-
-                                                    <td>{{ $record->description ?? 'N/A' }}</td>
-
-                                                    <td>{{ $record->distributor_name ?? 'N/A' }}</td>
-
-                                                    <td>{{ $record->mobile ?? 'N/A' }}</td>
-
-                                                    <td>{{ $record->mail ??'N/A' }}</td>
-
                                                     <td>
-
-                                                        @if(isset($record['file_path']) &&
-                                                        is_array($record['file_path']))
-
-                                                        <div class="req-image-grid">
-
-                                                            @foreach($record['file_path'] as $image)
-
-                                                            <a href="{{ $image }}" target="_blank">
-
-                                                                <img src="{{ $image }}" alt="Attached Image">
-
-                                                            </a>
-
-                                                            @endforeach
-
-                                                        </div>
-
-                                                        @else
-
-                                                        <p class="d-flex justify-content-center">-</p>
-
-                                                        @endif
-
-                                                    </td>
-
-
-
-                                                    <td>{{ $record->priority?? 'N/A' }}</td>
-
-                                                    <td>{{ $record->selected_equipment?? 'N/A' }}</td>
-
-                                                    <td>
-                                                        <div class="req-status-closed">
-                                                            {{ $record['status'] }}
+                                                        <div class="req-status-closed
+        @if($record['status_code'] == '11')
+            status-completed
+        @elseif($record['status_code'] == '15')
+            status-cancelled
+        @endif">
+                                                            {{ $record['status_code'] }}
                                                         </div>
                                                     </td>
 
-                                                    <td>{{ $record['assign_to'] }}</td>
-
-                                                    <td>{{$record -> active_comment?? 'N/A'}}</td>
-                                                    <td>{{$record -> inprogress_remarks?? 'N/A'}}</td>
 
                                                     <td>
-
-                                                        <button wire:click="closeForDesks('{{$record->id}}')"
-                                                            class="btn border-white text-white"
-                                                            style="background-color: #02114f;" @if($loading) disabled
-                                                            @endif>Open</button>
+                                                        <button class="btn"
+                                                            style="background-color: #02114f;color:white"
+                                                            wire:click="viewRecord({{ $record->id }})">
+                                                            <i class="fas fa-eye"></i>
+                                                        </button>
                                                     </td>
-
 
                                                 </tr>
 
@@ -1605,6 +1535,241 @@
                                                 @endif
                                             </tbody>
                                         </table>
+
+                                        <!-- Modal for displaying record details -->
+                                        <div class="modal" tabindex="-1" role="dialog"
+                                            style="display: {{ $selectedRecord ? 'block' : 'none' }}">
+                                            <div class="modal-dialog col-9" role="document">
+                                                <!-- Apply col-11 here -->
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Closed Request Details</h5>
+                                                        <button type="button" class="close p-2"
+                                                            wire:click="$set('selectedRecord', null)"
+                                                            aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="service-details">
+                                                            <div class="row service-detail-item">
+                                                                <div class="col-6">
+                                                                    <strong>Employee ID:</strong>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <span>{{ $selectedRecord->emp_id ?? 'N/A' }}</span>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="row service-detail-item">
+                                                                <div class="col-6">
+                                                                    <strong>Requested By:</strong>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <span>
+                                                                        {{ $selectedRecord->emp->first_name ?? 'N/A' }}
+                                                                        {{ $selectedRecord->emp->last_name ?? 'N/A' }}</span>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="row service-detail-item">
+                                                                <div class="col-6">
+                                                                    <strong>Service Request:</strong>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <span>{{ $selectedRecord->category ?? 'N/A' }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row service-detail-item">
+                                                                <div class="col-6">
+                                                                    <strong>Subject:</strong>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <span>{{ $selectedRecord->subject ?? 'N/A' }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row service-detail-item">
+                                                                <div class="col-6">
+                                                                    <strong>Description:</strong>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <span>{{ $selectedRecord->description ?? 'N/A' }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row service-detail-item">
+                                                                <div class="col-6">
+                                                                    <strong>Distributor:</strong>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <span>{{ $selectedRecord->distributor_name ?? 'N/A' }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row service-detail-item">
+                                                                <div class="col-6">
+                                                                    <strong>Phone:</strong>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <span>{{ $selectedRecord->mobile ?? 'N/A' }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row service-detail-item">
+                                                                <div class="col-6">
+                                                                    <strong>MailBox:</strong>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <span>{{ $selectedRecord->mail ?? 'N/A' }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row service-detail-item">
+                                                                <div class="col-6">
+                                                                    <strong>Priority:</strong>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <span>{{ $selectedRecord->priority ?? 'N/A' }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row service-detail-item">
+                                                                <div class="col-6">
+                                                                    <strong>Selected Equipment:</strong>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <span>{{ $selectedRecord->selected_equipment ?? 'N/A' }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row service-detail-item">
+                                                                <div class="col-6">
+                                                                    <strong>Status:</strong>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <span>{{ $selectedRecord->status_code ?? 'N/A' }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row service-detail-item">
+                                                                <div class="col-6">
+                                                                    <strong>Assigned to:</strong>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <span>{{ $selectedRecord->assign_to ?? 'N/A' }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row service-detail-item">
+                                                                <div class="col-6">
+                                                                    <strong>Comments:</strong>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <span>{{ $selectedRecord->active_comment ?? 'N/A' }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row service-detail-item">
+                                                                <div class="col-6">
+                                                                    <strong>Remarks:</strong>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <span>{{ $selectedRecord->inprogress_remarks ?? 'N/A' }}</span>
+                                                                </div>
+                                                            </div>
+
+
+                                                            <div class="row service-detail-item">
+                                                                <div class="col-6">
+                                                                    <strong>CC to:</strong>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <span>{{ $selectedRecord->cc_to ?? 'N/A' }}</span>
+                                                                </div>
+                                                            </div>
+
+
+
+                                                            <!-- Display files if available -->
+                                                            <div id="modalFiles" class="service-detail-item">
+                                                                @if (isset($selectedRecord->file_path))
+                                                                <strong>Attachments:</strong>
+                                                                <!-- Button to trigger the modal -->
+                                                                <button type="button" class="btn btn-link"
+                                                                    data-toggle="modal" data-target="#attachmentsModal">
+                                                                    View Attachments
+                                                                </button>
+                                                                @else
+                                                                <p>No files attached.</p>
+                                                                @endif
+                                                            </div>
+
+
+                                                            <div class="modal fade" id="attachmentsModal" tabindex="-1"
+                                                                role="dialog" aria-labelledby="attachmentsModalLabel"
+                                                                aria-hidden="true">
+                                                                <div class="modal-dialog modal-lg" role="document">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title"
+                                                                                id="attachmentsModalLabel">Attachments
+                                                                            </h5>
+                                                                            <button type="button" class="close"
+                                                                                data-dismiss="modal" aria-label="Close">
+                                                                                <span aria-hidden="true">&times;</span>
+                                                                            </button>
+                                                                        </div>
+                                                                        <div class="modal-body">
+                                                                            @if (isset($selectedRecord->file_path))
+                                                                            @php
+                                                                            // Convert the BLOB data to base64
+                                                                            $base64Image =
+                                                                            base64_encode($selectedRecord->file_path);
+                                                                            @endphp
+
+                                                                            <!-- Render the BLOB image directly if it's base64 -->
+                                                                            <div class="mb-3">
+                                                                                <img src="data:image/jpeg;base64,{{ $base64Image }}"
+                                                                                    class="img-fluid"
+                                                                                    alt="Attachment" />
+                                                                            </div>
+                                                                            @else
+                                                                            <p>No attachments available.</p>
+                                                                            @endif
+                                                                        </div>
+
+
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+
+                                                            <div class="row service-detail-item">
+                                                                <div class="col-6">
+                                                                    <strong>Reason</strong>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <span>{{ $selectedRecord->rejection_reason ?? 'N/A' }}</span>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="row service-detail-item">
+                                                                <div class="col-6">
+                                                                    <strong></strong>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <span></span>
+                                                                </div>
+                                                            </div>
+
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            wire:click="$set('selectedRecord', null)">Close</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        @if($selectedRecord)
+                                        <div class="modal-backdrop fade show"
+                                            style="background-color: rgba(0, 0, 0, 0.7);"></div>
+                                        @endif
+
                                     </div>
                                 </div>
                             </div>

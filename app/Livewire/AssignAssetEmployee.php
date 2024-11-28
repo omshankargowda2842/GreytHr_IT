@@ -423,17 +423,41 @@ public $selectedAssetType='';
     ->pluck('asset_type')  // Get the 'asset_type' column
     ->toArray();  // Convert to an array
 
+
     $existingAssignment = VendorAsset::where('asset_id', $this->selectedAsset)->value('asset_type');
 
 
     $assetName = asset_types_table::where('id', $existingAssignment)->value('asset_names');
 
+    $employeeDetails = EmployeeDetails::find($this->selectedEmployee);
+    $empId = $employeeDetails->emp_id;
 
-    if (in_array($existingAssignment, $selectedAssetType)) {
+    $uniqueManagerDeptHeads = EmployeeDetails::select('manager_id', 'dept_head')
+    ->distinct()
+    ->get()
+    ->pluck('manager_id')  // Get the unique manager_id
+    ->merge(EmployeeDetails::distinct()->pluck('dept_head'))  // Get the unique dept_head
+    ->unique()  // Merge both columns and ensure uniqueness
+    ->toArray();  // Convert to an array
 
-        // Show error message if the asset type already exists
-        FlashMessageHelper::flashError("Asset type '{$assetName}' is already assigned to this Employee!");
-        return;
+
+    if (in_array($empId , $uniqueManagerDeptHeads)) {
+
+
+        // Allow multiple asset assignment for employees with matching manager_id or dept_head
+    }elseif( !$selectedAssetType  ){
+
+
+    }
+     else {
+
+        // If the asset type is already assigned to the employee, prevent assigning it again
+        if (in_array($existingAssignment, $selectedAssetType)) {
+            // Show error message if the asset type already exists
+            FlashMessageHelper::flashError("Asset type '{$assetName}' is already assigned to this Employee!");
+            return;
+        }
+
     }
 
 
@@ -450,7 +474,7 @@ public $selectedAssetType='';
                 ]);
 
                 // Create new assignment
-                AssignAssetEmp::create([
+                AssignAssetEmp::create([                            
                     'asset_id' => $this->selectedAsset,
                     'emp_id' => $this->empDetails->emp_id,
                     'manufacturer' => $this->assetDetails->manufacturer,

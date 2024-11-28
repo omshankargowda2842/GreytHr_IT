@@ -32,8 +32,10 @@ return new class extends Migration
             $table->string('invoice_number', 100)->nullable();
             $table->decimal('taxable_amount', 10, 2)->nullable();
             $table->decimal('invoice_amount', 10, 2)->nullable();
+            $table->string('gst_ig', 50)->nullable();
             $table->string('gst_state', 50)->nullable();
             $table->string('gst_central', 50)->nullable();
+            $table->string('status', 50)->nullable();
             $table->date('purchase_date')->nullable();
             $table->json('file_paths')->nullable();
             $table->string('delete_asset_reason', 200)->nullable();
@@ -71,6 +73,7 @@ return new class extends Migration
 
     public function down(): void
     {
+        DB::unprepared('DROP TRIGGER IF EXISTS generate_asset_id');
         Schema::dropIfExists('vendor_assets');
     }
 };

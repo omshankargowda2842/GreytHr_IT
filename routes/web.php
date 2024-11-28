@@ -3,12 +3,15 @@
 use App\Livewire\AssignAssetEmployee;
 use App\Livewire\Dashboard;
 use App\Livewire\EmployeeAssetList;
+use App\Livewire\IncidentRequest;
+use App\Livewire\IncidentRequests;
 use App\Livewire\ItAddMember;
 use App\Livewire\ItLogin;
 use App\Livewire\ItMembers;
 use App\Livewire\OldItMembers;
 use App\Livewire\PasswordResetComponent;
 use App\Livewire\RequestProcess;
+use App\Livewire\ServiceRequests;
 use App\Livewire\TestPurpose;
 use App\Livewire\VendorAssets;
 use App\Livewire\Vendors;
@@ -53,6 +56,8 @@ Route::middleware(['auth:it', 'handleSession'])->group(function () {
             Route::get('/employeeAssetList', AssignAssetEmployee::class)->name('employeeAssetList');
             Route::get('/vendor', Vendors::class)->name('vendor');
             Route::get('/itMembers', ItAddMember::class)->name('itMembers');
+            Route::get('/incidentRequests', IncidentRequests::class)->name('incidentRequests');
+            Route::get('/serviceRequests', ServiceRequests::class)->name('serviceRequests');
         });
 
         // User Routes (accessible to all roles: user, admin, and super_admin)

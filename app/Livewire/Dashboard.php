@@ -75,13 +75,13 @@ class Dashboard extends Component
                 ->pluck('category');
 
             // Fetch counts based on categories for various statuses in HelpDesks
-            $this->activeCount = HelpDesks::where('status', 'Open')
+            $this->activeCount = HelpDesks::where('status_code', '10')
                 ->whereIn('category', $requestCategories)->count();
 
-            $this->pendingCount = HelpDesks::where('status', 'Pending')
+            $this->pendingCount = HelpDesks::where('status_code', '5')
                 ->whereIn('category', $requestCategories)->count();
 
-            $this->closedCount = HelpDesks::where('status', 'Completed')
+            $this->closedCount = HelpDesks::where('status_code', '11')
                 ->whereIn('category', $requestCategories)->count();
 
             // Log data fetching actions
