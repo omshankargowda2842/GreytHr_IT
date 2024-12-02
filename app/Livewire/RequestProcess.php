@@ -756,7 +756,6 @@ class RequestProcess extends Component
                 ));
 
 
-                dd( $this->selectedAssigne);
                 $task->update(['assign_to' => $this->selectedAssigne]);
 
                 FlashMessageHelper::flashSuccess("Task assigned successfully, and email has been sent!");
