@@ -163,17 +163,19 @@ class ItLogin extends Component
                 FlashMessageHelper::flashSuccess("You are logged in successfully!");
                 return redirect()->route('dashboard');
             } else {
-                $this->flashError('Invalid ID or Password. Please try again.');
+                FlashMessageHelper::flashError('Invalid ID or Password. Please try again.');
             }
             // Your login logic here
         } catch (ValidationException $e) {
             FlashMessageHelper::flashError('There was a problem with your input. Please check and try again.');
         } catch (\Illuminate\Database\QueryException $e) {
+
             Log::error('Database Query Exception: ' . $e->getMessage(), ['exception' => $e]);
             FlashMessageHelper::flashError('We are experiencing technical difficulties. Please try again later.');
         } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
             FlashMessageHelper::flashError('There is a server error. Please try again later.');
         } catch (\Exception $e) {
+            dd($e->getMessage());
             Log::error('Database Query Exception: ' . $e->getMessage(), ['exception' => $e]);
             FlashMessageHelper::flashError('An unexpected error occurred. Please try again.');
         }
