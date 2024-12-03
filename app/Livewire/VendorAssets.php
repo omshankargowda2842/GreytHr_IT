@@ -65,8 +65,8 @@ class VendorAssets extends Component
             'taxableAmount' => 'required|numeric|min:0', // Ensure this is required
             'invoiceAmount' => 'required|numeric|min:0', // Ensure this is required
             'gstIg' => 'nullable|numeric|min:0',
-            'gstState' => 'required_if:gstIg,null|string|max:255',
-            'gstCentral' => 'required_if:gstIg,null|string|max:255',
+            'gstState' => 'required_without:gstIg,null|string|max:255',
+            'gstCentral' => 'required_without:gstIg,null|string|max:255',
             'manufacturer' => 'required|string|max:255',
             'selectedVendorId' => 'required|string|max:255',
            'purchaseDate' => 'required|date|before_or_equal:today',
@@ -136,6 +136,8 @@ class VendorAssets extends Component
         'invoiceNumber.string' => 'Invoice Number must be a string.',
         'invoiceNumber.max' => 'Invoice Number may not be greater than 255 characters.',
 
+        'gstState.required_without' => 'State GST field is required when IGST is not provided.',
+        'gstCentral.required_without' => 'Central GST field is required when GST IG is not provided.',
         'gstState.required' => 'GST State is required.',
         'gstState.string' => 'GST State must be a string.',
         'gstState.max' => 'GST State may not be greater than 255 characters.',
@@ -497,7 +499,7 @@ public function updateStatus($vendorAssetId, $newStatus)
 
         // Optionally, you can emit an event to notify the UI or log actions.
         FlashMessageHelper::flashSuccess("Vendor status updated successfully.");
-     
+
     }
 }
 

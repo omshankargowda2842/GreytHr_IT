@@ -277,7 +277,7 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="gstIg" class="vendor-asset-label">Igst
+                                <label for="gstIg" class="vendor-asset-label">IGST
                                 </label>
                             </div>
                             <div class="col-8">

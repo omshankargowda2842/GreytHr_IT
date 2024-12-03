@@ -1,7 +1,7 @@
 <div class="main">
 
     <div wire:loading
-        wire:target="cancel,submit,showAddVendorMember,delete ,pinCode,clearFilters ,showViewVendor,showViewImage,showViewFile,showEditVendor,closeViewVendor,downloadImages,closeViewImage,closeViewFile,confirmDelete ,cancelLogout,">
+        wire:target="cancel,submit,showAddVendorMember,delete ,clearFilters ,showViewVendor,showViewImage,showViewFile,showEditVendor,closeViewVendor,downloadImages,closeViewImage,closeViewFile,confirmDelete ,cancelLogout,">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -192,7 +192,7 @@
                                 <label for="pinCode" class="vendor-label">Pin Code</label>
                             </div>
                             <div class="col-8">
-                                <input type="text" id="pinCode" wire:model.lazy="pinCode" maxlength="6"
+                                <input type="text" id="pinCode" wire:model="pinCode" wire:input="updatePinCode($event.target.value)" maxlength="6"
                                     class="form-control">
                                 @error('pinCode') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>

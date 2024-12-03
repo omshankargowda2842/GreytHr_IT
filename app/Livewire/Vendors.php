@@ -79,12 +79,13 @@ class Vendors extends Component
         'phone.required' => 'Phone number is required.',
         'phone.string' => 'Phone number must be a number.',
         'phone.max' => 'Phone number may not be greater than 10 characters.',
-        'gst.required' => 'The GSTIN field is required.',
-        'gst.regex' => 'The GST number format is invalid.',
+        'gst.required' => 'GSTIN is required.',
+        'gst.regex' => 'GST number format is invalid.',
         'contactEmail.required' => 'Contact Email is required.',
         'contactEmail.email' => 'Contact Email must be a valid email address.',
         'contactEmail.max' => 'Contact Email may not be greater than 255 characters.',
     ];
+
 
     public function validateAccountNumber()
     {
@@ -267,7 +268,7 @@ public function showEditVendor($id)
             $this->existingFilePaths = json_decode($vendor->file_paths, true) ?? [];
 
             // Optionally, call a method to update the pin code or perform other operations
-            $this->updatedPinCode($this->pinCode);
+            $this->updatePinCode($this->pinCode);
             // Show the vendor edit form
             $this->showAddVendor = true;
             $this->showEditDeleteVendor = false;
@@ -534,10 +535,14 @@ public function downloadImages($vendorId)
     }
     public $mandal='';
     public $postOffices = []; // To store PostOffice data for dropdown
-    public function updatedPinCode($pinCode)
+
+
+    public function updatePinCode($pinCode)
     {
         try {
-            if (strlen($pinCode) === 6) { // Validate pin code length
+
+            if (strlen($pinCode) > 5) { // Validate pin code length
+
                 $locationData = $this->getLocationFromIndiaPost($pinCode);
 
                 if ($locationData) {
@@ -552,7 +557,7 @@ public function downloadImages($vendorId)
             }
         } catch (\Exception $e) {
             // Log the exception message for debugging purposes
-            Log::error('Error in updatedPinCode method: ' . $e->getMessage());
+            Log::error('Error in updatePinCode method: ' . $e->getMessage());
 
             // Optionally, reset location data in case of an error
             $this->resetLocationData();
