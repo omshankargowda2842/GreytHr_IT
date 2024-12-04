@@ -67,8 +67,8 @@ class VendorAssets extends Component
             'taxableAmount' => 'required|numeric|min:0', // Ensure this is required
             'invoiceAmount' => 'required|numeric|min:0', // Ensure this is required
             'gstIg' => 'nullable|numeric|min:0',
-            'gstState' => 'required_without:gstIg,null|string|max:255',
-            'gstCentral' => 'required_without:gstIg,null|string|max:255',
+            'gstState' => 'required_without:gstIg|string|max:255',
+            'gstCentral' => 'required_without:gstIg|string|max:255',
             'manufacturer' => 'required|string|max:255',
             'selectedVendorId' => 'required|string|max:255',
             'purchaseDate' => 'required|date|before_or_equal:today',
@@ -744,34 +744,36 @@ class VendorAssets extends Component
         try {
             $trimmedEmpId = trim($this->searchEmp); // Trimmed search input
 
-            return VendorAsset::with('vendor') // Eager load the 'vendor' relationship
-                ->whereHas('vendor', function ($query) {
-                    $query->where('is_active', 1); // Ensure the vendor is active
-                })
-                ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
-                    // Apply the search filters based on input
-                    $query->where(function ($query) use ($trimmedEmpId) {
+    return VendorAsset::with('vendor') // Eager load the 'vendor' relationship
+        ->whereHas('vendor', function ($query) {
+            $query->wherein('is_active', ['0','1']); // Ensure the vendor is active
+        })
+        ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
+            // Apply the search filters based on input
+            $query->where(function ($query) use ($trimmedEmpId) {
+                $query->where('vendor_id', 'like', '%' . $trimmedEmpId . '%')
+                    ->orWhereHas('vendor', function ($query) use ($trimmedEmpId) {
+                        // Search within vendor fields as well
                         $query->where('vendor_id', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhereHas('vendor', function ($query) use ($trimmedEmpId) {
-                                // Search within vendor fields as well
-                                $query->where('vendor_id', 'like', '%' . $trimmedEmpId . '%')
-                                    ->orWhere('vendor_name', 'like', '%' . $trimmedEmpId . '%')
-                                    ->orWhere('contact_email', 'like', '%' . $trimmedEmpId . '%');
-                            })
-                            ->orWhere('asset_id', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhere('manufacturer', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhere('asset_type', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhere('invoice_number', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhere('serial_number', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhere('is_active', 'like', '%' . $trimmedEmpId . '%');
-                    });
-                })
-                ->orderBy($this->sortColumn, $this->sortDirection) // Apply sorting
-                ->get();
-        } catch (\Exception $e) {
-            Log::error('Error in filter method: ' . $e->getMessage());
-        }
+                            ->orWhere('vendor_name', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('contact_email', 'like', '%' . $trimmedEmpId . '%');
+                    })
+                    ->orWhere('asset_id', 'like', '%' . $trimmedEmpId . '%')
+                    ->orWhere('manufacturer', 'like', '%' . $trimmedEmpId . '%')
+                    ->orWhere('asset_type', 'like', '%' . $trimmedEmpId . '%')
+                    ->orWhere('invoice_number', 'like', '%' . $trimmedEmpId . '%')
+                    ->orWhere('serial_number', 'like', '%' . $trimmedEmpId . '%')
+                    ->orWhere('is_active', 'like', '%' . $trimmedEmpId . '%');
+            });
+        })
+        ->orderBy($this->sortColumn, $this->sortDirection) // Apply sorting
+        ->get();
     }
+    catch (\Exception $e) {
+        Log::error('Error in filter method: ' . $e->getMessage());
+    }
+
+}
 
 
     public function updated($propertyName)
@@ -865,7 +867,7 @@ class VendorAssets extends Component
             });
 
             // Fetch all vendors
-            $this->vendors = Vendor::all();
+            $this->vendors = Vendor::all()->where('is_active',1);
 
             // Return the view with filtered asset types
             return view('livewire.vendor-assets', [
