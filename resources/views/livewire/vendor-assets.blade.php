@@ -139,11 +139,16 @@
                                 </div>
                                 <div class="modal-body">
                                     <form>
-                                        <div class="mb-3 col-10">
+                                        <div class="mb-3 col-11">
                                             <label for="assetName" class="vendor-asset-label">Asset Name</label>
-                                            <input type="text" class="form-control" id="assetName" style="width: 90%;"
-                                                wire:model.lazy="newAssetName"
+                                            <div style="display:flex;gap:5px">
+                                                <input type="text" class="form-control" id="assetName" style="width: 80%;" wire:model.lazy="newAssetName"
                                                 wire:keydown="resetValidationForField('newAssetName')">
+                                                <button type="button" wire:click="createAssetType" class="btn text-white"
+                                                style="background-color: #02114f;">Create</button>
+                                            </div>
+
+
                                             @error('newAssetName')
                                             <div class="text-danger">{{ $message }}</div>
                                             @enderror
@@ -153,8 +158,7 @@
                                         <div class="row">
                                             <div class="col-12 d-flex justify-content-center"
                                                 style="align-items:center">
-                                                <button type="button" wire:click="createAssetType" class="btn text-white"
-                                                    style="background-color: #02114f;">Create</button>
+
                                             </div>
                                         </div>
 
@@ -273,15 +277,15 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                            @if (!empty($gstIg))
-                            <span class="text-danger">*</span>
+                                @if (!empty($gstIg))
+                                <span class="text-danger">*</span>
                                 @endif
                                 <label for="gstIg" class="vendor-asset-label">IGST
                                 </label>
                             </div>
                             <div class="col-8">
                                 <input type="text" id="gstIg" wire:model.lazy="gstIg" placeholder="Rs"
-                                    wire:keydown="resetValidationForField('gstIg')" class="form-control"  oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
+                                    wire:keydown="resetValidationForField('gstIg')" class="form-control" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
                                     inputmode="decimal">
                             </div>
                         </div>
@@ -304,7 +308,7 @@
                             </div>
                             <div class="col-8">
                                 <input type="text" id="gstState" wire:model.lazy="gstState" placeholder="Rs"
-                                    wire:keydown="resetValidationForField('gstState')" class="form-control"  oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
+                                    wire:keydown="resetValidationForField('gstState')" class="form-control" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
                                     inputmode="decimal">
                                 @error('gstState') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
@@ -321,7 +325,7 @@
                             </div>
                             <div class="col-8">
                                 <input type="text" id="gstCentral" wire:model.lazy="gstCentral" placeholder="Rs"
-                                    wire:keydown="resetValidationForField('gstCentral')" class="form-control"  oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
+                                    wire:keydown="resetValidationForField('gstCentral')" class="form-control" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
                                     inputmode="decimal">
                                 @error('gstCentral') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
