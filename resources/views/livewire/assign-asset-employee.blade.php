@@ -923,26 +923,26 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header text-white logout2">
-                    <h6 class="modal-title logout3" id="logoutModalLabel">Confirm Delete</h6>
+                    <h6 class="modal-title logout3" id="logoutModalLabel">Confirm Deactivation</h6>
                 </div>
                 <div class="modal-body text-center logout4">
-                    Are you sure you want to delete?
+                    Are you sure you want to Deactivate?
                 </div>
                 <div class="modal-body text-center">
                     <form wire:submit.prevent="delete">
-                        <span class="text-danger d-flex align-start">*</span>
+
                         <div class="row">
                             <div class="col-12 req-remarks-div">
 
                                 <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea logout4"
-                                    placeholder="Reason for deactivation"></textarea>
+                                    placeholder="Reason for Deactivation"></textarea>
 
                             </div>
                         </div>
                         @error('reason') <span class="text-danger d-flex align-start">{{ $message }}</span>@enderror
                         <div class="d-flex justify-content-center p-3">
                             <button type="submit" class="submit-btn mr-3"
-                                wire:click="delete({{ $employeeAssetList->id }})">Delete</button>
+                                wire:click="delete({{ $employeeAssetList->id }})">Confirm</button>
                             <button type="button" class="cancel-btn1 ml-3" wire:click="cancel">Cancel</button>
                         </div>
                     </form>

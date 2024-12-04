@@ -81,6 +81,7 @@ class Vendors extends Component
         'phone.max' => 'Phone number may not be greater than 10 characters.',
         'gst.required' => 'GSTIN is required.',
         'gst.regex' => 'GST number format is invalid.',
+        'gst.unique' => 'GSTIN number has already been taken.',
         'contactEmail.required' => 'Contact Email is required.',
         'contactEmail.email' => 'Contact Email must be a valid email address.',
         'contactEmail.max' => 'Contact Email may not be greater than 255 characters.',
