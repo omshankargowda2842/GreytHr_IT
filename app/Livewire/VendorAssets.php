@@ -66,8 +66,8 @@ class VendorAssets extends Component
             'taxableAmount' => 'required|numeric|min:0', // Ensure this is required
             'invoiceAmount' => 'required|numeric|min:0', // Ensure this is required
             'gstIg' => 'nullable|numeric|min:0',
-            'gstState' => 'required_without:gstIg,null|string|max:255',
-            'gstCentral' => 'required_without:gstIg,null|string|max:255',
+            'gstState' => 'required_without:gstIg|string|max:255',
+            'gstCentral' => 'required_without:gstIg|string|max:255',
             'manufacturer' => 'required|string|max:255',
             'selectedVendorId' => 'required|string|max:255',
             'purchaseDate' => 'required|date|before_or_equal:today',
@@ -759,7 +759,7 @@ public function showModal()
 
     return VendorAsset::with('vendor') // Eager load the 'vendor' relationship
         ->whereHas('vendor', function ($query) {
-            $query->where('is_active', 1); // Ensure the vendor is active
+            $query->wherein('is_active', ['0','1']); // Ensure the vendor is active
         })
         ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
             // Apply the search filters based on input
@@ -881,7 +881,7 @@ public function showModal()
             });
 
             // Fetch all vendors
-            $this->vendors = Vendor::all();
+            $this->vendors = Vendor::all()->where('is_active',1);
 
             // Return the view with filtered asset types
             return view('livewire.vendor-assets', [
