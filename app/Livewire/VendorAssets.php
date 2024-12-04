@@ -36,6 +36,7 @@ class VendorAssets extends Component
     public $gstIg;
     public $manufacturer;
     public $purchaseDate;
+    public $warranty_expire_date;
     public $file_paths = [];
     public $existingFilePaths = [];
     public $showEditDeleteVendor = true;
@@ -69,7 +70,8 @@ class VendorAssets extends Component
             'gstCentral' => 'required_without:gstIg,null|string|max:255',
             'manufacturer' => 'required|string|max:255',
             'selectedVendorId' => 'required|string|max:255',
-           'purchaseDate' => 'required|date|before_or_equal:today',
+            'purchaseDate' => 'required|date|before_or_equal:today',
+            'warranty_expire_date' => 'nullable|date|after:today',
             'file_paths.*' => 'nullable|file|mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif|max:40960',
         ];
 
@@ -157,6 +159,10 @@ class VendorAssets extends Component
         'purchaseDate.required' => 'Purchase Date is required.',
          'purchaseDate.date' => 'Purchase Date must be a valid date.',
         'purchaseDate.before_or_equal' => 'Purchase Date cannot be a future date.',
+
+        'warranty_expire_date.date' => 'Warranty expiration date must be a valid date.',
+        'warranty_expire_date.after' => 'Warranty expiration date cannot be a past or today\'s date.',
+
 
         'manufacturer.required' => 'Manufacturer is required.',
         'manufacturer.string' => 'Manufacturer must be a string.',
@@ -340,6 +346,7 @@ class VendorAssets extends Component
     $this->gstIg = '';
     $this->manufacturer = '';
     $this->purchaseDate = null;
+    $this->warranty_expire_date = null;
     $this->file_paths = [];
 
     $this->selectedAssetId = null; // Reset the selected asset ID
@@ -433,6 +440,7 @@ class VendorAssets extends Component
                 $this->gstCentral = $asset->gst_central;
                 $this->gstCentral = $asset->gst_ig;
                 $this->purchaseDate = $asset->purchase_date ? Carbon::parse($asset->purchase_date)->format('Y-m-d') : null;
+                $this->warranty_expire_date = $asset->warranty_expire_date ? Carbon::parse($asset->warranty_expire_date)->format('Y-m-d') : null;
 
                 $this->existingFilePaths = json_decode($asset->file_paths, true) ?? [];
 
@@ -518,10 +526,11 @@ public function submit()
 
     $generator = new BarcodeGeneratorPNG();
 
-    $barcode = $generator->getBarcode($this->serialNumber, $generator::TYPE_CODE_128);
+    $barcode = $generator->getBarcode($this->serialNumber, $generator::TYPE_CODE_128,2);
 
 
     $barcodeBase64 = base64_encode($barcode);
+    $barcodeBase64 = substr($barcodeBase64, 0, 100);
 
         }
     $fileDataArray = [];
@@ -625,6 +634,7 @@ public function submit()
                 'gst_central' => $this->gstCentral,
                 'gst_ig' => $this->gstIg,
                 'purchase_date' => $this->purchaseDate ? $this->purchaseDate : null,
+                'warranty_expire_date' => $this->warranty_expire_date ? $this->warranty_expire_date : null,
                 'file_paths' => json_encode($fileDataArray),
             ]);
             FlashMessageHelper::flashSuccess("Asset updated successfully!");
@@ -650,6 +660,7 @@ public function submit()
             'gst_central' => $this->gstCentral,
             'gst_ig' => $this->gstIg,
             'purchase_date' => $this->purchaseDate ? $this->purchaseDate : null,
+            'warranty_expire_date' => $this->warranty_expire_date ? $this->warranty_expire_date : null,
             'file_paths' => json_encode($fileDataArray),
         ]);
 

@@ -40,8 +40,8 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="vendor" class="vendor-asset-label"><span class="text-danger">*</span>
-                                    Vendor</label>
+                                <label for="vendor" class="vendor-asset-label">
+                                    Vendor</label><span class="text-danger">*</span>
                             </div>
                             <div class="col-8">
                                 <select id="vendor" wire:model.lazy="selectedVendorId"
@@ -65,8 +65,8 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="quantity" class="vendor-asset-label"><span class="text-danger">*</span>
-                                    Quantity</label>
+                                <label for="quantity" class="vendor-asset-label">
+                                    Quantity</label><span class="text-danger">*</span>
                             </div>
                             <div class="col-8">
                                 <input type="number" id="quantity" wire:model.lazy="quantity"
@@ -85,8 +85,8 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="manufacturer" class="vendor-asset-label"><span class="text-danger">*</span>
-                                    Manufacturer</label>
+                                <label for="manufacturer" class="vendor-asset-label">
+                                    Manufacturer</label><span class="text-danger">*</span>
                             </div>
                             <div class="col-8">
                                 <input type="text" id="manufacturer" wire:model.lazy="manufacturer"
@@ -101,9 +101,9 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="assetType" class="vendor-asset-label"><span class="text-danger">*</span>
+                                <label for="assetType" class="vendor-asset-label">
                                     Asset
-                                    Type</label>
+                                    Type</label><span class="text-danger">*</span>
                             </div>
                             <div class="col-8">
                                 <div class="input-group">
@@ -141,7 +141,7 @@
                                     <form>
                                         <div class="mb-3 col-10">
                                             <label for="assetName" class="vendor-asset-label">Asset Name</label>
-                                            <input type="text" class="form-control" id="assetName"
+                                            <input type="text" class="form-control" id="assetName" style="width: 90%;"
                                                 wire:model.lazy="newAssetName"
                                                 wire:keydown="resetValidationForField('newAssetName')">
                                             @error('newAssetName')
@@ -152,8 +152,8 @@
                                         <!-- Row for centering the button -->
                                         <div class="row">
                                             <div class="col-12 d-flex justify-content-center"
-                                                style="height: fit-content;margin-top: 25px;">
-                                                <button wire:click="createAssetType" class="btn text-white"
+                                                style="align-items:center">
+                                                <button type="button" wire:click="createAssetType" class="btn text-white"
                                                     style="background-color: #02114f;">Create</button>
                                             </div>
                                         </div>
@@ -174,9 +174,9 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="assetModel" class="vendor-asset-label"><span class="text-danger">*</span>
+                                <label for="assetModel" class="vendor-asset-label">
                                     Asset
-                                    Model</label>
+                                    Model</label><span class="text-danger">*</span>
                             </div>
                             <div class="col-8">
                                 <input type="text" id="assetModel" wire:model.lazy="assetModel"
@@ -191,10 +191,9 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="assetSpecification" class="vendor-asset-label"><span
-                                        class="text-danger">*</span>
+                                <label for="assetSpecification" class="vendor-asset-label">
                                     Asset
-                                    Specification</label>
+                                    Specification <span class="text-danger">*</span></label>
                             </div>
                             <div class="col-8">
                                 <input type="text" id="assetSpecification" wire:model.lazy="assetSpecification"
@@ -239,9 +238,9 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="serialNumber" class="vendor-asset-label"><span class="text-danger">*</span>
+                                <label for="serialNumber" class="vendor-asset-label">
                                     Serial
-                                    Number</label>
+                                    Number</label><span class="text-danger">*</span>
                             </div>
                             <div class="col-8">
                                 <input type="text" id="serialNumber" wire:model.lazy="serialNumber"
@@ -256,9 +255,9 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="invoiceNumber" class="vendor-asset-label"><span class="text-danger">*</span>
+                                <label for="invoiceNumber" class="vendor-asset-label">
                                     Invoice
-                                    Number</label>
+                                    Number</label><span class="text-danger">*</span>
                             </div>
                             <div class="col-8">
                                 <input type="text" id="invoiceNumber" wire:model.lazy="invoiceNumber"
@@ -267,28 +266,29 @@
                             </div>
                         </div>
                     </div>
-
-
                 </div>
-
-                @if (empty($gstState) && empty($gstCentral))
                 <div class="row mb-3">
 
+                    @if (empty($gstState) && empty($gstCentral))
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
+                            @if (!empty($gstIg))
+                            <span class="text-danger">*</span>
+                                @endif
                                 <label for="gstIg" class="vendor-asset-label">IGST
                                 </label>
                             </div>
                             <div class="col-8">
                                 <input type="text" id="gstIg" wire:model.lazy="gstIg" placeholder="Rs"
-                                    wire:keydown="resetValidationForField('gstIg')" class="form-control">
+                                    wire:keydown="resetValidationForField('gstIg')" class="form-control"  oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
+                                    inputmode="decimal">
                             </div>
                         </div>
 
                     </div>
-                </div>
 
+                </div>
                 @endif
 
                 @if (empty($gstIg))
@@ -298,13 +298,14 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="gstState" class="vendor-asset-label"><span class="text-danger">*</span>State
+                                <label for="gstState" class="vendor-asset-label">State
                                     GST
-                                </label>
+                                </label><span class="text-danger">*</span>
                             </div>
                             <div class="col-8">
                                 <input type="text" id="gstState" wire:model.lazy="gstState" placeholder="Rs"
-                                    wire:keydown="resetValidationForField('gstState')" class="form-control">
+                                    wire:keydown="resetValidationForField('gstState')" class="form-control"  oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
+                                    inputmode="decimal">
                                 @error('gstState') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -315,13 +316,13 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="gstCentral" class="vendor-asset-label"><span
-                                        class="text-danger">*</span>Central GST
-                                </label>
+                                <label for="gstCentral" class="vendor-asset-label">Central GST
+                                </label><span class="text-danger">*</span>
                             </div>
                             <div class="col-8">
                                 <input type="text" id="gstCentral" wire:model.lazy="gstCentral" placeholder="Rs"
-                                    wire:keydown="resetValidationForField('gstCentral')" class="form-control">
+                                    wire:keydown="resetValidationForField('gstCentral')" class="form-control"  oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
+                                    inputmode="decimal">
                                 @error('gstCentral') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -336,9 +337,9 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="taxableAmount" class="vendor-asset-label"><span class="text-danger">*</span>
+                                <label for="taxableAmount" class="vendor-asset-label">
                                     Taxable
-                                    Amount</label>
+                                    Amount</label><span class="text-danger">*</span>
                             </div>
                             <div class="col-8">
                                 <input type="number" id="taxableAmount" wire:model.lazy="taxableAmount" placeholder="Rs"
@@ -352,9 +353,9 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="invoiceAmount" class="vendor-asset-label"><span class="text-danger">*</span>
+                                <label for="invoiceAmount" class="vendor-asset-label">
                                     Invoice
-                                    Amount</label>
+                                    Amount</label><span class="text-danger">*</span>
                             </div>
                             <div class="col-8">
                                 <div id="street" class="input-div-vendor p-2" wire:model.lazy="invoiceAmount">
@@ -374,15 +375,28 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="purchaseDate" class="vendor-asset-label"><span
-                                        class="text-danger">*</span>Purchase
-                                    Date</label>
+                                <label for="purchaseDate" class="vendor-asset-label">Purchase
+                                    Date</label><span class="text-danger">*</span>
                             </div>
                             <div class="col-8">
                                 <input type="date" id="purchaseDate" wire:model.lazy="purchaseDate"
                                     wire:change="resetValidationForField('purchaseDate')" class="form-control"
                                     max="{{ \Carbon\Carbon::today()->toDateString() }}">
                                 @error('purchaseDate') <div class="text-danger">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-4">
+                                <label for="warranty_expire_date" class="vendor-asset-label">Warranty Expiration Date
+                                </label>
+                            </div>
+                            <div class="col-8">
+                                <input type="date" id="warranty_expire_date" wire:model.lazy="warranty_expire_date"
+                                    wire:change="resetValidationForField('warranty_expire_date')" class="form-control"
+                                    min="{{ \Carbon\Carbon::tomorrow()->toDateString() }}">
+                                @error('warranty_expire_date') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
                         </div>
                     </div>
@@ -441,7 +455,7 @@
 
     @if($searchFilters)
 
-    <div class="row mb-3 mt-4 ml-4 employeeAssetList">
+    <div class="col-11 mb-3 mt-4 ml-4 employeeAssetList">
         <!-- Align items to the same row with space between -->
         <div class="col-11 col-md-11 mb-2 mb-md-0">
             <div class="row d-flex justify-content-between">
@@ -458,8 +472,9 @@
                 auth()->user()->hasRole('super_admin')))
                 <div class="col-auto">
                     <button class="btn text-white btn-sm" wire:click='showAddVendorMember'
-                        style="margin-right: 9%; padding: 7px;background-color: #02114f;white-space:nowrap;">
-                        <i class="fas fa-box"></i> Add Asset
+                        style="padding: 7px;background-color: #02114f;">
+                        <i class="fas fa-box " style="margin-right: 5px;
+"></i> Add Asset
                     </button>
                 </div>
                 @endif

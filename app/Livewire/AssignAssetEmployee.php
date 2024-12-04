@@ -441,25 +441,25 @@ public $selectedAssetType='';
     ->toArray();  // Convert to an array
 
 
-    if (in_array($empId , $uniqueManagerDeptHeads)) {
+    // if (in_array($empId , $uniqueManagerDeptHeads)) {
 
 
-        // Allow multiple asset assignment for employees with matching manager_id or dept_head
-    }elseif( !$selectedAssetType  ){
 
 
-    }
-     else {
+    // }
+    // elseif( !$selectedAssetType  )
+    // {
+    // }
+    //  else {
 
-        // If the asset type is already assigned to the employee, prevent assigning it again
-        if (in_array($existingAssignment, $selectedAssetType)) {
-            // Show error message if the asset type already exists
-            FlashMessageHelper::flashError("Asset type '{$assetName}' is already assigned to this Employee!");
-            return;
-        }
+    //     If the asset type is already assigned to the employee, prevent assigning it again
+    //     if (in_array($existingAssignment, $selectedAssetType)) {
+    //         Show error message if the asset type already exists
+    //         FlashMessageHelper::flashError("Asset type '{$assetName}' is already assigned to this Employee!");
+    //         return;
+    //     }
 
-    }
-
+    // }
 
     try {
         if ($this->isUpdateMode && $this->assignmentId) {
@@ -474,7 +474,7 @@ public $selectedAssetType='';
                 ]);
 
                 // Create new assignment
-                AssignAssetEmp::create([                            
+                AssignAssetEmp::create([
                     'asset_id' => $this->selectedAsset,
                     'emp_id' => $this->empDetails->emp_id,
                     'manufacturer' => $this->assetDetails->manufacturer,

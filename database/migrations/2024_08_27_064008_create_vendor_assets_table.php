@@ -37,6 +37,7 @@ return new class extends Migration
             $table->string('gst_central', 50)->nullable();
             $table->string('status', 50)->nullable();
             $table->date('purchase_date')->nullable();
+            $table->date('warranty_expire_date')->nullable();
             $table->json('file_paths')->nullable();
             $table->string('delete_asset_reason', 200)->nullable();
             $table->boolean('is_active')->default(true);

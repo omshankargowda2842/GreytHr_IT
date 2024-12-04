@@ -24,7 +24,7 @@
 
     @if($showAddVendor)
 
-    <div class="col-11 d-flex justify-content-start mb-1 mt-4" style="margin-left: 5%;">
+    <div class="col-11 d-flex justify-content-start mb-1 mt-4" style="margin-left: 5%;" >
         <button class="btn text-white btn-sm" style="background-color: #02114f;" wire:click='cancel'> <i
                 class="fas fa-arrow-left"></i> Back</button>
 
@@ -46,8 +46,7 @@
 
 
                             <div class="col-4">
-                                <label for="vendorName" class="vendor-label"><span class="text-danger">*</span> Vendor
-                                    Name</label>
+                                <label for="vendorName" class="vendor-label"> Vendor Name <span class="text-danger">*</span></label>
                             </div>
 
                             <div class="col-8">
@@ -64,8 +63,7 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="contactName" class="vendor-label"><span class="text-danger">*</span>Contact
-                                    Name</label>
+                                <label for="contactName" class="vendor-label">Contact Name <span class="text-danger">*</span></label>
                             </div>
                             <div class="col-8">
                                 <input type="text" id="contactName" wire:model.lazy="contactName"
@@ -81,7 +79,7 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="phone" class="vendor-label"><span class="text-danger">*</span>Phone</label>
+                                <label for="phone" class="vendor-label">Phone <span class="text-danger">*</span></label>
                             </div>
 
                             <div class="col-8">
@@ -100,12 +98,12 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="gst" class="vendor-label"><span class="text-danger">*</span>GSTIN</label>
+                                <label for="gst" class="vendor-label">GSTIN <span class="text-danger">*</span></label>
                             </div>
 
                             <div class="col-8">
                                 <input type="text" id="gst" wire:model.lazy="gst"
-                                    wire:keydown="resetValidationForField('gst')" class="form-control">
+                                    wire:keydown="resetValidationForField('gst')" class="form-control" style="text-transform: uppercase;">
                                 @error('gst') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
 
@@ -151,7 +149,7 @@
                                 <label for="ifscCode" class="vendor-label">IFSC Code</label>
                             </div>
                             <div class="col-8">
-                                <input type="text" id="ifscCode" wire:model="ifscCode" class="form-control">
+                                <input type="text" id="ifscCode" wire:model="ifscCode" class="form-control" maxlength="11" style="text-transform: uppercase;">
                             </div>
                         </div>
                     </div>
@@ -174,8 +172,8 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-4">
-                                <label for="contactEmail" class="vendor-label"><span class="text-danger">*</span>Contact
-                                    Email</label>
+                                <label for="contactEmail" class="vendor-label">Contact
+                                    Email <span class="text-danger">*</span></label>
                             </div>
                             <div class="col-8">
                                 <input type="email" id="contactEmail" wire:model.lazy="contactEmail"
@@ -193,7 +191,7 @@
                             </div>
                             <div class="col-8">
                                 <input type="text" id="pinCode" wire:model="pinCode" wire:input="updatePinCode($event.target.value)" maxlength="6"
-                                    class="form-control">
+                                    class="form-control"   oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                 @error('pinCode') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -303,7 +301,7 @@
     @if($searchFilters)
 
 
-    <div class="row mb-3 mt-4 ml-4 employeeAssetList">
+    <div class=" mb-3 mt-4 ml-4 employeeAssetList">
         <!-- Align items to the same row with space between -->
         <div class="col-11 col-md-11 mb-2 mb-md-0">
             <div class="row d-flex justify-content-between">
