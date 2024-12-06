@@ -584,10 +584,7 @@ class VendorAssets extends Component
             }
         }
         $this->showSuccessMsg=true;
-
-
         // Log the names of all files
-
     }
     public function  hideSuccessMsg(){
         $this->showSuccessMsg=false;
