@@ -33,7 +33,8 @@ class VendorAsset extends Model
         'warranty_expire_date',
         'file_paths',
         'status',
-        'is_active'
+        'is_active',
+        'asset_id'
     ];
 
 
