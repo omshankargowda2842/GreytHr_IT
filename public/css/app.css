@@ -1569,6 +1569,12 @@ w
     color: #F6C000 !important;
     font-size: 10px;
 }
+.dash-custom-bg-color4{
+    /* background-color: #b6f19b; */
+    background-color: #f6e9e1;
+    color: #ff7b25 !important;
+    font-size: 10px;
+}
 .dash-custom-bg-color2{
     /* background-color: #8bc1e4; */
     background-color: #E9F3FF;
@@ -2333,3 +2339,4 @@ w
     max-height: 75vh;
     overflow-y: auto;
 }
+
