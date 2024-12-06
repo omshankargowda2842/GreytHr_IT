@@ -65,7 +65,7 @@ class ServiceRequests extends Component
          $requestedBy= EmployeeDetails::where('emp_id' ,  $this->serviceRequest->emp_id)->first();
          $fullName = ucwords(strtolower($requestedBy->first_name . ' ' . $requestedBy->last_name));
             ActivityLog::create([
-                'impact' => 'Low',
+                'impact' => 'High',
                 'opened_by' =>  $fullName ,
                 'priority' =>  $this->serviceRequest->priority,
                 'state' => "Open",
@@ -136,6 +136,13 @@ class ServiceRequests extends Component
         return $firstInitial . $lastInitial;
     }
 
+    // Filter logs based on type
+    public function filterLogs($type)
+    {
+        $this->filterType = $type;
+        $this->loadLogs($this->snowId); // Re-load logs with the new filter
+    }
+
     public $showPopup = false;
     public $serviceIDHeader = '';
 
@@ -143,11 +150,14 @@ class ServiceRequests extends Component
     {
 
         if ($snowId) {
-            $this->snowId = $snowId;
 
+            $this->snowId = $snowId;
             $this->serviceIDHeader =   $this->snowId;
             $query = ActivityLog::where('request_id', $this->snowId)
-                ->orderBy('created_at', 'desc');
+            ->when($this->filterType, function ($q) {
+                return $q->where('created_at', $this->filterType);
+            })
+            ->orderBy('created_at', 'desc');
 
             $this->showPopup = true;
 
@@ -173,12 +183,7 @@ class ServiceRequests extends Component
     $this->activityLogs = null; // Clear logs if needed
 }
 
-    // Filter logs based on type
-    public function filterLogs($type)
-    {
-        $this->filterType = $type;
-        $this->loadLogs($this->snowId); // Re-load logs with the new filter
-    }
+
 
     public function updateAssigne($taskId)
     {
@@ -302,6 +307,8 @@ class ServiceRequests extends Component
                     $activityDetails = "Work in Progress was Completed for Service ID - {$task->snow_id}";
                     FlashMessageHelper::flashSuccess("Status has been set to Completed, and email has been sent!");
                 }
+
+                $this->updateCounts();
             } else {
                 // Handle case where the task was not found or no status is selected
                 FlashMessageHelper::flashError("Task not found or invalid status.");
@@ -385,7 +392,7 @@ class ServiceRequests extends Component
         }
         $this->reset(['selectedStatus', 'selectedAssigne']);
         $this->resetErrorBag();
-
+        $this->updateCounts();
     }
 
 
@@ -431,12 +438,12 @@ class ServiceRequests extends Component
     }
 }
 
-public function postRemarks($taskId)
+public function postRemarks()
 {
     try {
 
         // Find the task by taskId
-        $task = IncidentRequest::find($taskId);
+        $task = IncidentRequest::find($this->selectedTaskId);
 
         if ($task) {
             // Validate remarks to make sure it is not empty
@@ -458,6 +465,7 @@ public function postRemarks($taskId)
             ]);
             // Flash a success message
             FlashMessageHelper::flashSuccess("Remarks posted successfully!");
+            $this->modalVisible = false;
 
             // Clear the remarks after posting
             $this->remarks = '';
@@ -469,7 +477,7 @@ public function postRemarks($taskId)
         // Log the exception for debugging
         Log::error("Error occurred while posting remarks", [
             'exception' => $e,
-            'taskId' => $taskId,
+            'taskId' => $this->selectedTaskId,
             'remarks' => $this->remarks,
         ]);
 
@@ -559,6 +567,8 @@ public function postInprogressRemarks($taskId)
 
         }
 
+        public $modalVisible = false;
+        public $selectedTaskId;
         public function inprogressForDesks($taskId)
         {
             $task = IncidentRequest::find($taskId);
@@ -567,6 +577,14 @@ public function postInprogressRemarks($taskId)
                 if ($task->ser_progress_since === null) {
                     // If it's the first time switching to InProgress, set the current time
                     $task->ser_progress_since = now();
+                }
+
+                if ($task) {
+                    $this->selectedTaskId = $taskId; //Store the task ID for the modal
+                    $this->modalVisible = true;   //Show the modal
+
+                } else {
+                    FlashMessageHelper::flashError("Task not found.");
                 }
 
                 $task->status_code = '16';  // Set status to InProgress
@@ -584,7 +602,7 @@ public function postInprogressRemarks($taskId)
                 ]);
 
                 FlashMessageHelper::flashSuccess("Status Changed to inprogress!");
-
+                $this->updateCounts();
             }
 
         }
@@ -614,7 +632,7 @@ public function postInprogressRemarks($taskId)
         ]);
 
                 FlashMessageHelper::flashSuccess("Status Changed to pending!");
-
+                $this->updateCounts();
             }
 
         }
@@ -652,7 +670,7 @@ public function postInprogressRemarks($taskId)
                 ]);
 
                 FlashMessageHelper::flashSuccess("Status Changed to closed!");
-
+                $this->updateCounts();
             }
 
         }
@@ -727,6 +745,59 @@ public function postInprogressRemarks($taskId)
 }
 
 
+    public $serviceOpenCount;
+    public $servicePendingCount;
+    public $serviceInprogressCount;
+    public $serviceClosedCount;
+
+    public function updateCounts()
+    {
+        try {
+            // Fetch categories for IT requests
+
+            $this->serviceOpenCount = IncidentRequest::with('emp')
+            ->orderBy('created_at', 'desc')
+            ->where('category', 'Service Request')
+            ->where('status_code', 10)
+            ->count();
+
+            $this->servicePendingCount = IncidentRequest::with('emp')
+            ->orderBy('created_at', 'desc')
+            ->where('category', 'Service Request')
+            ->where('status_code', 5)
+            ->count();
+
+            $this->serviceInprogressCount = IncidentRequest::with('emp')
+            ->orderBy('created_at', 'desc')
+            ->where('category', 'Service Request')
+            ->where('status_code', 16)
+            ->count();
+
+            $this->serviceClosedCount = IncidentRequest::with('emp')
+            ->orderBy('created_at', 'desc')
+            ->where('category', 'Service Request')
+            ->where('status_code',['11','15'])
+            ->count();
+
+
+        } catch (\Exception $e) {
+            // Log the exception for debugging purposes
+            Log::error("Error occurred while updating counts", [
+                'exception' => $e,
+            ]);
+
+            // Optionally, set all counts to zero or handle the error gracefully
+            $this->serviceOpenCount = 0;
+            $this->servicePendingCount = 0;
+            $this->serviceInprogressCount = 0;
+            $this->serviceClosedCount = 0;
+            // Flash an error message to inform the user
+            FlashMessageHelper::flashError("An error occurred while updating the request counts.");
+        }
+    }
+
+
+
 
     public function render()
     {
@@ -748,8 +819,13 @@ public function postInprogressRemarks($taskId)
         ->where('status_code', 16)
         ->get();
 
+        $this->serviceClosedDetails = IncidentRequest::with('emp')
+        ->orderBy('created_at', 'desc')
+        ->where('category', 'Service Request')
+        ->where('status_code',['11','15'])
+        ->get();
 
-
+        $this->updateCounts();
         $this->itData = IT::with('empIt')->get();
         return view('livewire.service-requests');
     }

@@ -1112,7 +1112,25 @@ ol, ul {
   }
 
   /* From Uiverse.io by Javierrocadev */
+
+  .card-container {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    white-space: nowrap;
+    gap: 15px; /* Optional: Space between cards */
+    max-width: 100%; /* Adjust this to limit visible area */
+}
+
+.card-wrapper {
+    max-width: 100%; /* Adjust width to fit 4 cards */
+    overflow-x: auto;
+}
+
+
 .card-home {
+    flex: 0 0 250px; /* Fixed width for each card */
+    max-width: 250px;
     /* width: 250px; */
     height: 200px;
     border-radius: 15px;
@@ -1123,6 +1141,7 @@ ol, ul {
     position: relative;
     overflow: hidden;
     cursor: pointer;
+    margin-bottom: 5px;
   }
 
   .card-home::before {

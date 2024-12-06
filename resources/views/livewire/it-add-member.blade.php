@@ -220,6 +220,19 @@
                     @enderror
                 </div>
 
+                <div class="col-md-5">
+                    <label for="roleSelect" class="form-label">Select Role</label>
+                    <select id="roleSelect" class="form-select" wire:model.lazy="selectedRole"  wire:keydown="resetValidationForField('selectedRole')">
+                        <option value="" disabled hidden>Choose Role</option>
+                        <option value="super_admin">Super Admin</option>
+                        <option value="admin">Admin</option>
+                        <option value="user">User</option>
+                    </select>
+                    @error('selectedRole')
+                    <span class="text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+
             </div>
 
             <!-- Row for Details Cards -->

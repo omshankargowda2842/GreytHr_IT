@@ -68,9 +68,9 @@
             <div class="input-block">
                 <label for="pass">Password</label>
                 <div class="input-group" style="align-items: center;">
-                    <input class="input" type="{{ $showPassword ? 'text' : 'password' }}" id="pass" wire:model="form.password" wire:keydown="resetValidationForField('form.password')" style="border-right: none;">
+                    <input class="input" type="{{ $showPassword ? 'text' : 'password' }}" id="pass" wire:model="form.password" wire:keydown="resetValidationForField('form.password')" style="border-right: none;border-top-right-radius: 10px;border-bottom-right-radius: 10px">
                     @if ($showEyeIcon)
-                    <span style="background-color: #fff; height:40px;top: 12px;right: 17%;" class="input-group-text pointer position-absolute"
+                    <span style="background-color: #fff; height:42px;top: 10px;right: 17.5%;"class="input-group-text pointer position-absolute"
                         wire:click="togglePasswordVisibility"><i
                             class="{{ $showPassword ? 'fas fa-eye' : 'fas fa-eye-slash' }}"></i></span>
                     @endif

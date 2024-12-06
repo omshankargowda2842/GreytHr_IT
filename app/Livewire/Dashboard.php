@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Helpers\FlashMessageHelper;
 use App\Models\HelpDesks;
+use App\Models\IncidentRequest;
 use App\Models\IT;
 use App\Models\Request;
 use App\Models\Vendor;
@@ -15,12 +16,15 @@ use Livewire\Component;
 class Dashboard extends Component
 {
     public $activeCount;
+    public $activeServiceCount;
+    public $activeIncidentCount;
     public $categories;
     public $countRequests;
     public $helpDeskCategories;
     public $matchingCount;
     public $pendingCount;
     public $closedCount;
+    public $inprogressCount;
     public $activeItRelatedEmye = [];
     public $inactiveItRelatedEmye = [];
     public $vendors = [];
@@ -81,12 +85,17 @@ class Dashboard extends Component
             $this->pendingCount = HelpDesks::where('status_code', '5')
                 ->whereIn('category', $requestCategories)->count();
 
-            $this->closedCount = HelpDesks::where('status_code', '11')
+                $this->inprogressCount = HelpDesks::where('status_code', '16')
+                ->whereIn('category', $requestCategories)->count();
+
+
+            $this->closedCount = HelpDesks::where('status_code', ['11','15'])
                 ->whereIn('category', $requestCategories)->count();
 
             // Log data fetching actions
             Log::info('Updated counts for HelpDesks', [
                 'activeCount' => $this->activeCount,
+                'inprogressCount' => $this->inprogressCount,
                 'pendingCount' => $this->pendingCount,
                 'closedCount' => $this->closedCount,
             ]);
@@ -102,6 +111,7 @@ class Dashboard extends Component
 
             // Optionally, you could reset the counts to zero or some default value
             $this->activeCount = 0;
+            $this->inprogressCount = 0;
             $this->pendingCount = 0;
             $this->closedCount = 0;
         }
@@ -117,6 +127,16 @@ class Dashboard extends Component
     public function itMember()
     {
          return redirect()->route('itMembers');
+    }
+
+    public function incidentRequest()
+    {
+         return redirect()->route('incidentRequests');
+    }
+
+    public function serviceRequest()
+    {
+         return redirect()->route('serviceRequests');
     }
 
     public function vendorMod()
@@ -212,6 +232,18 @@ class Dashboard extends Component
             $request->category = trim($request->category); // Clean category whitespace
             return $request;
         });
+
+        $this->activeIncidentCount = IncidentRequest::with('emp')
+        ->orderBy('created_at', 'desc')
+        ->where('category', 'Incident Request')
+        ->where('status_code', 10)
+        ->count();
+
+        $this->activeServiceCount = IncidentRequest::with('emp')
+            ->orderBy('created_at', 'desc')
+            ->where('category', 'Service Request')
+            ->where('status_code', 10)
+            ->count();
 
         // Fetch asset and vendor metrics
         $this->activeAssets = VendorAsset::where('is_active', 1)->count();

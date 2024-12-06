@@ -22,17 +22,21 @@ return new class extends Migration
             $table->string('mobile');
             $table->string('subject');
             $table->text('description');
+            $table->text('rejection_reason')->nullable();
+            $table->text('pending_reason')->nullable();
             $table->text('active_comment')->nullable();
+            $table->text('pending_remarks')->nullable();
              $table->text('inprogress_remarks')->nullable();
-             $table->text('rejection_reason')->nullable();
              $table->string('assign_to')->nullable();
             $table->string('file_path')->nullable(); // Path to attached file (nullable)
             $table->string('file_name')->nullable();
             $table->string('mime_type')->nullable();
             $table->string('cc_to')->nullable(); // CC to field (nullable)
             $table->tinyInteger('status_code')->default(8);
-            $table->enum('selected_equipment',['keyboard', 'mouse', 'monitor','headset','others']);
-            $table->enum('priority', ['High', 'Medium', 'Low']); // Priority field with enum values
+            $table->timestamp('in_progress_since')->nullable();
+            $table->integer('total_in_progress_time')->default(0);
+            $table->string('selected_equipment')->nullable();
+            $table->enum('priority', ['low', 'medium', 'high'])->default('low');
             $table->timestamps();
 
             $table->foreign('emp_id')

@@ -1,6 +1,6 @@
 <div class="main">
 
-    <div wire:loading wire:target="itRequest,assetMod,itMember,vendorMod">
+    <div wire:loading wire:target="itRequest,assetMod,itMember,vendorMod,incidentRequest,serviceRequest">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -21,23 +21,56 @@
 
 
     <!-- ======================= Cards ================== -->
-    <div class="row m-0 mt-3">
-        <div class="col-md-3 mb-3">
+    <div class="card-wrapper">
+        <div class="card-container">
             <div class="card-home" wire:click='itRequest'>
                 <div class="text-home row m-0">
                     <div class="col-6">
                         <i class="fas fa-users fs-1"></i>
                     </div>
                     <div class="col-6">
+                        <p class="badge dash-custom-bg-color text-black">Active</p>
                         <p class="fs-1 mb-0">{{ $activeCount }}</p>
                     </div>
+
                 </div>
                 <div class="icons-text">
-                    <h6 class="m-0 fw-bold">Active Requests</h6>
+                    <h6 class="m-0 fw-bold">Catologue Requests</h6>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3 mb-3">
+
+            <div class="card-home" wire:click='incidentRequest'>
+                <div class="text-home row m-0">
+                    <div class="col-6">
+                        <i class="fas fa-users fs-1"></i>
+                    </div>
+                    <div class="col-6">
+                        <p class="badge dash-custom-bg-color text-black">Active</p>
+                        <p class="fs-1 mb-0">{{ $activeIncidentCount }}</p>
+                    </div>
+
+                </div>
+                <div class="icons-text">
+                    <h6 class="m-0 fw-bold">Incident Requests</h6>
+                </div>
+            </div>
+
+            <div class="card-home" wire:click='serviceRequest'>
+                <div class="text-home row m-0">
+                    <div class="col-6">
+                        <i class="fas fa-users fs-1"></i>
+                    </div>
+                    <div class="col-6">
+                        <p class="badge dash-custom-bg-color text-black">Active</p>
+                        <p class="fs-1 mb-0">{{ $activeServiceCount }}</p>
+                    </div>
+
+                </div>
+                <div class="icons-text">
+                    <h6 class="m-0 fw-bold">Service Requests</h6>
+                </div>
+            </div>
+
             <div class="card-home" wire:click='itMember'>
                 <div class="text-home row m-0">
                     <div class="col-6">
@@ -53,9 +86,7 @@
                     <h6 class="m-0 fw-bold">IT Members</h6>
                 </div>
             </div>
-        </div>
 
-        <div class="col-md-3 mb-3">
             <div class="card-home" wire:click='vendorMod'>
                 <div class="text-home row m-0">
                     <div class="col-6">
@@ -69,9 +100,7 @@
                     <h6 class="m-0 fw-bold">Vendors</h6>
                 </div>
             </div>
-        </div>
 
-        <div class="col-md-3 mb-3">
             <div class="card-home" wire:click='assetMod'>
                 <div class="text-home row m-0">
                     <div class="col-6">
@@ -89,6 +118,7 @@
             </div>
         </div>
     </div>
+
 
     <!-- ================ Order Details List ================= -->
     <div class="details">
@@ -128,7 +158,7 @@
                             <td>{{ $category }}</td> <!-- Display category in the Category column -->
                             <td class="text-primary">
                                 @php
-                                $statuses = ['10', '5', '11'];
+                                $statuses = ['10', '5', '11' ,'15','16'];
                                 $filteredRequests = $countRequests
                                 ->whereIn('status_code', $statuses)
                                 ->where('category', $category);
@@ -146,9 +176,13 @@
                                     Pending <span
                                         class="badge rounded-pill  bg-white text-dark">{{ $countRequests->where('category', $category)->where('status_code', '5')->count() }}</span>
                                 </span>
+                                <span class="badge dash-custom-bg-color4 text-black">
+                                    Inprogress <span
+                                        class="badge rounded-pill  bg-white text-dark">{{ $countRequests->where('category', $category)->where('status_code', '16')->count() }}</span>
+                                </span>
                                 <span class="badge dash-custom-bg-color2 text-black">
                                     Closed <span
-                                        class="badge rounded-pill  bg-white text-dark">{{ $countRequests->where('category', $category)->where('status_code', '11')->count() }}</span>
+                                        class="badge rounded-pill  bg-white text-dark">{{ $countRequests->where('category', $category)->whereIn('status_code', ['11', '15'])->count() }}</span>
                                 </span>
                             </td>
                             <!-- <td>
@@ -166,7 +200,8 @@
         <div class="recentCustomers">
             <div>
                 <h2 class="headingForAllModules mb-5">Graph Data</h2>
-                @if($this->activeCount == 0 && $this->pendingCount == 0 && $this->closedCount == 0)
+                @if($this->activeCount == 0 && $this->pendingCount == 0 && $this->inprogressCount == 0 &&
+                $this->closedCount == 0)
                 <!-- If counts are zero or null, show a "No Data Found" message -->
                 <div class="no-data-message">
                     <td colspan="20">
@@ -194,6 +229,7 @@
 
 $activeCount = $activeCount;
 $pendingCount = $pendingCount;
+$inprogressCount = $inprogressCount;
 $completedCount = $closedCount;
 ?>
 
@@ -207,23 +243,30 @@ document.addEventListener('DOMContentLoaded', () => {
         // Sample data - these should be PHP variables in your actual implementation
         const activeCount = <?php echo json_encode($activeCount); ?>;
         const pendingCount = <?php echo json_encode($pendingCount); ?>;
+        const inprogressCount = <?php echo json_encode($inprogressCount); ?>;
         const completedCount = <?php echo json_encode($completedCount); ?>;
 
         const data = {
-            labels: ['Active', 'Pending', 'Completed'],
+            labels: ['Active', 'Pending', 'Inprogress', 'Completed'],
             datasets: [{
                 label: 'Request Status',
-                data: [activeCount, pendingCount, completedCount], // Use the PHP variables
+                data: [activeCount, pendingCount, inprogressCount,
+                    completedCount
+                ], // Use the PHP variables
                 backgroundColor: [
-                    '#dab42e', // Orange
-                    '#3dd371', // Green
-                    '#297de1' // Blue
+
+                    '#3dd371', // Active: Bright Green (Indicates action is ongoing or positive)
+                    '#dab42e', // Pending: Golden Orange (Conveys a state of being held or waiting)
+                    '#ff7b25', // In Progress: Vibrant Orange (Indicates action or activity)
+                    '#297de1' // Completed: Deep Blue (Conveys stability and finality)
                 ],
                 borderColor: [
-                    'rgba(255, 159, 64, 1)', // Orange
-                    'rgba(75, 192, 192, 1)', // Green
-                    'rgba(54, 162, 235, 1)', // Blue
+                    'rgba(61, 211, 113, 1)', // Active: Bright Green
+                    'rgba(218, 180, 46, 1)', // Pending: Golden Orange
+                    'rgba(255, 123, 37, 1)', // In Progress: Vibrant Orange
+                    'rgba(41, 125, 225, 1)' // Completed: Deep Blue
                 ],
+
                 borderWidth: 1
             }]
         };
