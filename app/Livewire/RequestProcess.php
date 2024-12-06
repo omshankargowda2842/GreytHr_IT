@@ -54,6 +54,8 @@ class RequestProcess extends Component
     public $inprogressCount;
     public $closedCount;
     public $file_path;
+    public $pendingReason;
+
 
 
 
@@ -511,14 +513,91 @@ class RequestProcess extends Component
     }
 
 
-    public function handleStatusChange($requestId)
+         public $showPendingModal = false;
+         public $pendingRequestId = '';
+        public function handleStatusChange($requestId)
     {
-        // Check which status is selected
-        if ($this->selectedStatus == '15') {
+        if ($this->selectedStatus == '5') { // Pending
+            $this->showPendingModal = true;
+            $this->pendingRequestId = $requestId;
+
+        } elseif ($this->selectedStatus == '15') { // Cancel
             $this->cancelModal($requestId);
         } else {
             $this->updateStatus($requestId);
         }
+    }
+
+        public function closePendingModal()
+    {
+        $this->showPendingModal = false;
+        $this->reset(['pendingReason', 'pendingRequestId']);
+    }
+
+
+    public function submitPendingReason()
+    {
+        $this->validate([
+            'pendingReason' => 'required|string|max:255',
+        ]);
+        // Update the request status and reason
+
+        $task = HelpDesks::find($this->pendingRequestId);
+
+        if ($task && $this->selectedStatus) {
+
+            $employee = auth()->guard('it')->user();
+            $employeeEmail = $task->mail;  // The input string
+
+            $employeeName = $task->emp->first_name . ' ' . $task->emp->last_name;
+
+            $requestId = $task->request_id;
+            $shortDescription = $task->description; // Assuming this field exists
+
+            if ($this->selectedStatus === '5') {
+                // Send Pending email
+                Mail::to($employeeEmail)->send(new StatusRequestMail(
+                    $employeeName,
+                    $requestId,
+                    $shortDescription,
+                    $task->category,
+                    'Pending'  // Passing a flag for Pending
+                ));
+            }
+
+            // Update the task status
+            $task->update(['status_code' => $this->selectedStatus,
+                            'pending_reason' => $this->pendingReason]);
+
+
+            // Flash a success message based on the selected status
+            if ($this->selectedStatus === '5') {
+                $activityDetails = "Work in Progress was Pending for Request ID - {$task->request_id}";
+                FlashMessageHelper::flashSuccess("Status has been set to Pending, and email has been sent!");
+            }
+             else {
+                FlashMessageHelper::flashSuccess("Status Updated successfully!");
+            }
+        } else {
+            // Handle case where the task was not found or no status is selected
+            FlashMessageHelper::flashError("Task not found or invalid status.");
+        }
+
+
+        $assigneName =  ucwords(strtolower($employee->employee_name));
+        ActivityLog::create([
+            'action' => 'State',
+            'details' => $activityDetails,
+            'performed_by' => $assigneName,
+            'request_type' => 'Catologue Request',
+            'request_id' => $task->request_id,
+        ]);
+
+
+
+
+        $this->closePendingModal();
+        
     }
 
 

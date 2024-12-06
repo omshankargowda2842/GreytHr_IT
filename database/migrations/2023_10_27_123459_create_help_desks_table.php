@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('subject');
             $table->text('description');
             $table->text('rejection_reason')->nullable();
+            $table->text('pending_reason')->nullable();
             $table->text('active_comment')->nullable();
             $table->text('pending_remarks')->nullable();
              $table->text('inprogress_remarks')->nullable();

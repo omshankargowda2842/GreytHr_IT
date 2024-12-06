@@ -1,7 +1,7 @@
     <div class="main">
 
         <div wire:loading
-            wire:target="submit,setActiveTab,rejectionModal,selectPriority,closePopup,showRejectedRequest,inprogressForDesks,loadLogs,pendingForDesks,closeModal,rejectStatus,cancelModal,cancelStatus,viewRecord,Cancel,viewRejectDetails,closeRejectDetails,closeDetails,closeDetailsBack,selectedStatus,viewApproveDetails,showAllRequest,showRecentRequest,approveStatus,updateStatus,postComment,updateAssigne,redirectBasedOnStatus,viewDetails,openForDesks,postInprogressRemarks,postPendingRemarks,postRemarks,closeForDesks">
+            wire:target="submit,setActiveTab,rejectionModal,selectPriority,closePopup,showRejectedRequest,closePendingModal,submitPendingReason,inprogressForDesks,loadLogs,pendingForDesks,closeModal,rejectStatus,cancelModal,cancelStatus,viewRecord,Cancel,viewRejectDetails,closeRejectDetails,closeDetails,closeDetailsBack,selectedStatus,viewApproveDetails,showAllRequest,showRecentRequest,approveStatus,updateStatus,postComment,updateAssigne,redirectBasedOnStatus,viewDetails,openForDesks,postInprogressRemarks,postPendingRemarks,postRemarks,closeForDesks">
             <div class="loader-overlay">
                 <div>
                     <div class="logo">
@@ -918,7 +918,7 @@
                                             tabindex="-1" role="dialog"
                                             aria-labelledby="attachmentsModalLabel-{{ $selectedRequest->id }}"
                                             aria-hidden="true">
-                                            <div class="modal-dialog1 modal-dialog-centered modal-lg" role="document">
+                                            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
                                                         <h5 class="modal-title"
@@ -938,7 +938,6 @@
 
                                                                     <img src="{{ $selectedRequest->image_url }}"
                                                                         class="req-Res-Image" alt="Image">
-                                                                    <!-- <img src="data:image/jpeg;base64,{{ $selectedRequest->file_path }}" class="img-fluid" width="50" height="50" alt="Image preview"> -->
                                                                 </div>
                                                             </div>
                                                             <!-- Add Pagination -->
@@ -956,9 +955,6 @@
                                                 </div>
                                             </div>
                                         </div>
-
-
-
 
 
                                         <tr>
@@ -1026,6 +1022,40 @@
 
                                             </td>
                                         </tr>
+
+
+                                        @if($showPendingModal)
+                                        <div class="modal fade show d-block" tabindex="-1" role="dialog"
+                                            style="background-color: rgba(0, 0, 0, 0.5);">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <!-- Added modal-dialog-centered for vertical centering -->
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Reason for Pending Status</h5>
+                                                        <button type="button" class="btn-close"
+                                                            wire:click="closePendingModal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body flex-column">
+                                                        <label for="pendingReason" class="form-label">Reason <span
+                                                                class="text-danger">*</span></label>
+                                                        <textarea id="pendingReason" class="form-control"
+                                                            wire:model.defer="pendingReason" rows="3"></textarea>
+                                                        @error('pendingReason')
+                                                        <span class="text-danger">{{ $message }}</span>
+                                                        @enderror
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            wire:click="closePendingModal">Close</button>
+                                                        <button type="button" class="btn btn-primary"
+                                                            wire:click="submitPendingReason">Submit</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endif
+
+
 
                                         <tr>
                                             <td>Comments</td>
@@ -1318,32 +1348,63 @@
 
                                                     <td>{{ $record->mail ??'N/A' }}</td>
 
-                                                    <td>
 
-                                                        @if(isset($record['file_path']) &&
-                                                        is_array($record['file_path']))
-
-                                                        <div class="req-image-grid">
-
-                                                            @foreach($record['file_path'] as $image)
-
-                                                            <a href="{{ $image }}" target="_blank">
-
-                                                                <img src="{{ $image }}" alt="Attached Image">
-
-                                                            </a>
-
-                                                            @endforeach
-
-                                                        </div>
-
+                                                    <td class="view-td">
+                                                        @if($record->image_url)
+                                                        <a href="#" data-toggle="modal" class="requestAttachments"
+                                                            data-target="#attachmentsModal-{{ $record->id }}">
+                                                            <i class="fas fa-eye"></i> View Attachments
+                                                        </a>
                                                         @else
-
-                                                        <p class="d-flex justify-content-center">-</p>
-
+                                                        <span>-</span>
                                                         @endif
 
                                                     </td>
+
+
+                                                    <!-- Modal -->
+                                                    <div class="modal fade" id="attachmentsModal-{{ $record->id }}"
+                                                        tabindex="-1" role="dialog"
+                                                        aria-labelledby="attachmentsModalLabel-{{ $record->id }}"
+                                                        aria-hidden="true">
+                                                        <div class="modal-dialog modal-dialog-centered modal-lg"
+                                                            role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title"
+                                                                        id="attachmentsModalLabel-{{ $record->id }}">
+                                                                        Attachments</h5>
+                                                                    <button type="button" class="close"
+                                                                        data-dismiss="modal" aria-label="Close">
+
+                                                                    </button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <!-- Swiper -->
+                                                                    <div class="swiper-container">
+                                                                        <div class="swiper-wrapper">
+
+                                                                            <div class="swiper-slide reqResSwiper">
+
+                                                                                <img src="{{ $record->image_url }}"
+                                                                                    class="req-Res-Image" alt="Image">
+                                                                            </div>
+                                                                        </div>
+                                                                        <!-- Add Pagination -->
+                                                                        <div class="swiper-pagination"></div>
+                                                                        <!-- Add Navigation -->
+                                                                        <div class="swiper-button-next"></div>
+                                                                        <div class="swiper-button-prev"></div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn text-white"
+                                                                        style="background-color: #02114f;"
+                                                                        data-dismiss="modal">Close</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
 
 
 
@@ -1621,35 +1682,63 @@
 
                                                     <td>{{ $record->mail ??'N/A' }}</td>
 
-                                                    <td>
 
-                                                        @if(isset($record['file_path']) &&
-                                                        is_array($record['file_path']))
-
-                                                        <div class="req-image-grid">
-
-                                                            @foreach($record['file_path'] as $image)
-
-                                                            <a href="{{ $image }}" target="_blank">
-
-                                                                <img src="{{ $image }}" alt="Attached Image">
-
-                                                            </a>
-
-                                                            @endforeach
-
-                                                        </div>
-
+                                                    <td class="view-td">
+                                                        @if($record->image_url)
+                                                        <a href="#" data-toggle="modal" class="requestAttachments"
+                                                            data-target="#attachmentsModal-{{ $record->id }}">
+                                                            <i class="fas fa-eye"></i> View Attachments
+                                                        </a>
                                                         @else
-
-                                                        <p class="d-flex justify-content-center">-</p>
-
+                                                        <span>-</span>
                                                         @endif
 
                                                     </td>
 
 
+                                                    <!-- Modal -->
+                                                    <div class="modal fade" id="attachmentsModal-{{ $record->id }}"
+                                                        tabindex="-1" role="dialog"
+                                                        aria-labelledby="attachmentsModalLabel-{{ $record->id }}"
+                                                        aria-hidden="true">
+                                                        <div class="modal-dialog modal-dialog-centered modal-lg"
+                                                            role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title"
+                                                                        id="attachmentsModalLabel-{{ $record->id }}">
+                                                                        Attachments</h5>
+                                                                    <button type="button" class="close"
+                                                                        data-dismiss="modal" aria-label="Close">
 
+                                                                    </button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <!-- Swiper -->
+                                                                    <div class="swiper-container">
+                                                                        <div class="swiper-wrapper">
+
+                                                                            <div class="swiper-slide reqResSwiper">
+
+                                                                                <img src="{{ $record->image_url }}"
+                                                                                    class="req-Res-Image" alt="Image">
+                                                                            </div>
+                                                                        </div>
+                                                                        <!-- Add Pagination -->
+                                                                        <div class="swiper-pagination"></div>
+                                                                        <!-- Add Navigation -->
+                                                                        <div class="swiper-button-next"></div>
+                                                                        <div class="swiper-button-prev"></div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn text-white"
+                                                                        style="background-color: #02114f;"
+                                                                        data-dismiss="modal">Close</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
 
 
                                                     <td>{{ $record->priority?? 'N/A' }}</td>
@@ -2085,30 +2174,34 @@
 
 
                                                         <!-- Display files if available -->
-                                                        <div id="modalFiles" class="service-detail-item">
-                                                            @if (isset($selectedRecord->file_path))
-                                                            <strong>Attachments:</strong>
-                                                            <!-- Button to trigger the modal -->
-                                                            <button type="button" class="btn btn-link"
-                                                                data-toggle="modal" data-target="#attachmentsModal">
-                                                                View Attachments
-                                                            </button>
-                                                            @else
-                                                            <p>No files attached.</p>
-                                                            @endif
+                                                        <div id="modalFiles" class="row service-detail-item">
+                                                            <div class="col-6">
+                                                                <strong>Attachments:</strong>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                @if (isset($selectedRecord->file_path))
+                                                                <!-- Button to trigger the modal -->
+                                                                <button type="button" class="btn btn-link"
+                                                                    data-toggle="modal" data-target="#attachmentsModal">
+                                                                    View Attachments
+                                                                </button>
+                                                                @else
+                                                                <p>No files attached.</p>
+                                                                @endif
+                                                            </div>
                                                         </div>
 
 
-                                                        <div class="modal fade" id="attachmentsModal" tabindex="-1"
+                                                        <div class="modal fade stack-modal" id="attachmentsModal" tabindex="-1"
                                                             role="dialog" aria-labelledby="attachmentsModalLabel"
                                                             aria-hidden="true">
-                                                            <div class="modal-dialog modal-lg" role="document">
-                                                                <div class="modal-content">
+                                                            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                                                                <div class="modal-content"  style="border: 2px solid #02114f;">
                                                                     <div class="modal-header">
                                                                         <h5 class="modal-title"
                                                                             id="attachmentsModalLabel">Attachments
                                                                         </h5>
-                                                                        <button type="button" class="close"
+                                                                        <button type="button" class="close p-2"
                                                                             data-dismiss="modal" aria-label="Close">
                                                                             <span aria-hidden="true">&times;</span>
                                                                         </button>
