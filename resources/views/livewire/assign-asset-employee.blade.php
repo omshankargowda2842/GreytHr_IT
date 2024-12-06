@@ -447,7 +447,7 @@
                                 auth()->user()->hasRole('super_admin')))
                                 <div class="col mx-1">
                                     <button class="btn text-white btn-sm border-dark" style="background-color: #02114f;"
-                                        wire:click="confirmDelete({{ $employeeAssetList->id }})" title="Delete">
+                                        wire:click="confirmDelete('{{ $employeeAssetList->id }}','{{$employeeAssetList->asset_id}}')" title="Deactivate">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
@@ -932,14 +932,32 @@
                     <form wire:submit.prevent="delete">
 
                         <div class="row">
-                            <div class="col-12 req-remarks-div">
 
+                        <div class="col-5 req-remarks-div" style="display: flex;flex-direction:column">
+                            <label style="text-align: left;" for="">Asset Status <span class="text-danger">*</span></label>
+                            <select id="vendorStatus" wire:model.lazy="selectedStatus"
+                                    class=" form-select" style="height: 33px; border-radius: 6px;">
+                                    <option value="" disabled selected>Select Status</option>
+                                    <!-- Placeholder option -->
+                                    <option value="In Use">In Use</option>
+                                    <option value="In Repair">In Repair</option>
+                                    <option value="Available">Available</option>
+                                </select>
+                                @error('selectedStatus') <span class="text-danger d-flex align-start">{{ $message }}</span>@enderror
+                            </div>
+                            <div class="col-7 req-remarks-div " style="display: flex;flex-direction:column">
+                                <label style="text-align: left;" for="">Reason<span class="text-danger">*</span></label>
                                 <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea logout4"
                                     placeholder="Reason for Deactivation"></textarea>
+                                    @error('reason') <span class="text-danger d-flex align-start">{{ $message }}</span>@enderror
 
                             </div>
+
+
+
+
                         </div>
-                        @error('reason') <span class="text-danger d-flex align-start">{{ $message }}</span>@enderror
+
                         <div class="d-flex justify-content-center p-3">
                             <button type="submit" class="submit-btn mr-3"
                                 wire:click="delete({{ $employeeAssetList->id }})">Confirm</button>
