@@ -103,7 +103,7 @@
                         <li
                             class="{{ request()->routeIs('vendor') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
                             <a href="#" wire:click='vendor' class="sidebar-submenu-item-link">
-                                <span class="sidebar-submenu-item-link-text">Vendor Request</span>
+                                <span class="sidebar-submenu-item-link-text">Vendor Management</span>
                             </a>
                         </li>
                         <li
@@ -176,7 +176,7 @@
                 @break
 
                 @case('vendor')
-                Vendor Request
+                Vendor Management
                 @break
 
                 @case('vendorAssets')
@@ -223,7 +223,7 @@
                     @break
 
                     @case('vendor')
-                    Vendor Request
+                    Vendor Management
                     @break
 
                     @case('vendorAssets')

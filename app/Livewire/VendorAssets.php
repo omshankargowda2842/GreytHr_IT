@@ -54,7 +54,7 @@ class VendorAssets extends Component
     public $selectedVendorId;
     public $showLogoutModal = false;
     public $restoreModal = false;
-    public $reason = [];
+    public $reason =  [];
 
     protected function rules(): array
     {
@@ -78,7 +78,6 @@ class VendorAssets extends Component
             'warranty_expire_date' => 'nullable|date|after:today',
             'file_paths.*' => 'nullable|file|mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif|max:40960',
         ];
-
 
         if ($this->quantity === null || $this->quantity < 1) {
             $rules['quantity'] = 'required|integer|min:1';  // Ensure it's required if missing or invalid
@@ -164,6 +163,7 @@ class VendorAssets extends Component
         'invoiceAmount.min' => 'Invoice Amount must be at least 0.',
 
         'purchaseDate.required' => 'Purchase Date is required.',
+        'purchaseDate.date' => 'Purchase Date must be a valid date.',
         'purchaseDate.date' => 'Purchase Date must be a valid date.',
         'purchaseDate.before_or_equal' => 'Purchase Date cannot be a future date.',
 
@@ -357,12 +357,38 @@ class VendorAssets extends Component
         $this->warranty_expire_date = null;
         $this->file_paths = [];
 
+    {
+        // Reset fields related to Asset model
+        $this->selectedVendorId = '';
+        $this->assetType = '';
+        $this->quantity = '';
+        $this->assetModel = '';
+        $this->assetSpecification = '';
+        $this->color = '';
+        $this->version = '';
+        $this->serialNumber = '';
+        $this->invoiceNumber = '';
+        $this->taxableAmount = '';
+        $this->invoiceAmount = '';
+        $this->gstState = '';
+        $this->gstCentral = '';
+        $this->gstIg = '';
+        $this->manufacturer = '';
+        $this->purchaseDate = null;
+        $this->warranty_expire_date = null;
+        $this->file_paths = [];
 
         $this->selectedAssetId = null; // Reset the selected asset ID
         $this->editMode = false; // Reset edit mode
         $this->showAddVendor = false; // Hide add vendor form
         $this->showEditDeleteVendor = true; // Show edit/delete vendor options
     }
+        $this->selectedAssetId = null; // Reset the selected asset ID
+        $this->editMode = false; // Reset edit mode
+        $this->showAddVendor = false; // Hide add vendor form
+        $this->showEditDeleteVendor = true; // Show edit/delete vendor options
+    }
+
 
     public function cancel()
     {
@@ -505,10 +531,12 @@ class VendorAssets extends Component
         $this->restoreModal = true;
     }
 
-    public function updateStatus($vendorAssetId, $newStatus)
-    {
+    public function updateStatus($vendorAssetId, $newStatus){
         $vendorAsset = VendorAsset::find($vendorAssetId);
 
+        if ($vendorAsset) {
+            $vendorAsset->status = $newStatus;
+            $vendorAsset->save();
         if ($vendorAsset) {
             $vendorAsset->status = $newStatus;
             $vendorAsset->save();
@@ -517,6 +545,7 @@ class VendorAssets extends Component
             FlashMessageHelper::flashSuccess("Vendor status updated successfully.");
         }
     }
+}
     public $previews=[];
     public $all_files = [];
     public function updatedFilePaths()
@@ -576,16 +605,10 @@ class VendorAssets extends Component
     }
 
 
-
     public function submit()
     {
-
         $this->validate($this->rules());
-
-
-
         try {
-
             $this->file_paths=$this->all_files;
             $barcodeBase64 = null;
             if (!empty($this->serialNumber)) {
@@ -707,7 +730,7 @@ class VendorAssets extends Component
 
                 // Create new asset record
                 for ($i = 0; $i < $this->quantity; $i++) {
-                    VendorAsset::create([
+                   $data =  VendorAsset::create([
                         'vendor_id' => $this->selectedVendorId,
                         'manufacturer' => $this->manufacturer,
                         'asset_type' => $this->assetType,
@@ -738,6 +761,7 @@ class VendorAssets extends Component
             FlashMessageHelper::flashError("An error occurred during submission. Please try again later!");
         }
     }
+
 
     public $newAssetName;
     public $isModalOpen = false;
@@ -908,7 +932,21 @@ class VendorAssets extends Component
         } catch (\Exception $e) {
             // Log the error message
             Log::error('Error in toggleSortOrder: ' . $e->getMessage());
+            if ($this->sortColumn == $column) {
+                // If the column is the same, toggle the sort direction
+                $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                // If a different column is clicked, set it as the new sort column and default to ascending order
+                $this->sortColumn = $column;
+                $this->sortDirection = 'asc';
+            }
+        } catch (\Exception $e) {
+            // Log the error message
+            Log::error('Error in toggleSortOrder: ' . $e->getMessage());
 
+            // Optionally, set default sort direction or handle the error gracefully
+            $this->sortColumn = 'vendor_id'; // Example default sort column
+            $this->sortDirection = 'asc'; // Example default sort direction
             // Optionally, set default sort direction or handle the error gracefully
             $this->sortColumn = 'vendor_id'; // Example default sort column
             $this->sortDirection = 'asc'; // Example default sort direction
@@ -916,7 +954,10 @@ class VendorAssets extends Component
             // You may want to display an error message to the user, if needed
             session()->flash('error', 'An error occurred while changing the sort order.');
         }
-    }
+            // You may want to display an error message to the user, if needed
+            session()->flash('error', 'An error occurred while changing the sort order.');
+        }
+
 
 
 
