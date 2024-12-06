@@ -2,7 +2,7 @@
 
 
     <div wire:loading
-        wire:target="cancel,submit,createAssetType,showAddVendorMember,updateStatus ,delete,clearFilters ,showEditAsset ,showViewVendor,showViewImage,showViewFile,showEditVendor,closeViewVendor,downloadImages,closeViewImage,closeViewFile,confirmDelete ,cancelLogout,restore">
+        wire:target="cancel,submit,file_paths,createAssetType,removeFile,showAddVendorMember,updateStatus ,delete,clearFilters ,showEditAsset ,showViewVendor,showViewImage,showViewFile,showEditVendor,closeViewVendor,downloadImages,closeViewImage,closeViewFile,confirmDelete ,cancelLogout,restore">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -36,8 +36,8 @@
 
         <div class="border rounded p-3 bg-light" style="max-height: 400px; overflow-y: auto;">
             <form wire:submit.prevent="submit" enctype="multipart/form-data">
-                <div class="row mb-3">
-                    <div class="col-md-6">
+                <div class="row ">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="vendor" class="vendor-asset-label">
@@ -46,7 +46,7 @@
                             <div class="col-8">
                                 <select id="vendor" wire:model.lazy="selectedVendorId"
                                     wire:change="resetValidationForField('selectedVendorId')"
-                                    class="vendor-selected-vendorID">
+                                    class="vendor-selected-vendorID form-select ">
                                     <option value="" disabled hidden>Select Vendor</option>
                                     @foreach($vendors as $vendor)
                                     <option value="{{ $vendor->vendor_id }}">
@@ -62,7 +62,7 @@
                     </div>
 
 
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="quantity" class="vendor-asset-label">
@@ -80,9 +80,9 @@
 
                 </div>
 
-                <div class="row mb-3">
+                <div class="row">
                     <!-- Manufacturer -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="manufacturer" class="vendor-asset-label">
@@ -98,7 +98,7 @@
                         </div>
                     </div>
                     <!-- Asset Type -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="assetType" class="vendor-asset-label">
@@ -109,7 +109,8 @@
                                 <div class="input-group">
                                     <select wire:model.lazy="assetType"
                                         wire:change="handleAssetTypeChangeAndResetValidation" id="assetType"
-                                        class="vendor-selected-AssetType">
+                                        class="vendor-selected-AssetType form-select"
+                                        wire:key="asset-type-select">
                                         <option value="" disabled hidden>Select Asset Type</option>
                                         @foreach($assetNames as $asset)
                                         <option value="{{ $asset->id }}">{{ ucwords(strtolower($asset->asset_names)) }}
@@ -143,9 +144,9 @@
                                             <label for="assetName" class="vendor-asset-label">Asset Name</label>
                                             <div style="display:flex;gap:5px">
                                                 <input type="text" class="form-control" id="assetName" style="width: 80%;" wire:model.lazy="newAssetName"
-                                                wire:keydown="resetValidationForField('newAssetName')">
+                                                    wire:keydown="resetValidationForField('newAssetName')">
                                                 <button type="button" wire:click="createAssetType" class="btn text-white"
-                                                style="background-color: #02114f;">Create</button>
+                                                    style="background-color: #02114f;">Create</button>
                                             </div>
 
 
@@ -173,9 +174,9 @@
                     @endif
                 </div>
 
-                <div class="row mb-3">
+                <div class="row">
                     <!-- Asset Model -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="assetModel" class="vendor-asset-label">
@@ -192,7 +193,7 @@
                     </div>
 
                     <!-- Asset Specification -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="assetSpecification" class="vendor-asset-label">
@@ -208,9 +209,9 @@
                     </div>
                 </div>
 
-                <div class="row mb-3">
+                <div class="row">
                     <!-- Color -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="color" class="vendor-asset-label ml-2"> Color</label>
@@ -223,7 +224,7 @@
                     </div>
 
                     <!-- Version -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="version" class="vendor-asset-label">Version</label>
@@ -236,10 +237,10 @@
 
                 </div>
 
-                <div class="row mb-3">
+                <div class="row">
                     <!-- Serial Number -->
                     @if($quantity == 1)
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="serialNumber" class="vendor-asset-label">
@@ -248,7 +249,7 @@
                             </div>
                             <div class="col-8">
                                 <input type="text" id="serialNumber" wire:model.lazy="serialNumber"
-                                    wire:keydown="resetValidationForField('serialNumber')" class="form-control">
+                                    wire:keydown="resetValidationForField('serialNumber')" class="form-control" maxlength="20" minlength="6">
                                 @error('serialNumber') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -256,7 +257,7 @@
                     @endif
 
                     <!-- Invoice Number -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="invoiceNumber" class="vendor-asset-label">
@@ -271,10 +272,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="row mb-3">
+                <div class="row ">
 
                     @if (empty($gstState) && empty($gstCentral))
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 @if (!empty($gstIg))
@@ -296,10 +297,10 @@
                 @endif
 
                 @if (empty($gstIg))
-                <div class="row mb-3">
+                <div class="row ">
 
                     <!-- GST State -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="gstState" class="vendor-asset-label">State
@@ -317,7 +318,7 @@
                     </div>
 
                     <!-- GST Central -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="gstCentral" class="vendor-asset-label">Central GST
@@ -336,9 +337,9 @@
                 @endif
 
 
-                <div class="row mb-3">
+                <div class="row ">
                     <!-- Taxable Amount -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="taxableAmount" class="vendor-asset-label">
@@ -354,7 +355,7 @@
 
                     </div>
                     <!-- Invoice Amount -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="invoiceAmount" class="vendor-asset-label">
@@ -374,9 +375,9 @@
                 </div>
 
 
-                <div class="row mb-3">
+                <div class="row ">
                     <!-- Purchase Date -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="purchaseDate" class="vendor-asset-label">Purchase
@@ -390,7 +391,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="warranty_expire_date" class="vendor-asset-label">Warranty Expiration Date
@@ -406,7 +407,7 @@
                     </div>
 
 
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
 
@@ -432,16 +433,77 @@
                                 </p>
                             </div>
                             <div class="col-8">
-                                <input id="file" type="file" wire:model="file_paths" wire:loading.attr="disabled"
-                                    multiple style="font-size: 12px;" />
+                                <!-- File input hidden -->
+                                <input id="fileInput" type="file" wire:model="file_paths" class="form-control-file" multiple style="font-size: 12px; display: none;" />
+
+                                <!-- Label triggers file input -->
+                                <div class="d-flex" style="align-items: baseline;gap: 5px;">
+                                    <button class="btn btn-outline-secondary " type="button" for="fileInput"
+                                        onclick="document.getElementById('fileInput').click();">
+                                        <i class="fa-solid fa-paperclip"></i>
+                                    </button>
+                                    @if(count($all_files)<=0)
+                                        No File Choosen
+                                        @else
+                                        <p>{{count($all_files)}} File/s selected</p>
+                                        @endif
+
+                                </div>
+
+                                @if($showSuccessMsg)
+                                <div wire:poll.60="hideSuccessMsg">
+                                    <p style="color:green;">{{$successImageMessage}}</p>
+                                </div>
+                                @endif
+
+
                                 <div wire:loading wire:target="file_paths" class="mt-2">
                                     <i class="fas fa-spinner fa-spin"></i> Uploading...
                                 </div>
                                 @error('file_paths.*') <span class="text-danger">{{ $message }}</span> @enderror
                             </div>
+
                         </div>
 
                     </div>
+
+                </div>
+                <div class="col-md-12 mb-2">
+                    @if (is_array($previews) && count($previews) > 0)
+                    <div class="mt-3">
+                        <h6>File Previews:</h6>
+                        <div class="d-flex flex-wrap gap-3">
+                            @foreach ($previews as $index => $preview)
+                            <div
+                                class="file-preview-container text-center"
+                                style="padding: 5px; border: 1px solid black; width: 120px; height: 120px; border-radius: 5px; position: relative; overflow: hidden;">
+
+                                @if ($preview['type'] == 'image')
+                                <!-- Show image preview -->
+                                <img src="{{ $preview['url'] }}" alt="Preview" class="img-thumbnail" style="width: 75px; height: 75px;" />
+                                <span class="mt-1">{{ $preview['name'] }}</span>
+                                @else
+                                <!-- Show non-image file -->
+                                <div class="d-flex flex-column align-items-center">
+                                    <i style="width: 75px; height: 75px;" class="fas fa-file fa-3x"></i>
+                                    <span class="mt-1 uploaded-file-name" style="display: block; width: 100%;">{{ $preview['name'] }}</span>
+                                </div>
+                                @endif
+
+                                <!-- Delete icon -->
+                                <button
+                                    type="button"
+                                    class="delete-icon btn btn-danger"
+                                    wire:click="removeFile({{ $index }})"
+                                    style="position: absolute; top: 5%; right: 5%; z-index: 5;  font-size: 12px;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+
 
                 </div>
                 <div class="d-flex justify-content-center">

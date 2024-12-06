@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
 use Picqer\Barcode\BarcodeGeneratorPNG;
+
 class VendorAssets extends Component
 {
     use WithFileUploads;
@@ -21,7 +22,10 @@ class VendorAssets extends Component
     public $assetTypeSearch = '';
     public $assetTypeName = '';
     public $filteredAssetTypes = [];
-    public $assetType;
+    public $assetType = "";
+    public $selectedStatus='';
+    public $successImageMessage='File/s uploaded successfully!';
+    public $showSuccessMsg=false;
     public $assetModel;
     public $assetSpecification;
     public $color;
@@ -40,7 +44,7 @@ class VendorAssets extends Component
     public $file_paths = [];
     public $existingFilePaths = [];
     public $showEditDeleteVendor = true;
-    public $vendorAssets ;
+    public $vendorAssets;
     public $selectedAssetId;
     public $showAddVendor = false;
     public $editMode = false;
@@ -50,7 +54,7 @@ class VendorAssets extends Component
     public $selectedVendorId;
     public $showLogoutModal = false;
     public $restoreModal = false;
-    public $reason =[];
+    public $reason = [];
 
     protected function rules(): array
     {
@@ -62,7 +66,7 @@ class VendorAssets extends Component
             'color' => 'nullable|string|max:50',
             'version' => 'nullable|string|max:50',
 
-            'invoiceNumber' => 'required|string|max:255', // Ensure this is required
+            'invoiceNumber' => 'required|string|max:30|min:4', // Ensure this is required
             'taxableAmount' => 'required|numeric|min:0', // Ensure this is required
             'invoiceAmount' => 'required|numeric|min:0', // Ensure this is required
             'gstIg' => 'nullable|numeric|min:0',
@@ -82,9 +86,9 @@ class VendorAssets extends Component
 
         // Conditional rule for 'serialNumber' based on 'quantity'
         if ($this->quantity == 1) {
-            $rules['serialNumber'] = 'required|string|max:255|unique:vendor_assets,serial_number';
+            $rules['serialNumber'] = 'required|string|max:30|min:6|unique:vendor_assets,serial_number';
         } else {
-            $rules['serialNumber'] = 'nullable|string|max:255'; // No need for serial number if quantity > 1
+            $rules['serialNumber'] = 'nullable|string|max:30|min:6'; // No need for serial number if quantity > 1
         }
 
         if (!$this->editMode) {
@@ -97,7 +101,8 @@ class VendorAssets extends Component
             $rules['serialNumber'] = [
                 'required',
                 'string',
-                'max:255',
+                'max:30',
+                'min:6',
                 'unique:vendor_assets,serial_number,' . $this->selectedAssetId . ',id',
             ];
         }
@@ -132,11 +137,13 @@ class VendorAssets extends Component
         'serialNumber.required' => 'Serial Number is required.',
         'serialNumber.string' => 'Serial Number must be a string.',
         // 'serialNumber.unique' => 'Serial Number has already been taken.',
-        'serialNumber.max' => 'Serial Number may not be greater than 255 characters.',
+        'serialNumber.max' => 'Serial Number may not be greater than 30 characters.',
+        'serialNumber.min' => 'Serial Number may not be less than 6 characters.',
 
         'invoiceNumber.required' => 'Invoice Number is required.',
         'invoiceNumber.string' => 'Invoice Number must be a string.',
-        'invoiceNumber.max' => 'Invoice Number may not be greater than 255 characters.',
+        'invoiceNumber.min' => 'Invoice Number may not be less than 4 characters.',
+        'invoiceNumber.max' => 'Invoice Number may not be greater than 30 characters.',
 
         'gstState.required_without' => 'State GST field is required when IGST is not provided.',
         'gstCentral.required_without' => 'Central GST field is required when GST IG is not provided.',
@@ -157,7 +164,7 @@ class VendorAssets extends Component
         'invoiceAmount.min' => 'Invoice Amount must be at least 0.',
 
         'purchaseDate.required' => 'Purchase Date is required.',
-         'purchaseDate.date' => 'Purchase Date must be a valid date.',
+        'purchaseDate.date' => 'Purchase Date must be a valid date.',
         'purchaseDate.before_or_equal' => 'Purchase Date cannot be a future date.',
 
         'warranty_expire_date.date' => 'Warranty expiration date must be a valid date.',
@@ -173,10 +180,10 @@ class VendorAssets extends Component
     ];
 
     public function handleAssetTypeChangeAndResetValidation()
-{
-    $this->handleAssetTypeChange();
-    $this->resetValidationForField('assetType');
-}
+    {
+        $this->handleAssetTypeChange();
+        $this->resetValidationForField('assetType');
+    }
 
 
     public function handleAssetTypeChange()
@@ -186,6 +193,7 @@ class VendorAssets extends Component
         if ($this->assetType === 'others') {
             // Open the modal when 'Others' is selected
             $this->showModal();
+            $this->reset('assetType');
         }
     }
 
@@ -328,34 +336,36 @@ class VendorAssets extends Component
 
 
     private function resetForm()
-{
-    // Reset fields related to Asset model
-    $this->selectedVendorId ='';
-    $this->assetType = '';
-    $this->quantity = '';
-    $this->assetModel = '';
-    $this->assetSpecification = '';
-    $this->color = '';
-    $this->version = '';
-    $this->serialNumber = '';
-    $this->invoiceNumber = '';
-    $this->taxableAmount = '';
-    $this->invoiceAmount = '';
-    $this->gstState = '';
-    $this->gstCentral = '';
-    $this->gstIg = '';
-    $this->manufacturer = '';
-    $this->purchaseDate = null;
-    $this->warranty_expire_date = null;
-    $this->file_paths = [];
+    {
+        // Reset fields related to Asset model
+        $this->selectedVendorId = '';
+        $this->assetType = "";
+        $this->quantity = '';
+        $this->assetModel = '';
+        $this->assetSpecification = '';
+        $this->color = '';
+        $this->version = '';
+        $this->serialNumber = '';
+        $this->invoiceNumber = '';
+        $this->taxableAmount = '';
+        $this->invoiceAmount = '';
+        $this->gstState = '';
+        $this->gstCentral = '';
+        $this->gstIg = '';
+        $this->manufacturer = '';
+        $this->purchaseDate = null;
+        $this->warranty_expire_date = null;
+        $this->file_paths = [];
 
-    $this->selectedAssetId = null; // Reset the selected asset ID
-    $this->editMode = false; // Reset edit mode
-    $this->showAddVendor = false; // Hide add vendor form
-    $this->showEditDeleteVendor = true; // Show edit/delete vendor options
-}
 
-    public function cancel(){
+        $this->selectedAssetId = null; // Reset the selected asset ID
+        $this->editMode = false; // Reset edit mode
+        $this->showAddVendor = false; // Hide add vendor form
+        $this->showEditDeleteVendor = true; // Show edit/delete vendor options
+    }
+
+    public function cancel()
+    {
         $this->showAddVendor = false;
         $this->editMode = false;
         $this->showEditDeleteVendor = true;
@@ -364,7 +374,6 @@ class VendorAssets extends Component
         $this->recordId = null;
         $this->reason = '';
         $this->resetErrorBag();
-
     }
     public function delete()
     {
@@ -397,7 +406,6 @@ class VendorAssets extends Component
             } else {
                 return response()->json(['message' => 'Vendor asset not found'], 404);
             }
-
         } catch (\Exception $e) {
             // Handle any exception that occurs and return a proper response
             return response()->json([
@@ -488,200 +496,252 @@ class VendorAssets extends Component
     }
 
 
-public $vendorAssetIdToRestore;
+    public $vendorAssetIdToRestore;
 
 
-public function cancelLogout($id)
-{
-    $this->vendorAssetIdToRestore = $id;
-     $this->restoreModal = true;
-}
-
-public function updateStatus($vendorAssetId, $newStatus)
-{
-    $vendorAsset = VendorAsset::find($vendorAssetId);
-
-    if ($vendorAsset) {
-        $vendorAsset->status = $newStatus;
-        $vendorAsset->save();
-
-        // Optionally, you can emit an event to notify the UI or log actions.
-        FlashMessageHelper::flashSuccess("Vendor status updated successfully.");
-
+    public function cancelLogout($id)
+    {
+        $this->vendorAssetIdToRestore = $id;
+        $this->restoreModal = true;
     }
-}
 
+    public function updateStatus($vendorAssetId, $newStatus)
+    {
+        $vendorAsset = VendorAsset::find($vendorAssetId);
 
-public function submit()
-{
+        if ($vendorAsset) {
+            $vendorAsset->status = $newStatus;
+            $vendorAsset->save();
 
-    $this->validate($this->rules());
-
-
-
-    try {
-
-        $barcodeBase64 = null;
-        if (!empty($this->serialNumber)) {
-
-    $generator = new BarcodeGeneratorPNG();
-
-    $barcode = $generator->getBarcode($this->serialNumber, $generator::TYPE_CODE_128,2);
-
-
-    $barcodeBase64 = base64_encode($barcode);
-    $barcodeBase64 = substr($barcodeBase64, 0, 100);
-
+            // Optionally, you can emit an event to notify the UI or log actions.
+            FlashMessageHelper::flashSuccess("Vendor status updated successfully.");
         }
-    $fileDataArray = [];
+    }
+    public $previews=[];
+    public $all_files = [];
+    public function updatedFilePaths()
+    {
+        foreach ($this->file_paths as $file) {
+            // Ensure no duplicate files are added
+            $existingFileNames = array_map(function ($existingFile) {
+                return $existingFile->getClientOriginalName();
+            }, $this->all_files);
 
-    if ($this->editMode) {
-        // Fetch the existing vendor record
-        $vendorAst = VendorAsset::find($this->selectedAssetId);
+            if (!in_array($file->getClientOriginalName(), $existingFileNames)) {
+                // Append only new files to all_files
+                $this->all_files[] = $file;
 
-        if ($vendorAst) {
-
-            // Retrieve and decode existing file paths
-            $existingFileData = json_decode($vendorAst->file_paths, true);
-
-            // Ensure existing file data is an array
-            $existingFileData = is_array($existingFileData) ? $existingFileData : [];
-
-            // If new files are uploaded, replace the existing ones
-            if ($this->file_paths) {
-                $this->validate([
-                    'file_paths.*' => 'nullable|file|mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif|max:40960',
-                ]);
-
-                foreach ($this->file_paths as $file) {
-
-                        if ($file->isValid()) {
-                            $fileContent = file_get_contents($file->getRealPath());
-                            $mimeType = $file->getMimeType();
-                            $base64File = base64_encode($fileContent);
-
-                            // Add new file to the array
-                            $fileDataArray[] = [
-                                'data' => $base64File,
-                                'mime_type' => $mimeType,
-                                'original_name' => $file->getClientOriginalName(),
-                            ];
-                        } else {
-                            Log::error('File is not valid:', ['file' => $file->getClientOriginalName()]);
-                        }
-
-                }
-            } else {
-                // No new files provided, keep the existing files
-                $fileDataArray = $existingFileData;
-            }
-        }
-    } else {
-        // New record creation
-        if ($this->file_paths) {
-            $this->validate([
-                'file_paths.*' => 'nullable|file|mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif|max:40960',
-            ]);
-
-            foreach ($this->file_paths as $file) {
                 try {
-                    if ($file->isValid()) {
-                        $fileContent = file_get_contents($file->getRealPath());
-                        $mimeType = $file->getMimeType();
-                        $base64File = base64_encode($fileContent);
-
-                        // Add new file to the array
-                        $fileDataArray[] = [
-                            'data' => $base64File,
-                            'mime_type' => $mimeType,
-                            'original_name' => $file->getClientOriginalName(),
+                    // Generate previews only for the new file
+                    if (in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'])) {
+                        $base64Image = base64_encode(file_get_contents($file->getRealPath()));
+                        $this->previews[] = [
+                            'url' => 'data:' . $file->getMimeType() . ';base64,' . $base64Image,
+                            'type' => 'image',
+                            'name' => $file->getClientOriginalName(),
                         ];
                     } else {
-                        Log::error('File is not valid:', ['file' => $file->getClientOriginalName()]);
+                        $this->previews[] = [
+                            'type' => 'file',
+                            'name' => $file->getClientOriginalName(),
+                        ];
                     }
-                } catch (\Exception $e) {
-                    Log::error('Error processing file:', [
+                } catch (\Throwable $th) {
+                    Log::error('Error generating preview:', [
                         'file' => $file->getClientOriginalName(),
-                        'error' => $e->getMessage()
+                        'error' => $th->getMessage(),
                     ]);
                 }
             }
         }
+        $this->showSuccessMsg=true;
+
+
+        // Log the names of all files
+
+    }
+    public function  hideSuccessMsg(){
+        $this->showSuccessMsg=false;
+    }
+
+    public function removeFile($index)
+    {
+        // Remove the file and its preview by index
+        unset($this->all_files[$index]);
+        unset($this->previews[$index]);
+
+        // Reindex the arrays
+        $this->all_files = array_values($this->all_files);
+        $this->previews = array_values($this->previews);
     }
 
 
 
-    if ($this->editMode) {
-        // Update existing asset record
-        $asset = VendorAsset::find($this->selectedAssetId);
+    public function submit()
+    {
 
-        if ($asset) {
+        $this->validate($this->rules());
 
-            $asset->update([
-                'vendor_id' => $this->selectedVendorId,
-                'manufacturer' => $this->manufacturer,
-                'asset_type' => $this->assetType,
-                'asset_model' => $this->assetModel,
-                'asset_specification' => $this->assetSpecification,
-                'color' => $this->color,
-                'version' => $this->version,
-                'serial_number' => $this->serialNumber,
-                'invoice_number' => $this->invoiceNumber,
-                'taxable_amount' => $this->taxableAmount,
-                'invoice_amount' => $this->invoiceAmount,
-                'barcode' => $barcodeBase64,
-                'gst_state' => $this->gstState,
-                'gst_central' => $this->gstCentral,
-                'gst_ig' => $this->gstIg,
-                'purchase_date' => $this->purchaseDate ? $this->purchaseDate : null,
-                'warranty_expire_date' => $this->warranty_expire_date ? $this->warranty_expire_date : null,
-                'file_paths' => json_encode($fileDataArray),
-            ]);
-            FlashMessageHelper::flashSuccess("Asset updated successfully!");
-        }
-    } else {
 
-        // Create new asset record
-        for ($i = 0; $i < $this->quantity; $i++) {
-        VendorAsset::create([
-            'vendor_id' => $this->selectedVendorId,
-            'manufacturer' => $this->manufacturer,
-            'asset_type' => $this->assetType,
-            'asset_model' => $this->assetModel,
-            'asset_specification' => $this->assetSpecification,
-            'color' => $this->color,
-            'version' => $this->version,
-            'serial_number' => $this->serialNumber,
-            'invoice_number' => $this->invoiceNumber,
-            'taxable_amount' => $this->taxableAmount,
-            'invoice_amount' => $this->invoiceAmount,
-            'barcode' => $barcodeBase64,
-            'gst_state' => $this->gstState,
-            'gst_central' => $this->gstCentral,
-            'gst_ig' => $this->gstIg,
-            'purchase_date' => $this->purchaseDate ? $this->purchaseDate : null,
-            'warranty_expire_date' => $this->warranty_expire_date ? $this->warranty_expire_date : null,
-            'file_paths' => json_encode($fileDataArray),
-        ]);
 
-    }
-    FlashMessageHelper::flashSuccess("Asset created successfully!");
-    }
+        try {
+
+            $this->file_paths=$this->all_files;
+            $barcodeBase64 = null;
+            if (!empty($this->serialNumber)) {
+
+                $generator = new BarcodeGeneratorPNG();
+
+                $barcode = $generator->getBarcode($this->serialNumber, $generator::TYPE_CODE_128, 2);
+
+
+                $barcodeBase64 = base64_encode($barcode);
+                $barcodeBase64 = substr($barcodeBase64, 0, 100);
+            }
+            $fileDataArray = [];
+
+            if ($this->editMode) {
+                // Fetch the existing vendor record
+                $vendorAst = VendorAsset::find($this->selectedAssetId);
+
+                if ($vendorAst) {
+
+                    // Retrieve and decode existing file paths
+                    $existingFileData = json_decode($vendorAst->file_paths, true);
+
+                    // Ensure existing file data is an array
+                    $existingFileData = is_array($existingFileData) ? $existingFileData : [];
+
+                    // If new files are uploaded, replace the existing ones
+                    if ($this->file_paths) {
+                        $this->validate([
+                            'file_paths.*' => 'nullable|file|mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif|max:40960',
+                        ]);
+
+                        foreach ($this->file_paths as $file) {
+
+                            if ($file->isValid()) {
+                                $fileContent = file_get_contents($file->getRealPath());
+                                $mimeType = $file->getMimeType();
+                                $base64File = base64_encode($fileContent);
+
+                                // Add new file to the array
+                                $fileDataArray[] = [
+                                    'data' => $base64File,
+                                    'mime_type' => $mimeType,
+                                    'original_name' => $file->getClientOriginalName(),
+                                ];
+                            } else {
+                                Log::error('File is not valid:', ['file' => $file->getClientOriginalName()]);
+                            }
+                        }
+                    } else {
+                        // No new files provided, keep the existing files
+                        $fileDataArray = $existingFileData;
+                    }
+                }
+            } else {
+                // New record creation
+                if ($this->file_paths) {
+                    $this->validate([
+                        'file_paths.*' => 'nullable|file|mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif|max:40960',
+                    ]);
+
+                    foreach ($this->file_paths as $file) {
+                        try {
+                            if ($file->isValid()) {
+                                $fileContent = file_get_contents($file->getRealPath());
+                                $mimeType = $file->getMimeType();
+                                $base64File = base64_encode($fileContent);
+
+                                // Add new file to the array
+                                $fileDataArray[] = [
+                                    'data' => $base64File,
+                                    'mime_type' => $mimeType,
+                                    'original_name' => $file->getClientOriginalName(),
+                                ];
+                            } else {
+                                Log::error('File is not valid:', ['file' => $file->getClientOriginalName()]);
+                            }
+                        } catch (\Exception $e) {
+                            Log::error('Error processing file:', [
+                                'file' => $file->getClientOriginalName(),
+                                'error' => $e->getMessage()
+                            ]);
+                        }
+                    }
+                }
+            }
+
+
+
+            if ($this->editMode) {
+                // Update existing asset record
+                $asset = VendorAsset::find($this->selectedAssetId);
+
+                if ($asset) {
+
+                    $asset->update([
+                        'vendor_id' => $this->selectedVendorId,
+                        'manufacturer' => $this->manufacturer,
+                        'asset_type' => $this->assetType,
+                        'asset_model' => $this->assetModel,
+                        'asset_specification' => $this->assetSpecification,
+                        'color' => $this->color,
+                        'version' => $this->version,
+                        'serial_number' => $this->serialNumber,
+                        'invoice_number' => $this->invoiceNumber,
+                        'taxable_amount' => $this->taxableAmount,
+                        'invoice_amount' => $this->invoiceAmount,
+                        'barcode' => $barcodeBase64,
+                        'gst_state' => $this->gstState,
+                        'gst_central' => $this->gstCentral,
+                        'gst_ig' => $this->gstIg,
+                        'purchase_date' => $this->purchaseDate ? $this->purchaseDate : null,
+                        'warranty_expire_date' => $this->warranty_expire_date ? $this->warranty_expire_date : null,
+                        'file_paths' => json_encode($fileDataArray),
+                    ]);
+                    FlashMessageHelper::flashSuccess("Asset updated successfully!");
+                }
+            } else {
+
+                // Create new asset record
+                for ($i = 0; $i < $this->quantity; $i++) {
+                    VendorAsset::create([
+                        'vendor_id' => $this->selectedVendorId,
+                        'manufacturer' => $this->manufacturer,
+                        'asset_type' => $this->assetType,
+                        'asset_model' => $this->assetModel,
+                        'asset_specification' => $this->assetSpecification,
+                        'color' => $this->color,
+                        'version' => $this->version,
+                        'serial_number' => $this->serialNumber,
+                        'invoice_number' => $this->invoiceNumber,
+                        'taxable_amount' => $this->taxableAmount,
+                        'invoice_amount' => $this->invoiceAmount,
+                        'barcode' => $barcodeBase64,
+                        'gst_state' => $this->gstState,
+                        'gst_central' => $this->gstCentral,
+                        'gst_ig' => $this->gstIg,
+                        'purchase_date' => $this->purchaseDate ? $this->purchaseDate : null,
+                        'warranty_expire_date' => $this->warranty_expire_date ? $this->warranty_expire_date : null,
+                        'file_paths' => json_encode($fileDataArray),
+                    ]);
+                }
+                FlashMessageHelper::flashSuccess("Asset created successfully!");
+            }
 
             $this->reset();
-
-    }
-     catch (\Exception $e) {
+        } catch (\Exception $e) {
             // Handle the exception and log the error
             Log::error('Error during form submission:', ['error' => $e->getMessage()]);
             FlashMessageHelper::flashError("An error occurred during submission. Please try again later!");
         }
+    }
 
-}
-
-public $newAssetName;
-public $isModalOpen = false;
-public function showModal()
+    public $newAssetName;
+    public $isModalOpen = false;
+    public function showModal()
     {
 
         $this->isModalOpen = true; // Open modal
@@ -689,6 +749,7 @@ public function showModal()
 
     public function closeModal()
     {
+        $this->reset('assetType');
         $this->resetErrorBag(); // Clears validation errors
         $this->isModalOpen = false; // Close modal
     }
@@ -717,7 +778,6 @@ public function showModal()
 
             // Optionally, flash a success message
             FlashMessageHelper::flashSuccess("Asset type created successfully!");
-
         } catch (\Exception $e) {
             // Handle any exception that occurs and return a proper response
             return response()->json([
@@ -753,40 +813,38 @@ public function showModal()
 
 
     public function filter()
-{
-    try {
-    $trimmedEmpId = trim($this->searchEmp); // Trimmed search input
+    {
+        try {
+            $trimmedEmpId = trim($this->searchEmp); // Trimmed search input
 
-    return VendorAsset::with('vendor') // Eager load the 'vendor' relationship
-        ->whereHas('vendor', function ($query) {
-            $query->wherein('is_active', ['0','1']); // Ensure the vendor is active
-        })
-        ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
-            // Apply the search filters based on input
-            $query->where(function ($query) use ($trimmedEmpId) {
-                $query->where('vendor_id', 'like', '%' . $trimmedEmpId . '%')
-                    ->orWhereHas('vendor', function ($query) use ($trimmedEmpId) {
-                        // Search within vendor fields as well
+            return VendorAsset::with('vendor') // Eager load the 'vendor' relationship
+                ->whereHas('vendor', function ($query) {
+                    $query->wherein('is_active', ['0', '1']); // Ensure the vendor is active
+                })
+                ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
+                    // Apply the search filters based on input
+                    $query->where(function ($query) use ($trimmedEmpId) {
                         $query->where('vendor_id', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhere('vendor_name', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhere('contact_email', 'like', '%' . $trimmedEmpId . '%');
-                    })
-                    ->orWhere('asset_id', 'like', '%' . $trimmedEmpId . '%')
-                    ->orWhere('manufacturer', 'like', '%' . $trimmedEmpId . '%')
-                    ->orWhere('asset_type', 'like', '%' . $trimmedEmpId . '%')
-                    ->orWhere('invoice_number', 'like', '%' . $trimmedEmpId . '%')
-                    ->orWhere('serial_number', 'like', '%' . $trimmedEmpId . '%')
-                    ->orWhere('is_active', 'like', '%' . $trimmedEmpId . '%');
-            });
-        })
-        ->orderBy($this->sortColumn, $this->sortDirection) // Apply sorting
-        ->get();
+                            ->orWhereHas('vendor', function ($query) use ($trimmedEmpId) {
+                                // Search within vendor fields as well
+                                $query->where('vendor_id', 'like', '%' . $trimmedEmpId . '%')
+                                    ->orWhere('vendor_name', 'like', '%' . $trimmedEmpId . '%')
+                                    ->orWhere('contact_email', 'like', '%' . $trimmedEmpId . '%');
+                            })
+                            ->orWhere('asset_id', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('manufacturer', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('asset_type', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('invoice_number', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('serial_number', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('is_active', 'like', '%' . $trimmedEmpId . '%');
+                    });
+                })
+                ->orderBy($this->sortColumn, $this->sortDirection) // Apply sorting
+                ->get();
+        } catch (\Exception $e) {
+            Log::error('Error in filter method: ' . $e->getMessage());
+        }
     }
-    catch (\Exception $e) {
-        Log::error('Error in filter method: ' . $e->getMessage());
-    }
-
-}
 
 
     public function updated($propertyName)
@@ -831,7 +889,6 @@ public function showModal()
         $this->reset();
         $this->filteredVendorAssets = [];
         $this->assetsFound = false;
-
     }
 
     public $sortColumn = 'vendor_id'; // default sorting column
@@ -840,25 +897,25 @@ public function showModal()
     public function toggleSortOrder($column)
     {
         try {
-        if ($this->sortColumn == $column) {
-            // If the column is the same, toggle the sort direction
-            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            // If a different column is clicked, set it as the new sort column and default to ascending order
-            $this->sortColumn = $column;
-            $this->sortDirection = 'asc';
+            if ($this->sortColumn == $column) {
+                // If the column is the same, toggle the sort direction
+                $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                // If a different column is clicked, set it as the new sort column and default to ascending order
+                $this->sortColumn = $column;
+                $this->sortDirection = 'asc';
+            }
+        } catch (\Exception $e) {
+            // Log the error message
+            Log::error('Error in toggleSortOrder: ' . $e->getMessage());
+
+            // Optionally, set default sort direction or handle the error gracefully
+            $this->sortColumn = 'vendor_id'; // Example default sort column
+            $this->sortDirection = 'asc'; // Example default sort direction
+
+            // You may want to display an error message to the user, if needed
+            session()->flash('error', 'An error occurred while changing the sort order.');
         }
-    } catch (\Exception $e) {
-        // Log the error message
-        Log::error('Error in toggleSortOrder: ' . $e->getMessage());
-
-        // Optionally, set default sort direction or handle the error gracefully
-        $this->sortColumn = 'vendor_id'; // Example default sort column
-        $this->sortDirection = 'asc'; // Example default sort direction
-
-        // You may want to display an error message to the user, if needed
-        session()->flash('error', 'An error occurred while changing the sort order.');
-    }
     }
 
 
@@ -881,13 +938,12 @@ public function showModal()
             });
 
             // Fetch all vendors
-            $this->vendors = Vendor::all()->where('is_active',1);
+            $this->vendors = Vendor::all()->where('is_active', 1);
 
             // Return the view with filtered asset types
             return view('livewire.vendor-assets', [
                 'filteredAssetTypes' => $this->filteredAssetTypes,
             ]);
-
         } catch (\Exception $e) {
             // Handle any errors that occur during the process
             // Optionally, log the error
@@ -902,5 +958,4 @@ public function showModal()
             ]);
         }
     }
-
 }

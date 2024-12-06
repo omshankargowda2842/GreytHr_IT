@@ -187,6 +187,10 @@
                 Password
                 @break
 
+                @case('employeeAssetList')
+                    Employee Assets
+                    @break
+
                 @default
                 IT Admin
                 @endswitch
@@ -227,6 +231,10 @@
                     @break
                     @case('password')
                     Password
+                    @break
+
+                    @case('employeeAssetList')
+                    Employee Assets
                     @break
 
                     @default
