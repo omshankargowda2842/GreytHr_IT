@@ -52,6 +52,7 @@ class ItLogin extends Component
         'emp_id' => '',
         'password' => '',
     ];
+    public $resetKey = 0;
     public $error = '';
     public $verify_error = '';
     public $pass_change_error = '';
@@ -153,7 +154,9 @@ class ItLogin extends Component
                 // $this->dispatch('some-event');
                 // $this->dispatch('refresh-the-component');
                 $this->resetForm();
-                $this->reset('form'); // Reset the entire form
+                $this->reset('form');
+                $this->resetKey++;
+                // Reset the entire form
             } else if (Auth::guard('it')->attempt(['it_emp_id' => $this->form['emp_id'], 'password' => $this->form['password'], 'status' => 1])) {
                 session(['post_login' => true]);
                 FlashMessageHelper::flashSuccess("You are logged in successfully!");
@@ -163,19 +166,31 @@ class ItLogin extends Component
                 FlashMessageHelper::flashSuccess("You are logged in successfully!");
                 return redirect()->route('dashboard');
             } else {
-                $this->flashError('Invalid ID or Password. Please try again.');
+                FlashMessageHelper::flashError('Invalid ID or Password. Please try again.');
+                $this->resetForm();
+                $this->reset('form');
+                $this->resetKey++;
             }
             // Your login logic here
         } catch (ValidationException $e) {
             FlashMessageHelper::flashError('There was a problem with your input. Please check and try again.');
+            $this->resetForm();
+            $this->reset('form');
+            $this->resetKey++;
         } catch (\Illuminate\Database\QueryException $e) {
             Log::error('Database Query Exception: ' . $e->getMessage(), ['exception' => $e]);
             FlashMessageHelper::flashError('We are experiencing technical difficulties. Please try again later.');
+            $this->resetForm();
+            $this->reset('form');
+            $this->resetKey++;
         } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
             FlashMessageHelper::flashError('There is a server error. Please try again later.');
         } catch (\Exception $e) {
             Log::error('Database Query Exception: ' . $e->getMessage(), ['exception' => $e]);
             FlashMessageHelper::flashError('An unexpected error occurred. Please try again.');
+            $this->resetForm();
+            $this->reset('form');
+            $this->resetKey++;
         }
     }
 

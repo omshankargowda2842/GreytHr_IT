@@ -45,7 +45,7 @@
             @endif
             <div class="left">
 
-                <form class="form" wire:submit.prevent="itLogin">
+                <form class="form" wire:submit.prevent="itLogin"  wire:key="empLogin-{{ $resetKey }}">
                     <div class="ms-3 mb-1">
                         <img src="{{ asset('images/it_xpert_logo.png') }}" class="itloginImage1" alt="Company Logo">
                     </div>
