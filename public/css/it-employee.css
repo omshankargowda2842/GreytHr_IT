@@ -1141,6 +1141,7 @@ ol, ul {
     position: relative;
     overflow: hidden;
     cursor: pointer;
+    margin-bottom: 5px;
   }
 
   .card-home::before {

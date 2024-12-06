@@ -20,6 +20,7 @@ class ItAddMember extends Component
     public $assetSelectEmp = [];
     public $empDetails = null;
     public $selectedEmployee = "";
+    public $selectedRole = "";
     public $searchFilters = true;
     public $searchEmp = '';
     public $searchAssetId = '';
@@ -33,11 +34,13 @@ class ItAddMember extends Component
         return [
 
             'selectedEmployee' => 'required|string|max:255',
+            'selectedRole' => 'required|string|max:255',
         ];
     }
 
     protected $messages = [
         'selectedEmployee.required' => 'Employee ID is required.',
+        'selectedRole.required' => 'Role is required.',
     ];
 
     public function addMember()
@@ -48,6 +51,7 @@ class ItAddMember extends Component
         $this->itmember = false;
         $this->searchFilters = false;
         $this->resetErrorBag('selectedEmployee');
+        $this->resetErrorBag('selectedRole');
     }
 
     public function Cancel()
@@ -58,6 +62,7 @@ class ItAddMember extends Component
         $this->empDetails = null;
         $this->searchFilters = true;
         $this->resetErrorBag('selectedEmployee');
+        $this->resetErrorBag('selectedRole');
     }
 
     public $sortColumn = 'emp_id'; // default sorting column
@@ -146,6 +151,7 @@ class ItAddMember extends Component
     private function resetForm()
     {
         $this->selectedEmployee = "";
+        $this->selectedRole = "";
     }
 
 
@@ -228,7 +234,7 @@ class ItAddMember extends Component
                 'employee_name' => $this->empDetails->first_name . ' ' . $this->empDetails->last_name,
                 'email' => $this->empDetails->email,
                 'password' => bcrypt('ags@123'),
-
+                'role' => $this->selectedRole,
             ]);
 
             // Flash success message if everything works
@@ -243,6 +249,14 @@ class ItAddMember extends Component
             // Flash an error message to the user
             FlashMessageHelper::flashError("There was an error adding the IT member. Please try again.");
         }
+    }
+
+    public function resetValidationForField($field)
+    {
+
+        // Reset error for the specific field when typing
+        $this->resetErrorBag($field);
+
     }
 
     public function filter()
