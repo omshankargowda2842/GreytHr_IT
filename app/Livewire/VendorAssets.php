@@ -22,7 +22,10 @@ class VendorAssets extends Component
     public $assetTypeSearch = '';
     public $assetTypeName = '';
     public $filteredAssetTypes = [];
-    public $assetType;
+    public $assetType = "";
+    public $selectedStatus='';
+    public $successImageMessage='File/s uploaded successfully!';
+    public $showSuccessMsg=false;
     public $assetModel;
     public $assetSpecification;
     public $color;
@@ -51,7 +54,7 @@ class VendorAssets extends Component
     public $selectedVendorId;
     public $showLogoutModal = false;
     public $restoreModal = false;
-    public $reason = [];
+    public $reason =  [];
 
     protected function rules(): array
     {
@@ -63,7 +66,7 @@ class VendorAssets extends Component
             'color' => 'nullable|string|max:50',
             'version' => 'nullable|string|max:50',
 
-            'invoiceNumber' => 'required|string|max:255', // Ensure this is required
+            'invoiceNumber' => 'required|string|max:30|min:4', // Ensure this is required
             'taxableAmount' => 'required|numeric|min:0', // Ensure this is required
             'invoiceAmount' => 'required|numeric|min:0', // Ensure this is required
             'gstIg' => 'nullable|numeric|min:0',
@@ -76,16 +79,15 @@ class VendorAssets extends Component
             'file_paths.*' => 'nullable|file|mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif|max:40960',
         ];
 
-
         if ($this->quantity === null || $this->quantity < 1) {
             $rules['quantity'] = 'required|integer|min:1';  // Ensure it's required if missing or invalid
         }
 
         // Conditional rule for 'serialNumber' based on 'quantity'
         if ($this->quantity == 1) {
-            $rules['serialNumber'] = 'required|string|max:255|unique:vendor_assets,serial_number';
+            $rules['serialNumber'] = 'required|string|max:30|min:6|unique:vendor_assets,serial_number';
         } else {
-            $rules['serialNumber'] = 'nullable|string|max:255'; // No need for serial number if quantity > 1
+            $rules['serialNumber'] = 'nullable|string|max:30|min:6'; // No need for serial number if quantity > 1
         }
 
         if (!$this->editMode) {
@@ -98,7 +100,8 @@ class VendorAssets extends Component
             $rules['serialNumber'] = [
                 'required',
                 'string',
-                'max:255',
+                'max:30',
+                'min:6',
                 'unique:vendor_assets,serial_number,' . $this->selectedAssetId . ',id',
             ];
         }
@@ -133,11 +136,13 @@ class VendorAssets extends Component
         'serialNumber.required' => 'Serial Number is required.',
         'serialNumber.string' => 'Serial Number must be a string.',
         // 'serialNumber.unique' => 'Serial Number has already been taken.',
-        'serialNumber.max' => 'Serial Number may not be greater than 255 characters.',
+        'serialNumber.max' => 'Serial Number may not be greater than 30 characters.',
+        'serialNumber.min' => 'Serial Number may not be less than 6 characters.',
 
         'invoiceNumber.required' => 'Invoice Number is required.',
         'invoiceNumber.string' => 'Invoice Number must be a string.',
-        'invoiceNumber.max' => 'Invoice Number may not be greater than 255 characters.',
+        'invoiceNumber.min' => 'Invoice Number may not be less than 4 characters.',
+        'invoiceNumber.max' => 'Invoice Number may not be greater than 30 characters.',
 
         'gstState.required_without' => 'State GST field is required when IGST is not provided.',
         'gstCentral.required_without' => 'Central GST field is required when GST IG is not provided.',
@@ -158,6 +163,7 @@ class VendorAssets extends Component
         'invoiceAmount.min' => 'Invoice Amount must be at least 0.',
 
         'purchaseDate.required' => 'Purchase Date is required.',
+        'purchaseDate.date' => 'Purchase Date must be a valid date.',
         'purchaseDate.date' => 'Purchase Date must be a valid date.',
         'purchaseDate.before_or_equal' => 'Purchase Date cannot be a future date.',
 
@@ -187,6 +193,7 @@ class VendorAssets extends Component
         if ($this->assetType === 'others') {
             // Open the modal when 'Others' is selected
             $this->showModal();
+            $this->reset('assetType');
         }
     }
 
@@ -332,6 +339,27 @@ class VendorAssets extends Component
     {
         // Reset fields related to Asset model
         $this->selectedVendorId = '';
+        $this->assetType = "";
+        $this->quantity = '';
+        $this->assetModel = '';
+        $this->assetSpecification = '';
+        $this->color = '';
+        $this->version = '';
+        $this->serialNumber = '';
+        $this->invoiceNumber = '';
+        $this->taxableAmount = '';
+        $this->invoiceAmount = '';
+        $this->gstState = '';
+        $this->gstCentral = '';
+        $this->gstIg = '';
+        $this->manufacturer = '';
+        $this->purchaseDate = null;
+        $this->warranty_expire_date = null;
+        $this->file_paths = [];
+
+    {
+        // Reset fields related to Asset model
+        $this->selectedVendorId = '';
         $this->assetType = '';
         $this->quantity = '';
         $this->assetModel = '';
@@ -355,6 +383,12 @@ class VendorAssets extends Component
         $this->showAddVendor = false; // Hide add vendor form
         $this->showEditDeleteVendor = true; // Show edit/delete vendor options
     }
+        $this->selectedAssetId = null; // Reset the selected asset ID
+        $this->editMode = false; // Reset edit mode
+        $this->showAddVendor = false; // Hide add vendor form
+        $this->showEditDeleteVendor = true; // Show edit/delete vendor options
+    }
+
 
     public function cancel()
     {
@@ -497,10 +531,12 @@ class VendorAssets extends Component
         $this->restoreModal = true;
     }
 
-    public function updateStatus($vendorAssetId, $newStatus)
-    {
+    public function updateStatus($vendorAssetId, $newStatus){
         $vendorAsset = VendorAsset::find($vendorAssetId);
 
+        if ($vendorAsset) {
+            $vendorAsset->status = $newStatus;
+            $vendorAsset->save();
         if ($vendorAsset) {
             $vendorAsset->status = $newStatus;
             $vendorAsset->save();
@@ -509,11 +545,71 @@ class VendorAssets extends Component
             FlashMessageHelper::flashSuccess("Vendor status updated successfully.");
         }
     }
+}
+    public $previews=[];
+    public $all_files = [];
+    public function updatedFilePaths()
+    {
+        foreach ($this->file_paths as $file) {
+            // Ensure no duplicate files are added
+            $existingFileNames = array_map(function ($existingFile) {
+                return $existingFile->getClientOriginalName();
+            }, $this->all_files);
+
+            if (!in_array($file->getClientOriginalName(), $existingFileNames)) {
+                // Append only new files to all_files
+                $this->all_files[] = $file;
+
+                try {
+                    // Generate previews only for the new file
+                    if (in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'])) {
+                        $base64Image = base64_encode(file_get_contents($file->getRealPath()));
+                        $this->previews[] = [
+                            'url' => 'data:' . $file->getMimeType() . ';base64,' . $base64Image,
+                            'type' => 'image',
+                            'name' => $file->getClientOriginalName(),
+                        ];
+                    } else {
+                        $this->previews[] = [
+                            'type' => 'file',
+                            'name' => $file->getClientOriginalName(),
+                        ];
+                    }
+                } catch (\Throwable $th) {
+                    Log::error('Error generating preview:', [
+                        'file' => $file->getClientOriginalName(),
+                        'error' => $th->getMessage(),
+                    ]);
+                }
+            }
+        }
+        $this->showSuccessMsg=true;
+
+
+        // Log the names of all files
+
+    }
+    public function  hideSuccessMsg(){
+        $this->showSuccessMsg=false;
+    }
+
+    public function removeFile($index)
+    {
+        // Remove the file and its preview by index
+        unset($this->all_files[$index]);
+        unset($this->previews[$index]);
+
+        // Reindex the arrays
+        $this->all_files = array_values($this->all_files);
+        $this->previews = array_values($this->previews);
+    }
+
 
     public function submit()
     {
         $this->validate($this->rules());
         try {
+            $this->file_paths=$this->all_files;
             $barcodeBase64 = null;
             if (!empty($this->serialNumber)) {
 
@@ -660,12 +756,12 @@ class VendorAssets extends Component
 
             $this->reset();
         } catch (\Exception $e) {
-            dd($e->getMessage());
             // Handle the exception and log the error
             Log::error('Error during form submission:', ['error' => $e->getMessage()]);
             FlashMessageHelper::flashError("An error occurred during submission. Please try again later!");
         }
     }
+
 
     public $newAssetName;
     public $isModalOpen = false;
@@ -677,6 +773,7 @@ class VendorAssets extends Component
 
     public function closeModal()
     {
+        $this->reset('assetType');
         $this->resetErrorBag(); // Clears validation errors
         $this->isModalOpen = false; // Close modal
     }
@@ -744,36 +841,34 @@ class VendorAssets extends Component
         try {
             $trimmedEmpId = trim($this->searchEmp); // Trimmed search input
 
-    return VendorAsset::with('vendor') // Eager load the 'vendor' relationship
-        ->whereHas('vendor', function ($query) {
-            $query->wherein('is_active', ['0','1']); // Ensure the vendor is active
-        })
-        ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
-            // Apply the search filters based on input
-            $query->where(function ($query) use ($trimmedEmpId) {
-                $query->where('vendor_id', 'like', '%' . $trimmedEmpId . '%')
-                    ->orWhereHas('vendor', function ($query) use ($trimmedEmpId) {
-                        // Search within vendor fields as well
+            return VendorAsset::with('vendor') // Eager load the 'vendor' relationship
+                ->whereHas('vendor', function ($query) {
+                    $query->wherein('is_active', ['0', '1']); // Ensure the vendor is active
+                })
+                ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
+                    // Apply the search filters based on input
+                    $query->where(function ($query) use ($trimmedEmpId) {
                         $query->where('vendor_id', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhere('vendor_name', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhere('contact_email', 'like', '%' . $trimmedEmpId . '%');
-                    })
-                    ->orWhere('asset_id', 'like', '%' . $trimmedEmpId . '%')
-                    ->orWhere('manufacturer', 'like', '%' . $trimmedEmpId . '%')
-                    ->orWhere('asset_type', 'like', '%' . $trimmedEmpId . '%')
-                    ->orWhere('invoice_number', 'like', '%' . $trimmedEmpId . '%')
-                    ->orWhere('serial_number', 'like', '%' . $trimmedEmpId . '%')
-                    ->orWhere('is_active', 'like', '%' . $trimmedEmpId . '%');
-            });
-        })
-        ->orderBy($this->sortColumn, $this->sortDirection) // Apply sorting
-        ->get();
+                            ->orWhereHas('vendor', function ($query) use ($trimmedEmpId) {
+                                // Search within vendor fields as well
+                                $query->where('vendor_id', 'like', '%' . $trimmedEmpId . '%')
+                                    ->orWhere('vendor_name', 'like', '%' . $trimmedEmpId . '%')
+                                    ->orWhere('contact_email', 'like', '%' . $trimmedEmpId . '%');
+                            })
+                            ->orWhere('asset_id', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('manufacturer', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('asset_type', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('invoice_number', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('serial_number', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('is_active', 'like', '%' . $trimmedEmpId . '%');
+                    });
+                })
+                ->orderBy($this->sortColumn, $this->sortDirection) // Apply sorting
+                ->get();
+        } catch (\Exception $e) {
+            Log::error('Error in filter method: ' . $e->getMessage());
+        }
     }
-    catch (\Exception $e) {
-        Log::error('Error in filter method: ' . $e->getMessage());
-    }
-
-}
 
 
     public function updated($propertyName)
@@ -837,7 +932,21 @@ class VendorAssets extends Component
         } catch (\Exception $e) {
             // Log the error message
             Log::error('Error in toggleSortOrder: ' . $e->getMessage());
+            if ($this->sortColumn == $column) {
+                // If the column is the same, toggle the sort direction
+                $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                // If a different column is clicked, set it as the new sort column and default to ascending order
+                $this->sortColumn = $column;
+                $this->sortDirection = 'asc';
+            }
+        } catch (\Exception $e) {
+            // Log the error message
+            Log::error('Error in toggleSortOrder: ' . $e->getMessage());
 
+            // Optionally, set default sort direction or handle the error gracefully
+            $this->sortColumn = 'vendor_id'; // Example default sort column
+            $this->sortDirection = 'asc'; // Example default sort direction
             // Optionally, set default sort direction or handle the error gracefully
             $this->sortColumn = 'vendor_id'; // Example default sort column
             $this->sortDirection = 'asc'; // Example default sort direction
@@ -845,7 +954,10 @@ class VendorAssets extends Component
             // You may want to display an error message to the user, if needed
             session()->flash('error', 'An error occurred while changing the sort order.');
         }
-    }
+            // You may want to display an error message to the user, if needed
+            session()->flash('error', 'An error occurred while changing the sort order.');
+        }
+
 
 
 
@@ -867,7 +979,7 @@ class VendorAssets extends Component
             });
 
             // Fetch all vendors
-            $this->vendors = Vendor::all()->where('is_active',1);
+            $this->vendors = Vendor::all()->where('is_active', 1);
 
             // Return the view with filtered asset types
             return view('livewire.vendor-assets', [

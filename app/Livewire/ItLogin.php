@@ -56,6 +56,8 @@ class ItLogin extends Component
     public $error = '';
     public $verify_error = '';
     public $pass_change_error = '';
+    public $showPassword = false;
+    public $showEyeIcon = false;
     protected $messages = [
         'form.emp_id.required' => 'ID / Mail is required.',
         'form.password.required' => 'Password is required.',
@@ -86,6 +88,14 @@ class ItLogin extends Component
         'newPassword_confirmation' => 'required|same:newPassword',
     ];
 
+    public function togglePasswordVisibility()
+    {
+        $this->showPassword = !$this->showPassword;
+    }
+    public function updatedFormPassword()
+    {
+        $this->showEyeIcon = !empty($this->form['password']);
+    }
     public function jobs()
     {
         return redirect()->to('/Login&Register');

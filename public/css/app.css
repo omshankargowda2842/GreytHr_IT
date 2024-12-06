@@ -2340,3 +2340,27 @@ w
     overflow-y: auto;
 }
 
+
+.file-preview-container {
+    transition: background-color 0.3s ease;
+}
+.file-preview-container .delete-icon {
+    display: none;
+}
+
+.uploaded-file-name {
+    display: -webkit-box; /* Use a flex-like box model */
+    -webkit-line-clamp: 2; /* Show a maximum of 2 lines */
+    -webkit-box-orient: vertical; /* Set box orientation */
+    overflow: hidden; /* Hide overflowing content */
+    text-overflow: ellipsis; /* Add ellipsis (...) for overflow */
+    font-size: 12px; /* Optional: Adjust font size */
+    margin-top: 5px; /* Space between the preview and filename */
+    text-align: center; /* Center-align the text */
+    line-height: 1.2; /* Adjust line height for better spacing */
+}
+
+.file-preview-container:hover .delete-icon {
+    display: block; /* Show delete icon on hover */
+}
+

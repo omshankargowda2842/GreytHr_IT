@@ -39,9 +39,9 @@
         <div class="border rounded p-3 bg-light" style="max-height: 400px; overflow-y: auto;">
 
             <form wire:submit.prevent="submit" enctype="multipart/form-data">
-                <div class="row mb-3">
+                <div class="row ">
                     <!-- Vendor Name -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
 
 
@@ -60,7 +60,7 @@
                     </div>
 
                     <!-- Contact Name -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="contactName" class="vendor-label">Contact Name <span class="text-danger">*</span></label>
@@ -74,9 +74,9 @@
                     </div>
                 </div>
 
-                <div class="row mb-3">
+                <div class="row">
                     <!-- Phone -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="phone" class="vendor-label">Phone <span class="text-danger">*</span></label>
@@ -95,7 +95,7 @@
                     </div>
 
                     <!-- GST -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="gst" class="vendor-label">GSTIN <span class="text-danger">*</span></label>
@@ -112,9 +112,9 @@
                     </div>
                 </div>
 
-                <div class="row mb-3">
+                <div class="row ">
                     <!-- Bank Name -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="bankName" class="vendor-label">Bank Name</label>
@@ -126,7 +126,7 @@
                     </div>
 
                     <!-- Account Number -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="accountNumber" class="vendor-label">Account Number</label>
@@ -141,9 +141,9 @@
                     </div>
                 </div>
 
-                <div class="row mb-3">
+                <div class="row ">
                     <!-- IFSC Code -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="ifscCode" class="vendor-label">IFSC Code</label>
@@ -155,7 +155,7 @@
                     </div>
 
                     <!-- Branch -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="branch" class="vendor-label">Branch</label>
@@ -167,9 +167,9 @@
                     </div>
                 </div>
 
-                <div class="row mb-3">
+                <div class="row ">
                     <!-- Contact Email -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="contactEmail" class="vendor-label">Contact
@@ -184,7 +184,7 @@
                     </div>
 
                     <!-- Pin Code -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="pinCode" class="vendor-label">Pin Code</label>
@@ -198,9 +198,9 @@
                     </div>
                 </div>
 
-                <div class="row mb-3">
+                <div class="row ">
                     <!-- Street -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="street" class="vendor-label">Town/Mandal</label>
@@ -220,7 +220,7 @@
                     </div>
 
                     <!-- City -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="city" class="vendor-label">District</label>
@@ -234,9 +234,9 @@
                     </div>
                 </div>
 
-                <div class="row mb-3">
+                <div class="row ">
                     <!-- State -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="state" class="vendor-label">State</label>
@@ -250,7 +250,7 @@
                     </div>
 
                     <!-- Note/Description -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <label for="noteDescription" class="vendor-label">Description</label>
@@ -264,8 +264,8 @@
                 </div>
 
                 <!-- Image Upload -->
-                <div class="row mb-3">
-                    <div class="col-md-6">
+                <div class="row ">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
                                 <p class="text-primary"><label for="file" class="vendor-label">Attachments</label> <i
