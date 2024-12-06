@@ -24,7 +24,7 @@
 
     @if($showAddVendor)
 
-    <div class="col-11 d-flex justify-content-start mb-1 mt-4" style="margin-left: 5%;" >
+    <div class="col-11 d-flex justify-content-start mb-1 mt-4" style="margin-left: 5%;">
         <button class="btn text-white btn-sm" style="background-color: #02114f;" wire:click='cancel'> <i
                 class="fas fa-arrow-left"></i> Back</button>
 
@@ -191,7 +191,7 @@
                             </div>
                             <div class="col-8">
                                 <input type="text" id="pinCode" wire:model="pinCode" wire:input="updatePinCode($event.target.value)" maxlength="6"
-                                    class="form-control"   oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                    class="form-control" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                 @error('pinCode') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -273,8 +273,26 @@
                                 </p>
                             </div>
                             <div class="col-8">
-                                <input id="file" type="file" wire:model="file_paths" wire:loading.attr="disabled"
-                                    multiple style="font-size: 12px;" />
+                                <input id="fileInput" type="file" wire:model="file_paths" wire:loading.attr="disabled"
+                                    multiple style="font-size: 12px; display: none;" />
+                                <!-- Label triggers file input -->
+                                <div class="d-flex" style="align-items: baseline;gap: 5px;">
+                                    <button class="btn btn-outline-secondary " type="button" for="fileInput"
+                                        onclick="document.getElementById('fileInput').click();">
+                                        <i class="fa-solid fa-paperclip"></i>
+                                    </button>
+                                    @if(count($all_files)<=0)
+                                        No File Choosen
+                                        @else
+                                        <p>{{count($all_files)}} File/s selected</p>
+                                        @endif
+
+                                </div>
+                                @if($showSuccessMsg)
+                                <div wire:poll.60="hideSuccessMsg">
+                                    <p style="color:green;">{{$successImageMessage}}</p>
+                                </div>
+                                @endif
                                 <div wire:loading wire:target="file_paths" class="mt-2">
                                     <i class="fas fa-spinner fa-spin"></i> Uploading...
                                 </div>
@@ -282,6 +300,44 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="col-md-12 mb-2">
+                    @if (is_array($previews) && count($previews) > 0)
+                    <div class="mt-3">
+                        <h6>File Previews:</h6>
+                        <div class="d-flex flex-wrap gap-3">
+                            @foreach ($previews as $index => $preview)
+                            <div
+                                class="file-preview-container text-center"
+                                style="padding: 5px; border: 1px solid black; width: 120px; height: 120px; border-radius: 5px; position: relative; overflow: hidden;">
+
+                                @if ($preview['type'] == 'image')
+                                <!-- Show image preview -->
+                                <img src="{{ $preview['url'] }}" alt="Preview" class="img-thumbnail" style="width: 75px; height: 75px;" />
+                                <span class="mt-1">{{ $preview['name'] }}</span>
+                                @else
+                                <!-- Show non-image file -->
+                                <div class="d-flex flex-column align-items-center">
+                                    <i style="width: 75px; height: 75px;" class="fas fa-file fa-3x"></i>
+                                    <span class="mt-1 uploaded-file-name" style="display: block; width: 100%;">{{ $preview['name'] }}</span>
+                                </div>
+                                @endif
+
+                                <!-- Delete icon -->
+                                <button
+                                    type="button"
+                                    class="delete-icon btn btn-danger"
+                                    wire:click="removeFile({{ $index }})"
+                                    style="position: absolute; top: 5%; right: 5%; z-index: 5;  font-size: 12px;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+
+
                 </div>
 
 
@@ -393,8 +449,8 @@
                     <tr>
                         <td class="vendor-table-head">{{ $loop->iteration }}</td>
                         <td class="vendor-table-head">{{ $vendor->vendor_id ?? 'N/A'}}</td>
-                        <td class="vendor-table-head">{{  ucwords(strtolower($vendor->vendor_name)) ?? 'N/A' }}</td>
-                        <td class="vendor-table-head">{{  ucwords(strtolower($vendor->contact_name)) ?? 'N/A'}}</td>
+                        <td class="vendor-table-head">{{ ucwords(strtolower($vendor->vendor_name)) ?? 'N/A' }}</td>
+                        <td class="vendor-table-head">{{ ucwords(strtolower($vendor->contact_name)) ?? 'N/A'}}</td>
                         <td class="vendor-table-head">{{ $vendor->gst ?? 'N/A'}}</td>
                         <td class="vendor-table-head">{{ $vendor->contact_email ?? 'N/A'}}</td>
                         <td class="d-flex">
@@ -716,8 +772,7 @@
                         </div>
                         @error('reason') <span class="text-danger d-flex align-start">{{ $message }}</span>@enderror
                         <div class="d-flex justify-content-center p-3">
-                            <button type="submit" class="submit-btn mr-3"
-                               >Delete</button>
+                            <button type="submit" class="submit-btn mr-3">Delete</button>
                             <button type="button" class="cancel-btn1 ml-3" wire:click="cancel">Cancel</button>
                         </div>
                     </form>
@@ -732,24 +787,24 @@
 
 
 <script>
-function formatAccountNumber(input) {
-    // Remove all non-digit characters
-    let value = input.value.replace(/\D/g, '');
+    function formatAccountNumber(input) {
+        // Remove all non-digit characters
+        let value = input.value.replace(/\D/g, '');
 
-    // Add spaces every 4 characters
-    value = value.replace(/(.{4})/g, '$1 ').trim();
+        // Add spaces every 4 characters
+        value = value.replace(/(.{4})/g, '$1 ').trim();
 
-    // Set the formatted value back to the input field
-    input.value = value;
-}
+        // Set the formatted value back to the input field
+        input.value = value;
+    }
 
-function formatPinCode(input) {
-    // Allow only digits and limit to 6 characters
-    input.value = input.value.replace(/\D/g, '').substring(0, 6);
-}
+    function formatPinCode(input) {
+        // Allow only digits and limit to 6 characters
+        input.value = input.value.replace(/\D/g, '').substring(0, 6);
+    }
 
-function formatPhoneNumber(input) {
-    // Allow only digits and limit to 10 characters
-    input.value = input.value.replace(/\D/g, '').substring(0, 10);
-}
+    function formatPhoneNumber(input) {
+        // Allow only digits and limit to 10 characters
+        input.value = input.value.replace(/\D/g, '').substring(0, 10);
+    }
 </script>

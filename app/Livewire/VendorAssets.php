@@ -537,15 +537,12 @@ class VendorAssets extends Component
         if ($vendorAsset) {
             $vendorAsset->status = $newStatus;
             $vendorAsset->save();
-        if ($vendorAsset) {
-            $vendorAsset->status = $newStatus;
-            $vendorAsset->save();
 
             // Optionally, you can emit an event to notify the UI or log actions.
             FlashMessageHelper::flashSuccess("Vendor status updated successfully.");
         }
     }
-}
+
     public $previews=[];
     public $all_files = [];
     public function updatedFilePaths()

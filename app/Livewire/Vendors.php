@@ -32,6 +32,8 @@ class Vendors extends Component
     public $selectedVendorId;
     public $showViewImageDialog = false;
     public $showViewFileDialog = false;
+    public $showSuccessMsg=false;
+    public $successImageMessage='File/s uploaded successfully!';
 
 
     // Editing mode
@@ -362,6 +364,63 @@ public function downloadImages($vendorId)
     }
     }
 
+    public $previews=[];
+    public $all_files = [];
+    public function updatedFilePaths()
+    {
+        foreach ($this->file_paths as $file) {
+            // Ensure no duplicate files are added
+            $existingFileNames = array_map(function ($existingFile) {
+                return $existingFile->getClientOriginalName();
+            }, $this->all_files);
+
+            if (!in_array($file->getClientOriginalName(), $existingFileNames)) {
+                // Append only new files to all_files
+                $this->all_files[] = $file;
+
+                try {
+                    // Generate previews only for the new file
+                    if (in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'])) {
+                        $base64Image = base64_encode(file_get_contents($file->getRealPath()));
+                        $this->previews[] = [
+                            'url' => 'data:' . $file->getMimeType() . ';base64,' . $base64Image,
+                            'type' => 'image',
+                            'name' => $file->getClientOriginalName(),
+                        ];
+                    } else {
+                        $this->previews[] = [
+                            'type' => 'file',
+                            'name' => $file->getClientOriginalName(),
+                        ];
+                    }
+                } catch (\Throwable $th) {
+                    Log::error('Error generating preview:', [
+                        'file' => $file->getClientOriginalName(),
+                        'error' => $th->getMessage(),
+                    ]);
+                }
+            }
+        }
+        $this->showSuccessMsg=true;
+
+
+        // Log the names of all files
+
+    }
+    public function  hideSuccessMsg(){
+        $this->showSuccessMsg=false;
+    }
+
+    public function removeFile($index)
+    {
+        // Remove the file and its preview by index
+        unset($this->all_files[$index]);
+        unset($this->previews[$index]);
+
+        // Reindex the arrays
+        $this->all_files = array_values($this->all_files);
+        $this->previews = array_values($this->previews);
+    }
 
     public function submit()
     {
@@ -370,6 +429,7 @@ public function downloadImages($vendorId)
 
         $fileDataArray = [];
 
+        $this->file_paths=$this->all_files;
         if ($this->editMode) {
             // Fetch the existing vendor record
             $vendor = Vendor::find($this->selectedVendorId);
