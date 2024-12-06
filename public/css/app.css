@@ -1569,6 +1569,12 @@ w
     color: #F6C000 !important;
     font-size: 10px;
 }
+.dash-custom-bg-color4{
+    /* background-color: #b6f19b; */
+    background-color: #f6e9e1;
+    color: #ff7b25 !important;
+    font-size: 10px;
+}
 .dash-custom-bg-color2{
     /* background-color: #8bc1e4; */
     background-color: #E9F3FF;
@@ -2334,6 +2340,7 @@ w
     overflow-y: auto;
 }
 
+
 .file-preview-container {
     transition: background-color 0.3s ease;
 }
@@ -2356,3 +2363,4 @@ w
 .file-preview-container:hover .delete-icon {
     display: block; /* Show delete icon on hover */
 }
+
