@@ -6,6 +6,7 @@ namespace App\Livewire;
 use App\Helpers\FlashMessageHelper;
 use App\Mail\assigneRequestMail;
 use App\Mail\statusRequestMail;
+use App\Models\ActivityLog;
 use App\Models\EmployeeDetails;
 use App\Models\HelpDesks;
 use App\Models\IncidentRequest;
@@ -37,6 +38,13 @@ class IncidentRequests extends Component
     public $comments;
     public $assignTo;
     public  $remarks = [];
+    public $showPopup = false;
+    public $incidentIDHeader = '';
+    public $snowId;
+
+    public $filterType;
+    public $activityLogs;
+    public $employeeInitials;
 
     protected $rules = [
         'request.assignTo' => 'required',
@@ -63,6 +71,18 @@ class IncidentRequests extends Component
 
             $this->incidentRequestDetails = true;
             $this->currentRequestId = $this->incidentRequest->id;
+
+            $requestedBy= EmployeeDetails::where('emp_id' ,  $this->incidentRequest->emp_id)->first();
+            $fullName = ucwords(strtolower($requestedBy->first_name . ' ' . $requestedBy->last_name));
+               ActivityLog::create([
+                   'impact' => 'High',
+                   'opened_by' =>  $fullName ,
+                   'priority' =>  $this->incidentRequest->priority,
+                   'state' => "Open",
+                   'performed_by' =>  $fullName,
+                   'request_type' => 'Incident Request',
+                   'request_id' => $this->incidentRequest->snow_id,
+               ]);
 
         } catch (\Exception $e) {
             // Log the exception for debugging
@@ -120,7 +140,7 @@ class IncidentRequests extends Component
 
             // Find the task by ID
             $task = IncidentRequest::find($taskId);
-
+            $snowId = $task->snow_id;
 
 
             // Check if the task exists and a valid assignee is selected
@@ -147,9 +167,9 @@ class IncidentRequests extends Component
 
 
             $employeeName = $fullName;
-            $requestId = $task->request_id;
+            $requestId = $task->snow_id;
             $shortDescription = $task->description; // Assuming this field exists
-            $assigneName = $employee->employee_name;
+            $assigneName = ucwords(strtolower( $employee->employee_name));
 
 
                 // Send Pending email
@@ -163,6 +183,14 @@ class IncidentRequests extends Component
 
 
                 $task->update(['inc_assign_to' => $this->selectedAssigne]);
+
+                ActivityLog::create([
+                    'action' => 'Assigned to',
+                    'details' => "{$fullName}",
+                    'performed_by' => $assigneName , // Assuming user is logged in
+                    'request_type' => 'Incident Request',
+                    'request_id' =>   $snowId ,
+                ]);
 
 
                 FlashMessageHelper::flashSuccess("Task assigned successfully, and email has been sent!");
@@ -198,32 +226,47 @@ class IncidentRequests extends Component
 
             // Find the task by ID
             $task = IncidentRequest::find($taskId);
-
+            $employee = auth()->guard('it')->user();
 
             // Check if the task exists and a valid status is selected
             if ($task && $this->selectedStatus) {
 
                 // Update the task status
                 $task->update(['status_code' => $this->selectedStatus]);
-
+                $activityDetails = '';
                 // Flash a success message based on the selected status
                 if ($this->selectedStatus === '5') {
+                    $activityDetails = "Work in Progress was Pending for Service ID - {$task->snow_id}";
                     FlashMessageHelper::flashSuccess("Status has been set to Pending, and email has been sent!");
                 }elseif ($this->selectedStatus === '16') {
 
                     $task->in_progress_since = now();  // Set the current timestamp
                     $task->save();
+                    $activityDetails = "Work in Progress was Inprogress for Service ID - {$task->snow_id}";
+
                     FlashMessageHelper::flashSuccess("Status has been set to Inprogress, and email has been sent!");
                 }
                  elseif ($this->selectedStatus === '11') {
+                    $activityDetails = "Work in Progress was Completed for Service ID - {$task->snow_id}";
+
                     FlashMessageHelper::flashSuccess("Status has been set to Completed, and email has been sent!");
-                } else {
-                    FlashMessageHelper::flashSuccess("Status Updated successfully!");
+                } elseif ($this->selectedStatus === '15') {
+                    $activityDetails = "Work in Progress was Completed for Service ID - {$task->snow_id}";
+                    FlashMessageHelper::flashSuccess("Status has been set to Completed, and email has been sent!");
                 }
             } else {
                 // Handle case where the task was not found or no status is selected
                 FlashMessageHelper::flashError("Task not found or invalid status.");
             }
+
+            $assigneName =  ucwords(strtolower($employee->employee_name));
+            ActivityLog::create([
+                'action' => 'State',
+                'details' => $activityDetails,
+                'performed_by' => $assigneName,
+                'request_type' => 'Incident Request',
+                'request_id' => $task->snow_id,
+            ]);
         } catch (\Exception $e) {
             // Log the exception for debugging
             Log::error("Error occurred in updateStatus method", [
@@ -311,6 +354,16 @@ class IncidentRequests extends Component
             // Update the task with the comment
             $task->update(['active_inc_comment' => $this->comments]);
 
+
+            $employee = auth()->guard('it')->user(); // Get the logged-in user
+            ActivityLog::create([
+                'action' => 'Active Comment',
+                'details' => "$this->comments",
+                'performed_by' => $employee->employee_name,
+                'request_type' => 'Incident Request',
+                'request_id' => $task->snow_id,
+            ]);
+
             // Flash a success message
             FlashMessageHelper::flashSuccess("Comment posted successfully!");
         } else {
@@ -347,6 +400,14 @@ public function postRemarks($taskId)
             // Update the task with the new remarks
             $task->update(['inc_pending_remarks' => $this->remarks]);
 
+            $employee = auth()->guard('it')->user(); // Get the logged-in user
+            ActivityLog::create([
+                'action' => 'Pending Comment',
+                'details' => "$this->remarks",
+                'performed_by' => $employee->employee_name,
+                'request_type' => 'Incident Request',
+                'request_id' => $task->snow_id,
+            ]);
             // Flash a success message
             FlashMessageHelper::flashSuccess("Remarks posted successfully!");
 
@@ -388,6 +449,14 @@ public function postInprogressRemarks($taskId)
             // Update the task with the new remarks
             $task->update(['inc_inprogress_remarks' => $this->remarks]);
 
+            $employee = auth()->guard('it')->user(); // Get the logged-in user
+            ActivityLog::create([
+                'action' => 'Inprogress Comment',
+                'details' => "$this->remarks",
+                'performed_by' => $employee->employee_name,
+                'request_type' => 'Incident Request',
+                'request_id' => $task->snow_id,
+            ]);
             // Flash a success message
             FlashMessageHelper::flashSuccess("Remarks posted successfully!");
 
@@ -454,6 +523,17 @@ public function postInprogressRemarks($taskId)
                 $task->status_code = '16';  // Set status to InProgress
                 $task->save();
 
+                $activityDetails = "Work in Progress was Inprogress for Service ID - {$task->snow_id}";
+
+                $employee = auth()->guard('it')->user(); // Get the logged-in user
+                ActivityLog::create([
+                    'action' => 'State',
+                    'details' => "$activityDetails",
+                    'performed_by' => $employee->employee_name,
+                    'request_type' => 'Incident Request',
+                    'request_id' => $task->snow_id,
+                ]);
+
                 FlashMessageHelper::flashSuccess("Status Changed to inprogress!");
 
             }
@@ -475,6 +555,16 @@ public function postInprogressRemarks($taskId)
             'status_code' => '5',  // Set status to Pending
             'in_progress_since' => null,  // Stop the timer
         ]);
+
+        $employee = auth()->guard('it')->user(); // Get the logged-in user
+        ActivityLog::create([
+            'action' => 'State',
+            'details' => "Work in Progress was changed from Inprogress to Pending for Service ID - {$task->snow_id}",
+            'performed_by' => $employee->employee_name,
+            'request_type' => 'Incident Request',
+            'request_id' => $task->snow_id,
+        ]);
+
                 FlashMessageHelper::flashSuccess("Status Changed to pending!");
 
             }
@@ -486,7 +576,33 @@ public function postInprogressRemarks($taskId)
             $task = IncidentRequest::find($taskId);
 
             if ($task) {
-                $task->update(['status_code' => '11']);
+
+                $totalElapsedMinutes = 0;
+
+                if ($task->ser_progress_since) {
+                    $totalElapsedMinutes = \Carbon\Carbon::parse($task->ser_progress_since)->diffInMinutes(now());
+                }
+
+                // Add the previously tracked progress time if exists
+                if (isset($task->total_ser_progress_time)) {
+                    $totalElapsedMinutes += $task->total_ser_progress_time;
+                }
+
+                   $task->update([
+                    'status_code' => '11', // Closed
+                    'total_ser_progress_time' => $totalElapsedMinutes, // Store the total progress time
+                    'ser_progress_since' => null // Reset the progress start time
+                ]);
+
+                $employee = auth()->guard('it')->user(); // Get the logged-in user
+                ActivityLog::create([
+                    'action' => 'State',
+                    'details' => "Work in Progress was Closed for Service ID - {$task->snow_id}",
+                    'performed_by' => $employee->employee_name,
+                    'request_type' => 'Incident Request',
+                    'request_id' => $task->snow_id,
+                ]);
+
                 FlashMessageHelper::flashSuccess("Status Changed to closed!");
 
             }
@@ -500,7 +616,7 @@ public function postInprogressRemarks($taskId)
 
         public function viewRecord($id)
         {
-           dd();
+
             $this->selectedRecord = IncidentRequest::with('emp')
                 ->where('id', $id)
                 ->first();
@@ -519,7 +635,74 @@ public function postInprogressRemarks($taskId)
         public function mount(){
 
             $this->loadIncidentClosedDetails();
+            $this->loadLogs();
         }
+
+
+        public function filterLogs($type)
+        {
+            $this->filterType = $type;
+            $this->loadLogs($this->snowId); // Re-load logs with the new filter
+        }
+
+
+
+        public function loadLogs($snowId = null)
+        {
+
+            if ($snowId) {
+
+                $this->snowId = $snowId;
+                $this->incidentIDHeader =   $this->snowId;
+                $query = ActivityLog::where('request_id', $this->snowId)
+                ->when($this->filterType, function ($q) {
+                    return $q->where('created_at', $this->filterType);
+                })
+                ->orderBy('created_at', 'desc');
+
+                $this->showPopup = true;
+
+
+                // Apply filter if filterType is set
+                if ($this->filterType) {
+                    $query->where('type', $this->filterType);
+                }
+
+                // Fetch activity logs sorted by created_at in descending order
+                $this->activityLogs = $query->get();
+
+                $this->employeeInitials = [];
+                foreach ($this->activityLogs as $log) {
+                    $this->employeeInitials[] = $this->getInitials($log->performed_by);
+                }
+            }
+        }
+
+
+        private function getInitials($name)
+        {
+            $nameParts = explode(' ', $name);
+
+            if (count($nameParts) < 2) {
+                // If the name has less than 2 parts, just return the first letter of the first part
+                return strtoupper(substr($nameParts[0], 0, 1));
+            }
+
+            // Extract the first letter of the first part and the last part
+            $firstInitial = strtoupper(substr($nameParts[0], 0, 1));
+            $lastInitial = strtoupper(substr($nameParts[count($nameParts) - 1], 0, 1));
+
+            return $firstInitial . $lastInitial;
+        }
+
+
+        public function closePopup()
+    {
+        $this->showPopup = false;
+        $this->activityLogs = null; // Clear logs if needed
+    }
+
+
 
         public $statusFilter = '';
 
@@ -564,6 +747,59 @@ public function postInprogressRemarks($taskId)
 
 
 
+    public $incidentOpenCount;
+    public $incidentPendingCount;
+    public $incidentprogressCount;
+    public $incidentClosedCount;
+
+    public function updateCounts()
+    {
+        try {
+            // Fetch categories for IT requests
+
+            $this->incidentOpenCount = IncidentRequest::with('emp')
+            ->orderBy('created_at', 'desc')
+            ->where('category', 'Incident Request')
+            ->where('status_code', 10)
+            ->count();
+
+            $this->incidentPendingCount = IncidentRequest::with('emp')
+            ->orderBy('created_at', 'desc')
+            ->where('category', 'Incident Request')
+            ->where('status_code', 5)
+            ->count();
+
+            $this->incidentprogressCount = IncidentRequest::with('emp')
+            ->orderBy('created_at', 'desc')
+            ->where('category', 'Incident Request')
+            ->where('status_code', 16)
+            ->count();
+
+            $this->incidentClosedCount = IncidentRequest::with('emp')
+            ->orderBy('created_at', 'desc')
+            ->where('category', 'Incident Request')
+            ->where('status_code',['11','15'])
+            ->count();
+
+
+        } catch (\Exception $e) {
+            // Log the exception for debugging purposes
+            Log::error("Error occurred while updating counts", [
+                'exception' => $e,
+            ]);
+
+            // Optionally, set all counts to zero or handle the error gracefully
+            $this->incidentOpenCount = 0;
+            $this->incidentPendingCount = 0;
+            $this->incidentprogressCount = 0;
+            $this->incidentClosedCount = 0;
+            // Flash an error message to inform the user
+            FlashMessageHelper::flashError("An error occurred while updating the request counts.");
+        }
+    }
+
+
+
     public function render()
     {
 
@@ -586,8 +822,14 @@ public function postInprogressRemarks($taskId)
         ->where('status_code', 16)
         ->get();
 
+        $this->incidentClosedDetails = IncidentRequest::with('emp')
+        ->orderBy('created_at', 'desc')
+        ->where('category', 'Incident Request')
+        ->where('status_code', ['11','15'])
+        ->get();
 
 
+        $this->updateCounts();
         $this->itData = IT::with('empIt')->get();
 
         return view('livewire.incident-requests',[

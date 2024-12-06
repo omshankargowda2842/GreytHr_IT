@@ -26,6 +26,7 @@ class RejectRequestMail extends Mailable
      */
     public function __construct($employeeName, $rejectionReason, $requestId, $shortDescription,$RejetedEmployeeName)
     {
+
         $this->employeeName = $employeeName;
         $this->rejectionReason = $rejectionReason;
         $this->requestId = $requestId;
@@ -34,7 +35,7 @@ class RejectRequestMail extends Mailable
 
 
     }
-
+ 
     public function build()
     {
       return $this->subject('Request Rejected')
