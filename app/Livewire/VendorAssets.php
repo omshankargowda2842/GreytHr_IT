@@ -835,26 +835,21 @@ class VendorAssets extends Component
         try {
             $trimmedEmpId = trim($this->searchEmp); // Trimmed search input
 
-            return VendorAsset::with('vendor') // Eager load the 'vendor' relationship
-                ->whereHas('vendor', function ($query) {
-                    $query->wherein('is_active', ['0', '1']); // Ensure the vendor is active
-                })
+            return VendorAsset::select('vendor_assets.*', 'vendors.vendor_name') // Select fields from both tables
+                ->join('vendors', 'vendor_assets.vendor_id', '=', 'vendors.vendor_id') // Join with the vendor table
+                ->whereIn('vendors.is_active', ['0', '1']) // Filter by active vendors
                 ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
-                    // Apply the search filters based on input
                     $query->where(function ($query) use ($trimmedEmpId) {
-                        $query->where('vendor_id', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhereHas('vendor', function ($query) use ($trimmedEmpId) {
-                                // Search within vendor fields as well
-                                $query->where('vendor_id', 'like', '%' . $trimmedEmpId . '%')
-                                    ->orWhere('vendor_name', 'like', '%' . $trimmedEmpId . '%')
-                                    ->orWhere('contact_email', 'like', '%' . $trimmedEmpId . '%');
-                            })
-                            ->orWhere('asset_id', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhere('manufacturer', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhere('asset_type', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhere('invoice_number', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhere('serial_number', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhere('is_active', 'like', '%' . $trimmedEmpId . '%');
+                        $query->where('vendor_assets.vendor_id', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('vendor.vendor_id', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('vendor.vendor_name', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('vendor.contact_email', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('vendor_assets.asset_id', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('vendor_assets.manufacturer', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('vendor_assets.asset_type', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('vendor_assets.invoice_number', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('vendor_assets.serial_number', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('vendor_assets.is_active', 'like', '%' . $trimmedEmpId . '%');
                     });
                 })
                 ->orderBy($this->sortColumn, $this->sortDirection) // Apply sorting
@@ -862,6 +857,7 @@ class VendorAssets extends Component
         } catch (\Exception $e) {
             Log::error('Error in filter method: ' . $e->getMessage());
         }
+
     }
 
 
@@ -967,8 +963,14 @@ class VendorAssets extends Component
             $this->vendorAssets = $this->filter();
 
             // Map the asset type name to each vendor asset
-            $this->vendorAssets = $this->vendorAssets->map(function ($vendorAsset) use ($assetTypes) {
+            $this->vendorAssets = collect($this->vendorAssets)->map(function ($vendorAsset) use ($assetTypes) {
+                if (is_null($vendorAsset)) {
+                    return [
+                        'asset_type_name' => 'N/A', // Default value when vendorAsset is null
+                    ];
+                }
                 $vendorAsset['asset_type_name'] = $assetTypes[$vendorAsset['asset_type']] ?? 'N/A';
+
                 return $vendorAsset;
             });
 

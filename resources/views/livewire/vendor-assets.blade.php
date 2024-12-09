@@ -559,9 +559,9 @@
                 <thead>
                     <tr>
                         <th class="vendor-table-head">S.No</th>
-                        <th class="vendor-table-head">Vendor ID
+                        <th class="vendor-table-head">Vendor Name
                             <span wire:click.debounce.500ms="toggleSortOrder('vendor_id')" style="cursor: pointer;">
-                                @if($sortColumn == 'vendor_id')
+                                @if($sortColumn == 'vendor_name')
                                 <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
                                 @else
                                 <i class="fas fa-sort"></i>
@@ -638,7 +638,7 @@
                     @foreach($vendorAssets as $vendorAsset)
                     <tr>
                         <td class="vendor-table-head">{{ $loop->iteration }}</td>
-                        <td class="vendor-table-head">{{ $vendorAsset->vendor_id ?? 'N/A'}}</td>
+                        <td class="vendor-table-head">{{ $vendorAsset->vendor_name ?? 'N/A'}}</td>
 
                         <td class="vendor-table-head">{{ $vendorAsset->asset_id ?? 'N/A'}}</td>
                         <td class="vendor-table-head">{{ucwords(strtolower($vendorAsset->manufacturer )) ?? 'N/A' }}
