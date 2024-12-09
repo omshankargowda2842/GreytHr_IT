@@ -192,7 +192,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group col-md-4">
+                    <!-- <div class="form-group col-md-4">
                         <label>Teramind:</label>
                         <div class="input-group">
                             <div class="form-check form-check-inline mb-0 mx-2">
@@ -206,10 +206,8 @@
                                 <label class="form-check-label mb-0" for="teramindNo">No</label>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </div> -->
 
-                <div class="row mb-5">
                     <div class="form-group col-md-4">
                         <label>System Upgradation:</label>
                         <div class="input-group">
@@ -225,6 +223,9 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div class="row mb-5">
 
                     <div class="form-group col-md-4">
                         <label>OneDrive:</label>
@@ -935,7 +936,7 @@
 
                         <div class="col-5 req-remarks-div" style="display: flex;flex-direction:column">
                             <label style="text-align: left;" for="">Asset Status <span class="text-danger">*</span></label>
-                            <select id="vendorStatus" wire:model.lazy="selectedStatus"
+                            <select id="vendorStatus" wire:model.lazy="selectedStatus" wire:change="validatefield('selectedStatus')"
                                     class=" form-select" style="height: 33px; border-radius: 6px;">
                                     <option value="" disabled selected>Select Status</option>
                                     <!-- Placeholder option -->
@@ -947,7 +948,7 @@
                             </div>
                             <div class="col-7 req-remarks-div " style="display: flex;flex-direction:column">
                                 <label style="text-align: left;" for="">Reason<span class="text-danger">*</span></label>
-                                <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea logout4"
+                                <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea logout4" wire:input="validatefield('reason')"
                                     placeholder="Reason for Deactivation"></textarea>
                                     @error('reason') <span class="text-danger d-flex align-start">{{ $message }}</span>@enderror
 
