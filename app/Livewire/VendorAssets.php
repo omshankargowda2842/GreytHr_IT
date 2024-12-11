@@ -41,6 +41,7 @@ class VendorAssets extends Component
     public $manufacturer;
     public $purchaseDate;
     public $warranty_expire_date;
+    public $end_of_life;
     public $file_paths = [];
     public $existingFilePaths = [];
     public $showEditDeleteVendor = true;
@@ -76,6 +77,7 @@ class VendorAssets extends Component
             'selectedVendorId' => 'required|string|max:255',
             'purchaseDate' => 'required|date|before_or_equal:today',
             'warranty_expire_date' => 'nullable|date|after:today',
+            'end_of_life' => 'nullable|string|max:30',
             'file_paths.*' => 'nullable|file|mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif|max:40960',
         ];
 
@@ -168,7 +170,10 @@ class VendorAssets extends Component
         'purchaseDate.before_or_equal' => 'Purchase Date cannot be a future date.',
 
         'warranty_expire_date.date' => 'Warranty expiration date must be a valid date.',
-        'warranty_expire_date.after' => 'Warranty expiration date cannot be a past or today\'s date.',
+        'warranty_expire_date.after' => 'Warranty expiration date cannot be a past or today\'s date.str',
+
+        'end_of_life.string'=>"End Of Life should be string.",
+        'end_of_life.max'=>"End Of Life should be less than 30 characters.",
 
 
         'manufacturer.required' => 'Manufacturer is required.',
@@ -355,6 +360,7 @@ class VendorAssets extends Component
         $this->manufacturer = '';
         $this->purchaseDate = null;
         $this->warranty_expire_date = null;
+        $this->end_of_life = '';
         $this->file_paths = [];
 
     {
@@ -376,6 +382,7 @@ class VendorAssets extends Component
         $this->manufacturer = '';
         $this->purchaseDate = null;
         $this->warranty_expire_date = null;
+        $this->end_of_life = '';
         $this->file_paths = [];
 
         $this->selectedAssetId = null; // Reset the selected asset ID
@@ -475,6 +482,7 @@ class VendorAssets extends Component
                 $this->gstCentral = $asset->gst_ig;
                 $this->purchaseDate = $asset->purchase_date ? Carbon::parse($asset->purchase_date)->format('Y-m-d') : null;
                 $this->warranty_expire_date = $asset->warranty_expire_date ? Carbon::parse($asset->warranty_expire_date)->format('Y-m-d') : null;
+                $this->end_of_life = $asset->end_of_life;
 
                 $this->existingFilePaths = json_decode($asset->file_paths, true) ?? [];
 
@@ -716,6 +724,7 @@ class VendorAssets extends Component
                         'gst_ig' => $this->gstIg,
                         'purchase_date' => $this->purchaseDate ? $this->purchaseDate : null,
                         'warranty_expire_date' => $this->warranty_expire_date ? $this->warranty_expire_date : null,
+                        'end_of_life' => $this->end_of_life,
                         'file_paths' => json_encode($fileDataArray),
                     ]);
                     FlashMessageHelper::flashSuccess("Asset updated successfully!");
@@ -742,6 +751,7 @@ class VendorAssets extends Component
                         'gst_ig' => $this->gstIg,
                         'purchase_date' => $this->purchaseDate ? $this->purchaseDate : null,
                         'warranty_expire_date' => $this->warranty_expire_date ? $this->warranty_expire_date : null,
+                        'end_of_life' => $this->end_of_life,
                         'file_paths' => json_encode($fileDataArray),
                     ]);
                 }
@@ -831,35 +841,36 @@ class VendorAssets extends Component
 
 
     public function filter()
-    {
-        try {
-            $trimmedEmpId = trim($this->searchEmp); // Trimmed search input
+{
+    try {
+        // Initialize the query
+        $query = VendorAsset::select('vendor_assets.*', 'vendors.vendor_name') // Select fields from both tables
+            ->join('vendors', 'vendor_assets.vendor_id', '=', 'vendors.vendor_id') // Join with the vendor table
+            ->whereIn('vendors.is_active', ['0', '1']); // Filter by active vendors
 
-            return VendorAsset::select('vendor_assets.*', 'vendors.vendor_name') // Select fields from both tables
-                ->join('vendors', 'vendor_assets.vendor_id', '=', 'vendors.vendor_id') // Join with the vendor table
-                ->whereIn('vendors.is_active', ['0', '1']) // Filter by active vendors
-                ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
-                    $query->where(function ($query) use ($trimmedEmpId) {
-                        $query->where('vendor_assets.vendor_id', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhere('vendor.vendor_id', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhere('vendor.vendor_name', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhere('vendor.contact_email', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhere('vendor_assets.asset_id', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhere('vendor_assets.manufacturer', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhere('vendor_assets.asset_type', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhere('vendor_assets.invoice_number', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhere('vendor_assets.serial_number', 'like', '%' . $trimmedEmpId . '%')
-                            ->orWhere('vendor_assets.is_active', 'like', '%' . $trimmedEmpId . '%');
-                    });
-                })
-                ->orderBy($this->sortColumn, $this->sortDirection) // Apply sorting
-                ->get();
-        } catch (\Exception $e) {
-            Log::error('Error in filter method: ' . $e->getMessage());
+        // Apply search filter
+        $trimmedEmpId = trim($this->searchEmp); // Trimmed search input
+        if (!empty($trimmedEmpId)) {
+            $query->where(function ($query) use ($trimmedEmpId) {
+                $query->where('vendors.vendor_id', 'like', '%' . $trimmedEmpId . '%')
+                    ->orWhere('vendors.vendor_name', 'like', '%' . $trimmedEmpId . '%')
+                    ->orWhere('vendor_assets.asset_id', 'like', '%' . $trimmedEmpId . '%')
+                    ->orWhere('vendor_assets.manufacturer', 'like', '%' . $trimmedEmpId . '%')
+                    ->orWhere('vendor_assets.asset_type', 'like', '%' . $trimmedEmpId . '%')
+                    ->orWhere('vendor_assets.invoice_number', 'like', '%' . $trimmedEmpId . '%')
+                    ->orWhere('vendor_assets.serial_number', 'like', '%' . $trimmedEmpId . '%')
+                    ->orWhere('vendor_assets.is_active', 'like', '%' . $trimmedEmpId . '%');
+            });
         }
 
-    }
+        // Ordering and fetching results
+        return $query->orderBy($this->sortColumn, $this->sortDirection)->get();
 
+    } catch (\Exception $e) {
+        Log::error('Error in filter method: ' . $e->getMessage());
+        return collect(); // Return an empty collection on failure
+    }
+}
 
     public function updated($propertyName)
     {
@@ -961,6 +972,7 @@ class VendorAssets extends Component
 
             // Apply any filters to the vendor assets
             $this->vendorAssets = $this->filter();
+            // dd( $this->vendorAssets);
 
             // Map the asset type name to each vendor asset
             $this->vendorAssets = collect($this->vendorAssets)->map(function ($vendorAsset) use ($assetTypes) {

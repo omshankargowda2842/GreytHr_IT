@@ -1,6 +1,6 @@
 <div>
 
-    <div wire:loading wire:target="dashboard,itRequest,itMembers,oldRecords,vendor,vendorAssets,assignAsset">
+    <div wire:loading wire:target="dashboard,itRequest,itMembers,oldRecords,vendor,vendorAssets,assets,assignAsset">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -110,6 +110,12 @@
                             class="{{ request()->routeIs('vendorAssets') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
                             <a href="#" wire:click='vendorAssets' class="sidebar-submenu-item-link">
                                 <span class="sidebar-submenu-item-link-text">Vendor Assets</span>
+                            </a>
+                        </li>
+                        <li
+                            class="{{ request()->routeIs('assets') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
+                            <a href="#" wire:click='assets' class="sidebar-submenu-item-link">
+                                <span class="sidebar-submenu-item-link-text">Assets</span>
                             </a>
                         </li>
                     </ul>

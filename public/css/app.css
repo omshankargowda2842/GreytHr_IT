@@ -1027,7 +1027,7 @@ padding: 10px;
     border-radius: 15px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
     margin-bottom: 10px;
-    margin-left: 6%;
+  
 }
 
 
@@ -1805,6 +1805,7 @@ w
  display: flex;
  justify-content: start;
  margin-left: 5%;
+ flex-direction: column;
 }
 
 

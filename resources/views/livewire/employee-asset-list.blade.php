@@ -1,4 +1,4 @@
-<div class="main">
+<div class="main d-flex"  style=" align-items: center; justify-content:center; flex-direction:column">
     <!-- Search Filters -->
     <div class="row mb-3 mt-4 ml-4 employeeAssetList">
         <!-- Employee ID Search Input -->
