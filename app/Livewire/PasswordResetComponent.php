@@ -2,6 +2,9 @@
 
 namespace App\Livewire;
 
+use App\Helpers\FlashMessageHelper;
+use App\Models\Company;
+use App\Models\EmployeeDetails;
 use App\Models\IT;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
@@ -9,11 +12,11 @@ use Illuminate\Support\Facades\DB;
 class PasswordResetComponent extends Component
 {
     public $token;
-    public $newPassword; // New password
-    public $confirmNewPassword; // Confirm new password
-    public $isValidToken = true; // To track token validity
-
-    // Define validation rules
+    public $newPassword;
+    public $confirmNewPassword;
+    public $isValidToken = true;
+    public $passwordResetSuccessful = false; // Add this flag to track success
+    public $companyName;
     protected $rules = [
         'newPassword' => [
             'required',
@@ -34,13 +37,21 @@ class PasswordResetComponent extends Component
 
         $this->token = $token;
 
-        // Check if the token is valid
         $tokenData = DB::table('password_reset_tokens')->where('token', $this->token)->first();
 
-        // If the token is not valid, set an error message and mark the token as invalid
         if (!$tokenData) {
             $this->isValidToken = false;
-            session()->flash('error', 'The password reset link is invalid or has already been used. Click on link return to the login page.');
+            session()->flash('error', 'The password reset link is invalid or has already been used.');
+            // FlashMessageHelper::flashError('The password reset link is invalid or has already been used.');
+        }
+    }
+
+    public function validateField($field)
+    {
+        if (in_array($field, ['newPassword', 'confirmNewPassword'])) {
+            $this->validateOnly($field, $this->rules);
+        } else {
+            $this->validateOnly($field, $this->rules);
         }
     }
 
@@ -48,29 +59,38 @@ class PasswordResetComponent extends Component
     {
         $this->validate();
 
-        // Check if the token is valid
         $tokenData = DB::table('password_reset_tokens')->where('token', $this->token)->first();
         if (!$tokenData) {
-            session()->flash('error', 'Invalid token or email.');
+            FlashMessageHelper::flashError('Invalid token or email.');
             return;
         }
 
-        // Proceed with password reset
         $user = IT::where('email', $tokenData->email)->first();
         if ($user) {
+            $empId = $user->emp_id;
+            $employee = EmployeeDetails::where('emp_id', $empId)->first();
+            $companyId = $employee->company_id;
+            // Fetch the company details using company_id
+            $company = Company::where('company_id', $companyId)->first();
+            $this->companyName = $company->company_name;
             $user->password = bcrypt($this->newPassword);
             $user->save();
-
-            // Optionally, delete the token
+            // // Send password change notification
+            if ($user && !empty($user->email)) {
+                $user->notify(new \App\Notifications\PasswordChangedNotification($this->companyName));
+            }
             DB::table('password_reset_tokens')->where('email', $tokenData->email)->delete();
 
-            // Clear fields after reset
             $this->newPassword = '';
             $this->confirmNewPassword = '';
 
             session()->flash('success', 'Password reset successfully. Click below to log in.');
+            FlashMessageHelper::flashSuccess('Password reset successfully.');
+
+            // Set the passwordResetSuccessful flag to true
+            $this->passwordResetSuccessful = true;
         } else {
-            session()->flash('error', 'User not found.');
+            FlashMessageHelper::flashError('User not found.');
         }
     }
 
