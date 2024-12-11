@@ -1,4 +1,4 @@
-<div class="main">
+<div class="main d-flex" style=" align-items: center; justify-content:center; flex-direction:column">
 
     <div wire:loading
         wire:target="cancel,submit,showAddVendorMember,delete ,clearFilters ,showViewVendor,showViewImage,showViewFile,showEditVendor,closeViewVendor,downloadImages,closeViewImage,closeViewFile,confirmDelete ,cancelLogout,">
@@ -23,6 +23,7 @@
 
 
     @if($showAddVendor)
+
 
     <div class="col-11 d-flex justify-content-start mb-1 mt-4" style="margin-left: 5%;">
         <button class="btn text-white btn-sm" style="background-color: #02114f;" wire:click='cancel'> <i
@@ -357,7 +358,7 @@
     @if($searchFilters)
 
 
-    <div class=" mb-3 mt-4 ml-4 employeeAssetList">
+    <div class=" col-11 mb-3 mt-4 ml-4 employeeAssetList">
         <!-- Align items to the same row with space between -->
         <div class="col-11 col-md-11 mb-2 mb-md-0">
             <div class="row d-flex justify-content-between">

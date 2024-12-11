@@ -91,6 +91,11 @@ class MainLayout extends Component
     {
         return redirect()->route('vendorAssets');
     }
+    public function assets()
+    {
+        return redirect()->route('assets');
+    }
+
 
     public function assignAsset()
     {

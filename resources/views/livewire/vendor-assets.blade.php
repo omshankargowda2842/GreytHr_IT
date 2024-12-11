@@ -1,4 +1,4 @@
-<div class="main">
+<div class="main d-flex" style=" align-items: center; justify-content:center; flex-direction:column">
 
 
     <div wire:loading
@@ -405,6 +405,19 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="row">
+                            <div class="col-4">
+                                <label for="end_of_life" class="vendor-asset-label">End Of Life
+                                </label>
+                            </div>
+                            <div class="col-8">
+                                <input type="text" id="end_of_life" wire:model.lazy="end_of_life" maxlength="30"
+                                    wire:change="resetValidationForField('end_of_life')" class="form-control">
+                                @error('end_of_life') <div class="text-danger">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+                    </div>
 
 
                     <div class="col-md-6 mb-3">
@@ -539,8 +552,7 @@
                 <div class="col-auto">
                     <button class="btn text-white btn-sm" wire:click='showAddVendorMember'
                         style="padding: 7px;background-color: #02114f;">
-                        <i class="fas fa-box " style="margin-right: 5px;
-"></i> Add Asset
+                        <i class="fas fa-box " style="margin-right: 5px;"></i> Add Asset
                     </button>
                 </div>
                 @endif

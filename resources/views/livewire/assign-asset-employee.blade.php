@@ -1,4 +1,4 @@
-<div class="main">
+<div class="main d-flex"  style=" align-items: center; justify-content:center; flex-direction:column">
 
     <div wire:loading
         wire:target="cancel,backVendor,oldAssetlisting,toggleOverview,assignAsset,viewDetails,edit,selectedAsset,closeViewEmpAsset,viewOldAssetDetails,selectedEmployee,submit,createAssetType,showAddVendorMember,delete,clearFilters ,showEditAsset ,showViewVendor,showViewImage,showViewFile,showEditVendor,closeViewVendor,downloadImages,closeViewImage,closeViewFile,confirmDelete ,cancelLogout,restore">
@@ -21,7 +21,7 @@
     </div>
 
 
-    <div class="container AssetEmployee mt-4">
+    <div class="container AssetEmployee mt-4 d-flex" style=" align-items: center; justify-content:center; flex-direction:column">
 
         @if ($showEMployeeAssetBtn)
         <div class="col-11 d-flex justify-content-between mb-4" style="margin-left: 4%;">
@@ -299,7 +299,7 @@
 
         @if($searchFilters)
 
-        <div class="row mb-3 mt-4 ml-4 employeeAssetList">
+        <div class="col-11 mb-3 mt-4 ml-4 employeeAssetList">
             <!-- Align items to the same row with space between -->
             <div class="col-11 col-md-11 mb-2 mb-md-0">
                 <div class="row d-flex justify-content-between">
@@ -630,7 +630,7 @@
 
         @if($searchFilters)
         <!-- Search Filters -->
-        <div class="row mb-3 mt-4 ml-4 employeeAssetList">
+        <div class="col-11 mb-3 mt-4 ml-4 employeeAssetList">
             <!-- Align items to the same row with space between -->
             <div class="col-11 col-md-11 mb-2 mb-md-0">
                 <div class="row d-flex justify-content-between">

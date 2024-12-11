@@ -31,6 +31,7 @@ class VendorAsset extends Model
         'manufacturer',
         'purchase_date',
         'warranty_expire_date',
+        'end_of_life',
         'file_paths',
         'status',
         'is_active',
