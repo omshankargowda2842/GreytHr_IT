@@ -217,13 +217,11 @@
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header itlogin12">
-                        <h5 class="itlogin13" class="modal-title">
+                        <h5 class="itlogin13 mb-0" class="modal-title">
                             <b>{{ $verified ? 'Reset Password' : 'Forgot Password' }}</b>
                         </h5>
-                        <button type="button" class="close p-2" data-dismiss="modal" aria-label="Close"
-                            wire:click="remove">
-                            <span aria-hidden="true" class="itloginClose">x</span>
-                        </button>
+                        <button type="button" class="btn-close btn-primary" data-dismiss="modal" aria-label="Close" wire:click="remove" style="background-color: white; height:10px;width:10px;">
+                                </button>
                     </div>
                     <div class="modal-body itlogin14">
                         @if ($verified)
