@@ -299,12 +299,12 @@
 
         @if($searchFilters)
 
-        <div class="col-11 mb-3 mt-4 ml-4 employeeAssetList">
+        <div class="col-11  mt-4 ml-4 employeeAssetList">
             <!-- Align items to the same row with space between -->
-            <div class="col-11 col-md-11 mb-2 mb-md-0">
+            <div class="col-11 col-md-11 mb-3 mb-md-0">
                 <div class="row d-flex justify-content-between">
                     <!-- Employee ID Search Input -->
-                    <div class="col-4">
+                    <div class="col-10 col-md-4 col-sm-6 mb-1">
                         <div class="input-group task-input-group-container">
                             <input type="text" class="form-control" placeholder="Search..." wire:model="searchEmp"
                                 wire:input="filter">
@@ -312,17 +312,17 @@
                     </div>
 
                     <!-- Add Member Button aligned to the right -->
-                    <div class="col-auto">
-                        <div class="">
+                    <div class="col-12 col-md-8 col-sm-12">
+                        <div class="text-end" >
 
                             @if ($showOldEMployeeAssetBtn)
-                            <button class="btn text-white mr-3" style="background-color: #02114f;"
+                            <button class="btn text-white mr-3 mb-1" style="background-color: #02114f;"
                                 wire:click="oldAssetlisting">Previous Owners </button>
                             @endif
                             @if(auth()->check() && (auth()->user()->hasRole('admin') ||
                             auth()->user()->hasRole('super_admin')))
                             @if ($showAssignAssetBtn)
-                            <button class="btn text-white" style="background-color: #02114f;"
+                            <button class="btn text-white mb-1" style="background-color: #02114f;"
                                 wire:click="assignAsset">Assign
                                 Asset</button>
                             @endif

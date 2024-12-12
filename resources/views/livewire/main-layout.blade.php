@@ -189,13 +189,17 @@
                 Vendor Assets
                 @break
 
+                @case('assetsList')
+                Assets List
+                @break
+
                 @case('password')
                 Password
                 @break
 
                 @case('employeeAssetList')
-                    Employee Assets
-                    @break
+                Employee Assets
+                @break
 
                 @default
                 IT Admin
@@ -235,6 +239,10 @@
                     @case('vendorAssets')
                     Vendor Assets
                     @break
+                    @case('assetsList')
+                    Assets List
+                    @break
+
                     @case('password')
                     Password
                     @break

@@ -70,6 +70,7 @@
                             </div>
                             <div class="col-8">
                                 <input type="number" id="quantity" wire:model.lazy="quantity"
+                                @if($editMode) disabled @endif
                                     wire:keydown="resetValidationForField('quantity')" class="form-control" min="1" />
                                 @error('quantity')
                                 <div class="text-danger">{{ $message }}</div>
@@ -425,7 +426,9 @@
                             <div class="col-4">
 
                                 @if($barcode)
-                                <h6>Generated Barcode:</h6>
+                                <!-- <h6>Generated Barcode:</h6> -->
+                                <label for="barcode" class="vendor-asset-label">Generated Barcode
+                                </label>
                             </div>
                             <div class="col-8">
                                 <img src="data:image/png;base64,{{ $barcode }}" alt="Barcode"

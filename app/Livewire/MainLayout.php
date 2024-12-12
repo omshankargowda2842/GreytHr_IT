@@ -93,7 +93,7 @@ class MainLayout extends Component
     }
     public function assets()
     {
-        return redirect()->route('assets');
+        return redirect()->route('assetsList');
     }
 
 

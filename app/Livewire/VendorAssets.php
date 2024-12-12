@@ -479,10 +479,11 @@ class VendorAssets extends Component
                 $this->gstState = $asset->gst_state;
                 $this->selectedVendorId = $asset->vendor_id;
                 $this->gstCentral = $asset->gst_central;
-                $this->gstCentral = $asset->gst_ig;
+                // $this->gst_ig = $asset->gst_ig;
                 $this->purchaseDate = $asset->purchase_date ? Carbon::parse($asset->purchase_date)->format('Y-m-d') : null;
                 $this->warranty_expire_date = $asset->warranty_expire_date ? Carbon::parse($asset->warranty_expire_date)->format('Y-m-d') : null;
                 $this->end_of_life = $asset->end_of_life;
+                $this->quantity=1;
 
                 $this->existingFilePaths = json_decode($asset->file_paths, true) ?? [];
 
@@ -621,7 +622,6 @@ class VendorAssets extends Component
 
 
                 $barcodeBase64 = base64_encode($barcode);
-                $barcodeBase64 = substr($barcodeBase64, 0, 100);
             }
             $fileDataArray = [];
 
@@ -733,7 +733,7 @@ class VendorAssets extends Component
 
                 // Create new asset record
                 for ($i = 0; $i < $this->quantity; $i++) {
-                   $data =  VendorAsset::create([
+                     VendorAsset::create([
                         'vendor_id' => $this->selectedVendorId,
                         'manufacturer' => $this->manufacturer,
                         'asset_type' => $this->assetType,
