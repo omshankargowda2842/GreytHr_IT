@@ -363,7 +363,7 @@
         <div class="col-11 col-md-11 mb-2 mb-md-0">
             <div class="row d-flex justify-content-between">
                 <!-- Employee ID Search Input -->
-                <div class="col-4">
+                <div class="col-6 col-md-4 col-sm-6">
                     <div class="input-group task-input-group-container">
                         <input type="text" class="form-control" placeholder="Search..." wire:model="searchVendor"
                             wire:input="filter">
@@ -373,9 +373,9 @@
                 <!-- Add Member Button aligned to the right -->
                 @if(auth()->check() && (auth()->user()->hasRole('admin') ||
                 auth()->user()->hasRole('super_admin')))
-                <div class="col-auto">
+                <div class="col-6 col-md-8 col-sm-6 text-end">
                     <button class="btn text-white btn-sm" wire:click='showAddVendorMember'
-                        style="margin-right: 9%;padding: 7px;background-color: #02114f;white-space:nowrap;"><i
+                        style="padding: 7px;background-color: #02114f;white-space:nowrap;"><i
                             class="fas fa-user-plus"></i> Add
                         Vendor</button>
                 </div>
