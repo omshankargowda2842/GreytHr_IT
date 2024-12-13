@@ -1,4 +1,4 @@
-<div class="main">
+<div class="main d-flex"  style=" align-items: center; justify-content:center; flex-direction:column">
     <!-- Search Filters -->
     <div class="row mb-3 mt-4 ml-4 employeeAssetList">
         <!-- Employee ID Search Input -->
@@ -73,8 +73,8 @@
 
                             <div class="col">
                                 <button class="btn btn-sm btn-dark"
-                                    wire:click="deleteMember({{ $employeeAssetList->id }})" title="Delete">
-                                    <i class="fas fa-trash"></i>
+                                    wire:click="deleteMember({{ $employeeAssetList->id }})" title="Deactivate">
+                                    <i class="fas fa-trash"  title="Deactivate"></i>
                                 </button>
                             </div>
                         </td>

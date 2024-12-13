@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\AssetsList;
 use App\Livewire\AssignAssetEmployee;
 use App\Livewire\Dashboard;
 use App\Livewire\EmployeeAssetList;
@@ -53,6 +54,7 @@ Route::middleware(['auth:it', 'handleSession'])->group(function () {
         Route::middleware(['role:admin|super_admin'])->group(function () {
             Route::get('/oldItMembers', OldItMembers::class)->name('oldItMembers');
             Route::get('/vendorAssets', VendorAssets::class)->name('vendorAssets');
+            Route::get('/assetsList', AssetsList::class)->name('assetsList');
             Route::get('/employeeAssetList', AssignAssetEmployee::class)->name('employeeAssetList');
             Route::get('/vendor', Vendors::class)->name('vendor');
             Route::get('/itMembers', ItAddMember::class)->name('itMembers');

@@ -1,4 +1,4 @@
-<div class="main">
+<div class="main d-flex" style=" align-items: center; justify-content:center; flex-direction:column">
 
 
     <div wire:loading
@@ -70,6 +70,7 @@
                             </div>
                             <div class="col-8">
                                 <input type="number" id="quantity" wire:model.lazy="quantity"
+                                @if($editMode) disabled @endif
                                     wire:keydown="resetValidationForField('quantity')" class="form-control" min="1" />
                                 @error('quantity')
                                 <div class="text-danger">{{ $message }}</div>
@@ -410,6 +411,19 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="row">
+                            <div class="col-4">
+                                <label for="end_of_life" class="vendor-asset-label">End Of Life
+                                </label>
+                            </div>
+                            <div class="col-8">
+                                <input type="text" id="end_of_life" wire:model.lazy="end_of_life" maxlength="30"
+                                    wire:change="resetValidationForField('end_of_life')" class="form-control">
+                                @error('end_of_life') <div class="text-danger">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+                    </div>
 
 
                     <div class="col-md-6 mb-3">
@@ -417,7 +431,9 @@
                             <div class="col-4">
 
                                 @if($barcode)
-                                <h6>Generated Barcode:</h6>
+                                <!-- <h6>Generated Barcode:</h6> -->
+                                <label for="barcode" class="vendor-asset-label">Generated Barcode
+                                </label>
                             </div>
                             <div class="col-8">
                                 <img src="data:image/png;base64,{{ $barcode }}" alt="Barcode"
@@ -542,8 +558,7 @@
                 <div class="col-auto">
                     <button class="btn text-white btn-sm" wire:click='showAddVendorMember'
                         style="padding: 7px;background-color: #02114f;">
-                        <i class="fas fa-box " style="margin-right: 5px;
-"></i> Add Asset
+                        <i class="fas fa-box " style="margin-right: 5px;"></i> Add Asset
                     </button>
                 </div>
                 @endif
@@ -562,9 +577,9 @@
                 <thead>
                     <tr>
                         <th class="vendor-table-head">S.No</th>
-                        <th class="vendor-table-head">Vendor ID
+                        <th class="vendor-table-head">Vendor Name
                             <span wire:click.debounce.500ms="toggleSortOrder('vendor_id')" style="cursor: pointer;">
-                                @if($sortColumn == 'vendor_id')
+                                @if($sortColumn == 'vendor_name')
                                 <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
                                 @else
                                 <i class="fas fa-sort"></i>
@@ -641,7 +656,7 @@
                     @foreach($vendorAssets as $vendorAsset)
                     <tr>
                         <td class="vendor-table-head">{{ $loop->iteration }}</td>
-                        <td class="vendor-table-head">{{ $vendorAsset->vendor_id ?? 'N/A'}}</td>
+                        <td class="vendor-table-head">{{ $vendorAsset->vendor_name ?? 'N/A'}}</td>
 
                         <td class="vendor-table-head">{{ $vendorAsset->asset_id ?? 'N/A'}}</td>
                         <td class="vendor-table-head">{{ucwords(strtolower($vendorAsset->manufacturer )) ?? 'N/A' }}

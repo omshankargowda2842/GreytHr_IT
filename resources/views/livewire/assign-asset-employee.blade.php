@@ -1,4 +1,4 @@
-<div class="main">
+<div class="main d-flex"  style=" align-items: center; justify-content:center; flex-direction:column">
 
     <div wire:loading
         wire:target="cancel,backVendor,oldAssetlisting,toggleOverview,assignAsset,viewDetails,edit,selectedAsset,closeViewEmpAsset,viewOldAssetDetails,selectedEmployee,submit,createAssetType,showAddVendorMember,delete,clearFilters ,showEditAsset ,showViewVendor,showViewImage,showViewFile,showEditVendor,closeViewVendor,downloadImages,closeViewImage,closeViewFile,confirmDelete ,cancelLogout,restore">
@@ -21,7 +21,7 @@
     </div>
 
 
-    <div class="container AssetEmployee mt-4">
+    <div class="container AssetEmployee mt-4 d-flex" style=" align-items: center; justify-content:center; flex-direction:column">
 
         @if ($showEMployeeAssetBtn)
         <div class="col-11 d-flex justify-content-between mb-4" style="margin-left: 4%;">
@@ -192,7 +192,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group col-md-4">
+                    <!-- <div class="form-group col-md-4">
                         <label>Teramind:</label>
                         <div class="input-group">
                             <div class="form-check form-check-inline mb-0 mx-2">
@@ -206,10 +206,8 @@
                                 <label class="form-check-label mb-0" for="teramindNo">No</label>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </div> -->
 
-                <div class="row mb-5">
                     <div class="form-group col-md-4">
                         <label>System Upgradation:</label>
                         <div class="input-group">
@@ -225,6 +223,9 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div class="row mb-5">
 
                     <div class="form-group col-md-4">
                         <label>OneDrive:</label>
@@ -298,12 +299,12 @@
 
         @if($searchFilters)
 
-        <div class="row mb-3 mt-4 ml-4 employeeAssetList">
+        <div class="col-11  mt-4 ml-4 employeeAssetList">
             <!-- Align items to the same row with space between -->
-            <div class="col-11 col-md-11 mb-2 mb-md-0">
+            <div class="col-11 col-md-11 mb-3 mb-md-0">
                 <div class="row d-flex justify-content-between">
                     <!-- Employee ID Search Input -->
-                    <div class="col-4">
+                    <div class="col-10 col-md-4 col-sm-6 mb-1">
                         <div class="input-group task-input-group-container">
                             <input type="text" class="form-control" placeholder="Search..." wire:model="searchEmp"
                                 wire:input="filter">
@@ -311,17 +312,17 @@
                     </div>
 
                     <!-- Add Member Button aligned to the right -->
-                    <div class="col-auto">
-                        <div class="">
+                    <div class="col-12 col-md-8 col-sm-12">
+                        <div class="text-end" >
 
                             @if ($showOldEMployeeAssetBtn)
-                            <button class="btn text-white mr-3" style="background-color: #02114f;"
+                            <button class="btn text-white mr-3 mb-1" style="background-color: #02114f;"
                                 wire:click="oldAssetlisting">Previous Owners </button>
                             @endif
                             @if(auth()->check() && (auth()->user()->hasRole('admin') ||
                             auth()->user()->hasRole('super_admin')))
                             @if ($showAssignAssetBtn)
-                            <button class="btn text-white" style="background-color: #02114f;"
+                            <button class="btn text-white mb-1" style="background-color: #02114f;"
                                 wire:click="assignAsset">Assign
                                 Asset</button>
                             @endif
@@ -447,7 +448,7 @@
                                 auth()->user()->hasRole('super_admin')))
                                 <div class="col mx-1">
                                     <button class="btn text-white btn-sm border-dark" style="background-color: #02114f;"
-                                        wire:click="confirmDelete({{ $employeeAssetList->id }})" title="Delete">
+                                        wire:click="confirmDelete('{{ $employeeAssetList->id }}','{{$employeeAssetList->asset_id}}')" title="Deactivate">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
@@ -629,7 +630,7 @@
 
         @if($searchFilters)
         <!-- Search Filters -->
-        <div class="row mb-3 mt-4 ml-4 employeeAssetList">
+        <div class="col-11 mb-3 mt-4 ml-4 employeeAssetList">
             <!-- Align items to the same row with space between -->
             <div class="col-11 col-md-11 mb-2 mb-md-0">
                 <div class="row d-flex justify-content-between">
@@ -932,14 +933,32 @@
                     <form wire:submit.prevent="delete">
 
                         <div class="row">
-                            <div class="col-12 req-remarks-div">
 
-                                <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea logout4"
+                        <div class="col-5 req-remarks-div" style="display: flex;flex-direction:column">
+                            <label style="text-align: left;" for="">Asset Status <span class="text-danger">*</span></label>
+                            <select id="vendorStatus" wire:model.lazy="selectedStatus" wire:change="validatefield('selectedStatus')"
+                                    class=" form-select" style="height: 33px; border-radius: 6px;">
+                                    <option value="" disabled selected>Select Status</option>
+                                    <!-- Placeholder option -->
+                                    <option value="In Use">In Use</option>
+                                    <option value="In Repair">In Repair</option>
+                                    <option value="Available">Available</option>
+                                </select>
+                                @error('selectedStatus') <span class="text-danger d-flex align-start">{{ $message }}</span>@enderror
+                            </div>
+                            <div class="col-7 req-remarks-div " style="display: flex;flex-direction:column">
+                                <label style="text-align: left;" for="">Reason<span class="text-danger">*</span></label>
+                                <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea logout4" wire:input="validatefield('reason')"
                                     placeholder="Reason for Deactivation"></textarea>
+                                    @error('reason') <span class="text-danger d-flex align-start">{{ $message }}</span>@enderror
 
                             </div>
+
+
+
+
                         </div>
-                        @error('reason') <span class="text-danger d-flex align-start">{{ $message }}</span>@enderror
+
                         <div class="d-flex justify-content-center p-3">
                             <button type="submit" class="submit-btn mr-3"
                                 wire:click="delete({{ $employeeAssetList->id }})">Confirm</button>
