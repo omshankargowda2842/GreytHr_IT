@@ -28,13 +28,12 @@ return new class extends Migration
             $table->text('pending_remarks')->nullable();
              $table->text('inprogress_remarks')->nullable();
              $table->string('assign_to')->nullable();
-            $table->string('file_path')->nullable(); // Path to attached file (nullable)
-            $table->string('file_name')->nullable();
-            $table->string('mime_type')->nullable();
+             $table->json('file_paths')->nullable();
             $table->string('cc_to')->nullable(); // CC to field (nullable)
             $table->tinyInteger('status_code')->default(8);
             $table->timestamp('in_progress_since')->nullable();
             $table->integer('total_in_progress_time')->default(0);
+            $table->timestamp('req_end_date')->nullable();
             $table->string('selected_equipment')->nullable();
             $table->enum('priority', ['low', 'medium', 'high'])->default('low');
             $table->timestamps();

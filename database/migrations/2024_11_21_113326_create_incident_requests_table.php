@@ -19,21 +19,27 @@ return new class extends Migration
             $table->string('category'); // 'Incident Request' or 'Service Request'
             $table->string('short_description')->nullable();
             $table->text('description')->nullable();
-            $table->enum('priority', ['low', 'medium', 'high'])->default('low');
+            $table->enum('priority', ['Low', 'Medium', 'High'])->default('Low');
             $table->string('assigned_dept')->nullable();
-            $table->string('file_path')->nullable();
-            $table->string('file_name')->nullable();
-            $table->string('mime_type')->nullable();
+            $table->json('file_paths')->nullable();
             $table->string('inc_assign_to')->nullable();
-            $table->text('active_inc_comment')->nullable();
-            $table->text('inc_pending_remarks')->nullable();
+            $table->text('active_inc_notes')->nullable();
+            $table->text('inc_pending_notes')->nullable();
             $table->timestamp('in_progress_since')->nullable();
-            $table->text('inc_inprogress_remarks')->nullable();
+            $table->text('inc_inprogress_notes')->nullable();
+            $table->text('inc_completed_notes')->nullable();
+            $table->text('ser_completed_notes')->nullable();
+            $table->text('inc_cancel_notes')->nullable();
+            $table->text('ser_cancel_notes')->nullable();
+            $table->text('inc_customer_visible_notes')->nullable();
+            $table->text('ser_customer_visible_notes')->nullable();
             $table->integer('total_in_progress_time')->default(0);
+            $table->timestamp('inc_end_date')->nullable();
+            $table->timestamp('ser_end_date')->nullable();
             $table->string('ser_assign_to')->nullable();
-            $table->text('active_ser_comment')->nullable();
-            $table->text('ser_pending_remarks')->nullable();
-            $table->text('ser_inprogress_remarks')->nullable();
+            $table->text('active_ser_notes')->nullable();
+            $table->text('ser_pending_notes')->nullable();
+            $table->text('ser_inprogress_notes')->nullable();
             $table->integer('total_ser_progress_time')->default(0);
             $table->timestamp('ser_progress_since')->nullable();
             $table->tinyInteger('status_code')->default(11); // Default to a "Pending" status

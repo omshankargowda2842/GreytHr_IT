@@ -228,6 +228,19 @@ class ItAddMember extends Component
         $this->validate();
         try {
 
+
+            if ($this->selectedRole == 'super_admin') {
+                // Check how many members already have the "super_admin" role
+                $superAdminCount = IT::where('role', 'super_admin')->count();
+
+                // If there are already 2 super admins, prevent adding another
+                if ($superAdminCount >= 4 ) {
+                    // Flash an error message
+                    FlashMessageHelper::flashError("You can only assign the Super Admin role to a maximum of 2 members.");
+                    return; // Stop further execution
+                }
+            }
+
             // Attempt to create a new IT record
             IT::create([
                 'emp_id' => $this->empDetails->emp_id,
@@ -282,7 +295,14 @@ class ItAddMember extends Component
                             ->orWhere('email', 'like', '%' . $trimmedEmpId . '%');
                     });
                 })
-                ->orderBy($this->sortColumn, $this->sortDirection)
+                ->when($this->sortColumn && $this->sortDirection, function ($query) {
+                    if ($this->sortColumn == 'it_emp_id') {
+                        $query->join('it_employees', 'employee_details.emp_id', '=', 'it_employees.emp_id')
+                              ->orderBy('it_employees.it_emp_id', $this->sortDirection);
+                    } else {
+                        $query->orderBy($this->sortColumn, $this->sortDirection);
+                    }
+                })
                 ->get();
 
             return $employees; // Return the filtered collection

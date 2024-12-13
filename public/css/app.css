@@ -2200,6 +2200,7 @@ w
 }
 
 .activity-entry {
+    border-left: 5px solid black;
     background-color: #fff;
     padding: 16px;
     border-radius: 8px;
@@ -2363,4 +2364,5 @@ w
 .file-preview-container:hover .delete-icon {
     display: block; /* Show delete icon on hover */
 }
+
 

@@ -255,7 +255,7 @@
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                             <a class="dropdown-item" href="#" wire:click='serRequest'>Service Request</a>
                             <a class="dropdown-item" href="#" wire:click='incRequest'>Incident Request</a>
-                            <a class="dropdown-item" href="#">Catalogue Request</a>
+                            <a class="dropdown-item" href="#">Catalog Request</a>
                         </div>
                     </div>
 

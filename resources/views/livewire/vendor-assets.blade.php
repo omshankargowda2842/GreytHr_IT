@@ -109,8 +109,7 @@
                                 <div class="input-group">
                                     <select wire:model.lazy="assetType"
                                         wire:change="handleAssetTypeChangeAndResetValidation" id="assetType"
-                                        class="vendor-selected-AssetType form-select"
-                                        wire:key="asset-type-select">
+                                        class="vendor-selected-AssetType form-select" wire:key="asset-type-select">
                                         <option value="" disabled hidden>Select Asset Type</option>
                                         @foreach($assetNames as $asset)
                                         <option value="{{ $asset->id }}">{{ ucwords(strtolower($asset->asset_names)) }}
@@ -143,9 +142,11 @@
                                         <div class="mb-3 col-11">
                                             <label for="assetName" class="vendor-asset-label">Asset Name</label>
                                             <div style="display:flex;gap:5px">
-                                                <input type="text" class="form-control" id="assetName" style="width: 80%;" wire:model.lazy="newAssetName"
+                                                <input type="text" class="form-control" id="assetName"
+                                                    style="width: 80%;" wire:model.lazy="newAssetName"
                                                     wire:keydown="resetValidationForField('newAssetName')">
-                                                <button type="button" wire:click="createAssetType" class="btn text-white"
+                                                <button type="button" wire:click="createAssetType"
+                                                    class="btn text-white"
                                                     style="background-color: #02114f;">Create</button>
                                             </div>
 
@@ -249,7 +250,8 @@
                             </div>
                             <div class="col-8">
                                 <input type="text" id="serialNumber" wire:model.lazy="serialNumber"
-                                    wire:keydown="resetValidationForField('serialNumber')" class="form-control" maxlength="20" minlength="6">
+                                    wire:keydown="resetValidationForField('serialNumber')" class="form-control"
+                                    maxlength="20" minlength="6">
                                 @error('serialNumber') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -286,7 +288,8 @@
                             </div>
                             <div class="col-8">
                                 <input type="text" id="gstIg" wire:model.lazy="gstIg" placeholder="Rs"
-                                    wire:keydown="resetValidationForField('gstIg')" class="form-control" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
+                                    wire:keydown="resetValidationForField('gstIg')" class="form-control"
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
                                     inputmode="decimal">
                             </div>
                         </div>
@@ -309,7 +312,8 @@
                             </div>
                             <div class="col-8">
                                 <input type="text" id="gstState" wire:model.lazy="gstState" placeholder="Rs"
-                                    wire:keydown="resetValidationForField('gstState')" class="form-control" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
+                                    wire:keydown="resetValidationForField('gstState')" class="form-control"
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
                                     inputmode="decimal">
                                 @error('gstState') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
@@ -326,7 +330,8 @@
                             </div>
                             <div class="col-8">
                                 <input type="text" id="gstCentral" wire:model.lazy="gstCentral" placeholder="Rs"
-                                    wire:keydown="resetValidationForField('gstCentral')" class="form-control" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
+                                    wire:keydown="resetValidationForField('gstCentral')" class="form-control"
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
                                     inputmode="decimal">
                                 @error('gstCentral') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
@@ -434,7 +439,8 @@
                             </div>
                             <div class="col-8">
                                 <!-- File input hidden -->
-                                <input id="fileInput" type="file" wire:model="file_paths" class="form-control-file" multiple style="font-size: 12px; display: none;" />
+                                <input id="fileInput" type="file" wire:model="file_paths" class="form-control-file"
+                                    multiple style="font-size: 12px; display: none;" />
 
                                 <!-- Label triggers file input -->
                                 <div class="d-flex" style="align-items: baseline;gap: 5px;">
@@ -442,10 +448,8 @@
                                         onclick="document.getElementById('fileInput').click();">
                                         <i class="fa-solid fa-paperclip"></i>
                                     </button>
-                                    @if(count($all_files)<=0)
-                                        No File Choosen
-                                        @else
-                                        <p>{{count($all_files)}} File/s selected</p>
+                                    @if(count($all_files)<=0) No File Choosen @else <p>{{count($all_files)}} File/s
+                                        selected</p>
                                         @endif
 
                                 </div>
@@ -474,26 +478,25 @@
                         <h6>File Previews:</h6>
                         <div class="d-flex flex-wrap gap-3">
                             @foreach ($previews as $index => $preview)
-                            <div
-                                class="file-preview-container text-center"
+                            <div class="file-preview-container text-center"
                                 style="padding: 5px; border: 1px solid black; width: 120px; height: 120px; border-radius: 5px; position: relative; overflow: hidden;">
 
                                 @if ($preview['type'] == 'image')
                                 <!-- Show image preview -->
-                                <img src="{{ $preview['url'] }}" alt="Preview" class="img-thumbnail" style="width: 75px; height: 75px;" />
+                                <img src="{{ $preview['url'] }}" alt="Preview" class="img-thumbnail"
+                                    style="width: 75px; height: 75px;" />
                                 <span class="mt-1">{{ $preview['name'] }}</span>
                                 @else
                                 <!-- Show non-image file -->
                                 <div class="d-flex flex-column align-items-center">
                                     <i style="width: 75px; height: 75px;" class="fas fa-file fa-3x"></i>
-                                    <span class="mt-1 uploaded-file-name" style="display: block; width: 100%;">{{ $preview['name'] }}</span>
+                                    <span class="mt-1 uploaded-file-name"
+                                        style="display: block; width: 100%;">{{ $preview['name'] }}</span>
                                 </div>
                                 @endif
 
                                 <!-- Delete icon -->
-                                <button
-                                    type="button"
-                                    class="delete-icon btn btn-danger"
+                                <button type="button" class="delete-icon btn btn-danger"
                                     wire:click="removeFile({{ $index }})"
                                     style="position: absolute; top: 5%; right: 5%; z-index: 5;  font-size: 12px;">
                                     <i class="fas fa-times"></i>

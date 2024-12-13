@@ -23,10 +23,11 @@ class cancelRequestMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct($cancelRequest,$employee,$rejectionReason,)
+    public function __construct($cancelRequest,$employee,$rejectionReason,$Id)
 {
+   
     $this->employeeName = $cancelRequest->emp->first_name . ' ' . $cancelRequest->emp->last_name;
-    $this->requestId =$cancelRequest->request_id;
+    $this->requestId = $Id;
     $this->rejectedEmpName = $employee->employee_name;
     $this->rejectionReason = $rejectionReason;
     $this->shortDescription =  $cancelRequest->description;
