@@ -4,14 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Notifications\Notifiable;
 
-class VendorAsset extends Model
+class AssetsHistories extends Model
 {
     use HasFactory;
-    use Notifiable;
-
-    protected $table = 'vendor_assets';
+    protected $table = 'assets_histories';
     protected $fillable = [
         'vendor_id',
         'asset_type',
@@ -35,19 +32,9 @@ class VendorAsset extends Model
         'file_paths',
         'status',
         'is_active',
-        'asset_id'
+        'asset_id',
+        'created_by'
     ];
-
-
-    public function vendor()
-    {
-        return $this->belongsTo(Vendor::class, 'vendor_id', 'vendor_id');
-    }
-
-    public function assignAssetEmps()
-    {
-        return $this->hasMany(AssignAssetEmp::class, 'asset_id', 'asset_id');
-    }
 
 
 }

@@ -1,6 +1,6 @@
 <div>
 
-    <div wire:loading wire:target="dashboard,itRequest,itMembers,oldRecords,vendor,vendorAssets,assignAsset">
+    <div wire:loading wire:target="dashboard,itRequest,itMembers,oldRecords,vendor,vendorAssets,assets,assignAsset">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -112,6 +112,12 @@
                                 <span class="sidebar-submenu-item-link-text">Vendor Assets</span>
                             </a>
                         </li>
+                        <li
+                            class="{{ request()->routeIs('assets') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
+                            <a href="#" wire:click='assets' class="sidebar-submenu-item-link">
+                                <span class="sidebar-submenu-item-link-text">Assets</span>
+                            </a>
+                        </li>
                     </ul>
                 </li>
                 <!-- <li class="sidebar-menu-item">
@@ -183,13 +189,17 @@
                 Vendor Assets
                 @break
 
+                @case('assetsList')
+                Assets List
+                @break
+
                 @case('password')
                 Password
                 @break
 
                 @case('employeeAssetList')
-                    Employee Assets
-                    @break
+                Employee Assets
+                @break
 
                 @default
                 IT Admin
@@ -229,6 +239,10 @@
                     @case('vendorAssets')
                     Vendor Assets
                     @break
+                    @case('assetsList')
+                    Assets List
+                    @break
+
                     @case('password')
                     Password
                     @break

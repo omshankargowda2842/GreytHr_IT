@@ -32,6 +32,8 @@ class Vendors extends Component
     public $selectedVendorId;
     public $showViewImageDialog = false;
     public $showViewFileDialog = false;
+    public $showSuccessMsg=false;
+    public $successImageMessage='File/s uploaded successfully!';
 
 
     // Editing mode
@@ -362,6 +364,63 @@ public function downloadImages($vendorId)
     }
     }
 
+    public $previews=[];
+    public $all_files = [];
+    public function updatedFilePaths()
+    {
+        foreach ($this->file_paths as $file) {
+            // Ensure no duplicate files are added
+            $existingFileNames = array_map(function ($existingFile) {
+                return $existingFile->getClientOriginalName();
+            }, $this->all_files);
+
+            if (!in_array($file->getClientOriginalName(), $existingFileNames)) {
+                // Append only new files to all_files
+                $this->all_files[] = $file;
+
+                try {
+                    // Generate previews only for the new file
+                    if (in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'])) {
+                        $base64Image = base64_encode(file_get_contents($file->getRealPath()));
+                        $this->previews[] = [
+                            'url' => 'data:' . $file->getMimeType() . ';base64,' . $base64Image,
+                            'type' => 'image',
+                            'name' => $file->getClientOriginalName(),
+                        ];
+                    } else {
+                        $this->previews[] = [
+                            'type' => 'file',
+                            'name' => $file->getClientOriginalName(),
+                        ];
+                    }
+                } catch (\Throwable $th) {
+                    Log::error('Error generating preview:', [
+                        'file' => $file->getClientOriginalName(),
+                        'error' => $th->getMessage(),
+                    ]);
+                }
+            }
+        }
+        $this->showSuccessMsg=true;
+
+
+        // Log the names of all files
+
+    }
+    public function  hideSuccessMsg(){
+        $this->showSuccessMsg=false;
+    }
+
+    public function removeFile($index)
+    {
+        // Remove the file and its preview by index
+        unset($this->all_files[$index]);
+        unset($this->previews[$index]);
+
+        // Reindex the arrays
+        $this->all_files = array_values($this->all_files);
+        $this->previews = array_values($this->previews);
+    }
 
     public function submit()
     {
@@ -370,6 +429,7 @@ public function downloadImages($vendorId)
 
         $fileDataArray = [];
 
+        $this->file_paths=$this->all_files;
         if ($this->editMode) {
             // Fetch the existing vendor record
             $vendor = Vendor::find($this->selectedVendorId);
@@ -628,35 +688,37 @@ public function getLocationFromIndiaPost($pinCode)
     {
         try {
             // Trim the search input
-            $trimmedEmpId = trim($this->searchVendor);
+            $trimmedSearch = trim($this->searchVendor);
 
-            // Start the query for filtering and sorting
+            // Initialize the query
             $query = Vendor::query();
+
+            // Filter by active vendors
             $query->where('is_active', 1);
 
-            // Apply filtering if there's a search term
-            if ($trimmedEmpId) {
-                $query->where(function ($query) use ($trimmedEmpId) {
-                    $query->where('vendor_id', 'like', '%' . $trimmedEmpId . '%')
-                        ->orWhere('vendor_name', 'like', '%' . $trimmedEmpId . '%')
-                        ->orWhere('contact_name', 'like', '%' . $trimmedEmpId . '%')
-                        ->orWhere('gst', 'like', '%' . $trimmedEmpId . '%')
-                        ->orWhere('contact_email', 'like', '%' . $trimmedEmpId . '%');
+            // Apply search filters dynamically
+            if (!empty($trimmedSearch)) {
+                $query->where(function ($query) use ($trimmedSearch) {
+                    $query->where('vendor_id', 'like', '%' . $trimmedSearch . '%')
+                        ->orWhere('vendor_name', 'like', '%' . $trimmedSearch . '%')
+                        ->orWhere('contact_name', 'like', '%' . $trimmedSearch . '%')
+                        ->orWhere('gst', 'like', '%' . $trimmedSearch . '%')
+                        ->orWhere('contact_email', 'like', '%' . $trimmedSearch . '%');
                 });
             }
 
             // Apply sorting based on selected column and direction
             $query->orderBy($this->sortColumn, $this->sortDirection);
 
-            // Execute the query and get the results
+            // Fetch and return the results
             return $query->get();
 
         } catch (\Exception $e) {
-            // Log the error message for debugging purposes
+            // Log error for debugging
             Log::error('Error during vendor filter: ' . $e->getMessage());
 
-            // Optionally, return an empty collection or null to indicate an error
-            return collect(); // Returning an empty collection
+            // Return an empty collection in case of an error
+            return collect();
         }
     }
 

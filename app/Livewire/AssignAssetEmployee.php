@@ -54,6 +54,8 @@ class AssignAssetEmployee extends Component
     public $selectedCategory="";
     public $showViewEmployeeAsset = false;
 public $currentVendorId = null;
+public $selectedStatus ='';
+public $deleteAsset_id;
 
     public function oldAssetlisting(){
 
@@ -98,10 +100,19 @@ public $currentVendorId = null;
             'selectedEmployee' => 'required|string|max:255',
         ];
     }
+   public $rules = [
+
+            'reason' => 'required|string|max:255', // Validate the remark input
+            'selectedStatus'=>'required',
+
+   ];
+
 
     protected $messages = [
         'selectedAsset.required' => 'Asset Id is required.',
         'selectedEmployee.required' => 'Employee Id is required.',
+        'reason.required' => 'Reason is required.',
+        'selectedStatus.required' => 'Asset status is required.',
     ];
 
 
@@ -233,6 +244,10 @@ public function closeViewEmpAsset()
                 // Load all assets if no category is selected
                 $this->assetSelect = VendorAsset::join('asset_types_tables', 'vendor_assets.asset_type', '=', 'asset_types_tables.id')
                     ->where('vendor_assets.is_active', 1)
+                    ->where(function ($query) {
+                        $query->where('vendor_assets.status', '!=', 'In Repair')
+                              ->orWhereNull('vendor_assets.status'); // Include rows where status is NULL
+                    })
                     ->select('vendor_assets.asset_id', 'asset_types_tables.asset_names')
                     ->get();
             } else {
@@ -241,9 +256,15 @@ public function closeViewEmpAsset()
                 $this->assetSelect = VendorAsset::join('asset_types_tables', 'vendor_assets.asset_type', '=', 'asset_types_tables.id')
                     ->where('vendor_assets.is_active', 1)
                     ->where('asset_types_tables.id', $this->selectedCategory)
+                    ->where(function ($query) {
+                        $query->where('vendor_assets.status', '!=', 'In Repair')
+                              ->orWhereNull('vendor_assets.status'); // Include rows where status is NULL
+                    })
                     ->select('vendor_assets.asset_id', 'asset_types_tables.asset_names')
                     ->get();
+
             }
+            // dd(  $this->assetSelect);
 
         } catch (\Exception $e) {
             // Log the error message
@@ -595,21 +616,26 @@ public $selectedAssetType='';
     public $recordId;
     public $reason =[];
 
-    public function confirmDelete($id)
+    public function confirmDelete($id,$asset_id  )
     {
+        // dd($asset_id);
         $this->recordId = $id;
+        $this->deleteAsset_id=$asset_id;
         $this->showLogoutModal = true;
         $this->resetErrorBag();
+
+    }
+
+    public function validatefield($field){
+
+        $this->validateOnly($field,$this->rules);
+
     }
 
     public $deletionDate;
     public function delete()
     {
-        $this->validate([
-            'reason' => 'required|string|max:255', // Validate the remark input
-        ], [
-            'reason.required' => 'Reason is required.',
-        ]);
+        $this->validate($this->rules);
 
         try {
             // Validate the reason input
@@ -618,13 +644,20 @@ public $selectedAssetType='';
 
             // Find the AssignAssetEmp record by the provided ID
             $vendormember = AssignAssetEmp::find($this->recordId);
-
+            $vendorAsset = VendorAsset::where('asset_id',$this->deleteAsset_id)->first();
+            // dd( $this->selectedStatus);
+            if ($vendorAsset) {
+                $vendorAsset->status = $this->selectedStatus;
+                $vendorAsset->save();
+            }
+            // dd($vendorAsset);
             if ($vendormember) {
                 // Update the record with delete reason, deactivation, and timestamp
                 $vendormember->update([
                     'delete_reason' => $this->reason,
                     'deleted_at' => now(),
-                    'is_active' => 0
+                    'is_active' => 0,
+                    'status'=>$this->selectedAsset,
                 ]);
 
                 // Success flash message
