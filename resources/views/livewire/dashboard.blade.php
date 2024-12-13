@@ -28,14 +28,21 @@
                     <div class="col-6">
                         <i class="fas fa-users fs-1"></i>
                     </div>
+                    @if(auth()->check() && (auth()->user()->hasRole('admin') || auth()->user()->hasRole('super_admin')))
+                    <div class="col-6">
+                        <p class="badge dash-custom-bg-color text-black">New</p>
+                        <p class="fs-1 mb-0">{{ $newCount }}</p>
+                    </div>
+                    @else
                     <div class="col-6">
                         <p class="badge dash-custom-bg-color text-black">Active</p>
                         <p class="fs-1 mb-0">{{ $activeCount }}</p>
                     </div>
+                    @endif
 
                 </div>
                 <div class="icons-text">
-                    <h6 class="m-0 fw-bold">Catologue Requests</h6>
+                    <h6 class="m-0 fw-bold">Catalog Requests</h6>
                 </div>
             </div>
 

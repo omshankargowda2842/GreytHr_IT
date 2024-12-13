@@ -20,7 +20,7 @@
         border: 1px solid #e0e0e0;
         border-radius: 8px;
         overflow: hidden;
-       
+
     }
 
     .header {
@@ -111,11 +111,12 @@
 
         <h2 class="mt-2">About this request</h2>
         <div class="mt-2">
-            <p class="sub-heading">Requested item number: <strong>{{ $requestId }}</strong></p>
+        <p class="sub-heading">Reason for pending: <span><strong class="pending-reason">{{ $pendingReason }}</strong></span></p>
+        <p class="sub-heading">Requested item number: <strong>{{ $requestId }}</strong></p>
             <p class="sub-heading">Short description: <strong>{{ $shortDescription }}</strong></p>
         </div>
 
-        <!-- Footer -->
+        <!-- Footer --> 
         <div class="mt-2">
             <p class="sub-heading">Thank you,</p>
             <p class="sub-heading">Fulfillment Team</p>
