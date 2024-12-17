@@ -55,52 +55,64 @@ class IncidentRequests extends Component
         'selectedAssigne' => 'required',
     ];
 
+    protected $queryString = ['currentRequestId'];
 
-
-    public function viewincidentDetails($index)
+    public function mount($id = null)
     {
+        $this->loadIncidentClosedDetails();
+        $this->loadLogs();
+
+        if ($id) {
+            $this->currentRequestId = $id;
+        }
+
+        if ($this->currentRequestId) {
+            $this->viewincidentDetails($this->currentRequestId);
+        }
+    }
+
+    public function updatedCurrentRequestId($id)
+    {
+        $this->viewincidentDetails($id);
+    }
+
+    public function viewincidentDetails($id)
+    {
+
         try {
-            $this->incidentRequest = $this->incidentDetails->get($index);
+            $this->incidentRequest = IncidentRequest::with('emp')->find($id);
             $this->selectedAssigne = '';
             $this->selectedStatus = '';
             $this->comments = '';
-            // Check if the selected request exists
+
             if (!$this->incidentRequest) {
                 abort(404, 'Request not found');
             }
 
             $this->incidentRequestDetails = true;
-            $this->currentRequestId = $this->incidentRequest->id;
 
-            $requestedBy= EmployeeDetails::where('emp_id' ,  $this->incidentRequest->emp_id)->first();
+            $requestedBy = EmployeeDetails::where('emp_id', $this->incidentRequest->emp_id)->first();
             $fullName = ucwords(strtolower($requestedBy->first_name . ' ' . $requestedBy->last_name));
-               ActivityLog::create([
-                   'impact' => 'High',
-                   'opened_by' =>  $fullName ,
-                   'priority' =>  $this->incidentRequest->priority,
-                   'state' => "Open",
-                   'performed_by' =>  $fullName,
-                   'request_type' => 'Incident Request',
-                   'request_id' => $this->incidentRequest->snow_id,
-               ]);
 
+            ActivityLog::create([
+                'impact' => 'High',
+                'opened_by' => $fullName,
+                'priority' => $this->incidentRequest->priority,
+                'state' => "Open",
+                'performed_by' => $fullName,
+                'request_type' => 'Incident Request',
+                'request_id' => $this->incidentRequest->snow_id,
+            ]);
         } catch (\Exception $e) {
-            // Log the exception for debugging
             Log::error("Error occurred in viewincidentDetails method", [
                 'exception' => $e,
-                'index' => $index,
+                'index' => $id,
             ]);
-
-            // Flash an error message for the user
-            FlashMessageHelper::flashError("An error occurred while viewing the rejected request.");
-
-            // Optionally, reset properties in case of error
+            FlashMessageHelper::flashError("An error occurred while viewing the request.");
             $this->incidentRequestDetails = false;
             $this->currentRequestId = null;
         }
     }
-
-
 
     public function closeincidentDetails()
     {
@@ -111,7 +123,7 @@ class IncidentRequests extends Component
 
 
         $this->viewEmpRequest = false;
-
+        return redirect()->route('incidentRequests');
         // $this->selectedRequest = true;
     }
 
@@ -327,8 +339,6 @@ class IncidentRequests extends Component
 
         }
 
-
-
         ActivityLog::create([
         'action' => $this->modalPurpose,
         'details' => $this->pendingReason,
@@ -337,23 +347,13 @@ class IncidentRequests extends Component
         'request_id' => $task->snow_id,
         ]);
 
-
         $this->closeStatusModal();
-
 
         } else {
         // Handle case where the task was not found or no status is selected
         FlashMessageHelper::flashError("Task not found or invalid status.");
         }
-
-
-
     }
-
-
-
-
-
 
 
     public function activeIncidentSubmit($taskId)
@@ -470,6 +470,7 @@ class IncidentRequests extends Component
             FlashMessageHelper::flashError("Task not found or invalid status.");
         }
 
+
         FlashMessageHelper::flashSuccess("Request submitted successfully");
         $this->viewingDetails = false;
         $this->viewincidentRequests = true;
@@ -477,6 +478,7 @@ class IncidentRequests extends Component
         $this->reset(['selectedStatus', 'selectedAssigne']);
         $this->resetErrorBag();
         $this->updateCounts();
+        return redirect()->route('incidentRequests');
     }
 
 
@@ -843,12 +845,6 @@ class IncidentRequests extends Component
                 $this->selectedRecord = null; // Reset the selected record
             }
 
-
-        public function mount(){
-
-            $this->loadIncidentClosedDetails();
-            $this->loadLogs();
-        }
 
 
         public function filterLogs($type)

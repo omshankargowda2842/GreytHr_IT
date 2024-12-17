@@ -68,7 +68,7 @@ label {
 
 .notify {
     font-size: 20px;
-    padding-right: 10px;
+    padding-right: 5px;
     color: #02114f;
 }
 
@@ -1027,7 +1027,7 @@ padding: 10px;
     border-radius: 15px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
     margin-bottom: 10px;
-  
+
 }
 
 
@@ -2367,3 +2367,34 @@ w
 }
 
 
+.notification-sidebar {
+    position: fixed;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 350px;
+    background: #f8f9fa;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+    z-index: 1050;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.notification-sidebar.show {
+    transform: translateX(0);
+}
+
+.sidebar-header {
+    padding: 15px;
+    background: #343a40;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-body {
+    padding: 15px;
+    overflow-y: auto;
+    height: calc(100% - 50px);
+}
