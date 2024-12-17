@@ -35,8 +35,9 @@ return new class extends Migration
             $table->string('end_of_life', 30)->nullable();
             $table->json('file_paths')->nullable();
             $table->string('delete_asset_reason', 200)->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->boolean('is_active');
             $table->string('created_by', 30);
+            $table->string('action', 10);
             $table->foreign('asset_id')
                 ->references('asset_id')
                 ->on('vendor_assets')
