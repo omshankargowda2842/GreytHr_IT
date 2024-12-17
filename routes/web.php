@@ -43,7 +43,7 @@ Route::middleware(['auth:it', 'handleSession'])->group(function () {
     Route::get('/', Dashboard::class)->name('dashboard');
 
     // Group routes under the 'it' prefix
-    Route::prefix('it')->group(function () {
+
 
         // Super Admin Routes (accessible only to super_admin)
         Route::middleware(['role:super_admin'])->group(function () {
@@ -58,8 +58,8 @@ Route::middleware(['auth:it', 'handleSession'])->group(function () {
             Route::get('/employeeAssetList', AssignAssetEmployee::class)->name('employeeAssetList');
             Route::get('/vendor', Vendors::class)->name('vendor');
             Route::get('/itMembers', ItAddMember::class)->name('itMembers');
-            Route::get('/incidentRequests/{id?}', IncidentRequests::class)->name('incidentRequests');
-            Route::get('/serviceRequests', ServiceRequests::class)->name('serviceRequests');
+            Route::get('incidentRequests/{id?}', IncidentRequests::class)->name('incidentRequests');
+            Route::get('serviceRequests/{id?}', ServiceRequests::class)->name('serviceRequests');
         });
 
         // User Routes (accessible to all roles: user, admin, and super_admin)
@@ -67,7 +67,7 @@ Route::middleware(['auth:it', 'handleSession'])->group(function () {
             Route::get('/vendor', Vendors::class)->name('vendor');
             Route::get('/itrequest/{id?}', RequestProcess::class)->name('requests');
         });
-    });
+    
 });
 
 

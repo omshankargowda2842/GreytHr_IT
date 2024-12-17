@@ -70,6 +70,7 @@ public function status()
     }
 
 
+
     protected static function booted()
     {
         static::created(function ($incidentRequest) {
@@ -78,13 +79,13 @@ public function status()
             $redirect_url = '';
 
             if ($incidentRequest->category == 'Incident Request') {
-                $title = 'Incident Request ';
+                $title = ' Incident Request';
                 $message = "Subject : {$incidentRequest->short_description}";
-                $redirect_url = route('it.incidentRequest.show', ['currentRequestId' => $incidentRequest->id]);
+                $redirect_url = 'incidentRequests?currentRequestId=' . $incidentRequest->id;
             } elseif ($incidentRequest->category == 'Service Request') {
-                $title = 'Service Request ';
+                $title = ' Service Request';
                 $message = "Subject : {$incidentRequest->short_description}";
-                $redirect_url = route('it.serviceRequest.show', ['currentRequestId' => $incidentRequest->id]);
+                $redirect_url = 'serviceRequests?currentRequestId=' . $incidentRequest->id;
             }
 
             // Check if any value is missing, if so, log it
@@ -103,11 +104,6 @@ public function status()
             ]);
         });
     }
-
-
-
-
-
 
 
 }

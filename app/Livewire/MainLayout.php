@@ -56,7 +56,7 @@ class MainLayout extends Component
     public function fetchUnreadCount()
     {
         $this->unreadCount = ticket_notifications::where('is_read', false)->count();
-       
+
     }
 
 
