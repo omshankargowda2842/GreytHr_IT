@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class IncidentRequest extends Model
 {
@@ -67,5 +68,42 @@ public function status()
     {
         return $this->file_path ? 'data:image/jpeg;base64,' . base64_encode($this->file_path) : null;
     }
+
+
+
+    protected static function booted()
+    {
+        static::created(function ($incidentRequest) {
+            $title = '';
+            $message = '';
+            $redirect_url = '';
+
+            if ($incidentRequest->category == 'Incident Request') {
+                $title = ' Incident Request';
+                $message = "Subject : {$incidentRequest->short_description}";
+                $redirect_url = 'incidentRequests?currentRequestId=' . $incidentRequest->id;
+            } elseif ($incidentRequest->category == 'Service Request') {
+                $title = ' Service Request';
+                $message = "Subject : {$incidentRequest->short_description}";
+                $redirect_url = 'serviceRequests?currentRequestId=' . $incidentRequest->id;
+            }
+
+            // Check if any value is missing, if so, log it
+            if (!$title || !$message || !$redirect_url) {
+                Log::error('Missing required notification data: title, message or redirect_url');
+                return; // Prevent creating a notification if any data is missing
+            }
+
+            // Create notification
+            ticket_notifications::create([
+                'title' => $title,
+                'message' => $message,
+                'redirect_url' => $redirect_url,
+                'notifiable_id' => $incidentRequest->id,
+                'notifiable_type' => IncidentRequest::class,
+            ]);
+        });
+    }
+
 
 }

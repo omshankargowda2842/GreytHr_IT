@@ -1,7 +1,7 @@
 <div class="main">
 
     <div wire:loading
-        wire:target="submit,setActiveTab,viewIncidentDetails,viewRecord,closeIncidentDetails,closePopup,filterLogs,updateAssigne,SelectedAssigne,closeInprogressModal,selectedInprogress,activeIncidentSubmit,selectedStatus,closeModal,set,loadIncidentClosedDetails,postInprogressRemarks,toggleSortOrder,pendingForDesks,loadLogs,inprogressForDesks,handleStatusChange,updateStatus,postComment,redirectBasedOnStatus,postRemarks,closeForDesks,showViewImage,showViewFile,closeViewFile,downloadImages,closeViewImage,selectedPending,closePendingModal,selectedClosed,closeClosedModal,closeStatusModal,submitStatusReason">
+        wire:target="submit,setActiveTab,viewIncidentDetails,viewRecord,closeIncidentDetails,closePopup,filterLogs,updateAssigne,SelectedAssigne,set,closeInprogressModal,selectedInprogress,activeIncidentSubmit,selectedStatus,closeModal,set,loadIncidentClosedDetails,postInprogressRemarks,toggleSortOrder,pendingForDesks,loadLogs,inprogressForDesks,handleStatusChange,updateStatus,postComment,redirectBasedOnStatus,postRemarks,closeForDesks,showViewImage,showViewFile,closeViewFile,downloadImages,closeViewImage,selectedPending,closePendingModal,selectedClosed,closeClosedModal,closeStatusModal,submitStatusReason">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -117,7 +117,7 @@
 
                         @if($incidentRequestDetails && $incidentRequest)
 
-                        @if($incidentRequestDetails)
+                        @if($incidentRequestDetails) 
                         <button class="btn text-white float:right mb-3" style="background-color: #02114f;"
                             wire:click="closeincidentDetails" @if($loading) disabled @endif>
                             <i class="fas fa-arrow-left"></i> Back
@@ -465,7 +465,7 @@
                         <div class="scrollable-container">
                             <div class="req-pro-card">
 
-                                @foreach ($incidentDetails as $index => $request)
+                                @foreach ($incidentDetails as $request)
 
                                 <div class="request-card">
 
@@ -491,10 +491,13 @@
                                         </div>
 
                                         <div class="p-3">
-                                            <button wire:click="viewincidentDetails({{ $index }})"
-                                                class="req-pro-view-details-btn" @if($loading) disabled
-                                                @endif>View</button>
+                                            <!-- View Button: Triggers the viewincidentDetails method with the current request ID -->
+                                            <button wire:click="$set('currentRequestId', {{ $request->id }})"
+                                                class="req-pro-view-details-btn" @if($loading) disabled @endif>
+                                                View
+                                            </button>
                                         </div>
+
 
 
                                     </div>
@@ -855,7 +858,7 @@
                                                                 @endif
 
 
-                                                             
+
                                                                 @else
                                                                 <span>No time tracked</span>
                                                                 @endif
@@ -1307,16 +1310,7 @@
                                                                 @endif
 
 
-                                                                <!-- Custom Progress Bar -->
-                                                                <div class="custom-progress">
-                                                                    <div class="custom-progress-bar"
-                                                                        style="width: {{ $percentage }}%"
-                                                                        aria-valuenow="{{ $percentage }}"
-                                                                        aria-valuemin="0" aria-valuemax="100">
-                                                                        <span
-                                                                            class="progress-text">{{ round($percentage) }}%</span>
-                                                                    </div>
-                                                                </div>
+
                                                                 @else
                                                                 <span>No time tracked</span>
                                                                 @endif
@@ -1611,8 +1605,6 @@
                                                                     {{ $minutes }}
                                                                     minute{{ $minutes != 1 ? 's' : '' }}</span>
                                                                 @endif
-
-
 
                                                                 @else
                                                                 <span>No time tracked</span>

@@ -1,7 +1,7 @@
     <div class="main">
 
         <div wire:loading
-            wire:target="submit,setActiveTab,rejectionModal,selectPriority,closePopup,showRejectedRequest,closePendingModal,submitPendingReason,inprogressForDesks,loadLogs,pendingForDesks,closeModal,rejectStatus,cancelModal,cancelStatus,viewRecord,Cancel,viewRejectDetails,closeRejectDetails,closeDetails,closeDetailsBack,selectedStatus,viewApproveDetails,showAllRequest,showRecentRequest,approveStatus,updateStatus,postComment,updateAssigne,redirectBasedOnStatus,viewDetails,openForDesks,postInprogressRemarks,postPendingRemarks,postRemarks,closeForDesks,showViewImage,showViewFile,closeViewFile,downloadImages,closeViewImage">
+            wire:target="submit,setActiveTab,rejectionModal,selectPriority,closePopup,showRejectedRequest,selectedInprogress,closePendingModal,closeClosedModal,selectedClosed,selectedPending,closeInprogressModal,inprogressForDesks,loadLogs,pendingForDesks,closeModal,rejectStatus,cancelModal,cancelStatus,viewRecord,Cancel,viewRejectDetails,closeRejectDetails,closeDetails,closeDetailsBack,selectedStatus,viewApproveDetails,showAllRequest,showRecentRequest,approveStatus,updateStatus,postComment,updateAssigne,redirectBasedOnStatus,viewDetails,openForDesks,postInprogressRemarks,postPendingRemarks,postRemarks,closeForDesks,showViewImage,showViewFile,closeViewFile,downloadImages,closeViewImage,selectedAssigne,SelectedStatus,closeStatusModal,submitStatusReason,activeCatalogSubmit">
             <div class="loader-overlay">
                 <div>
                     <div class="logo">
@@ -377,8 +377,10 @@
                                 </div>
 
                                 <div class="p-2">
-                                    <button wire:click="viewApproveDetails({{ $index }})"
-                                        class="req-pro-view-details-btn" @if($loading) disabled @endif>View</button>
+                                    <button wire:click="$set('currentCatalogId', {{ $request->id }})"
+                                        class="req-pro-view-details-btn" @if($loading) disabled @endif>
+                                        View
+                                    </button>
 
                                     <button wire:click="approveStatus('{{ $request->id }}')" class="req-pro-approve-btn"
                                         @if($loading) disabled @endif>Approve</button>
@@ -1287,11 +1289,12 @@
 
                                         </tr>
 
+
                                         <tr>
                                             <td>Assign to <span class="text-danger">*</span></td>
                                             <td class="view-td">
                                                 <select class="req-selected-status" wire:model="selectedAssigne"
-                                                    wire:change="updateAssigne('{{ $selectedRequest->id }}')">
+                                                    wire:change="SelectedAssigne">
                                                     <option value="" disabled hidden>Select Assignee</option>
                                                     @foreach($itData as $itName)
                                                     <option
@@ -1315,7 +1318,7 @@
 
                                             <td class="view-td">
                                                 <select wire:model="selectedStatus" class="req-selected-status"
-                                                    wire:change="handleStatusChange('{{ $selectedRequest->id }}')">
+                                                    wire:change="SelectedStatus">
                                                     <option value="" disabled hidden>Select Status </option>
                                                     <option value="5">Pending</option>
                                                     <option value="16">Inprogress</option>
@@ -1329,22 +1332,22 @@
                                             </td>
                                         </tr>
 
-
-                                        @if($showPendingModal)
+                                        @if($showStatusModal)
                                         <div class="modal fade show d-block" tabindex="-1" role="dialog"
                                             style="background-color: rgba(0, 0, 0, 0.5);">
                                             <div class="modal-dialog modal-dialog-centered">
-                                                <!-- Added modal-dialog-centered for vertical centering -->
                                                 <div class="modal-content">
                                                     <div class="modal-header">
-                                                        <h5 class="modal-title">Reason for Pending</h5>
+                                                        <h5 class="modal-title">
+                                                            Reason for {{ $modalPurpose }}
+                                                        </h5>
                                                         <button type="button" class="btn-close"
-                                                            wire:click="closePendingModal" aria-label="Close"></button>
+                                                            wire:click="closeStatusModal" aria-label="Close"></button>
                                                     </div>
                                                     <div class="modal-body flex-column">
-                                                        <label for="pendingReason" class="form-label">Reason <span
+                                                        <label for="reason" class="form-label">Reason <span
                                                                 class="text-danger">*</span></label>
-                                                        <textarea id="pendingReason" class="form-control"
+                                                        <textarea id="reason" class="form-control"
                                                             wire:model.defer="pendingReason" rows="3"></textarea>
                                                         @error('pendingReason')
                                                         <span class="text-danger">{{ $message }}</span>
@@ -1352,9 +1355,9 @@
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary"
-                                                            wire:click="closePendingModal">Close</button>
+                                                            wire:click="closeStatusModal">Close</button>
                                                         <button type="button" class="btn btn-primary"
-                                                            wire:click="submitPendingReason">Submit</button>
+                                                            wire:click="submitStatusReason({{ $selectedRequest->id }})">Submit</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1396,7 +1399,8 @@
 
                                 <div class="d-flex justify-content-center align-items-center">
                                     <button class="btn text-white mb-3" style="background-color: #02114f;"
-                                        wire:click="redirectBasedOnStatus" @if($loading) disabled @endif>Submit</button>
+                                        wire:click="activeCatalogSubmit('{{ $selectedRequest->id }}')" @if($loading)
+                                        disabled @endif>Submit</button>
                                 </div>
 
 
@@ -1616,8 +1620,7 @@
                                                     </th>
 
 
-                                                    <th class="req-table-head-Remarks">
-                                                        Remarks</th>
+
                                                     <th class="req-table-head">Response Time</th>
                                                     <th class="req-table-head">Change Status</th>
 
@@ -1817,10 +1820,6 @@
 
 
 
-
-
-
-
                                                     <td>{{ $record->priority?? 'N/A' }}</td>
 
                                                     <td>{{ $record->selected_equipment?? 'N/A' }}</td>
@@ -1834,36 +1833,6 @@
                                                     </td>
 
                                                     <td>{{ $record['assign_to'] }}</td>
-
-
-
-
-
-
-
-                                                    <td>
-                                                        <form
-                                                            wire:submit.prevent="postPendingRemarks('{{ $record->id }}')">
-                                                            <div class="row">
-                                                                <div class="col-12 d-flex align-items-center">
-                                                                    <!-- Textarea takes most of the width -->
-                                                                    <textarea
-                                                                        wire:model.lazy="remarks.{{ $record->id }}"
-                                                                        class="form-control me-2 req-remarks-textarea"
-                                                                        style="flex-grow: 1;"></textarea>
-
-                                                                    <!-- Button is small and aligned to the right -->
-                                                                    <button type="submit"
-                                                                        style="background-color: #02114f;"
-                                                                        class="btn text-white p-2"
-                                                                        style="height: fit-content;" @if($loading ||
-                                                                        empty($remarks[$record->id]))
-                                                                        disabled @endif>Post</button>
-                                                                </div>
-                                                            </div>
-
-                                                        </form>
-                                                    </td>
 
                                                     <td>
                                                         <div class="req-timebar">
@@ -1924,28 +1893,55 @@
                                                                             minute{{ $minutes != 1 ? 's' : '' }}</span>
                                                                         @endif
 
-
-                                                                        <!-- Custom Progress Bar -->
-                                                                        <div class="custom-progress">
-                                                                            <div class="custom-progress-bar"
-                                                                                style="width: {{ $percentage }}%"
-                                                                                aria-valuenow="{{ $percentage }}"
-                                                                                aria-valuemin="0" aria-valuemax="100">
-                                                                                <span
-                                                                                    class="progress-text">{{ round($percentage) }}%</span>
-                                                                            </div>
-                                                                        </div>
                                                                         @else
                                                                         <span>No time tracked</span>
                                                                         @endif
                                                         </div>
                                                     </td>
 
+
                                                     <td>
-                                                        <button wire:click="inprogressForDesks('{{ $record->id }}')"
+                                                        <button wire:click="selectedInprogress('{{ $record->id }}')"
+                                                            wire:key="inprogress-desks-{{ $record->id }}"
                                                             class="btn btn-white border-black text-black" @if($loading)
                                                             disabled @endif>Inprogress</button>
                                                     </td>
+
+
+                                                    @if($showInprogressModal)
+                                                    <div class="modal fade show d-block" tabindex="-1" role="dialog"
+                                                        style="background-color: rgba(0, 0, 0, 0.5);">
+                                                        <div class="modal-dialog modal-dialog-centered">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title">
+                                                                        Reason for Inprogress
+                                                                    </h5>
+                                                                    <button type="button" class="btn-close"
+                                                                        wire:click="closeInprogressModal"
+                                                                        aria-label="Close"></button>
+                                                                </div>
+                                                                <div class="modal-body flex-column">
+                                                                    <label for="reason" class="form-label">Reason <span
+                                                                            class="text-danger">*</span></label>
+                                                                    <textarea id="reason" class="form-control"
+                                                                        wire:model.defer="pendingReason"
+                                                                        rows="3"></textarea>
+                                                                    @error('pendingReason')
+                                                                    <span class="text-danger">{{ $message }}</span>
+                                                                    @enderror
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary"
+                                                                        wire:click="closeInprogressModal">Close</button>
+                                                                    <button type="button" class="btn btn-primary"
+                                                                        wire:click="inprogressForDesks({{  $selectedTaskId}})">Submit</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @endif
+
                                                     <td>
                                                         <i wire:click="loadLogs('{{ $record->request_id }}')"
                                                             class="fas fa-clock-rotate-left"
@@ -2379,14 +2375,14 @@
 
 
                                                             @if($record->status_code == '16' &&
-                                                            $record->in_progress_since)
+                                                            $record->cat_progress_since)
                                                             @php
 
                                                             $totalElapsedMinutes =
-                                                            \Carbon\Carbon::parse($record->in_progress_since)->diffInMinutes(now());
+                                                            \Carbon\Carbon::parse($record->cat_progress_since)->diffInMinutes(now());
 
-                                                            if (isset($record->total_in_progress_time)) {
-                                                            $totalElapsedMinutes += $record->total_in_progress_time;
+                                                            if (isset($record->total_cat_progress_time)) {
+                                                            $totalElapsedMinutes += $record->total_cat_progress_time;
                                                             }
 
                                                             $days = floor($totalElapsedMinutes / 1440);
@@ -2492,30 +2488,123 @@
                                                                         @endif
 
 
-                                                                        <!-- Custom Progress Bar -->
-                                                                        <div class="custom-progress">
-                                                                            <div class="custom-progress-bar"
-                                                                                style="width: {{ $percentage }}%"
-                                                                                aria-valuenow="{{ $percentage }}"
-                                                                                aria-valuemin="0" aria-valuemax="100">
-                                                                                <span
-                                                                                    class="progress-text">{{ round($percentage) }}%</span>
-                                                                            </div>
-                                                                        </div>
+
                                                                         @else
                                                                         <span>No time tracked</span>
                                                                         @endif
                                                         </div>
                                                     </td>
 
-                                                    <td style="white-space: nowrap;">
-                                                        <button wire:click="pendingForDesks('{{$record->id}}')"
-                                                            class="btn btn-white border-black text-black" @if($loading)
-                                                            disabled @endif>Pending </button>
+                                                    <td>
+                                                        <div class="req-changeStatus ">
+                                                            <button wire:click="selectedPending('{{ $record->id }}')"
+                                                                wire:key="pending-desks-{{ $record->id}}"
+                                                                class="btn btn-white border-black text-black"
+                                                                @if($loading) disabled @endif>Pending</button>
 
-                                                        <button wire:click="openForDesks('{{$record->id}}')"
-                                                            class="btn btn-white border-black text-black" @if($loading)
-                                                            disabled @endif>Close </button>
+
+                                                            @if($showPendingModal)
+                                                            <div class="modal fade show d-block" tabindex="-1"
+                                                                role="dialog"
+                                                                style="background-color: rgba(0, 0, 0, 0.5);">
+                                                                <div class="modal-dialog modal-dialog-centered">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title">
+                                                                                Reason for Pending
+                                                                            </h5>
+                                                                            <button type="button" class="btn-close"
+                                                                                wire:click="closePendingModal"
+                                                                                aria-label="Close"></button>
+                                                                        </div>
+                                                                        <div class="modal-body flex-column">
+                                                                            <label for="reason"
+                                                                                class="form-label">Reason <span
+                                                                                    class="text-danger">*</span></label>
+                                                                            <textarea id="reason" class="form-control"
+                                                                                wire:model.defer="pendingReason"
+                                                                                rows="3"></textarea>
+                                                                            @error('pendingReason')
+                                                                            <span
+                                                                                class="text-danger">{{ $message }}</span>
+                                                                            @enderror
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button type="button"
+                                                                                class="btn btn-secondary"
+                                                                                wire:click="closePendingModal">Close</button>
+                                                                            <button type="button"
+                                                                                class="btn btn-primary"
+                                                                                wire:click="pendingForDesks({{ $selectedTaskId }})">Submit</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            @endif
+
+
+                                                            <button wire:click="selectedClosed('{{ $record->id }}')"
+                                                                wire:key="close-desks-{{ $record->id}}"
+                                                                class="btn btn-white border-black text-black"
+                                                                @if($loading) disabled @endif>Close</button>
+
+
+                                                            @if($showClosedModal)
+                                                            <div class="modal fade show d-block" tabindex="-1"
+                                                                role="dialog"
+                                                                style="background-color: rgba(0, 0, 0, 0.5);">
+                                                                <div class="modal-dialog modal-dialog-centered">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title">
+                                                                                Reason for Closed
+                                                                            </h5>
+                                                                            <button type="button" class="btn-close"
+                                                                                wire:click="closeClosedModal"
+                                                                                aria-label="Close"></button>
+                                                                        </div>
+                                                                        <div class="modal-body flex-column">
+                                                                            <label for="reason"
+                                                                                class="form-label">Reason <span
+                                                                                    class="text-danger">*</span></label>
+                                                                            <textarea id="reason" class="form-control"
+                                                                                wire:model.defer="pendingReason"
+                                                                                rows="3"></textarea>
+                                                                            @error('pendingReason')
+                                                                            <span
+                                                                                class="text-danger">{{ $message }}</span>
+                                                                            @enderror
+                                                                        </div>
+
+                                                                        <div class="modal-body flex-column">
+                                                                            <label for="reason"
+                                                                                class="form-label">Reason
+                                                                                (Customer Visible) <span
+                                                                                    class="text-danger">*</span></label>
+                                                                            <textarea id="reason" class="form-control"
+                                                                                wire:model.defer="customerVisibleNotes"
+                                                                                rows="3"></textarea>
+                                                                            @error('customerVisibleNotes')
+                                                                            <span
+                                                                                class="text-danger">{{ $message }}</span>
+                                                                            @enderror
+                                                                        </div>
+
+                                                                        <div class="modal-footer">
+                                                                            <button type="button"
+                                                                                class="btn btn-secondary"
+                                                                                wire:click="closeClosedModal">Close</button>
+                                                                            <button type="button"
+                                                                                class="btn btn-primary"
+                                                                                wire:click="closeForDesks({{ $selectedTaskId }})">Submit</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            @endif
+
+                                                        </div>
+
                                                     </td>
 
                                                     <td>
@@ -2710,16 +2799,6 @@
                                                                         @endif
 
 
-                                                                        <!-- Custom Progress Bar -->
-                                                                        <div class="custom-progress">
-                                                                            <div class="custom-progress-bar"
-                                                                                style="width: {{ $percentage }}%"
-                                                                                aria-valuenow="{{ $percentage }}"
-                                                                                aria-valuemin="0" aria-valuemax="100">
-                                                                                <span
-                                                                                    class="progress-text">{{ round($percentage) }}%</span>
-                                                                            </div>
-                                                                        </div>
                                                                         @else
                                                                         <span>No time tracked</span>
                                                                         @endif
@@ -2904,7 +2983,7 @@
                                                                 <strong>Remarks:</strong>
                                                             </div>
                                                             <div class="col-6">
-                                                                <span>{{ $selectedRecord->inprogress_remarks ?? 'N/A' }}</span>
+                                                                <span>{{ $selectedRecord->inprogress_notes ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
 
@@ -2952,7 +3031,8 @@
 
 
                                                                     {{-- view file popup --}}
-                                                                    @if ($showViewImageDialog && $currentImageRequesId ===
+                                                                    @if ($showViewImageDialog && $currentImageRequesId
+                                                                    ===
                                                                     $selectedRecord->id)
                                                                     <div class="modal custom-modal" tabindex="-1"
                                                                         role="dialog" style="display: block;">
@@ -3005,7 +3085,8 @@
                                                                     @endif
 
 
-                                                                    @if ($showViewFileDialog && $currentImageRequesId ===
+                                                                    @if ($showViewFileDialog && $currentImageRequesId
+                                                                    ===
                                                                     $selectedRecord->id)
                                                                     <div class="modal" tabindex="-1" role="dialog"
                                                                         style="display: block;">

@@ -2,7 +2,7 @@
 
 
     <div wire:loading
-        wire:target="submit,setActiveTab,viewRecord,closeServiceDetails,closePopup,filterLogs,updateAssigne,selectedStatus,closeInprogressModal,selectedInprogress,closeStatusModal,submitStatusReason,selectedAssigne,closeModal,set,loadServiceClosedDetails  ,toggleSortOrder,pendingForDesks,loadLogs,inprogressForDesks,viewServiceDetails,handleStatusChange,updateStatus,postComment,activeIncidentSubmit,closeForDesks,showViewImage,showViewFile,closeViewFile,downloadImages,closeViewImage,selectedPending,closePendingModal,selectedClosed,closeClosedModal">
+        wire:target="submit,setActiveTab,viewRecord,closeServiceDetails,closePopup,filterLogs,updateAssigne,selectedStatus,closeInprogressModal,selectedInprogress,closeStatusModal,submitStatusReason,selectedAssigne,closeModal,set,loadServiceClosedDetails  ,toggleSortOrder,pendingForDesks,loadLogs,inprogressForDesks,viewServiceDetails,handleStatusChange,updateStatus,postComment,activeServiceSubmit,closeForDesks,showViewImage,showViewFile,closeViewFile,downloadImages,closeViewImage,selectedPending,closePendingModal,selectedClosed,closeClosedModal,set">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -450,7 +450,7 @@
 
                             <div class="d-flex justify-content-center align-items-center">
                                 <button class="btn text-white mb-3" style="background-color: #02114f;"
-                                    wire:click="activeIncidentSubmit('{{ $serviceRequest->id }}')" @if($loading)
+                                    wire:click="activeServiceSubmit('{{ $serviceRequest->id }}')" @if($loading)
                                     disabled @endif>Submit</button>
                             </div>
 
@@ -465,7 +465,7 @@
                         <div class="scrollable-container">
                             <div class="req-pro-card">
 
-                                @foreach ($serviceDetails as $index => $request)
+                                @foreach ($serviceDetails as $request)
 
                                 <div class="request-card">
 
@@ -491,9 +491,11 @@
                                         </div>
 
                                         <div class="p-3">
-                                            <button wire:click="viewServiceDetails({{ $index }})"
-                                                class="req-pro-view-details-btn" @if($loading) disabled
-                                                @endif>View</button>
+                                            <!-- View Button: Triggers the viewincidentDetails method with the current request ID -->
+                                            <button wire:click="$set('currentRequestId', {{ $request->id }})"
+                                                class="req-pro-view-details-btn" @if($loading) disabled @endif>
+                                                View
+                                            </button>
                                         </div>
 
 

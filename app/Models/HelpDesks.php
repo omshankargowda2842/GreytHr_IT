@@ -10,7 +10,7 @@ class HelpDesks extends Model
 {
     use HasFactory;
     protected $fillable=[
-        'emp_id', 'category', 'subject', 'description', 'file_path', 'cc_to', 'priority','status_code','mail','mobile','distributor_name','selected_equipment','rejection_reason','active_comment','req_end_date','pending_remarks','pending_reason','inprogress_remarks','in_progress_since','total_in_progress_time','assign_to'
+        'emp_id', 'category', 'subject', 'description', 'file_path', 'cc_to', 'priority','status_code','mail','mobile','distributor_name','selected_equipment','rejection_reason','active_comment','closed_notes','cancel_notes','req_end_date','pending_remarks','pending_notes','inprogress_notes','cat_progress_since','total_cat_progress_time','assign_to','customer_visible_notes'
      ];
     public function emp()
     {
@@ -29,6 +29,33 @@ class HelpDesks extends Model
     {
         return $this->file_path ? 'data:image/jpeg;base64,' . base64_encode($this->file_path) : null;
     }
+
+
+
+    protected static function booted()
+    {
+        static::created(function ($helpDesk) {
+            $title = 'Catalog Request'; // Default title
+            $message = "Subject : {$helpDesk->category}";
+            $redirect_url = 'itrequest?currentCatalogId=' . $helpDesk->id;
+            // Check if any value is missing, log it if necessary
+            if (!$title || !$message || !$redirect_url) {
+                Log::error('Missing required notification data: title, message or redirect_url');
+                return; // Prevent creating a notification if any data is missing
+            }
+
+            // Create the notification
+            ticket_notifications::create([
+                'title' => $title,
+                'message' => $message,
+                'redirect_url' => $redirect_url,
+                'notifiable_id' => $helpDesk->id,
+                'notifiable_type' => HelpDesks::class, // Use the HelpDesks model as the notifiable type
+            ]);
+        });
+    }
+
+
 
 
 }

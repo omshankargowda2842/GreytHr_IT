@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\ticket_notifications;
 use Livewire\Component;
 
 class MainLayout extends Component
@@ -27,6 +28,7 @@ class MainLayout extends Component
     public function mount()
     {
 
+        $this->fetchUnreadCount();
         $employee = auth()->guard('it')->user();
 
         if ($employee) {
@@ -37,6 +39,26 @@ class MainLayout extends Component
             $this->employeeName = 'N/A';
         }
     }
+
+    public $isVisible = false;
+
+    public function toggleNotifications()
+    {
+        $this->isVisible = !$this->isVisible;
+    }
+
+
+    public $unreadCount;
+
+    protected $listeners = ['notificationMarkedAsRead' => 'fetchUnreadCount'];
+
+
+    public function fetchUnreadCount()
+    {
+        $this->unreadCount = ticket_notifications::where('is_read', false)->count();
+
+    }
+
 
     public function incRequest(){
         return redirect()->route('incidentRequests');

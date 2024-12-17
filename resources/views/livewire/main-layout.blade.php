@@ -1,6 +1,7 @@
 <div>
 
-    <div wire:loading wire:target="dashboard,itRequest,itMembers,oldRecords,vendor,vendorAssets,assets,assignAsset">
+    <div wire:loading
+        wire:target="dashboard,itRequest,itMembers,oldRecords,vendor,vendorAssets,assets,assignAsset,toggleNotifications">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -257,27 +258,56 @@
                 </h5>
             </div>
             <div class="topbar-right">
-
                 <div class="d-flex align-items-center actions-container">
-
-
                     <div class="dropdown ml-3">
                         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Requests
                         </button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <div class="dropdown-menu" style="z-index: 1000;" aria-labelledby="dropdownMenuButton">
                             <a class="dropdown-item" href="#" wire:click='serRequest'>Service Request</a>
                             <a class="dropdown-item" href="#" wire:click='incRequest'>Incident Request</a>
                             <a class="dropdown-item" href="#">Catalog Request</a>
                         </div>
                     </div>
 
-                    <a class="notify" href=""><i class="fa-regular fa-bell"></i></a>
-                    <!-- <h6 class="ml-2 profile">{{ $employeeInitials }}</h6> -->
+                    <!-- Notification Icon with Unread Count -->
+                    <a class="notify position-relative" href="#" wire:click="toggleNotifications">
+                        <i class="fa-regular fa-bell" style="font-size: 23px;"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill
+        bg-danger" style="font-size: 10px;">
+                            {{ $unreadCount }}
+                            <span class="visually-hidden">unread messages</span>
+                        </span>
+                    </a>
+
+
+
+
+                    <!-- Notification Sidebar -->
+                    <div class="notification-sidebar {{ $isVisible ? 'show' : '' }}">
+                        <div class="sidebar-header">
+                            <h5>
+                                Notifications
+                                <span class="badge bg-danger rounded-pill">{{ $unreadCount }}</span>
+                            </h5>
+
+                            <button class="close-btn btn btn-primary" wire:click="toggleNotifications">&times;</button>
+                        </div>
+                        <div class="sidebar-body">
+                            @livewire('all-tickets-notifications')
+                            <!-- Include the notifications component here -->
+                        </div>
+                    </div>
+
                     @livewire('logOut')
                 </div>
             </div>
+
+
+
+
+
         </div>
     </div>
     <!-- end: Main -->
