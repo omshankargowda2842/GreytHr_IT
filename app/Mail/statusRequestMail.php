@@ -18,6 +18,7 @@ class statusRequestMail extends Mailable
      */
     public $employeeName;
     public $rejectionReason;
+    public $pendingReason;
     public $requestId;
     public $shortDescription;
     public $viewRequestUrl;
@@ -28,18 +29,19 @@ class statusRequestMail extends Mailable
      * Create a new message instance.
      */
     public function __construct( $employeeName,
-    $requestId,
+    $requestId, $pendingReason,
     $shortDescription,
     $category,$status)
     {
         $this->employeeName = $employeeName;
 
         $this->requestId = $requestId;
-
+        $this->pendingReason = $pendingReason;
+        
         $this->shortDescription = $shortDescription;
 
         $this->category =$category;
-       
+
         $this->status = $status;
 
     }

@@ -70,6 +70,11 @@
                         <th class="req-table-head">Image</th>
                         <th class="req-table-head" wire:click="toggleSortOrder('it_emp_id')" style="cursor: pointer;">IT
                             Employee ID
+                            @if($sortColumn == 'it_emp_id')
+                            <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                            @else
+                            <i class="fas fa-sort"></i>
+                            @endif
 
                         </th>
                         <!-- Sortable Employee ID Column -->

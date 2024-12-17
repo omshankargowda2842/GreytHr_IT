@@ -1,7 +1,7 @@
 <div class="main">
 
     <div wire:loading
-        wire:target="submit,setActiveTab,viewIncidentDetails,viewRecord,closeIncidentDetails,closePopup,filterLogs,updateAssigne,selectedStatus,closeModal,set,loadIncidentClosedDetails,postInprogressRemarks,toggleSortOrder,pendingForDesks,loadLogs,inprogressForDesks,handleStatusChange,updateStatus,postComment,redirectBasedOnStatus,postRemarks,closeForDesks">
+        wire:target="submit,setActiveTab,viewIncidentDetails,viewRecord,closeIncidentDetails,closePopup,filterLogs,updateAssigne,SelectedAssigne,closeInprogressModal,selectedInprogress,activeIncidentSubmit,selectedStatus,closeModal,set,loadIncidentClosedDetails,postInprogressRemarks,toggleSortOrder,pendingForDesks,loadLogs,inprogressForDesks,handleStatusChange,updateStatus,postComment,redirectBasedOnStatus,postRemarks,closeForDesks,showViewImage,showViewFile,closeViewFile,downloadImages,closeViewImage,selectedPending,closePendingModal,selectedClosed,closeClosedModal,closeStatusModal,submitStatusReason">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -99,7 +99,7 @@
 
                     <div class="col-lg-11 col-md-10 col-xs-12" style="margin-left: 4%;">
 
-                    <div class="req-pro-details mb-5 ml-4">
+                        <div class="req-pro-details mb-5 ml-4">
                             <div>
                                 <h3 class=" headingForAllModules">Active Requests</h3>
                             </div>
@@ -190,7 +190,7 @@
                                         <td>Assign to <span class="text-danger">*</span></td>
                                         <td class="view-td">
                                             <select class="req-selected-status" wire:model="selectedAssigne"
-                                                wire:change="updateAssigne('{{ $incidentRequest->id }}')">
+                                                wire:change="SelectedAssigne">
                                                 <option value="" disabled hidden>Select Assignee</option>
                                                 @foreach($itData as $itName)
                                                 <option
@@ -213,7 +213,7 @@
 
                                         <td class="view-td">
                                             <select wire:model="selectedStatus" class="req-selected-status"
-                                                wire:change="handleStatusChange('{{ $incidentRequest->id }}')">
+                                                wire:change="SelectedStatus">
                                                 <option value="" disabled hidden>Select Status </option>
                                                 <option value="5">Pending</option>
                                                 <option value="16">Inprogress</option>
@@ -226,6 +226,39 @@
 
                                         </td>
                                     </tr>
+
+                                    @if($showStatusModal)
+                                    <div class="modal fade show d-block" tabindex="-1" role="dialog"
+                                        style="background-color: rgba(0, 0, 0, 0.5);">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">
+                                                        Reason for {{ $modalPurpose }}
+                                                    </h5>
+                                                    <button type="button" class="btn-close"
+                                                        wire:click="closeStatusModal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body flex-column">
+                                                    <label for="reason" class="form-label">Reason <span
+                                                            class="text-danger">*</span></label>
+                                                    <textarea id="reason" class="form-control"
+                                                        wire:model.defer="pendingReason" rows="3"></textarea>
+                                                    @error('pendingReason')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                    @enderror
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        wire:click="closeStatusModal">Close</button>
+                                                    <button type="button" class="btn btn-primary"
+                                                        wire:click="submitStatusReason({{ $incidentRequest->id }})">Submit</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endif
+
 
                                     <tr>
                                         <td>Comments</td>
@@ -251,63 +284,162 @@
                                     </tr>
 
 
+
                                     <tr>
-                                        <td>Attach Files</td>
-                                        <td class="view-td">
-                                            @if($incidentRequest->image_url)
-                                            <a href="#" data-toggle="modal" class="requestAttachments"
-                                                data-target="#attachmentsModal-{{ $incidentRequest->id }}">
-                                                <i class="fas fa-eye"></i> View Attachments
+                                        <td class="fs-6 fs-md-3 fs-lg-2">Attachments</td>
+                                        <td>
+                                            @if (!empty($incidentRequest->file_paths))
+                                            @php
+                                            // Check if $incidentRequest->file_paths is a string or an array
+                                            $fileDataArray = is_string($incidentRequest->file_paths)
+                                            ? json_decode($incidentRequest->file_paths, true)
+                                            : $incidentRequest->file_paths;
+
+                                            // Separate images and files
+                                            foreach ($fileDataArray as $fileData) {
+                                            if (isset($fileData['mime_type'])) {
+                                            if (strpos($fileData['mime_type'], 'image') !== false) {
+                                            $images[] = $fileData;
+                                            } else {
+                                            $files[] = $fileData;
+                                            }
+                                            }
+                                            }
+                                            @endphp
+
+
+                                            {{-- view file popup --}}
+                                            @if ($showViewImageDialog && $currentIncidentId === $incidentRequest->id)
+                                            <div class="modal custom-modal" tabindex="-1" role="dialog"
+                                                style="display: block;">
+                                                <div class="modal-dialog custom-modal-dialog custom-modal-dialog-centered modal-lg"
+                                                    role="document">
+                                                    <div class="modal-content custom-modal-content">
+                                                        <div class="modal-header custom-modal-header">
+                                                            <h5 class="modal-title view-file">Attached Images</h5>
+                                                        </div>
+                                                        <div class="modal-body custom-modal-body">
+                                                            <div class="swiper-container">
+                                                                <div class="swiper-wrapper">
+                                                                    @foreach ($images as $image)
+                                                                    @php
+                                                                    $base64File = $image['data'];
+                                                                    $mimeType = $image['mime_type'];
+                                                                    @endphp
+                                                                    <div class="swiper-slide">
+                                                                        <img src="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                                            class="img-fluid" alt="Image">
+                                                                    </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="modal-footer custom-modal-footer">
+                                                            <button type="button" class="submit-btn"
+                                                                wire:click.prevent="downloadImages({{ $incidentRequest->id }})">Download</button>
+                                                            <button type="button" class="cancel-btn1"
+                                                                wire:click="closeViewImage">Close</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-backdrop fade show blurred-backdrop"></div>
+                                            @endif
+
+
+                                            @if ($showViewFileDialog && $currentIncidentId === $incidentRequest->id)
+                                            <div class="modal" tabindex="-1" role="dialog" style="display: block;">
+                                                <div class="modal-dialog modal-dialog-centered modal-md"
+                                                    role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title viewfile">View Files</h5>
+                                                        </div>
+                                                        <div class="modal-body"
+                                                            style="max-height: 400px; overflow-y: auto;">
+                                                            <ul class="list-group list-group-flush">
+
+                                                                @foreach ($files as $file)
+
+                                                                @php
+
+                                                                $base64File = $file['data'];
+
+                                                                $mimeType = $file['mime_type'];
+
+                                                                $originalName = $file['original_name'];
+
+                                                                @endphp
+
+                                                                <li>
+
+                                                                    <a href="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                                        download="{{ $originalName }}"
+                                                                        style="text-decoration: none; color: #007BFF; margin: 10px;">
+
+                                                                        {{ $originalName }} <i class="fas fa-download"
+                                                                            style="margin-left:5px"></i>
+
+                                                                    </a>
+
+                                                                </li>
+
+                                                                @endforeach
+                                                            </ul>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="cancel-btn1"
+                                                                wire:click="closeViewFile">Close</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-backdrop fade show blurred-backdrop"></div>
+                                            @endif
+
+
+                                            @php
+                                            // Initialize $images and $files as empty arrays to avoid null issues
+                                            $images = $images ?? [];
+                                            $files = $files ?? [];
+                                            @endphp
+                                            <!-- Trigger Links -->
+                                            @if (count($images) > 1)
+                                            <a href="#" wire:click.prevent="showViewImage({{ $incidentRequest->id }})"
+                                                style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                View Images
                                             </a>
-                                            @else
-                                            <span>-</span>
+                                            @elseif (count($images) == 1)
+                                            <a href="#" wire:click.prevent="showViewImage({{ $incidentRequest->id }})"
+                                                style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                View Image
+                                            </a>
+                                            @endif
+
+                                            @if (count($files) > 1)
+                                            <a href="#" wire:click.prevent="showViewFile({{ $incidentRequest->id }})"
+                                                style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                View Files
+                                            </a>
+                                            @elseif (count($files) == 1)
+                                            <a href="#" wire:click.prevent="showViewFile({{ $incidentRequest->id }})"
+                                                style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                View File
+                                            </a>
+                                            @endif
+
+                                            @if (count($images) == 0 && count($files) == 0)
+                                            <label for="">No Attachments</label>
+                                            @endif
+
+
                                             @endif
 
                                         </td>
+
                                     </tr>
 
-                                    <!-- Modal -->
-                                    <div class="modal fade" id="attachmentsModal-{{ $incidentRequest->id }}"
-                                        tabindex="-1" role="dialog"
-                                        aria-labelledby="attachmentsModalLabel-{{ $incidentRequest->id }}"
-                                        aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title"
-                                                        id="attachmentsModalLabel-{{ $incidentRequest->id }}">
-                                                        Attachments</h5>
-                                                    <button type="button" class="close" data-dismiss="modal"
-                                                        aria-label="Close">
-
-                                                    </button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <!-- Swiper -->
-                                                    <div class="swiper-container">
-                                                        <div class="swiper-wrapper">
-
-                                                            <div class="swiper-slide reqResSwiper">
-
-                                                                <img src="{{ $incidentRequest->image_url }}"
-                                                                    class="req-Res-Image" alt="Image">
-                                                            </div>
-                                                        </div>
-                                                        <!-- Add Pagination -->
-                                                        <div class="swiper-pagination"></div>
-                                                        <!-- Add Navigation -->
-                                                        <div class="swiper-button-next"></div>
-                                                        <div class="swiper-button-prev"></div>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn text-white"
-                                                        style="background-color: #02114f;"
-                                                        data-dismiss="modal">Close</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
 
 
 
@@ -318,7 +450,8 @@
 
                             <div class="d-flex justify-content-center align-items-center">
                                 <button class="btn text-white mb-3" style="background-color: #02114f;"
-                                    wire:click="redirectBasedOnStatus" @if($loading) disabled @endif>Submit</button>
+                                    wire:click="activeIncidentSubmit('{{ $incidentRequest->id }}')" @if($loading)
+                                    disabled @endif>Submit</button>
                             </div>
 
                         </div>
@@ -465,7 +598,7 @@
                                                 </span>
                                             </th>
                                             <th class="req-table-head">Assigned Department</th>
-                                            <th class="req-table-head">File(s)</th>
+                                            <th class="req-table-head">Attachments</th>
                                             <th class="req-table-head">Status</th>
                                             <th class="req-table-head">Assigned To
                                                 <span wire:click.debounce.500ms="toggleSortOrder('assign_to')"
@@ -480,7 +613,8 @@
                                             </th>
 
 
-                                            <th class="req-table-head">Remarks</th>
+
+                                            <th class="req-table-head">Response time tracker</th>
                                             <th class="req-table-head"> Change Status</th>
                                             <th class="req-table-head"> Logs</th>
                                         </tr>
@@ -498,67 +632,165 @@
                                             <td>{{ $record->description ?? 'N/A' }}</td>
                                             <td>{{ $record->priority ?? 'N/A' }}</td>
                                             <td>{{ $record->assigned_dept ?? 'N/A' }}</td>
-                                            <td class="view-td">
-                                                @if($record->image_url)
-                                                <a href="#" data-toggle="modal" class="requestAttachments"
-                                                    data-target="#attachmentsModal-{{ $record->id }}">
-                                                    <i class="fas fa-eye"></i> View Attachments
-                                                </a>
-                                                @else
-                                                <span>-</span>
-                                                @endif
 
 
+                                            <td>
+                                                @if (!empty($record->file_paths))
+                                                @php
+                                                // Check if $record->file_paths is a string or an array
+                                                $fileDataArray = is_string($record->file_paths)
+                                                ? json_decode($record->file_paths, true)
+                                                : $record->file_paths;
+
+                                                // Separate images and files
+                                                foreach ($fileDataArray as $fileData) {
+                                                if (isset($fileData['mime_type'])) {
+                                                if (strpos($fileData['mime_type'], 'image') !== false) {
+                                                $images[] = $fileData;
+                                                } else {
+                                                $files[] = $fileData;
+                                                }
+                                                }
+                                                }
+                                                @endphp
 
 
-                                                <!-- Modal -->
-                                                <div class="modal fade" id="attachmentsModal-{{ $record->id }}"
-                                                    tabindex="-1" role="dialog"
-                                                    aria-labelledby="attachmentsModalLabel-{{ $record->id }}"
-                                                    aria-hidden="true">
-                                                    <div class="modal-dialog modal-dialog-centered modal-lg"
+                                                {{-- view file popup --}}
+                                                @if ($showViewImageDialog && $currentIncidentId === $record->id)
+                                                <div class="modal custom-modal" tabindex="-1" role="dialog"
+                                                    style="display: block;">
+                                                    <div class="modal-dialog custom-modal-dialog custom-modal-dialog-centered modal-lg"
                                                         role="document">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title"
-                                                                    id="attachmentsModalLabel-{{ $record->id }}">
-                                                                    Attachments</h5>
-                                                                <button type="button" class="close p-2"
-                                                                    data-dismiss="modal" aria-label="Close">X
-
-                                                                </button>
-
-
+                                                        <div class="modal-content custom-modal-content">
+                                                            <div class="modal-header custom-modal-header">
+                                                                <h5 class="modal-title view-file">Attached Images</h5>
                                                             </div>
-                                                            <div class="modal-body">
-                                                                <!-- Swiper -->
+                                                            <div class="modal-body custom-modal-body">
                                                                 <div class="swiper-container">
                                                                     <div class="swiper-wrapper">
-
-                                                                        <div class="swiper-slide reqResSwiper">
-
-                                                                            <img src="{{ $record->image_url }}"
-                                                                                class="req-Res-Image" alt="Image">
+                                                                        @foreach ($images as $image)
+                                                                        @php
+                                                                        $base64File = $image['data'];
+                                                                        $mimeType = $image['mime_type'];
+                                                                        @endphp
+                                                                        <div class="swiper-slide">
+                                                                            <img src="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                                                class="img-fluid" alt="Image">
                                                                         </div>
+                                                                        @endforeach
                                                                     </div>
-                                                                    <!-- Add Pagination -->
-                                                                    <div class="swiper-pagination"></div>
-                                                                    <!-- Add Navigation -->
-                                                                    <div class="swiper-button-next"></div>
-                                                                    <div class="swiper-button-prev"></div>
                                                                 </div>
                                                             </div>
-                                                            <div class="modal-footer">
-                                                                <button type="button" class="btn text-white"
-                                                                    style="background-color: #02114f;"
-                                                                    data-dismiss="modal">Close</button>
+
+                                                            <div class="modal-footer custom-modal-footer">
+                                                                <button type="button" class="submit-btn"
+                                                                    wire:click.prevent="downloadImages({{ $record->id }})">Download</button>
+                                                                <button type="button" class="cancel-btn1"
+                                                                    wire:click="closeViewImage">Close</button>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <div class="modal-backdrop fade show blurred-backdrop"></div>
+                                                @endif
 
+
+                                                @if ($showViewFileDialog && $currentIncidentId === $record->id)
+                                                <div class="modal" tabindex="-1" role="dialog" style="display: block;">
+                                                    <div class="modal-dialog modal-dialog-centered modal-md"
+                                                        role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title viewfile">View Files</h5>
+                                                            </div>
+                                                            <div class="modal-body"
+                                                                style="max-height: 400px; overflow-y: auto;">
+                                                                <ul class="list-group list-group-flush">
+
+                                                                    @foreach ($files as $file)
+
+                                                                    @php
+
+                                                                    $base64File = $file['data'];
+
+                                                                    $mimeType = $file['mime_type'];
+
+                                                                    $originalName = $file['original_name'];
+
+                                                                    @endphp
+
+                                                                    <li>
+
+                                                                        <a href="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                                            download="{{ $originalName }}"
+                                                                            style="text-decoration: none; color: #007BFF; margin: 10px;">
+
+                                                                            {{ $originalName }} <i
+                                                                                class="fas fa-download"
+                                                                                style="margin-left:5px"></i>
+
+                                                                        </a>
+
+                                                                    </li>
+
+                                                                    @endforeach
+                                                                </ul>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="cancel-btn1"
+                                                                    wire:click="closeViewFile">Close</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-backdrop fade show blurred-backdrop"></div>
+                                                @endif
+
+
+                                                @php
+                                                // Initialize $images and $files as empty arrays to avoid null issues
+                                                $images = $images ?? [];
+                                                $files = $files ?? [];
+                                                @endphp
+                                                <!-- Trigger Links -->
+                                                @if (count($images) > 1)
+                                                <a href="#" wire:click.prevent="showViewImage({{ $record->id }})"
+                                                    style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                    View Images
+                                                </a>
+                                                @elseif (count($images) == 1)
+                                                <a href="#" wire:click.prevent="showViewImage({{ $record->id }})"
+                                                    style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                    View Image
+                                                </a>
+                                                @endif
+
+                                                @if (count($files) > 1)
+                                                <a href="#" wire:click.prevent="showViewFile({{ $record->id }})"
+                                                    style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                    View Files
+                                                </a>
+                                                @elseif (count($files) == 1)
+                                                <a href="#" wire:click.prevent="showViewFile({{ $record->id }})"
+                                                    style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                    View File
+                                                </a>
+                                                @endif
+
+                                                @if (count($images) == 0 && count($files) == 0)
+                                                <label for="">No Attachments</label>
+                                                @endif
+
+
+                                                @endif
 
                                             </td>
+
+
+
+
+
+
                                             <td>
                                                 @if($record->status_code == 5) Pending
 
@@ -567,32 +799,121 @@
                                             <td>{{ $record->inc_assign_to ?? 'N/A' }}</td>
 
 
+
+
                                             <td>
-                                                <form wire:submit.prevent="postRemarks('{{ $record->id }}')">
-                                                    <div class="row">
-                                                        <div class="col-12 d-flex align-items-center">
-                                                            <textarea wire:model.lazy="remarks"
-                                                                class="form-control me-2 req-remarks-textarea"
-                                                                placeholder="Enter remarks here..."></textarea>
-                                                            <button type="submit"
-                                                                class="btn btn-primary text-white p-2">Post</button>
-                                                        </div>
-                                                    </div>
-                                                </form>
+                                                <div class="req-timebar">
+                                                    @if($record->created_at)
+                                                    @php
+                                                    // Parse the start and end dates
+                                                    $startDate = \Carbon\Carbon::parse($record->created_at);
+
+                                                    // If 'inc_end_date' exists, use it; otherwise, use current time
+                                                    $endDate = $record->inc_end_date ?
+                                                    \Carbon\Carbon::parse($record->inc_end_date) :
+                                                    \Carbon\Carbon::now();
+
+                                                    // Calculate total elapsed time in minutes
+                                                    $totalElapsedMinutes = $startDate->diffInMinutes($endDate);
+
+                                                    // If there is additional incident progress time, add it
+                                                    if (isset($record->total_in_progress_time)) {
+                                                    $totalElapsedMinutes += $record->total_in_progress_time;
+                                                    }
+
+                                                    // Calculate years, days, hours, and minutes from the elapsed time
+                                                    $years = floor($totalElapsedMinutes / 525600); // 1 year = 525600
+
+                                                    $remainingMinutes = $totalElapsedMinutes % 525600;
+
+                                                    $days = floor($remainingMinutes / 1440); // 1 day = 1440 minutes
+                                                    $remainingMinutes %= 1440;
+
+                                                    $hours = floor($remainingMinutes / 60);
+                                                    $minutes = $remainingMinutes % 60;
+
+                                                    $maxTime = 30 * 1440; // 30 days * 1440 minutes
+                                                    $percentage = min(($totalElapsedMinutes / $maxTime) * 100, 100);
+                                                    @endphp
+
+                                                    <!-- Display elapsed time with conditions -->
+                                                    @if ($totalElapsedMinutes < 60) <span>{{ $minutes }}
+                                                        minute{{ $minutes != 1 ? 's' : '' }}</span>
+                                                        @elseif ($totalElapsedMinutes < 1440) <span>{{ $hours }}
+                                                            hour{{ $hours != 1 ? 's' : '' }} {{ $minutes }}
+                                                            minute{{ $minutes != 1 ? 's' : '' }}</span>
+                                                            @elseif ($totalElapsedMinutes < 525600) <span>{{ $days }}
+                                                                day{{ $days != 1 ? 's' : '' }} {{ $hours }}
+                                                                hour{{ $hours != 1 ? 's' : '' }} {{ $minutes }}
+                                                                minute{{ $minutes != 1 ? 's' : '' }}</span>
+                                                                @else
+                                                                <span>{{ $years }} year{{ $years != 1 ? 's' : '' }}
+                                                                    {{ $days }} day{{ $days != 1 ? 's' : '' }}
+                                                                    {{ $hours }} hour{{ $hours != 1 ? 's' : '' }}
+                                                                    {{ $minutes }}
+                                                                    minute{{ $minutes != 1 ? 's' : '' }}</span>
+                                                                @endif
+
+
+                                                             
+                                                                @else
+                                                                <span>No time tracked</span>
+                                                                @endif
+                                                </div>
                                             </td>
 
 
+
                                             <td>
-                                                <button wire:click="inprogressForDesks('{{ $record->id }}')"
+                                                <button wire:click="selectedInprogress('{{ $record->id }}')"
+                                                    wire:key="inprogress-desks-{{ $record->id }}"
                                                     class="btn btn-white border-black text-black" @if($loading) disabled
                                                     @endif>Inprogress</button>
                                             </td>
 
+
+                                            @if($showInprogressModal)
+                                            <div class="modal fade show d-block" tabindex="-1" role="dialog"
+                                                style="background-color: rgba(0, 0, 0, 0.5);">
+                                                <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">
+                                                                Reason for Inprogress
+                                                            </h5>
+                                                            <button type="button" class="btn-close"
+                                                                wire:click="closeInprogressModal"
+                                                                aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body flex-column">
+                                                            <label for="reason" class="form-label">Reason <span
+                                                                    class="text-danger">*</span></label>
+                                                            <textarea id="reason" class="form-control"
+                                                                wire:model.defer="pendingReason" rows="3"></textarea>
+                                                            @error('pendingReason')
+                                                            <span class="text-danger">{{ $message }}</span>
+                                                            @enderror
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                wire:click="closeInprogressModal">Close</button>
+                                                            <button type="button" class="btn btn-primary"
+                                                                wire:click="inprogressForDesks({{  $selectedTaskId}})">Submit</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @endif
+
+
+
                                             <td>
                                                 <i wire:click="loadLogs('{{ $record->snow_id }}')"
+                                                    wire:key="pending-logs-{{ $record->snow_id }}"
                                                     class="fas fa-clock-rotate-left"
                                                     style="cursor: pointer; padding: 8px;background-color: #4A90E2;border-radius: 20px;color:white;"></i>
                                             </td>
+
                                         </tr>
 
 
@@ -680,7 +1001,7 @@
                                                 </span>
                                             </th>
                                             <th class="req-table-head">Assigned Department</th>
-                                            <th class="req-table-head">File(s)</th>
+                                            <th class="req-table-head">Attachments</th>
                                             <th class="req-table-head">Status</th>
                                             <th class="req-table-head">Assigned To
                                                 <span wire:click.debounce.500ms="toggleSortOrder('assign_to')"
@@ -694,9 +1015,8 @@
                                                 </span>
                                             </th>
 
-
-                                            <th class="req-table-head">Remarks</th>
                                             <th class="req-table-head">Time tracker</th>
+                                            <th class="req-table-head">Response time tracker</th>
                                             <th class="req-table-head"> Change Status</th>
                                             <th class="req-table-head"> Logs</th>
                                         </tr>
@@ -714,87 +1034,170 @@
                                             <td>{{ $record->description ?? 'N/A' }}</td>
                                             <td>{{ $record->priority ?? 'N/A' }}</td>
                                             <td>{{ $record->assigned_dept ?? 'N/A' }}</td>
-                                            <td class="view-td">
-                                                @if($record->image_url)
-                                                <a href="#" data-toggle="modal" class="requestAttachments"
-                                                    data-target="#attachmentsModal-{{ $record->id }}">
-                                                    <i class="fas fa-eye"></i> View Attachments
-                                                </a>
-                                                @else
-                                                <span>-</span>
-                                                @endif
 
 
 
 
-                                                <!-- Modal -->
-                                                <div class="modal fade" id="attachmentsModal-{{ $record->id }}"
-                                                    tabindex="-1" role="dialog"
-                                                    aria-labelledby="attachmentsModalLabel-{{ $record->id }}"
-                                                    aria-hidden="true">
-                                                    <div class="modal-dialog modal-dialog-centered modal-lg"
+                                            <td>
+                                                @if (!empty($record->file_paths))
+                                                @php
+                                                // Check if $record->file_paths is a string or an array
+                                                $fileDataArray = is_string($record->file_paths)
+                                                ? json_decode($record->file_paths, true)
+                                                : $record->file_paths;
+
+                                                // Separate images and files
+                                                foreach ($fileDataArray as $fileData) {
+                                                if (isset($fileData['mime_type'])) {
+                                                if (strpos($fileData['mime_type'], 'image') !== false) {
+                                                $images[] = $fileData;
+                                                } else {
+                                                $files[] = $fileData;
+                                                }
+                                                }
+                                                }
+                                                @endphp
+
+
+                                                {{-- view file popup --}}
+                                                @if ($showViewImageDialog && $currentIncidentId === $record->id)
+                                                <div class="modal custom-modal" tabindex="-1" role="dialog"
+                                                    style="display: block;">
+                                                    <div class="modal-dialog custom-modal-dialog custom-modal-dialog-centered modal-lg"
                                                         role="document">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title"
-                                                                    id="attachmentsModalLabel-{{ $record->id }}">
-                                                                    Attachments</h5>
-                                                                <button type="button" class="close p-2"
-                                                                    data-dismiss="modal" aria-label="Close">X
-
-                                                                </button>
-
-
+                                                        <div class="modal-content custom-modal-content">
+                                                            <div class="modal-header custom-modal-header">
+                                                                <h5 class="modal-title view-file">Attached Images</h5>
                                                             </div>
-                                                            <div class="modal-body">
-                                                                <!-- Swiper -->
+                                                            <div class="modal-body custom-modal-body">
                                                                 <div class="swiper-container">
                                                                     <div class="swiper-wrapper">
-
-                                                                        <div class="swiper-slide reqResSwiper">
-
-                                                                            <img src="{{ $record->image_url }}"
-                                                                                class="req-Res-Image" alt="Image">
+                                                                        @foreach ($images as $image)
+                                                                        @php
+                                                                        $base64File = $image['data'];
+                                                                        $mimeType = $image['mime_type'];
+                                                                        @endphp
+                                                                        <div class="swiper-slide">
+                                                                            <img src="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                                                class="img-fluid" alt="Image">
                                                                         </div>
+                                                                        @endforeach
                                                                     </div>
-                                                                    <!-- Add Pagination -->
-                                                                    <div class="swiper-pagination"></div>
-                                                                    <!-- Add Navigation -->
-                                                                    <div class="swiper-button-next"></div>
-                                                                    <div class="swiper-button-prev"></div>
                                                                 </div>
                                                             </div>
-                                                            <div class="modal-footer">
-                                                                <button type="button" class="btn text-white"
-                                                                    style="background-color: #02114f;"
-                                                                    data-dismiss="modal">Close</button>
+
+                                                            <div class="modal-footer custom-modal-footer">
+                                                                <button type="button" class="submit-btn"
+                                                                    wire:click.prevent="downloadImages({{ $record->id }})">Download</button>
+                                                                <button type="button" class="cancel-btn1"
+                                                                    wire:click="closeViewImage">Close</button>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <div class="modal-backdrop fade show blurred-backdrop"></div>
+                                                @endif
 
+
+                                                @if ($showViewFileDialog && $currentIncidentId === $record->id)
+                                                <div class="modal" tabindex="-1" role="dialog" style="display: block;">
+                                                    <div class="modal-dialog modal-dialog-centered modal-md"
+                                                        role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title viewfile">View Files</h5>
+                                                            </div>
+                                                            <div class="modal-body"
+                                                                style="max-height: 400px; overflow-y: auto;">
+                                                                <ul class="list-group list-group-flush">
+
+                                                                    @foreach ($files as $file)
+
+                                                                    @php
+
+                                                                    $base64File = $file['data'];
+
+                                                                    $mimeType = $file['mime_type'];
+
+                                                                    $originalName = $file['original_name'];
+
+                                                                    @endphp
+
+                                                                    <li>
+
+                                                                        <a href="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                                            download="{{ $originalName }}"
+                                                                            style="text-decoration: none; color: #007BFF; margin: 10px;">
+
+                                                                            {{ $originalName }} <i
+                                                                                class="fas fa-download"
+                                                                                style="margin-left:5px"></i>
+
+                                                                        </a>
+
+                                                                    </li>
+
+                                                                    @endforeach
+                                                                </ul>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="cancel-btn1"
+                                                                    wire:click="closeViewFile">Close</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-backdrop fade show blurred-backdrop"></div>
+                                                @endif
+
+
+                                                @php
+                                                // Initialize $images and $files as empty arrays to avoid null issues
+                                                $images = $images ?? [];
+                                                $files = $files ?? [];
+                                                @endphp
+                                                <!-- Trigger Links -->
+                                                @if (count($images) > 1)
+                                                <a href="#" wire:click.prevent="showViewImage({{ $record->id }})"
+                                                    style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                    View Images
+                                                </a>
+                                                @elseif (count($images) == 1)
+                                                <a href="#" wire:click.prevent="showViewImage({{ $record->id }})"
+                                                    style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                    View Image
+                                                </a>
+                                                @endif
+
+                                                @if (count($files) > 1)
+                                                <a href="#" wire:click.prevent="showViewFile({{ $record->id }})"
+                                                    style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                    View Files
+                                                </a>
+                                                @elseif (count($files) == 1)
+                                                <a href="#" wire:click.prevent="showViewFile({{ $record->id }})"
+                                                    style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                    View File
+                                                </a>
+                                                @endif
+
+                                                @if (count($images) == 0 && count($files) == 0)
+                                                <label for="">No Attachments</label>
+                                                @endif
+
+
+                                                @endif
 
                                             </td>
+
+
+
                                             <td>
                                                 @if($record->status_code == 5) Pending
 
                                                 @endif
                                             </td>
                                             <td>{{ $record->inc_assign_to ?? 'N/A' }}</td>
-
-                                            <td>
-                                                <form wire:submit.prevent="postInprogressRemarks('{{ $record->id }}')">
-                                                    <div class="row">
-                                                        <div class="col-12 d-flex align-items-center">
-                                                            <textarea wire:model.lazy="remarks"
-                                                                class="form-control me-2 req-remarks-textarea"
-                                                                placeholder="Enter remarks here..."></textarea>
-                                                            <button type="submit"
-                                                                class="btn btn-primary text-white p-2">Post</button>
-                                                        </div>
-                                                    </div>
-                                                </form>
-                                            </td>
 
 
                                             <td>
@@ -817,7 +1220,7 @@
                                                     $minutes = $totalElapsedMinutes % 60;
 
 
-                                                    $maxTime = 7 * 1440;
+                                                    $maxTime = 30 * 1440;
                                                     $percentage = min(($totalElapsedMinutes / $maxTime) * 100, 100);
 
 
@@ -850,28 +1253,186 @@
                                                 </div>
                                             </td>
 
+                                            <td>
+                                                <div class="req-timebar">
+                                                    @if($record->created_at)
+                                                    @php
+                                                    // Parse the start and end dates
+                                                    $startDate = \Carbon\Carbon::parse($record->created_at);
+
+                                                    // If 'inc_end_date' exists, use it; otherwise, use current time
+                                                    $endDate = $record->inc_end_date ?
+                                                    \Carbon\Carbon::parse($record->inc_end_date) :
+                                                    \Carbon\Carbon::now();
+
+                                                    // Calculate total elapsed time in minutes
+                                                    $totalElapsedMinutes = $startDate->diffInMinutes($endDate);
+
+                                                    // If there is additional incident progress time, add it
+                                                    if (isset($record->total_in_progress_time)) {
+                                                    $totalElapsedMinutes += $record->total_in_progress_time;
+                                                    }
+
+                                                    // Calculate years, days, hours, and minutes from the elapsed time
+                                                    $years = floor($totalElapsedMinutes / 525600); // 1 year = 525600
+
+                                                    $remainingMinutes = $totalElapsedMinutes % 525600;
+
+                                                    $days = floor($remainingMinutes / 1440); // 1 day = 1440 minutes
+                                                    $remainingMinutes %= 1440;
+
+                                                    $hours = floor($remainingMinutes / 60);
+                                                    $minutes = $remainingMinutes % 60;
+
+                                                    $maxTime = 30 * 1440; // 30 days * 1440 minutes
+                                                    $percentage = min(($totalElapsedMinutes / $maxTime) * 100, 100);
+                                                    @endphp
+
+                                                    <!-- Display elapsed time with conditions -->
+                                                    @if ($totalElapsedMinutes < 60) <span>{{ $minutes }}
+                                                        minute{{ $minutes != 1 ? 's' : '' }}</span>
+                                                        @elseif ($totalElapsedMinutes < 1440) <span>{{ $hours }}
+                                                            hour{{ $hours != 1 ? 's' : '' }} {{ $minutes }}
+                                                            minute{{ $minutes != 1 ? 's' : '' }}</span>
+                                                            @elseif ($totalElapsedMinutes < 525600) <span>{{ $days }}
+                                                                day{{ $days != 1 ? 's' : '' }} {{ $hours }}
+                                                                hour{{ $hours != 1 ? 's' : '' }} {{ $minutes }}
+                                                                minute{{ $minutes != 1 ? 's' : '' }}</span>
+                                                                @else
+                                                                <span>{{ $years }} year{{ $years != 1 ? 's' : '' }}
+                                                                    {{ $days }} day{{ $days != 1 ? 's' : '' }}
+                                                                    {{ $hours }} hour{{ $hours != 1 ? 's' : '' }}
+                                                                    {{ $minutes }}
+                                                                    minute{{ $minutes != 1 ? 's' : '' }}</span>
+                                                                @endif
+
+
+                                                                <!-- Custom Progress Bar -->
+                                                                <div class="custom-progress">
+                                                                    <div class="custom-progress-bar"
+                                                                        style="width: {{ $percentage }}%"
+                                                                        aria-valuenow="{{ $percentage }}"
+                                                                        aria-valuemin="0" aria-valuemax="100">
+                                                                        <span
+                                                                            class="progress-text">{{ round($percentage) }}%</span>
+                                                                    </div>
+                                                                </div>
+                                                                @else
+                                                                <span>No time tracked</span>
+                                                                @endif
+                                                </div>
+                                            </td>
+
 
 
 
 
                                             <td>
                                                 <div class="req-changeStatus ">
-                                                    <button wire:click="pendingForDesks('{{ $record->id }}')"
+                                                    <button wire:click="selectedPending('{{ $record->id }}')"
+                                                        wire:key="pending-desks-{{ $record->id}}"
                                                         class="btn btn-white border-black text-black" @if($loading)
                                                         disabled @endif>Pending</button>
 
-                                                    <button wire:click="closeForDesks('{{ $record->id }}')"
+
+                                                    @if($showPendingModal)
+                                                    <div class="modal fade show d-block" tabindex="-1" role="dialog"
+                                                        style="background-color: rgba(0, 0, 0, 0.5);">
+                                                        <div class="modal-dialog modal-dialog-centered">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title">
+                                                                        Reason for Pending
+                                                                    </h5>
+                                                                    <button type="button" class="btn-close"
+                                                                        wire:click="closePendingModal"
+                                                                        aria-label="Close"></button>
+                                                                </div>
+                                                                <div class="modal-body flex-column">
+                                                                    <label for="reason" class="form-label">Reason <span
+                                                                            class="text-danger">*</span></label>
+                                                                    <textarea id="reason" class="form-control"
+                                                                        wire:model.defer="pendingReason"
+                                                                        rows="3"></textarea>
+                                                                    @error('pendingReason')
+                                                                    <span class="text-danger">{{ $message }}</span>
+                                                                    @enderror
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary"
+                                                                        wire:click="closePendingModal">Close</button>
+                                                                    <button type="button" class="btn btn-primary"
+                                                                        wire:click="pendingForDesks({{ $selectedTaskId }})">Submit</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @endif
+
+
+                                                    <button wire:click="selectedClosed('{{ $record->id }}')"
+                                                        wire:key="close-desks-{{ $record->id}}"
                                                         class="btn btn-white border-black text-black" @if($loading)
                                                         disabled @endif>Close</button>
+
+
+                                                    @if($showClosedModal)
+                                                    <div class="modal fade show d-block" tabindex="-1" role="dialog"
+                                                        style="background-color: rgba(0, 0, 0, 0.5);">
+                                                        <div class="modal-dialog modal-dialog-centered">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title">
+                                                                        Reason for Closed
+                                                                    </h5>
+                                                                    <button type="button" class="btn-close"
+                                                                        wire:click="closeClosedModal"
+                                                                        aria-label="Close"></button>
+                                                                </div>
+                                                                <div class="modal-body flex-column">
+                                                                    <label for="reason" class="form-label">Reason <span
+                                                                            class="text-danger">*</span></label>
+                                                                    <textarea id="reason" class="form-control"
+                                                                        wire:model.defer="pendingReason"
+                                                                        rows="3"></textarea>
+                                                                    @error('pendingReason')
+                                                                    <span class="text-danger">{{ $message }}</span>
+                                                                    @enderror
+                                                                </div>
+
+                                                                <div class="modal-body flex-column">
+                                                                    <label for="reason" class="form-label">Reason
+                                                                        (Customer Visible) <span
+                                                                            class="text-danger">*</span></label>
+                                                                    <textarea id="reason" class="form-control"
+                                                                        wire:model.defer="customerVisibleNotes"
+                                                                        rows="3"></textarea>
+                                                                    @error('customerVisibleNotes')
+                                                                    <span class="text-danger">{{ $message }}</span>
+                                                                    @enderror
+                                                                </div>
+
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary"
+                                                                        wire:click="closeClosedModal">Close</button>
+                                                                    <button type="button" class="btn btn-primary"
+                                                                        wire:click="closeForDesks({{ $selectedTaskId }})">Submit</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @endif
+
                                                 </div>
 
                                             </td>
-
                                             <td>
                                                 <i wire:click="loadLogs('{{ $record->snow_id }}')"
+                                                    wire:key="inpro-logs-{{ $record->snow_id}}"
                                                     class="fas fa-clock-rotate-left"
-                                                    style="cursor: pointer; padding: 8px;background-color: #4A90E2;border-radius: 20px;color:white;"></i>
+                                                    style="cursor: pointer;padding: 8px;background-color: #4A90E2;border-radius: 20px;color:white;"></i>
                                             </td>
+
 
                                         </tr>
 
@@ -955,11 +1516,12 @@
                                             </th>
 
                                             <th class="req-closed-th"> Requested By</th>
-                                            <th class="req-closed-th"> Service Request</th>
+                                            <th class="req-closed-th"> Incident Request</th>
 
                                             <th class="req-closed-th">Short Description
                                             </th>
                                             <th class="req-closed-th">Status</th>
+                                            <th class="req-closed-th">Response time tracker</th>
                                             <th class="req-closed-th">View</th>
                                             <th class="req-table-head"> Logs</th>
                                         </tr>
@@ -997,16 +1559,79 @@
                                                 </div>
                                             </td>
 
+                                            <td>
+                                                <div class="req-timebar">
+                                                    @if($record->created_at)
+                                                    @php
+                                                    // Parse the start and end dates
+                                                    $startDate = \Carbon\Carbon::parse($record->created_at);
+
+                                                    // If 'inc_end_date' exists, use it; otherwise, use current time
+                                                    $endDate = $record->inc_end_date ?
+                                                    \Carbon\Carbon::parse($record->inc_end_date) :
+                                                    \Carbon\Carbon::now();
+
+                                                    // Calculate total elapsed time in minutes
+                                                    $totalElapsedMinutes = $startDate->diffInMinutes($endDate);
+
+                                                    // If there is additional incident progress time, add it
+                                                    if (isset($record->total_in_progress_time)) {
+                                                    $totalElapsedMinutes += $record->total_in_progress_time;
+                                                    }
+
+                                                    // Calculate years, days, hours, and minutes from the elapsed time
+                                                    $years = floor($totalElapsedMinutes / 525600); // 1 year = 525600
+
+                                                    $remainingMinutes = $totalElapsedMinutes % 525600;
+
+                                                    $days = floor($remainingMinutes / 1440); // 1 day = 1440 minutes
+                                                    $remainingMinutes %= 1440;
+
+                                                    $hours = floor($remainingMinutes / 60);
+                                                    $minutes = $remainingMinutes % 60;
+
+                                                    $maxTime = 30 * 1440; // 30 days * 1440 minutes
+                                                    $percentage = min(($totalElapsedMinutes / $maxTime) * 100, 100);
+                                                    @endphp
+
+                                                    <!-- Display elapsed time with conditions -->
+                                                    @if ($totalElapsedMinutes < 60) <span>{{ $minutes }}
+                                                        minute{{ $minutes != 1 ? 's' : '' }}</span>
+                                                        @elseif ($totalElapsedMinutes < 1440) <span>{{ $hours }}
+                                                            hour{{ $hours != 1 ? 's' : '' }} {{ $minutes }}
+                                                            minute{{ $minutes != 1 ? 's' : '' }}</span>
+                                                            @elseif ($totalElapsedMinutes < 525600) <span>{{ $days }}
+                                                                day{{ $days != 1 ? 's' : '' }} {{ $hours }}
+                                                                hour{{ $hours != 1 ? 's' : '' }} {{ $minutes }}
+                                                                minute{{ $minutes != 1 ? 's' : '' }}</span>
+                                                                @else
+                                                                <span>{{ $years }} year{{ $years != 1 ? 's' : '' }}
+                                                                    {{ $days }} day{{ $days != 1 ? 's' : '' }}
+                                                                    {{ $hours }} hour{{ $hours != 1 ? 's' : '' }}
+                                                                    {{ $minutes }}
+                                                                    minute{{ $minutes != 1 ? 's' : '' }}</span>
+                                                                @endif
+
+
+
+                                                                @else
+                                                                <span>No time tracked</span>
+                                                                @endif
+                                                </div>
+                                            </td>
+
 
                                             <td>
                                                 <button class="btn" style="background-color: #02114f;color:white"
-                                                    wire:click='viewRecord({{ $record->id }})'> <i
+                                                    wire:click='viewRecord({{ $record->id }})'
+                                                    wire:key="view-record-{{  $record->id }}"> <i
                                                         class="fas fa-eye"></i></button>
                                             </td>
                                             <td>
                                                 <i wire:click="loadLogs('{{ $record->snow_id }}')"
+                                                    wire:key="view-logs-{{  $record->snow_id }}"
                                                     class="fas fa-clock-rotate-left"
-                                                    style="cursor: pointer; padding: 8px;background-color: #4A90E2;border-radius: 20px;"></i>
+                                                    style="cursor: pointer; padding: 8px;background-color: #4A90E2;border-radius: 20px;color: white;"></i>
                                             </td>
 
                                         </tr>
@@ -1034,6 +1659,7 @@
                                 </table>
 
                                 <!-- Modal for displaying record details -->
+
                                 @if($showModal)
                                 <div class="modal fade show" id="incidentModal" tabindex="-1" role="dialog"
                                     aria-labelledby="incidentModalLabel" style="display: block;" aria-hidden="false">
@@ -1106,7 +1732,7 @@
                                                         <strong>Active Comments:</strong>
                                                     </div>
                                                     <div class="col-6">
-                                                        <span>{{ $selectedRecord->active_inc_comment ?? 'N/A' }}</span>
+                                                        <span>{{ $selectedRecord->active_ser_comment ?? 'N/A' }}</span>
                                                     </div>
                                                 </div>
                                                 <div class="row service-detail-item">
@@ -1114,7 +1740,7 @@
                                                         <strong>Pending Remarks:</strong>
                                                     </div>
                                                     <div class="col-6">
-                                                        <span>{{ $selectedRecord->inc_pending_remarks ?? 'N/A' }}</span>
+                                                        <span>{{ $selectedRecord->ser_pending_remarks ?? 'N/A' }}</span>
                                                     </div>
                                                 </div>
                                                 <div class="row service-detail-item">
@@ -1122,7 +1748,7 @@
                                                         <strong>Inprogress Remarks:</strong>
                                                     </div>
                                                     <div class="col-6">
-                                                        <span>{{ $selectedRecord->inc_inprogress_remarks ?? 'N/A' }}</span>
+                                                        <span>{{ $selectedRecord->ser_inprogress_remarks ?? 'N/A' }}</span>
                                                     </div>
                                                 </div>
                                                 <div class="row service-detail-item">
@@ -1161,64 +1787,177 @@
                                                         <strong>Attachments:</strong>
                                                     </div>
 
+
                                                     <div class="col-6">
-                                                        @if (isset($selectedRecord->file_path))
-                                                        <!-- Button to trigger the modal -->
-                                                        <button type="button" class="btn btn-link" data-toggle="modal"
-                                                            data-target="#attachmentsModal">
-                                                            View Attachments
-                                                        </button>
-                                                        @else
-                                                        <p>No files attached.</p>
-                                                        @endif
-                                                    </div>
-                                                </div>
+                                                        <td>
+                                                            @if (!empty($selectedRecord->file_paths))
+                                                            @php
+                                                            // Check if $selectedRecord->file_paths is a string or an
+
+                                                            $fileDataArray = is_string($selectedRecord->file_paths)
+                                                            ? json_decode($selectedRecord->file_paths, true)
+                                                            : $selectedRecord->file_paths;
+
+                                                            // Separate images and files
+                                                            foreach ($fileDataArray as $fileData) {
+                                                            if (isset($fileData['mime_type'])) {
+                                                            if (strpos($fileData['mime_type'], 'image') !== false) {
+                                                            $images[] = $fileData;
+                                                            } else {
+                                                            $files[] = $fileData;
+                                                            }
+                                                            }
+                                                            }
+                                                            @endphp
 
 
-                                                <div class="modal fade stack-modal" id="attachmentsModal" tabindex="-1"
-                                                    role="dialog" aria-labelledby="attachmentsModalLabel"
-                                                    aria-hidden="true">
-                                                    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-                                                        <div class="modal-content" style="border: 2px solid #02114f;">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title" id="attachmentsModalLabel">
-                                                                    Attachments
-                                                                </h5>
-                                                                <button type="button" class="close p-2" data-dismiss="modal"
-                                                                    aria-label="Close">
-                                                                    <span aria-hidden="true">&times;</span>
-                                                                </button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                @if (isset($selectedRecord->file_path))
-                                                                @php
-                                                                // Convert the BLOB data to base64
-                                                                $base64Image =
-                                                                base64_encode($selectedRecord->file_path);
-                                                                @endphp
+                                                            {{-- view file popup --}}
+                                                            @if ($showViewImageDialog && $currentIncidentId ===
+                                                            $selectedRecord->id)
+                                                            <div class="modal custom-modal" tabindex="-1" role="dialog"
+                                                                style="display: block;">
+                                                                <div class="modal-dialog custom-modal-dialog custom-modal-dialog-centered modal-lg"
+                                                                    role="document">
+                                                                    <div class="modal-content custom-modal-content">
+                                                                        <div class="modal-header custom-modal-header">
+                                                                            <h5 class="modal-title view-file">Attached
+                                                                                Images</h5>
+                                                                        </div>
+                                                                        <div class="modal-body custom-modal-body">
+                                                                            <div class="swiper-container">
+                                                                                <div class="swiper-wrapper">
+                                                                                    @foreach ($images as $image)
+                                                                                    @php
+                                                                                    $base64File = $image['data'];
+                                                                                    $mimeType = $image['mime_type'];
+                                                                                    @endphp
+                                                                                    <div class="swiper-slide">
+                                                                                        <img src="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                                                            class="img-fluid"
+                                                                                            alt="Image">
+                                                                                    </div>
+                                                                                    @endforeach
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
 
-                                                                <!-- Render the BLOB image directly if it's base64 -->
-                                                                <div class="mb-3">
-                                                                    <img src="data:image/jpeg;base64,{{ $base64Image }}"
-                                                                        class="img-fluid" alt="Attachment" />
+                                                                        <div class="modal-footer custom-modal-footer">
+                                                                            <button type="button" class="submit-btn"
+                                                                                wire:click.prevent="downloadImages({{ $selectedRecord->id }})">Download</button>
+                                                                            <button type="button" class="cancel-btn1"
+                                                                                wire:click="closeViewImage">Close</button>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
-                                                                @else
-                                                                <p>No attachments available.</p>
-                                                                @endif
                                                             </div>
+                                                            <div class="modal-backdrop fade show blurred-backdrop">
+                                                            </div>
+                                                            @endif
 
-                                                        </div>
+
+                                                            @if ($showViewFileDialog && $currentIncidentId ===
+                                                            $selectedRecord->id)
+                                                            <div class="modal" tabindex="-1" role="dialog"
+                                                                style="display: block;">
+                                                                <div class="modal-dialog modal-dialog-centered modal-md"
+                                                                    role="document">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title viewfile">View Files
+                                                                            </h5>
+                                                                        </div>
+                                                                        <div class="modal-body"
+                                                                            style="max-height: 400px; overflow-y: auto;">
+                                                                            <ul class="list-group list-group-flush">
+
+                                                                                @foreach ($files as $file)
+
+                                                                                @php
+
+                                                                                $base64File = $file['data'];
+
+                                                                                $mimeType = $file['mime_type'];
+
+                                                                                $originalName = $file['original_name'];
+
+                                                                                @endphp
+
+                                                                                <li>
+
+                                                                                    <a href="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                                                        download="{{ $originalName }}"
+                                                                                        style="text-decoration: none; color: #007BFF; margin: 10px;">
+
+                                                                                        {{ $originalName }} <i
+                                                                                            class="fas fa-download"
+                                                                                            style="margin-left:5px"></i>
+
+                                                                                    </a>
+
+                                                                                </li>
+
+                                                                                @endforeach
+                                                                            </ul>
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button type="button" class="cancel-btn1"
+                                                                                wire:click="closeViewFile">Close</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-backdrop fade show blurred-backdrop">
+                                                            </div>
+                                                            @endif
+
+
+                                                            @php
+                                                            // Initialize $images and $files as empty arrays to avoid
+
+                                                            $images = $images ?? [];
+                                                            $files = $files ?? [];
+                                                            @endphp
+                                                            <!-- Trigger Links -->
+                                                            @if (count($images) > 1)
+                                                            <a href="#"
+                                                                wire:click.prevent="showViewImage({{ $selectedRecord->id }})"
+                                                                style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                                View Images
+                                                            </a>
+                                                            @elseif (count($images) == 1)
+                                                            <a href="#"
+                                                                wire:click.prevent="showViewImage({{ $selectedRecord->id }})"
+                                                                style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                                View Image
+                                                            </a>
+                                                            @endif
+
+                                                            @if (count($files) > 1)
+                                                            <a href="#"
+                                                                wire:click.prevent="showViewFile({{ $selectedRecord->id }})"
+                                                                style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                                View Files
+                                                            </a>
+                                                            @elseif (count($files) == 1)
+                                                            <a href="#"
+                                                                wire:click.prevent="showViewFile({{ $selectedRecord->id }})"
+                                                                style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                                View File
+                                                            </a>
+                                                            @endif
+
+                                                            @if (count($images) == 0 && count($files) == 0)
+                                                            <label for="">No Attachments</label>
+                                                            @endif
+
+
+                                                            @endif
+
+                                                        </td>
+
                                                     </div>
                                                 </div>
 
-                                                <div class="row service-detail-item">
-                                                    <div class="col-6">
-                                                        <strong></strong>
-                                                    </div>
-                                                    <div class="col-6">
-                                                        <span></span>
-                                                    </div>
-                                                </div>
 
 
                                             </div>
@@ -1228,18 +1967,19 @@
 
                                 </div>
 
-
+                                @endif
+                                @if($selectedRecord)
                                 <div class="modal-backdrop fade show" style="background-color: rgba(0, 0, 0, 0.7);">
                                 </div>
                                 @endif
-
                             </div>
                         </div>
+
+
+
+
+
                     </div>
-
-
-
-
 
                 </div>
 
@@ -1247,178 +1987,176 @@
 
         </div>
 
-    </div>
 
 
+        @if ($showPopup)
+        @if ($activityLogs)
+        <div class="popup-overlay">
+            <div class="popup-content col-11 mx-auto">
+                <!-- Popup Header -->
+                <div class="popup-header d-flex justify-content-between align-items-center">
+                    <h5 class="popup-title">Activity Logs -
+                        @if ($incidentIDHeader)
+                        <span style="color: #4A90E2;font-size: 12px;">{{ $incidentIDHeader }}</span>
+                        <!-- Display the request ID of the first log -->
+                        @else
+                        <span>No Request ID</span> <!-- Fallback if no logs are present -->
+                        @endif
+                    </h5>
+                    <button class="close-popup" wire:click="closePopup">×</button>
+                </div>
 
-    @if ($showPopup)
-    @if ($activityLogs)
-    <div class="popup-overlay">
-        <div class="popup-content col-11 mx-auto">
-            <!-- Popup Header -->
-            <div class="popup-header d-flex justify-content-between align-items-center">
-                <h5 class="popup-title">Activity Logs -
-                    @if ($incidentIDHeader)
-                    <span style="color: #4A90E2;font-size: 12px;">{{ $incidentIDHeader }}</span>
-                    <!-- Display the request ID of the first log -->
+                <!-- Popup Body -->
+                <div class="popup-body">
+                    @if (is_countable($activityLogs) && count($activityLogs) > 0)
+
+                    <!-- Header with Activity Count -->
+                    <div class="activity-header d-flex justify-content-between mb-4">
+                        <h5 class="text-lg font-semibold">Activities: {{ count($activityLogs) }}</h5>
+                        <button wire:click="filterLogs('field-change')" class="filter-btn text-sm text-gray-500">
+                            <i class="fas fa-filter"></i> Filter by Field Change
+                        </button>
+
+                    </div>
+
+                    <!-- Activity Log Entries -->
+                    <div class="d-flex flex-column">
+                        @foreach ($activityLogs as $index => $log)
+                        <div class="activity-entry bg-white p-4 rounded-lg shadow-md mb-4">
+                            <div class="log-header d-flex justify-content-between align-items-center">
+                                <div class="log-user d-flex align-items-center">
+                                    <!-- Display initials -->
+                                    <span class="initials text-lg font-bold">
+                                        {{ $employeeInitials[$index] ?? '' }}
+                                    </span>
+                                    <span class="user-name ms-4 text-sm text-gray-600">
+                                        {{ ucwords(strtolower( $log->performed_by ?? 'Unknown')) }}
+                                    </span>
+                                </div>
+                                <div class="timestamp text-sm text-gray-500">
+                                    Field changes <span style="font-size: 15px;">&#8226;</span>
+                                    {{ $log->created_at ? $log->created_at->format('d-m-Y H:i:s') : 'N/A' }}
+                                </div>
+                            </div>
+
+                            <!-- Log Details -->
+                            <div class="log-details mt-2">
+                                @if ($log->action && $log->details)
+                                <div class="log-action text-sm text-gray-800 d-flex">
+                                    <div class="log-label" style="width: 150px; font-weight: bold;">
+                                        {{ $log->action }}
+                                    </div>
+                                    <div class="log-value" style="width: calc(100% - 150px);">
+                                        {{ $log->details }}
+                                    </div>
+                                </div>
+                                @endif
+                                @if ($log->assigned_to)
+                                <div class="log-sub-details mt-2 text-sm">
+                                    <div class="log-label" style="width: 150px; font-weight: bold;">Assigned to</div>
+                                    <div class="log-value" style="width: calc(100% - 150px);">
+                                        {{ $log->assigned_to }}
+                                    </div>
+                                </div>
+                                @endif
+
+                                @if ($log->impact)
+                                <div class="log-sub-details mt-2 text-sm">
+                                    <div class="log-label" style="width: 150px; font-weight: bold;">Impact</div>
+                                    <div class="log-value" style="width: calc(100% - 150px);">
+                                        {{ $log->impact }}
+                                    </div>
+                                </div>
+                                @endif
+
+                                @if ($log->opened_by)
+                                <div class="log-sub-details mt-2 text-sm">
+                                    <div class="log-label" style="width: 150px; font-weight: bold;">Opened by</div>
+                                    <div class="log-value" style="width: calc(100% - 150px);">
+                                        {{ $log->opened_by }}
+                                    </div>
+                                </div>
+                                @endif
+
+                                @if ($log->priority)
+                                <div class="log-sub-details mt-2 text-sm">
+                                    <div class="log-label" style="width: 150px; font-weight: bold;">Priority</div>
+                                    <div class="log-value" style="width: calc(100% - 150px);">
+                                        {{ $log->priority }}
+                                    </div>
+                                </div>
+                                @endif
+
+                                @if ($log->state)
+                                <div class="log-sub-details mt-2 text-sm">
+                                    <div class="log-label" style="width: 150px; font-weight: bold;">State</div>
+                                    <div class="log-value" style="width: calc(100% - 150px);">
+                                        {{ $log->state }}
+                                    </div>
+                                </div>
+                                @endif
+                                <!-- Add more log details as needed -->
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
                     @else
-                    <span>No Request ID</span> <!-- Fallback if no logs are present -->
+                    <p class="text-center text-gray-500">No activity logs found.</p>
                     @endif
-                </h5>
-                <button class="close-popup" wire:click="closePopup">×</button>
-            </div>
-
-            <!-- Popup Body -->
-            <div class="popup-body">
-                @if (is_countable($activityLogs) && count($activityLogs) > 0)
-
-                <!-- Header with Activity Count -->
-                <div class="activity-header d-flex justify-content-between mb-4">
-                    <h5 class="text-lg font-semibold">Activities: {{ count($activityLogs) }}</h5>
-                    <button wire:click="filterLogs('field-change')" class="filter-btn text-sm text-gray-500">
-                        <i class="fas fa-filter"></i> Filter by Field Change
-                    </button>
-
                 </div>
-
-                <!-- Activity Log Entries -->
-                <div class="d-flex flex-column">
-                    @foreach ($activityLogs as $index => $log)
-                    <div class="activity-entry bg-white p-4 rounded-lg shadow-md mb-4">
-                        <div class="log-header d-flex justify-content-between align-items-center">
-                            <div class="log-user d-flex align-items-center">
-                                <!-- Display initials -->
-                                <span class="initials text-lg font-bold">
-                                    {{ $employeeInitials[$index] ?? '' }}
-                                </span>
-                                <span class="user-name ms-4 text-sm text-gray-600">
-                                    {{ ucwords(strtolower( $log->performed_by ?? 'Unknown')) }}
-                                </span>
-                            </div>
-                            <div class="timestamp text-sm text-gray-500">
-                                Field changes <span style="font-size: 15px;">&#8226;</span>
-                                {{ $log->created_at ? $log->created_at->format('d-m-Y H:i:s') : 'N/A' }}
-                            </div>
-                        </div>
-
-                        <!-- Log Details -->
-                        <div class="log-details mt-2">
-                            @if ($log->action && $log->details)
-                            <div class="log-action text-sm text-gray-800 d-flex">
-                                <div class="log-label" style="width: 150px; font-weight: bold;">
-                                    {{ $log->action }}
-                                </div>
-                                <div class="log-value" style="width: calc(100% - 150px);">
-                                    {{ $log->details }}
-                                </div>
-                            </div>
-                            @endif
-                            @if ($log->assigned_to)
-                            <div class="log-sub-details mt-2 text-sm">
-                                <div class="log-label" style="width: 150px; font-weight: bold;">Assigned to</div>
-                                <div class="log-value" style="width: calc(100% - 150px);">
-                                    {{ $log->assigned_to }}
-                                </div>
-                            </div>
-                            @endif
-
-                            @if ($log->impact)
-                            <div class="log-sub-details mt-2 text-sm">
-                                <div class="log-label" style="width: 150px; font-weight: bold;">Impact</div>
-                                <div class="log-value" style="width: calc(100% - 150px);">
-                                    {{ $log->impact }}
-                                </div>
-                            </div>
-                            @endif
-
-                            @if ($log->opened_by)
-                            <div class="log-sub-details mt-2 text-sm">
-                                <div class="log-label" style="width: 150px; font-weight: bold;">Opened by</div>
-                                <div class="log-value" style="width: calc(100% - 150px);">
-                                    {{ $log->opened_by }}
-                                </div>
-                            </div>
-                            @endif
-
-                            @if ($log->priority)
-                            <div class="log-sub-details mt-2 text-sm">
-                                <div class="log-label" style="width: 150px; font-weight: bold;">Priority</div>
-                                <div class="log-value" style="width: calc(100% - 150px);">
-                                    {{ $log->priority }}
-                                </div>
-                            </div>
-                            @endif
-
-                            @if ($log->state)
-                            <div class="log-sub-details mt-2 text-sm">
-                                <div class="log-label" style="width: 150px; font-weight: bold;">State</div>
-                                <div class="log-value" style="width: calc(100% - 150px);">
-                                    {{ $log->state }}
-                                </div>
-                            </div>
-                            @endif
-                            <!-- Add more log details as needed -->
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-                @else
-                <p class="text-center text-gray-500">No activity logs found.</p>
-                @endif
             </div>
         </div>
-    </div>
-    @endif
-    @endif
+        @endif
+        @endif
 
 
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
 
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-
-
-    <script>
-    function showTab(tab) {
-
-        document.querySelectorAll('.req-pro-tab-content').forEach(el => el.style.display = 'none');
-
-        document.getElementById(tab).style.display = 'block';
-
-    }
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 
 
-    document.addEventListener("DOMContentLoaded", () => {
-        showTab('{{ $activeTab }}'); // Show the initially active tab
-    });
+        <script>
+        function showTab(tab) {
 
-    Livewire.on('tabSwitched', tab => {
-        showTab(tab);
-    });
+            document.querySelectorAll('.req-pro-tab-content').forEach(el => el.style.display = 'none');
+
+            document.getElementById(tab).style.display = 'block';
+
+        }
 
 
 
-
-    document.addEventListener('livewire:load', function() {
-        var swiper = new Swiper('.swiper-container', {
-            loop: true,
-            pagination: {
-                el: '.swiper-pagination',
-                clickable: true,
-            },
-            navigation: {
-                nextEl: '.swiper-button-next',
-                prevEl: '.swiper-button-prev',
-            },
+        document.addEventListener("DOMContentLoaded", () => {
+            showTab('{{ $activeTab }}'); // Show the initially active tab
         });
-    });
 
-    //for to remove the space after session message
-    </script>
+        Livewire.on('tabSwitched', tab => {
+            showTab(tab);
+        });
 
 
-</div>
+
+
+        document.addEventListener('livewire:load', function() {
+            var swiper = new Swiper('.swiper-container', {
+                loop: true,
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                },
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                },
+            });
+        });
+
+        //for to remove the space after session message
+        </script>
+
+
+    </div>

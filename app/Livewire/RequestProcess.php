@@ -333,10 +333,8 @@ class RequestProcess extends Component
 
             $this->setActiveTab('pending');
 
-        } elseif ($this->selectedStatus === '11') {
-
+        } elseif (in_array($this->selectedStatus, ['11', '15'])) {
             $this->setActiveTab('closed');
-
         }
         $this->reset(['selectedStatus', 'selectedAssigne']);
         $this->resetErrorBag();
@@ -354,7 +352,9 @@ class RequestProcess extends Component
         $task = HelpDesks::find($taskId);
 
         if ($task) {
-            $task->update(['status_code' => '11']);
+            $task->update(['status_code' => '11',
+                  'req_end_date' => now(),
+                ]);
             FlashMessageHelper::flashSuccess("Status Closed successfully!");
 
             $employee = auth()->guard('it')->user(); // Get the logged-in user
@@ -362,7 +362,7 @@ class RequestProcess extends Component
         'action' => 'State',
         'details' => "Work in Progress was Closed for Request ID - {$task->request_id}",
         'performed_by' => $employee->employee_name,
-        'request_type' => 'Catologue Request',
+        'request_type' => 'Catalog Request',
         'request_id' => $task->request_id,
     ]);
 
@@ -459,7 +459,7 @@ class RequestProcess extends Component
                 'action' => 'State',
                 'details' => $activityDetails,
                 'performed_by' => $RejetedEmployeeName,
-                'request_type' => 'Catologue Request',
+                'request_type' => 'Catalog Request',
                 'request_id' => $task->request_id,
             ]);
             $this->updateCounts();
@@ -503,7 +503,7 @@ class RequestProcess extends Component
             'action' => 'State',
             'details' => $activityDetails,
             'performed_by' => $RejetedEmployeeName,
-            'request_type' => 'Catologue Request',
+            'request_type' => 'Catalog Request',
             'priority' => $value,
             'request_id' => $this->recentRequest->request_id,
         ]);
@@ -553,25 +553,29 @@ class RequestProcess extends Component
 
             $requestId = $task->request_id;
             $shortDescription = $task->description; // Assuming this field exists
+            $pendingReason = $this->pendingReason;
 
             if ($this->selectedStatus === '5') {
                 // Send Pending email
                 Mail::to($employeeEmail)->send(new StatusRequestMail(
                     $employeeName,
                     $requestId,
+                    $pendingReason,
                     $shortDescription,
                     $task->category,
                     'Pending'  // Passing a flag for Pending
                 ));
             }
 
+
             // Update the task status
             $task->update(['status_code' => $this->selectedStatus,
                             'pending_reason' => $this->pendingReason]);
 
-
+                            $activityDetails = '';
             // Flash a success message based on the selected status
             if ($this->selectedStatus === '5') {
+
                 $activityDetails = "Work in Progress was Pending for Request ID - {$task->request_id}";
                 FlashMessageHelper::flashSuccess("Status has been set to Pending, and email has been sent!");
             }
@@ -583,21 +587,19 @@ class RequestProcess extends Component
             FlashMessageHelper::flashError("Task not found or invalid status.");
         }
 
-
         $assigneName =  ucwords(strtolower($employee->employee_name));
         ActivityLog::create([
             'action' => 'State',
             'details' => $activityDetails,
             'performed_by' => $assigneName,
-            'request_type' => 'Catologue Request',
+            'request_type' => 'Catalog Request',
             'request_id' => $task->request_id,
         ]);
 
 
 
-
         $this->closePendingModal();
-        
+
     }
 
 
@@ -621,6 +623,8 @@ class RequestProcess extends Component
                     $cancelRequest->update([
                         'status_code' => '15',
                         'rejection_reason' => $this->reason,
+                        'req_end_date' => now(),
+
                     ]);
                 }
 
@@ -630,10 +634,11 @@ class RequestProcess extends Component
                 $employee = auth()->guard('it')->user();
                 $employeeEmail = $cancelRequest->mail;  // The input string
                 $rejectionReason = $this->reason;
-
+                $Id = $cancelRequest->request_id;
             // Send rejection email
                Mail::to($employeeEmail)->send(new cancelRequestMail(
                $cancelRequest,
+               $Id,
                $employee,
                $rejectionReason,
             ));
@@ -724,7 +729,7 @@ class RequestProcess extends Component
                 'action' => 'State',
                 'details' => $activityDetails,
                 'performed_by' => $RejetedEmployeeName,
-                'request_type' => 'Catologue Request',
+                'request_type' => 'Catalog Request',
                 'request_id' => $recentRequest->request_id,
             ]);
 
@@ -781,7 +786,7 @@ class RequestProcess extends Component
                 'action' => 'State',
                 'details' => "$activityDetails",
                 'performed_by' => $employee->employee_name,
-                'request_type' => 'Catologue Request',
+                'request_type' => 'Catalog Request',
                 'request_id' => $task->request_id,
             ]);
 
@@ -815,7 +820,7 @@ class RequestProcess extends Component
         'action' => 'State',
         'details' => "Work in Progress was changed from Inprogress to Pending for Request ID - {$task->request_id}",
         'performed_by' => $employee->employee_name,
-        'request_type' => 'Catologue Request',
+        'request_type' => 'Catalog Request',
         'request_id' => $task->request_id,
     ]);
 
@@ -853,8 +858,9 @@ class RequestProcess extends Component
 
                 if ($this->selectedStatus === '5') {
                     // Send Pending email
-                    Mail::to($employeeEmail)->send(new StatusRequestMail(
+                    Mail::to($employeeEmail)->send(new statusRequestMail(
                         $employeeName,
+                        $pendingReason,
                         $requestId,
                         $shortDescription,
                         $task->category,
@@ -864,6 +870,7 @@ class RequestProcess extends Component
                     // Send Completed email
                     Mail::to($employeeEmail)->send(new StatusRequestMail(
                         $employeeName,
+                        $pendingReason,
                         $requestId,
                         $shortDescription,
                         $task->category,
@@ -885,9 +892,15 @@ class RequestProcess extends Component
                     $activityDetails = "Work in Progress was Inprogress for Request ID - {$task->request_id}";
                     FlashMessageHelper::flashSuccess("Status has been set to Inprogress, and email has been sent!");
                 } elseif ($this->selectedStatus === '11') {
+                    $task->update([
+                        'req_end_date' => now(), // Update the end date
+                    ]);
                     $activityDetails = "Work in Progress was Completed for Request ID - {$task->request_id}";
                     FlashMessageHelper::flashSuccess("Status has been set to Completed, and email has been sent!");
                 }elseif ($this->selectedStatus === '15') {
+                    $task->update([
+                        'req_end_date' => now(), // Update the end date
+                    ]);
                     $activityDetails = "Work in Progress was Cancelled for Request ID - {$task->request_id}";
                     FlashMessageHelper::flashSuccess("Status has been set to Cancelled, and email has been sent!");
                 }
@@ -905,7 +918,7 @@ class RequestProcess extends Component
                 'action' => 'State',
                 'details' => $activityDetails,
                 'performed_by' => $assigneName,
-                'request_type' => 'Catologue Request',
+                'request_type' => 'Catalog Request',
                 'request_id' => $task->request_id,
             ]);
         } catch (\Exception $e) {
@@ -987,7 +1000,7 @@ class RequestProcess extends Component
                     'action' => 'Assigned to',
                     'details' => "{$fullName}",
                     'performed_by' => $assigneName , // Assuming user is logged in
-                    'request_type' => 'Catologue Request',
+                    'request_type' => 'Catalog Request',
                     'request_id' =>   $task->request_id ,
                 ]);
 
@@ -1060,7 +1073,7 @@ class RequestProcess extends Component
                 'action' => 'Active Comment',
                 'details' => "$this->comments",
                 'performed_by' => $employee->employee_name,
-                'request_type' => 'Catologue Request',
+                'request_type' => 'Catalog Request',
                 'request_id' => $task->request_id,
             ]);
 
@@ -1107,7 +1120,7 @@ public function postPendingRemarks($taskId)
                 'action' => 'Pending Comment',
                 'details' =>  $remarks,
                 'performed_by' => $employee->employee_name,
-                'request_type' => 'Catologue Request',
+                'request_type' => 'Catalog Request',
                 'request_id' => $task->request_id,
             ]);
 
@@ -1155,7 +1168,7 @@ public function postInprogressRemarks($taskId)
                 'action' => 'Inprogress Comment',
                 'details' => $remarks,
                 'performed_by' => $employee->employee_name,
-                'request_type' => 'Catologue Request',
+                'request_type' => 'Catalog Request',
                 'request_id' => $task->request_id,
             ]);
 
@@ -1277,7 +1290,7 @@ public function updateCounts()
             ->whereIn('category', $requestCategories)->count();
 
         // Count closed requests (Completed)
-        $this->closedCount = HelpDesks::where('status_code', ['11', '15'])
+        $this->closedCount = HelpDesks::whereIn('status_code', ['11', '15'])
         ->whereIn('category', $requestCategories)->count();
 
     } catch (\Exception $e) {
@@ -1329,11 +1342,116 @@ public function updateCounts()
     }
 
 
+
+
+public $showViewImageDialog = false;
+public $currentImageRequesId;
+public $showViewFileDialog = false;
+public function closeViewFile()
+{
+    $this->showViewFileDialog = false;
+}
+public function showViewImage($imgRequestId)
+{
+    $this->currentImageRequesId = $imgRequestId;
+    $this->showViewImageDialog = true;
+}
+
+
+public function showViewFile($imgRequestId)
+{
+    $this->currentImageRequesId = $imgRequestId;
+    $this->showViewFileDialog = true;
+}
+
+
+public function closeViewImage()
+{
+    $this->showViewImageDialog = false;
+}
+
+
+public function downloadImages($imgRequestId)
+{
+    try {
+        $imgRequest = collect($this->allRequestDetails)->firstWhere('id', $imgRequestId);
+
+        if (!$imgRequest) {
+            // imgRequest not found
+            return response()->json(['message' => 'imgRequest not found'], 404);
+        }
+
+        $fileDataArray = is_string($imgRequest->file_paths)
+            ? json_decode($imgRequest->file_paths, true)
+            : $imgRequest->file_paths;
+
+        // Filter images
+        $images = array_filter(
+            $fileDataArray,
+            function ($fileData) {
+                // Ensure 'mime_type' key exists and is valid
+                return isset($fileData['mime_type']) && strpos($fileData['mime_type'], 'image') !== false;
+            }
+        );
+
+        // If only one image, provide direct download
+        if (count($images) === 1) {
+            $image = reset($images); // Get the single image
+            $base64File = $image['data'];
+            $mimeType = $image['mime_type'];
+            $originalName = $image['original_name'];
+
+            // Decode base64 content
+            $fileContent = base64_decode($base64File);
+
+            // Return the image directly
+            return response()->stream(
+                function () use ($fileContent) {
+                    echo $fileContent;
+                },
+                200,
+                [
+                    'Content-Type' => $mimeType,
+                    'Content-Disposition' => 'attachment; filename="' . $originalName . '"',
+                ]
+            );
+        }
+
+        // If multiple images, create a ZIP file
+        if (count($images) > 1) {
+            $zipFileName = 'images.zip';
+            $zip = new \ZipArchive();
+            $zip->open(storage_path($zipFileName), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+
+            foreach ($images as $image) {
+                $base64File = $image['data'];
+                $mimeType = $image['mime_type'];
+                $extension = explode('/', $mimeType)[1];
+                $imageName = uniqid() . '.' . $extension;
+
+                $zip->addFromString($imageName, base64_decode($base64File));
+            }
+
+            $zip->close();
+
+            return response()->download(storage_path($zipFileName))->deleteFileAfterSend(true);
+        }
+
+        // If no images, return an appropriate response
+        return response()->json(['message' => 'No images found'], 404);
+    } catch (\Exception $e) {
+        // Handle any exception that occurs and return a proper response
+        return response()->json(['message' => 'An error occurred while processing the images', 'error' => $e->getMessage()], 500);
+    }
+}
+
+
+
+
+
+
+    public $allRequestDetails;
     public $selectedRecord = null;
-
-
-
-
     public $forIT;
     public $recentDetails;
     public $rejectDetails;
@@ -1363,6 +1481,13 @@ public function updateCounts()
             ->get();
 
         // Fetch recent, rejected, and active details based on status
+
+        $this->allRequestDetails = HelpDesks::with('emp')
+        ->orderBy('created_at', 'desc')
+        ->orderBy($this->sortColumn, $this->sortDirection)
+        ->whereIn('category',  $requestCategories)
+        ->get();
+
         $this->recentDetails = HelpDesks::with('emp')
             ->where('status_code', '8')
             ->orderBy('created_at', 'desc')
