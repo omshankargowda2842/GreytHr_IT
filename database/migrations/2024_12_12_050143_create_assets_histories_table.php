@@ -36,6 +36,7 @@ return new class extends Migration
             $table->json('file_paths')->nullable();
             $table->string('delete_asset_reason', 200)->nullable();
             $table->boolean('is_active');
+            $table->string('assign_or_un_assign', 30);
             $table->string('created_by', 30);
             $table->string('action', 10);
             $table->foreign('asset_id')

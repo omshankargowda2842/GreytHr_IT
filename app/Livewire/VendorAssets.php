@@ -162,8 +162,8 @@ class VendorAssets extends Component
         'invoiceNumber.unique' => 'Invoice number has already been taken.',
 
 
-        'gstState.required_without' => 'State GST field is required when IGST is not provided.',
-        'gstCentral.required_without' => 'Central GST field is required when GST IG is not provided.',
+        'gstState.required_without' => 'State GST is required when IGST is not provided.',
+        'gstCentral.required_without' => 'Central GST is required when IGST is not provided.',
         'gstState.required' => 'GST State is required.',
         'gstState.string' => 'GST State must be a string.',
         'gstState.max' => 'GST State may not be greater than 255 characters.',

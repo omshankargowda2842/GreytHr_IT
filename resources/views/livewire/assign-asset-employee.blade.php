@@ -88,7 +88,7 @@
                 <div class="col-md-5">
                     <label for="assetSelect" class="form-label">Select Asset</label>
                     <select id="assetSelect" class="form-select" wire:model="selectedAsset"
-                        wire:change="fetchAssetDetails">
+                        wire:change="fetchAssetDetails" {{ $isUpdateMode ? 'disabled' : '' }}>
                         <option value="">Choose Asset</option>
                         @foreach ($assetSelect as $asset)
                         <option value="{{ $asset->asset_id }}"
@@ -276,10 +276,6 @@
 
             </div>
             @endif
-
-
-
-
             <!-- Submit Button -->
             <div class="mt-4 text-center">
 

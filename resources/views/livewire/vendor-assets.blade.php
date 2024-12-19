@@ -824,7 +824,7 @@
                     @php
                     $vendor_name = \App\Models\AssetsHistories::getVendorName($selectedUpdatedAssetsData->vendor_id); // Pass the emp_id
                     @endphp
-                    <div class="col">Vendor Name: <strong >{{$vendor_name}}</strong></div>
+                    <div class="col">Vendor Name: <strong>{{$vendor_name}}</strong></div>
                     @else
                     <div class="col">Vendor Name: <strong>-</strong></div>
                     @endif
@@ -872,7 +872,7 @@
         <hr>
 
         <button class="btn text-white" style="background-color: #02114f;" wire:click="viewAssetHistory">
-        {{ $showAssetHistory ? 'Hide History' : 'View History' }}
+            {{ $showAssetHistory ? 'Hide History' : 'View History' }}
         </button>
 
 
@@ -889,7 +889,7 @@
                     <div class="col" style=" text-decoration-line: underline;"> Fields Changes</div>
                     <div class="col  text-end">Updated On: <strong>{{$assetData->created_at->format('d M, Y h:i A') }}</strong></div>
                 </div>
-                <div class="">
+                <div>
                     @php
                     $updatedBy = \App\Models\AssetsHistories::getEmployeeName($assetData->created_by); // Pass the emp_id
                     @endphp
@@ -996,7 +996,7 @@
                     <div class="col" style=" text-decoration-line: underline;">Asset Created </div>
                     <div class="col  text-end">Created On: <strong>{{$assetData->created_at->format('d M, Y h:i A') }}</strong></div>
                 </div>
-                <div class="">
+                <div>
                     @php
                     $updatedBy = \App\Models\AssetsHistories::getEmployeeName($assetData->created_by); // Pass the emp_id
                     @endphp
@@ -1050,6 +1050,48 @@
 
 
                 </div>
+            </div>
+            @endif
+
+            @if($assetData->action=='assign')
+            <div class="mb-4" style="border: 1px solid grey; border-radius: 5px;margin:5px 0px;padding:5px">
+                <div class="row" style="justify-content: space-between;">
+                    <div class="col" style=" text-decoration-line: underline;">Asset Assigned </div>
+                    <div class="col  text-end">Updated On: <strong>{{$assetData->created_at->format('d M, Y h:i A') }}</strong></div>
+                </div>
+                <div>
+                    @php
+                    $updatedBy = \App\Models\AssetsHistories::getEmployeeName($assetData->created_by); // Pass the emp_id
+                    $assigned_to=\App\Models\AssetsHistories::getEmployeeName($assetData->assign_or_un_assign); // Pass the emp_id
+                    @endphp
+                    <div class="col">Assigned By :- <strong style="font-size: medium;color:#02114f">{{ $updatedBy}}</strong></div>
+
+                    <div class="col">Action : Assigned to <strong> {{ $assigned_to}}</strong></div>
+
+                    <div class="col">Status: <strong>{{$assetData->status?? '-'}}</strong></div>
+                </div>
+            </div>
+
+
+
+            @endif
+            @if($assetData->action=='un_assign')
+            <div class="mb-4" style="border: 1px solid grey; border-radius: 5px;margin:5px 0px;padding:5px">
+            <div class="row" style="justify-content: space-between;">
+                <div class="col" style=" text-decoration-line: underline;">Asset Un-Assigned </div>
+                <div class="col  text-end">Updated On: <strong>{{$assetData->created_at->format('d M, Y h:i A') }}</strong></div>
+            </div>
+            <div>
+                @php
+                $updatedBy = \App\Models\AssetsHistories::getEmployeeName($assetData->created_by); // Pass the emp_id
+                $assigned_to=\App\Models\AssetsHistories::getEmployeeName($assetData->assign_or_un_assign); // Pass the emp_id
+                @endphp
+                <div class="col">Un-Assigned By :- <strong style="font-size: medium;color:#02114f">{{ $updatedBy}}</strong></div>
+
+                <div class="col">Action : Un-Assigned from <strong>{{ $assigned_to}}</strong></div>
+
+                <div class="col">Status: <strong>{{$assetData->status?? '-'}}</strong></div>
+            </div>
             </div>
             @endif
             @endforeach
