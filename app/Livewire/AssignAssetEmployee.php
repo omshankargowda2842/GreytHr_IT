@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Helpers\FlashMessageHelper;
 use App\Models\asset_types_table;
 use App\Models\AssetAssignments;
+use App\Models\AssetsHistories;
 use App\Models\AssignAssetEmp;
 use App\Models\EmployeeDetails;
 use App\Models\VendorAsset;
@@ -42,53 +43,56 @@ class AssignAssetEmployee extends Component
     public $systemName;
     public $macAddress;
     public $laptopReceived;
-    public $sophosAntivirus ="";
-    public $vpnCreation ="";
-    public $teramind ="";
-    public $systemUpgradation ="";
-    public $oneDrive ="";
-    public $screenshotPrograms ="";
+    public $sophosAntivirus = "";
+    public $vpnCreation = "";
+    public $teramind = "";
+    public $systemUpgradation = "";
+    public $oneDrive = "";
+    public $screenshotPrograms = "";
     public $isRotated = false;
     public $showOverview = false;
     public $categories;
-    public $selectedCategory="";
+    public $selectedCategory = "";
     public $showViewEmployeeAsset = false;
-public $currentVendorId = null;
-public $selectedStatus ='';
-public $deleteAsset_id;
+    public $currentVendorId = null;
+    public $selectedStatus = '';
+    public $deleteAsset_id;
+    public $previousAssignedAssets;
 
-    public function oldAssetlisting(){
+
+
+    public function oldAssetlisting()
+    {
 
         $this->assetEmpCreateUpdate = false;
         $this->employeeAssetListing = false;
         $this->showEMployeeAssetBtn = false;
         $this->showAssignAssetBtn = false;
         $this->showOldEMployeeAssetBtn = false;
-        $this->searchEmp="";
+        $this->searchEmp = "";
         $this->oldAssetEmp = true;
-
     }
 
-    public function assetlisting(){
-         $this->showOldEMployeeAssetBtn =true;
+    public function assetlisting()
+    {
+        $this->showOldEMployeeAssetBtn = true;
         $this->assetEmpCreateUpdate = false;
         $this->employeeAssetListing = true;
         $this->showEMployeeAssetBtn = false;
         $this->showAssignAssetBtn = true;
         $this->showOldEMployeeAssetBtn = false;
-
-
     }
     public function assignAsset()
-    {       $this->resetForm();
+    {
+        $this->resetForm();
         $this->assetEmpCreateUpdate = true;
         $this->oldAssetEmp = false;
         $this->employeeAssetListing = false;
         $this->showAssignAssetBtn = false;
         $this->showEMployeeAssetBtn = true;
-        $this->showOldEMployeeAssetBtn =false;
+        $this->showOldEMployeeAssetBtn = false;
         $this->showEditDeleteEmployeeAsset = false;
-        $this->showSystemUpdateForm =false;
+        $this->showSystemUpdateForm = false;
         $this->isUpdateMode = false;
         $this->resetErrorBag(['selectedAsset', 'selectedEmployee']);
     }
@@ -100,12 +104,12 @@ public $deleteAsset_id;
             'selectedEmployee' => 'required|string|max:255',
         ];
     }
-   public $rules = [
+    public $rules = [
 
-            'reason' => 'required|string|max:255', // Validate the remark input
-            'selectedStatus'=>'required',
+        'reason' => 'required|string|max:255', // Validate the remark input
+        'selectedStatus' => 'required',
 
-   ];
+    ];
 
 
     protected $messages = [
@@ -117,88 +121,86 @@ public $deleteAsset_id;
 
 
     public function viewDetails($employeeAssetList)
-{
+    {
 
-    $this->searchFilters =false;
-    $this->showOldEMployeeAssetBtn =false;
-    $this->showAssignAssetBtn =false;
-    $this->currentVendorId = $employeeAssetList;
-    $this->showViewEmployeeAsset = true;
-    $this->showEditDeleteEmployeeAsset = false;
-    // $this->editMode = false;
-}
+        $this->searchFilters = false;
+        $this->showOldEMployeeAssetBtn = false;
+        $this->showAssignAssetBtn = false;
+        $this->currentVendorId = $employeeAssetList;
+        $this->showViewEmployeeAsset = true;
+        $this->showEditDeleteEmployeeAsset = false;
+        // $this->editMode = false;
+    }
 
-public $oldAssetBackButton=true;
-public function viewOldAssetDetails($employeeAssetList){
-    $this->searchFilters =false;
-    $this->oldAssetBackButton =false;
-    $this->showOldEMployeeAssetBtn =false;
-    $this->showAssignAssetBtn =false;
-    $this->currentVendorId = $employeeAssetList;
-    $this->showViewEmployeeAsset = true;
-    $this->showEditDeleteEmployeeAsset = false;
-}
+    public $oldAssetBackButton = true;
+    public function viewOldAssetDetails($employeeAssetList)
+    {
+        $this->searchFilters = false;
+        $this->oldAssetBackButton = false;
+        $this->showOldEMployeeAssetBtn = false;
+        $this->showAssignAssetBtn = false;
+        $this->currentVendorId = $employeeAssetList;
+        $this->showViewEmployeeAsset = true;
+        $this->showEditDeleteEmployeeAsset = false;
+    }
 
-public function closeViewVendor()
-{
-    $this->resetForm();
-    $this->searchFilters =true;
-    $this->showOldEMployeeAssetBtn =true;
-    $this->assetEmpCreateUpdate = false;
-    $this->employeeAssetListing = true;
-    $this->showEMployeeAssetBtn = false;
-    $this->showAssignAssetBtn = true;
-    $this->showLogoutModal = false;
-    $this->showViewEmployeeAsset = false;
-    $this->showEditDeleteEmployeeAsset = true;
-    $this->currentVendorId = null;
-    $this->oldAssetEmp = false;
-    $this->isUpdateMode = false;
-    $this->searchEmp="";
-    return redirect()->route('employeeAssetList');
-}
+    public function closeViewVendor()
+    {
+        $this->resetForm();
+        $this->searchFilters = true;
+        $this->showOldEMployeeAssetBtn = true;
+        $this->assetEmpCreateUpdate = false;
+        $this->employeeAssetListing = true;
+        $this->showEMployeeAssetBtn = false;
+        $this->showAssignAssetBtn = true;
+        $this->showLogoutModal = false;
+        $this->showViewEmployeeAsset = false;
+        $this->showEditDeleteEmployeeAsset = true;
+        $this->currentVendorId = null;
+        $this->oldAssetEmp = false;
+        $this->isUpdateMode = false;
+        $this->searchEmp = "";
+        return redirect()->route('employeeAssetList');
+    }
 
-public function backVendor()
-{
-    $this->resetForm();
-    $this->searchFilters =true;
-    $this->showOldEMployeeAssetBtn =true;
-    $this->assetEmpCreateUpdate = false;
-    $this->employeeAssetListing = true;
-    $this->showEMployeeAssetBtn = false;
-    $this->showAssignAssetBtn = true;
-    $this->showLogoutModal = false;
-    $this->showViewEmployeeAsset = false;
-    $this->showEditDeleteEmployeeAsset = true;
-    $this->currentVendorId = null;
-    $this->oldAssetEmp = false;
-    $this->isUpdateMode = false;
-    $this->validateOnly('selectedAsset');
-    $this->validateOnly('selectedEmployee');
+    public function backVendor()
+    {
+        $this->resetForm();
+        $this->searchFilters = true;
+        $this->showOldEMployeeAssetBtn = true;
+        $this->assetEmpCreateUpdate = false;
+        $this->employeeAssetListing = true;
+        $this->showEMployeeAssetBtn = false;
+        $this->showAssignAssetBtn = true;
+        $this->showLogoutModal = false;
+        $this->showViewEmployeeAsset = false;
+        $this->showEditDeleteEmployeeAsset = true;
+        $this->currentVendorId = null;
+        $this->oldAssetEmp = false;
+        $this->isUpdateMode = false;
+        $this->validateOnly('selectedAsset');
+        $this->validateOnly('selectedEmployee');
 
-    $this->resetErrorBag(['selectedAsset', 'selectedEmployee']);
+        $this->resetErrorBag(['selectedAsset', 'selectedEmployee']);
+    }
 
-
-}
-
-public function closeViewEmpAsset()
-{
-    $this->resetForm();
-    $this->searchFilters =true;
-    $this->oldAssetBackButton =true;
-    $this->showOldEMployeeAssetBtn =false;
-    $this->assetEmpCreateUpdate = false;
-    $this->employeeAssetListing = false;
-    $this->showEMployeeAssetBtn = false;
-    $this->showAssignAssetBtn = false;
-    $this->showLogoutModal = false;
-    $this->showViewEmployeeAsset = false;
-    $this->showEditDeleteEmployeeAsset = true;
-    $this->currentVendorId = null;
-    $this->oldAssetEmp = true;
-    $this->isUpdateMode = false;
-
-}
+    public function closeViewEmpAsset()
+    {
+        $this->resetForm();
+        $this->searchFilters = true;
+        $this->oldAssetBackButton = true;
+        $this->showOldEMployeeAssetBtn = false;
+        $this->assetEmpCreateUpdate = false;
+        $this->employeeAssetListing = false;
+        $this->showEMployeeAssetBtn = false;
+        $this->showAssignAssetBtn = false;
+        $this->showLogoutModal = false;
+        $this->showViewEmployeeAsset = false;
+        $this->showEditDeleteEmployeeAsset = true;
+        $this->currentVendorId = null;
+        $this->oldAssetEmp = true;
+        $this->isUpdateMode = false;
+    }
 
 
 
@@ -225,14 +227,12 @@ public function closeViewEmpAsset()
         try {
             $this->categories = asset_types_table::select('id', 'asset_names')->get();
             $this->loadAssetsAndEmployees();
-
         } catch (\Exception $e) {
             Log::error("Error during mount method execution: " . $e->getMessage(), [
                 'exception' => $e,
             ]);
             FlashMessageHelper::flashError('An error occurred while loading categories or assets.');
             $this->categories = [];
-
         }
     }
 
@@ -246,7 +246,7 @@ public function closeViewEmpAsset()
                     ->where('vendor_assets.is_active', 1)
                     ->where(function ($query) {
                         $query->where('vendor_assets.status', '!=', 'In Repair')
-                              ->orWhereNull('vendor_assets.status'); // Include rows where status is NULL
+                            ->orWhereNull('vendor_assets.status'); // Include rows where status is NULL
                     })
                     ->select('vendor_assets.asset_id', 'asset_types_tables.asset_names')
                     ->get();
@@ -258,11 +258,10 @@ public function closeViewEmpAsset()
                     ->where('asset_types_tables.id', $this->selectedCategory)
                     ->where(function ($query) {
                         $query->where('vendor_assets.status', '!=', 'In Repair')
-                              ->orWhereNull('vendor_assets.status'); // Include rows where status is NULL
+                            ->orWhereNull('vendor_assets.status'); // Include rows where status is NULL
                     })
                     ->select('vendor_assets.asset_id', 'asset_types_tables.asset_names')
                     ->get();
-
             }
             // dd(  $this->assetSelect);
 
@@ -279,30 +278,29 @@ public function closeViewEmpAsset()
 
 
     public function loadAssetsAndEmployees()
-{
-    try {
-        // Fetching employee details
-        $this->assetSelectEmp = EmployeeDetails::where('status', 1)
-            ->orderBy('first_name')
-            ->orderBy('last_name')
-            ->get();
+    {
+        try {
+            // Fetching employee details
+            $this->assetSelectEmp = EmployeeDetails::where('status', 1)
+                ->orderBy('first_name')
+                ->orderBy('last_name')
+                ->get();
 
-        // Fetching assigned asset IDs and employee IDs
-        $this->assignedAssetIds = AssignAssetEmp::where('is_active', 1)->pluck('asset_id')->toArray();
-        $this->assignedEmployeeIds = AssignAssetEmp::where('is_active', 1)->pluck('emp_id')->toArray();
+            // Fetching assigned asset IDs and employee IDs
+            $this->assignedAssetIds = AssignAssetEmp::where('is_active', 1)->pluck('asset_id')->toArray();
+            $this->assignedEmployeeIds = AssignAssetEmp::where('is_active', 1)->pluck('emp_id')->toArray();
+        } catch (\Exception $e) {
+            // Log the error
+            Log::error("Error loading assets and employees: " . $e->getMessage(), [
+                'exception' => $e,
+            ]);
 
-    } catch (\Exception $e) {
-        // Log the error
-        Log::error("Error loading assets and employees: " . $e->getMessage(), [
-            'exception' => $e,
-        ]);
-
-        FlashMessageHelper::flashError('An error occurred while loading assets and employees.');
-        $this->assetSelectEmp = collect();
-        $this->assignedAssetIds = [];
-        $this->assignedEmployeeIds = [];
+            FlashMessageHelper::flashError('An error occurred while loading assets and employees.');
+            $this->assetSelectEmp = collect();
+            $this->assignedAssetIds = [];
+            $this->assignedEmployeeIds = [];
+        }
     }
-}
 
 
     public function fetchEmployeeDetails()
@@ -312,9 +310,14 @@ public function closeViewEmpAsset()
                 // Fetch employee details by ID
                 $this->resetErrorBag();
                 $this->empDetails = EmployeeDetails::find($this->selectedEmployee);
+
+                if ($this->selectedCategory && $this->selectedEmployee) {
+                    $this->getPreviousAssignedAssets();
+                }
             } else {
                 $this->empDetails = null;
             }
+
         } catch (\Exception $e) {
             // Log the error
             Log::error("Error fetching employee details: " . $e->getMessage(), [
@@ -337,6 +340,10 @@ public function closeViewEmpAsset()
                     ->where('vendor_assets.asset_id', $this->selectedAsset)
                     ->select('vendor_assets.*', 'asset_types_tables.asset_names as asset_type_name')
                     ->first();
+                $this->selectedCategory = $this->assetDetails->asset_type;
+                if ($this->selectedCategory && $this->selectedEmployee) {
+                    $this->getPreviousAssignedAssets();
+                }
             } else {
                 $this->assetDetails = null;
             }
@@ -348,6 +355,21 @@ public function closeViewEmpAsset()
             FlashMessageHelper::flashError('An error occurred while fetching asset details.');
             $this->assetDetails = null;
         }
+    }
+
+    public function getPreviousAssignedAssets()
+    {
+       $this->previousAssignedAssets=AssignAssetEmp::join('asset_types_tables', 'assign_asset_emps.asset_type', '=', 'asset_types_tables.id')
+       ->where('assign_asset_emps.asset_type', $this->selectedCategory)
+       ->where('assign_asset_emps.emp_id',$this->selectedEmployee)
+       ->where('assign_asset_emps.is_active',1)
+       ->select('assign_asset_emps.*', 'asset_types_tables.asset_names as asset_type_name')
+       ->get();
+
+       if(count($this->previousAssignedAssets)>0){
+        FlashMessageHelper::flashWarning('Already '. count($this->previousAssignedAssets).' ' . 'asset/s assigned with same Category.');
+
+       }
     }
 
 
@@ -403,21 +425,21 @@ public function closeViewEmpAsset()
     }
 
 
-// public function getAssetOwners($assetId)
-//     {
-//         $currentOwner = AssignAssetEmp::where('asset_id', $assetId)
-//             ->where('is_active', true)
-//             ->first();
+    // public function getAssetOwners($assetId)
+    //     {
+    //         $currentOwner = AssignAssetEmp::where('asset_id', $assetId)
+    //             ->where('is_active', true)
+    //             ->first();
 
-//         $previousOwners = AssetAssignments::where('asset_id', $assetId)
-//             ->where('is_active', false)
-//             ->get();
+    //         $previousOwners = AssetAssignments::where('asset_id', $assetId)
+    //             ->where('is_active', false)
+    //             ->get();
 
-//         return response()->json([
-//             'currentOwner' => $currentOwner,
-//             'previousOwners' => $previousOwners
-//         ]);
-//     }
+    //         return response()->json([
+    //             'currentOwner' => $currentOwner,
+    //             'previousOwners' => $previousOwners
+    //         ]);
+    //     }
 
 
     public function toggleSystemUpdateForm()
@@ -432,69 +454,121 @@ public function closeViewEmpAsset()
         $this->toggleSystemUpdateForm();
     }
 
-public $selectedAssetType='';
+    public $selectedAssetType = '';
     public function submit()
-{
+    {
 
-    $this->validate();
+        $this->validate();
 
-    // Get the asset type of the currently assigned asset for the selected employee
-    $selectedAssetType = AssignAssetEmp::where('emp_id', $this->selectedEmployee)
-    ->where('is_active', 1)  // Add the condition for 'is_active'
-    ->pluck('asset_type')  // Get the 'asset_type' column
-    ->toArray();  // Convert to an array
-
-
-    $existingAssignment = VendorAsset::where('asset_id', $this->selectedAsset)->value('asset_type');
+        // Get the asset type of the currently assigned asset for the selected employee
+        $selectedAssetType = AssignAssetEmp::where('emp_id', $this->selectedEmployee)
+            ->where('is_active', 1)  // Add the condition for 'is_active'
+            ->pluck('asset_type')  // Get the 'asset_type' column
+            ->toArray();  // Convert to an array
 
 
-    $assetName = asset_types_table::where('id', $existingAssignment)->value('asset_names');
-
-    $employeeDetails = EmployeeDetails::find($this->selectedEmployee);
-    $empId = $employeeDetails->emp_id;
-
-    $uniqueManagerDeptHeads = EmployeeDetails::select('manager_id', 'dept_head')
-    ->distinct()
-    ->get()
-    ->pluck('manager_id')  // Get the unique manager_id
-    ->merge(EmployeeDetails::distinct()->pluck('dept_head'))  // Get the unique dept_head
-    ->unique()  // Merge both columns and ensure uniqueness
-    ->toArray();  // Convert to an array
+        $existingAssignment = VendorAsset::where('asset_id', $this->selectedAsset)->value('asset_type');
 
 
-    // if (in_array($empId , $uniqueManagerDeptHeads)) {
+        $assetName = asset_types_table::where('id', $existingAssignment)->value('asset_names');
+
+        $employeeDetails = EmployeeDetails::find($this->selectedEmployee);
+        $empId = $employeeDetails->emp_id;
+
+        $uniqueManagerDeptHeads = EmployeeDetails::select('manager_id', 'dept_head')
+            ->distinct()
+            ->get()
+            ->pluck('manager_id')  // Get the unique manager_id
+            ->merge(EmployeeDetails::distinct()->pluck('dept_head'))  // Get the unique dept_head
+            ->unique()  // Merge both columns and ensure uniqueness
+            ->toArray();  // Convert to an array
+
+
+        // if (in_array($empId , $uniqueManagerDeptHeads)) {
 
 
 
 
-    // }
-    // elseif( !$selectedAssetType  )
-    // {
-    // }
-    //  else {
+        // }
+        // elseif( !$selectedAssetType  )
+        // {
+        // }
+        //  else {
 
-    //     If the asset type is already assigned to the employee, prevent assigning it again
-    //     if (in_array($existingAssignment, $selectedAssetType)) {
-    //         Show error message if the asset type already exists
-    //         FlashMessageHelper::flashError("Asset type '{$assetName}' is already assigned to this Employee!");
-    //         return;
-    //     }
+        //     If the asset type is already assigned to the employee, prevent assigning it again
+        //     if (in_array($existingAssignment, $selectedAssetType)) {
+        //         Show error message if the asset type already exists
+        //         FlashMessageHelper::flashError("Asset type '{$assetName}' is already assigned to this Employee!");
+        //         return;
+        //     }
 
-    // }
+        // }
 
-    try {
-        if ($this->isUpdateMode && $this->assignmentId) {
-            // Retrieve the current assignment
-            $currentAssignment = AssignAssetEmp::findOrFail($this->assignmentId);
+        try {
+            $emp_id = auth()->guard('it')->user()->emp_id;
+            if ($this->isUpdateMode && $this->assignmentId) {
+                // Retrieve the current assignment
+                $currentAssignment = AssignAssetEmp::findOrFail($this->assignmentId);
 
-            // Check if asset_id has changed
-            if ($currentAssignment->asset_id !== $this->selectedAsset) {
-                // Archive the current assignment by setting is_active to false
-                $currentAssignment->update([
-                    'is_active' => false,
-                ]);
+                // Check if asset_id has changed
+                if ($currentAssignment->asset_id !== $this->selectedAsset) {
+                    // Archive the current assignment by setting is_active to false
+                    $currentAssignment->update([
+                        'is_active' => false,
+                    ]);
 
-                // Create new assignment
+                    // Create new assignment
+                    AssignAssetEmp::create([
+                        'asset_id' => $this->selectedAsset,
+                        'emp_id' => $this->empDetails->emp_id,
+                        'manufacturer' => $this->assetDetails->manufacturer,
+                        'asset_type' => $this->assetDetails->asset_type,
+                        'employee_name' => $this->empDetails->first_name . ' ' . $this->empDetails->last_name,
+                        'department' => $this->empDetails->job_role,
+                        'sophos_antivirus' => $this->sophosAntivirus,
+                        'vpn_creation' => $this->vpnCreation,
+                        'teramind' => $this->teramind,
+                        'system_upgradation' => $this->systemUpgradation,
+                        'one_drive' => $this->oneDrive,
+                        'screenshot_programs' => $this->screenshotPrograms,
+                        'mac_address' => $this->macAddress,
+                        'laptop_received' => $this->laptopReceived,
+                        'is_active' => true,
+                    ]);
+
+                    FlashMessageHelper::flashSuccess("Assignee updated successfully!");
+                } else {
+                    // No change in asset_id, so just update the existing assignment without creating a new record
+                    $currentAssignment->update([
+                        'emp_id' => $this->empDetails->emp_id,
+                        'manufacturer' => $this->assetDetails->manufacturer,
+                        'asset_type' => $this->assetDetails->asset_type,
+                        'employee_name' => $this->empDetails->first_name . ' ' . $this->empDetails->last_name,
+                        'department' => $this->empDetails->job_role,
+                        'sophos_antivirus' => $this->sophosAntivirus,
+                        'vpn_creation' => $this->vpnCreation,
+                        'teramind' => $this->teramind,
+                        'system_upgradation' => $this->systemUpgradation,
+                        'one_drive' => $this->oneDrive,
+                        'screenshot_programs' => $this->screenshotPrograms,
+                        'mac_address' => $this->macAddress,
+                        'laptop_received' => $this->laptopReceived,
+                        'is_active' => true,
+                    ]);
+
+                    FlashMessageHelper::flashSuccess("Assignment updated successfully!");
+                }
+            } else {
+                // Create new assignment as there is no existing one
+
+
+                if ($this->selectedAsset) {
+                    $selected_asset = VendorAsset::where('asset_id', $this->selectedAsset)->first();
+                    if ($selected_asset) {
+                        $selected_asset->status = "In Use";
+                        $selected_asset->save();
+                    }
+                }
                 AssignAssetEmp::create([
                     'asset_id' => $this->selectedAsset,
                     'emp_id' => $this->empDetails->emp_id,
@@ -513,61 +587,28 @@ public $selectedAssetType='';
                     'is_active' => true,
                 ]);
 
-                FlashMessageHelper::flashSuccess("Assignee updated successfully!");
-            } else {
-                // No change in asset_id, so just update the existing assignment without creating a new record
-                $currentAssignment->update([
-                    'emp_id' => $this->empDetails->emp_id,
-                    'manufacturer' => $this->assetDetails->manufacturer,
-                    'asset_type' => $this->assetDetails->asset_type,
-                    'employee_name' => $this->empDetails->first_name . ' ' . $this->empDetails->last_name,
-                    'department' => $this->empDetails->job_role,
-                    'sophos_antivirus' => $this->sophosAntivirus,
-                    'vpn_creation' => $this->vpnCreation,
-                    'teramind' => $this->teramind,
-                    'system_upgradation' => $this->systemUpgradation,
-                    'one_drive' => $this->oneDrive,
-                    'screenshot_programs' => $this->screenshotPrograms,
-                    'mac_address' => $this->macAddress,
-                    'laptop_received' => $this->laptopReceived,
-                    'is_active' => true,
+                AssetsHistories::create([
+                    'asset_id' => $this->selectedAsset,
+                    'assign_or_un_assign' => $this->empDetails->emp_id,
+                    'created_by' =>  $emp_id,
+                    'action' => 'assign',
+                    'status' => 'In Use'
                 ]);
 
-                FlashMessageHelper::flashSuccess("Assignment updated successfully!");
+
+                FlashMessageHelper::flashSuccess("Asset assigned to employee successfully!");
             }
-        } else {
-            // Create new assignment as there is no existing one
-            AssignAssetEmp::create([
-                'asset_id' => $this->selectedAsset,
-                'emp_id' => $this->empDetails->emp_id,
-                'manufacturer' => $this->assetDetails->manufacturer,
-                'asset_type' => $this->assetDetails->asset_type,
-                'employee_name' => $this->empDetails->first_name . ' ' . $this->empDetails->last_name,
-                'department' => $this->empDetails->job_role,
-                'sophos_antivirus' => $this->sophosAntivirus,
-                'vpn_creation' => $this->vpnCreation,
-                'teramind' => $this->teramind,
-                'system_upgradation' => $this->systemUpgradation,
-                'one_drive' => $this->oneDrive,
-                'screenshot_programs' => $this->screenshotPrograms,
-                'mac_address' => $this->macAddress,
-                'laptop_received' => $this->laptopReceived,
-                'is_active' => true,
-            ]);
 
-            FlashMessageHelper::flashSuccess("Asset assigned to employee successfully!");
+            $this->resetForm();
+
+            return redirect()->route('employeeAssetList');
+        } catch (\Exception $e) {
+
+            Log::error('Error while assigning asset: ' . $e->getMessage());
+
+            FlashMessageHelper::flashError("An error occurred while saving the details. Please try again!");
         }
-
-        $this->resetForm();
-
-        return redirect()->route('employeeAssetList');
-    } catch (\Exception $e) {
-
-        Log::error('Error while assigning asset: ' . $e->getMessage());
-
-        FlashMessageHelper::flashError("An error occurred while saving the details. Please try again!");
     }
-}
 
 
 
@@ -577,16 +618,16 @@ public $selectedAssetType='';
             $trimmedEmpId = trim($this->searchEmp);
 
             $this->filteredEmployeeAssets = AssignAssetEmp::query()
-            ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
-                            $query->where(function ($query) use ($trimmedEmpId) {
-                                $query->where('emp_id', 'like', '%' . $trimmedEmpId . '%')
-                                    ->orWhere('employee_name', 'like', '%' . $trimmedEmpId . '%')
-                                    ->orWhere('asset_id', 'like', '%' . $trimmedEmpId . '%')
-                                    ->orWhere('manufacturer', 'like', '%' . $trimmedEmpId . '%')
-                                    ->orWhere('asset_type', 'like', '%' . $trimmedEmpId . '%')
-                                    ->orWhere('department', 'like', '%' . $trimmedEmpId . '%');
-                            });
-                        })
+                ->when($trimmedEmpId, function ($query) use ($trimmedEmpId) {
+                    $query->where(function ($query) use ($trimmedEmpId) {
+                        $query->where('emp_id', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('employee_name', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('asset_id', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('manufacturer', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('asset_type', 'like', '%' . $trimmedEmpId . '%')
+                            ->orWhere('department', 'like', '%' . $trimmedEmpId . '%');
+                    });
+                })
 
                 ->get();
 
@@ -610,26 +651,24 @@ public $selectedAssetType='';
         $this->reset();
         $this->filteredEmployeeAssets = [];
         $this->assetsFound = false;
-
     }
 
     public $recordId;
-    public $reason =[];
+    public $reason = [];
 
-    public function confirmDelete($id,$asset_id  )
+    public function confirmDelete($id, $asset_id)
     {
         // dd($asset_id);
         $this->recordId = $id;
-        $this->deleteAsset_id=$asset_id;
+        $this->deleteAsset_id = $asset_id;
         $this->showLogoutModal = true;
         $this->resetErrorBag();
-
     }
 
-    public function validatefield($field){
+    public function validatefield($field)
+    {
 
-        $this->validateOnly($field,$this->rules);
-
+        $this->validateOnly($field, $this->rules);
     }
 
     public $deletionDate;
@@ -644,7 +683,10 @@ public $selectedAssetType='';
 
             // Find the AssignAssetEmp record by the provided ID
             $vendormember = AssignAssetEmp::find($this->recordId);
-            $vendorAsset = VendorAsset::where('asset_id',$this->deleteAsset_id)->first();
+            $vendorAsset = VendorAsset::where('asset_id', $this->deleteAsset_id)->first();
+            $assigned_emp_id = $vendormember->emp_id;
+
+            $emp_id = auth()->guard('it')->user()->emp_id;
             // dd( $this->selectedStatus);
             if ($vendorAsset) {
                 $vendorAsset->status = $this->selectedStatus;
@@ -657,9 +699,16 @@ public $selectedAssetType='';
                     'delete_reason' => $this->reason,
                     'deleted_at' => now(),
                     'is_active' => 0,
-                    'status'=>$this->selectedAsset,
+                    'status' => $this->selectedAsset,
                 ]);
 
+                AssetsHistories::create([
+                    'asset_id' => $this->deleteAsset_id,
+                    'assign_or_un_assign' => $assigned_emp_id,
+                    'created_by' =>  $emp_id,
+                    'action' => 'un_assign',
+                    'status' => $this->selectedStatus
+                ]);
                 // Success flash message
                 FlashMessageHelper::flashSuccess("Asset deactivated successfully!");
 
@@ -673,7 +722,6 @@ public $selectedAssetType='';
 
                 // Return updated view
                 return view('livewire.assign-asset-employee', compact('employeeAssetLists'));
-
             } else {
                 // If the record does not exist, log an error and show a message
                 Log::error("AssignAssetEmp record not found", ['record_id' => $this->recordId]);
@@ -695,21 +743,20 @@ public $selectedAssetType='';
         }
     }
 
-    public function cancel(){
-        $this->searchFilters =true;
-        $this->showOldEMployeeAssetBtn =true;
-         $this->showEMployeeAssetBtn = false;
+    public function cancel()
+    {
+        $this->searchFilters = true;
+        $this->showOldEMployeeAssetBtn = true;
+        $this->showEMployeeAssetBtn = false;
         $this->assetEmpCreateUpdate = false;
         $this->employeeAssetListing = true;
 
         $this->showAssignAssetBtn = true;
         $this->showLogoutModal = false;
         $this->resetErrorBag();
-
     }
 
-public $oldEmployeeAssetLists;
-
+    public $oldEmployeeAssetLists;
     public $sortColumn = 'emp_id'; // default sorting column
     public $sortDirection = 'asc'; // default sorting direction
 
@@ -717,26 +764,25 @@ public $oldEmployeeAssetLists;
     {
         try {
 
-        if ($this->sortColumn == $column) {
-            // If the column is the same, toggle the sort direction
-            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            // If a different column is clicked, set it as the new sort column and default to ascending order
-            $this->sortColumn = $column;
-            $this->sortDirection = 'asc';
+            if ($this->sortColumn == $column) {
+                // If the column is the same, toggle the sort direction
+                $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                // If a different column is clicked, set it as the new sort column and default to ascending order
+                $this->sortColumn = $column;
+                $this->sortDirection = 'asc';
+            }
+        } catch (\Exception $e) {
+            // Log the error message
+            Log::error('Error in toggleSortOrder: ' . $e->getMessage());
+
+            // Optionally, set default sort direction or handle the error gracefully
+            $this->sortColumn = 'emp_id'; // Example default sort column
+            $this->sortDirection = 'asc'; // Example default sort direction
+
+            // You may want to display an error message to the user, if needed
+            session()->flash('error', 'An error occurred while changing the sort order.');
         }
-
-    } catch (\Exception $e) {
-        // Log the error message
-        Log::error('Error in toggleSortOrder: ' . $e->getMessage());
-
-        // Optionally, set default sort direction or handle the error gracefully
-        $this->sortColumn = 'emp_id'; // Example default sort column
-        $this->sortDirection = 'asc'; // Example default sort direction
-
-        // You may want to display an error message to the user, if needed
-        session()->flash('error', 'An error occurred while changing the sort order.');
-    }
     }
 
     public function render()
@@ -746,8 +792,8 @@ public $oldEmployeeAssetLists;
             $employeeAssetLists = !empty($this->filteredEmployeeAssets)
                 ? $this->filteredEmployeeAssets
                 : AssignAssetEmp::with(['vendorAsset.vendor'])
-                    ->orderBy($this->sortColumn, $this->sortDirection)
-                    ->get();
+                ->orderBy($this->sortColumn, $this->sortDirection)
+                ->get();
 
             $employeeAssetLists = $employeeAssetLists->map(function ($employeeAssetList) use ($assetTypes) {
                 $employeeAssetList['asset_type_name'] = $assetTypes[$employeeAssetList['asset_type']] ?? 'N/A';
@@ -758,7 +804,6 @@ public $oldEmployeeAssetLists;
             $this->loadAssets();
             $this->loadAssetsAndEmployees();
             return view('livewire.assign-asset-employee', compact('employeeAssetLists'));
-
         } catch (\Exception $e) {
             // Log the exception for debugging
             Log::error("Error occurred while rendering the AssignAssetEmployee view", [
@@ -772,6 +817,4 @@ public $oldEmployeeAssetLists;
             return view('livewire.assign-asset-employee', ['employeeAssetLists' => collect()]);
         }
     }
-
-
 }

@@ -35,7 +35,8 @@ class AssetsHistories extends Model
         'is_active',
         'asset_id',
         'created_by',
-        'action'
+        'action',
+        'assign_or_un_assign'
     ];
 
     public static function getAssetDetails($assetId)
