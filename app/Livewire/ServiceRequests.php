@@ -47,12 +47,35 @@ class ServiceRequests extends Component
     ];
 
 
+    protected $queryString = ['currentRequestId'];
 
-    public function viewServiceDetails($index)
+    public function mount($id = null){
+
+        $this->loadServiceClosedDetails();
+        $this->loadLogs();
+
+
+        if ($id) {
+            $this->currentRequestId = $id;
+        }
+
+        if ($this->currentRequestId) {
+            $this->viewServiceDetails($this->currentRequestId);
+        }
+    }
+
+    public function updatedCurrentRequestId($id)
+    {
+        $this->viewServiceDetails($id);
+    }
+
+
+
+    public function viewServiceDetails($id)
     {
 
         try {
-            $this->serviceRequest = $this->serviceDetails->get($index);
+            $this->serviceRequest =  IncidentRequest::with('emp')->find($id);
             $this->selectedAssigne = '';
             $this->selectedStatus = '';
             $this->comments = '';
@@ -62,7 +85,6 @@ class ServiceRequests extends Component
             }
 
             $this->serviceRequestDetails = true;
-            $this->currentRequestId = $this->serviceRequest->id;
 
          $requestedBy= EmployeeDetails::where('emp_id' ,  $this->serviceRequest->emp_id)->first();
          $fullName = ucwords(strtolower($requestedBy->first_name . ' ' . $requestedBy->last_name));
@@ -80,7 +102,7 @@ class ServiceRequests extends Component
             // Log the exception for debugging
             Log::error("Error occurred in viewserviceDetails method", [
                 'exception' => $e,
-                'index' => $index,
+                'index' => $id,
             ]);
 
             // Flash an error message for the user
@@ -103,7 +125,7 @@ class ServiceRequests extends Component
 
 
         $this->viewEmpRequest = false;
-
+        return redirect()->route('serviceRequests');
         // $this->selectedRequest = true;
     }
 
@@ -416,7 +438,7 @@ class ServiceRequests extends Component
 
 
 
-    public function activeIncidentSubmit($taskId)
+    public function activeServiceSubmit($taskId)
     {
 
         $this->validate([
@@ -542,6 +564,8 @@ class ServiceRequests extends Component
         $this->reset(['selectedStatus', 'selectedAssigne']);
         $this->resetErrorBag();
         $this->updateCounts();
+        return redirect()->route('serviceRequests');
+
     }
 
 
@@ -895,11 +919,6 @@ class ServiceRequests extends Component
             }
 
 
-        public function mount(){
-
-            $this->loadServiceClosedDetails();
-            $this->loadLogs();
-        }
 
         public $statusFilter = '';
 
