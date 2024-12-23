@@ -106,7 +106,7 @@ class MainLayout extends Component
 
     public function vendor()
     {
-        return redirect()->route('vendor');
+        return redirect()->route('vendors');
     }
 
     public function vendorAssets()

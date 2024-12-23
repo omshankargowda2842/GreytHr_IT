@@ -102,7 +102,7 @@
                     </a>
                     <ul class="sidebar-submenu">
                         <li
-                            class="{{ request()->routeIs('vendor') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
+                            class="{{ request()->routeIs('vendors') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
                             <a href="#" wire:click='vendor' class="sidebar-submenu-item-link">
                                 <span class="sidebar-submenu-item-link-text">Vendor Management</span>
                             </a>
