@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Helpers\FlashMessageHelper;
 use App\Models\asset_types_table;
+use App\Models\AssetsHistories;
 use App\Models\Vendor;
 use App\Models\VendorAsset;
 use Carbon\Carbon;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
 use Picqer\Barcode\BarcodeGeneratorPNG;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class VendorAssets extends Component
 {
@@ -23,9 +25,9 @@ class VendorAssets extends Component
     public $assetTypeName = '';
     public $filteredAssetTypes = [];
     public $assetType = "";
-    public $selectedStatus='';
-    public $successImageMessage='File/s uploaded successfully!';
-    public $showSuccessMsg=false;
+    public $selectedStatus = '';
+    public $successImageMessage = 'File/s uploaded successfully!';
+    public $showSuccessMsg = false;
     public $assetModel;
     public $assetSpecification;
     public $color;
@@ -47,6 +49,7 @@ class VendorAssets extends Component
     public $showEditDeleteVendor = true;
     public $vendorAssets;
     public $selectedAssetId;
+    public $asset_id;
     public $showAddVendor = false;
     public $editMode = false;
     public $showViewImageDialog = false;
@@ -56,6 +59,9 @@ class VendorAssets extends Component
     public $showLogoutModal = false;
     public $restoreModal = false;
     public $reason =  [];
+    public $selectedAssetsData;
+    public $selectedUpdatedAssetsData;
+    public $showAssetHistory=false;
 
     protected function rules(): array
     {
@@ -66,8 +72,7 @@ class VendorAssets extends Component
             'assetSpecification' => 'required|string|max:255',
             'color' => 'nullable|string|max:50',
             'version' => 'nullable|string|max:50',
-
-            'invoiceNumber' => 'required|string|max:30|min:4', // Ensure this is required
+            'invoiceNumber' => 'required|string|max:30|min:4|unique:vendor_assets,invoice_number', // Ensure this is required
             'taxableAmount' => 'required|numeric|min:0', // Ensure this is required
             'invoiceAmount' => 'required|numeric|min:0', // Ensure this is required
             'gstIg' => 'nullable|numeric|min:0',
@@ -106,6 +111,15 @@ class VendorAssets extends Component
                 'min:6',
                 'unique:vendor_assets,serial_number,' . $this->selectedAssetId . ',id',
             ];
+
+            $rules['invoiceNumber'] = [
+                'required',
+                'string',
+                'max:30',
+                'min:4',
+                'unique:vendor_assets,invoice_number,' . $this->selectedAssetId . ',id',
+            ];
+
         }
 
         return $rules;
@@ -145,9 +159,11 @@ class VendorAssets extends Component
         'invoiceNumber.string' => 'Invoice Number must be a string.',
         'invoiceNumber.min' => 'Invoice Number may not be less than 4 characters.',
         'invoiceNumber.max' => 'Invoice Number may not be greater than 30 characters.',
+        'invoiceNumber.unique' => 'Invoice number has already been taken.',
 
-        'gstState.required_without' => 'State GST field is required when IGST is not provided.',
-        'gstCentral.required_without' => 'Central GST field is required when GST IG is not provided.',
+
+        'gstState.required_without' => 'State GST is required when IGST is not provided.',
+        'gstCentral.required_without' => 'Central GST is required when IGST is not provided.',
         'gstState.required' => 'GST State is required.',
         'gstState.string' => 'GST State must be a string.',
         'gstState.max' => 'GST State may not be greater than 255 characters.',
@@ -172,8 +188,8 @@ class VendorAssets extends Component
         'warranty_expire_date.date' => 'Warranty expiration date must be a valid date.',
         'warranty_expire_date.after' => 'Warranty expiration date cannot be a past or today\'s date.str',
 
-        'end_of_life.string'=>"End Of Life should be string.",
-        'end_of_life.max'=>"End Of Life should be less than 30 characters.",
+        'end_of_life.string' => "End Of Life should be string.",
+        'end_of_life.max' => "End Of Life should be less than 30 characters.",
 
 
         'manufacturer.required' => 'Manufacturer is required.',
@@ -216,11 +232,20 @@ class VendorAssets extends Component
 
     public function showViewVendor($vendorId)
     {
+        // dd($vendorId);
+        $this->selectedAssetsData = AssetsHistories::where('asset_id', $vendorId)
+            ->orderby('created_at', 'Desc')
+            ->get();
+        $this->selectedUpdatedAssetsData =VendorAsset:: where('asset_id', $vendorId)->first();
+
         $this->currentVendorId = $vendorId;
         $this->showViewVendorDialog = true;
         $this->showEditDeleteVendor = false;
         $this->searchFilters = false;
         $this->editMode = false;
+    }
+    public function viewAssetHistory(){
+        $this->showAssetHistory = !$this->showAssetHistory;
     }
 
     public function closeViewVendor()
@@ -361,35 +386,33 @@ class VendorAssets extends Component
         $this->purchaseDate = null;
         $this->warranty_expire_date = null;
         $this->end_of_life = '';
-        $this->file_paths = [];
+        $this->file_paths = []; {
+            // Reset fields related to Asset model
+            $this->selectedVendorId = '';
+            $this->assetType = '';
+            $this->quantity = '';
+            $this->assetModel = '';
+            $this->assetSpecification = '';
+            $this->color = '';
+            $this->version = '';
+            $this->serialNumber = '';
+            $this->invoiceNumber = '';
+            $this->taxableAmount = '';
+            $this->invoiceAmount = '';
+            $this->gstState = '';
+            $this->gstCentral = '';
+            $this->gstIg = '';
+            $this->manufacturer = '';
+            $this->purchaseDate = null;
+            $this->warranty_expire_date = null;
+            $this->end_of_life = '';
+            $this->file_paths = [];
 
-    {
-        // Reset fields related to Asset model
-        $this->selectedVendorId = '';
-        $this->assetType = '';
-        $this->quantity = '';
-        $this->assetModel = '';
-        $this->assetSpecification = '';
-        $this->color = '';
-        $this->version = '';
-        $this->serialNumber = '';
-        $this->invoiceNumber = '';
-        $this->taxableAmount = '';
-        $this->invoiceAmount = '';
-        $this->gstState = '';
-        $this->gstCentral = '';
-        $this->gstIg = '';
-        $this->manufacturer = '';
-        $this->purchaseDate = null;
-        $this->warranty_expire_date = null;
-        $this->end_of_life = '';
-        $this->file_paths = [];
-
-        $this->selectedAssetId = null; // Reset the selected asset ID
-        $this->editMode = false; // Reset edit mode
-        $this->showAddVendor = false; // Hide add vendor form
-        $this->showEditDeleteVendor = true; // Show edit/delete vendor options
-    }
+            $this->selectedAssetId = null; // Reset the selected asset ID
+            $this->editMode = false; // Reset edit mode
+            $this->showAddVendor = false; // Hide add vendor form
+            $this->showEditDeleteVendor = true; // Show edit/delete vendor options
+        }
         $this->selectedAssetId = null; // Reset the selected asset ID
         $this->editMode = false; // Reset edit mode
         $this->showAddVendor = false; // Hide add vendor form
@@ -410,23 +433,34 @@ class VendorAssets extends Component
     }
     public function delete()
     {
-        try {
-            $this->validate([
+        $this->validate([
 
-                'reason' => 'required|string|max:255', // Validate the remark input
-            ], [
-                'reason.required' => 'Reason is required.',
-            ]);
+            'reason' => 'required|string|max:255', // Validate the remark input
+        ], [
+            'reason.required' => 'Reason is required.',
+        ]);
+        try {
+
 
             $this->resetErrorBag();
 
             $vendormember = VendorAsset::find($this->recordId);
+
+            $emp_id = auth()->guard('it')->user()->emp_id;
 
             if ($vendormember) {
                 // Perform the update (deactivation)
                 $vendormember->update([
                     'delete_asset_reason' => $this->reason,
                     'is_active' => 0,
+                ]);
+
+                AssetsHistories::create([
+                    'asset_id' =>$vendormember->asset_id,
+                    'delete_asset_reason' => $this->reason,
+                    'is_active' =>  0,
+                    'created_by' =>  $emp_id,
+                    'action' => 'update'
                 ]);
 
                 FlashMessageHelper::flashSuccess("Asset deactivated successfully!");
@@ -464,6 +498,7 @@ class VendorAssets extends Component
             $asset = VendorAsset::find($id);
 
             if ($asset) {
+                $this->asset_id = $asset->asset_id;
                 $this->selectedAssetId = $id;
                 $this->manufacturer = $asset->manufacturer;
                 $this->assetType = $asset->asset_type;
@@ -476,6 +511,7 @@ class VendorAssets extends Component
                 $this->taxableAmount = $asset->taxable_amount;
                 $this->invoiceAmount = $asset->invoice_amount;
                 $this->barcode = $asset->barcode;
+                $this->gstIg = $asset->gst_ig;
                 $this->gstState = $asset->gst_state;
                 $this->selectedVendorId = $asset->vendor_id;
                 $this->gstCentral = $asset->gst_central;
@@ -483,9 +519,10 @@ class VendorAssets extends Component
                 $this->purchaseDate = $asset->purchase_date ? Carbon::parse($asset->purchase_date)->format('Y-m-d') : null;
                 $this->warranty_expire_date = $asset->warranty_expire_date ? Carbon::parse($asset->warranty_expire_date)->format('Y-m-d') : null;
                 $this->end_of_life = $asset->end_of_life;
-                $this->quantity=1;
+                $this->quantity = 1;
 
                 $this->existingFilePaths = json_decode($asset->file_paths, true) ?? [];
+                // dd( $this->existingFilePaths);
 
                 $this->showAddVendor = true;
                 $this->showEditDeleteVendor = false;
@@ -540,19 +577,28 @@ class VendorAssets extends Component
         $this->restoreModal = true;
     }
 
-    public function updateStatus($vendorAssetId, $newStatus){
+    public function updateStatus($vendorAssetId, $newStatus)
+    {
         $vendorAsset = VendorAsset::find($vendorAssetId);
+        $emp_id = auth()->guard('it')->user()->emp_id;
 
         if ($vendorAsset) {
             $vendorAsset->status = $newStatus;
             $vendorAsset->save();
+
+            AssetsHistories::create([
+                'asset_id' => $vendorAsset->asset_id,
+                'status' => $newStatus,
+                'created_by' =>  $emp_id,
+                'action' => 'update'
+            ]);
 
             // Optionally, you can emit an event to notify the UI or log actions.
             FlashMessageHelper::flashSuccess("Vendor status updated successfully.");
         }
     }
 
-    public $previews=[];
+    public $previews = [];
     public $all_files = [];
     public function updatedFilePaths()
     {
@@ -589,11 +635,12 @@ class VendorAssets extends Component
                 }
             }
         }
-        $this->showSuccessMsg=true;
+        $this->showSuccessMsg = true;
         // Log the names of all files
     }
-    public function  hideSuccessMsg(){
-        $this->showSuccessMsg=false;
+    public function  hideSuccessMsg()
+    {
+        $this->showSuccessMsg = false;
     }
 
     public function removeFile($index)
@@ -612,16 +659,29 @@ class VendorAssets extends Component
     {
         $this->validate($this->rules());
         try {
-            $this->file_paths=$this->all_files;
-            $barcodeBase64 = null;
+            $emp_id = auth()->guard('it')->user()->emp_id;
+            $this->file_paths = $this->all_files;
+            $qrCodeBase64 = null;
             if (!empty($this->serialNumber)) {
+                $purchase_date = Carbon::parse($this->purchaseDate)->format('d/m/Y');
 
-                $generator = new BarcodeGeneratorPNG();
+                $assetBarcodeDetails = [
+                    'Purchase Date:' . $purchase_date,
+                    'Model:' . $this->assetModel,
+                    'S.No:' . $this->serialNumber,
+                    'Contact Mail Id :' . 'infrasupport@payg.in',
+                    'Contact No:' . '040-48544533',
+                    'Address:-' . 'Kapil Kavuri Hub,3rd Floor, Financial District, Nanakaramguda,Telangana 500032',
 
-                $barcode = $generator->getBarcode($this->serialNumber, $generator::TYPE_CODE_128, 2);
+                ];
+                $assetBarcodeString = implode("\n", $assetBarcodeDetails);
 
+                $qrCode = QrCode::format('svg') // Use PNG format
+                    ->size(300)
+                    ->generate($assetBarcodeString);
 
-                $barcodeBase64 = base64_encode($barcode);
+                $qrCodeBase64 = 'data:image/svg+xml;base64,' . base64_encode($qrCode);
+
             }
             $fileDataArray = [];
 
@@ -705,35 +765,116 @@ class VendorAssets extends Component
                 $asset = VendorAsset::find($this->selectedAssetId);
 
                 if ($asset) {
+                    $changedData = [];
+                    if ($asset->vendor_id !== $this->selectedVendorId) {
+                        $changedData['vendor_id_new'] = $this->selectedVendorId;
+                    }
+                    if ($asset->manufacturer !== $this->manufacturer) {
+                        $changedData['manufacturer_new'] = $this->manufacturer;
+                    }
+                    if ($asset->asset_type !== $this->assetType) {
+                        $changedData['asset_type_new'] = $this->assetType;
+                    }
+                    if ($asset->asset_model !== $this->assetModel) {
+                        $changedData['asset_model_new'] = $this->assetModel;
+                    }
+                    if ($asset->asset_specification !== $this->assetSpecification) {
+                        $changedData['asset_specification_new'] = $this->assetSpecification;
+                    }
+                    if ($asset->color !== $this->color) {
+                        $changedData['color_new'] = $this->color;
+                    }
+                    if ($asset->version !== $this->version) {
+                        $changedData['version_new'] = $this->version;
+                    }
+                    if ($asset->invoice_number !== $this->invoiceNumber) {
+                        $changedData['invoice_number_new'] = $this->invoiceNumber;
+                    }
+                    if ($asset->taxable_amount !== $this->taxableAmount) {
+                        $changedData['taxable_amount_new'] = $this->taxableAmount;
+                    }
 
-                    $asset->update([
-                        'vendor_id' => $this->selectedVendorId,
-                        'manufacturer' => $this->manufacturer,
-                        'asset_type' => $this->assetType,
-                        'asset_model' => $this->assetModel,
-                        'asset_specification' => $this->assetSpecification,
-                        'color' => $this->color,
-                        'version' => $this->version,
-                        'serial_number' => $this->serialNumber,
-                        'invoice_number' => $this->invoiceNumber,
-                        'taxable_amount' => $this->taxableAmount,
-                        'invoice_amount' => $this->invoiceAmount,
-                        'barcode' => $barcodeBase64,
-                        'gst_state' => $this->gstState,
-                        'gst_central' => $this->gstCentral,
-                        'gst_ig' => $this->gstIg,
-                        'purchase_date' => $this->purchaseDate ? $this->purchaseDate : null,
-                        'warranty_expire_date' => $this->warranty_expire_date ? $this->warranty_expire_date : null,
-                        'end_of_life' => $this->end_of_life,
-                        'file_paths' => json_encode($fileDataArray),
-                    ]);
-                    FlashMessageHelper::flashSuccess("Asset updated successfully!");
+                    if ($asset->serial_number !== $this->serialNumber) {
+                        $changedData['serial_number_new'] = $this->serialNumber;
+                    }
+                    if ($asset->gst_state !== $this->gstState) {
+                        $changedData['gst_state_new'] = $this->gstState;
+                    }
+                    if ($asset->gst_central !== $this->gstCentral) {
+                        $changedData['gst_central_new'] = $this->gstCentral;
+                    }
+                    if ($asset->gst_ig !== $this->gstIg) {
+                        $changedData['gst_ig_new'] = $this->gstIg;
+                    }
+                    if ($asset->purchase_date !== $this->purchaseDate) {
+                        $changedData['purchase_date_new'] = $this->purchaseDate;
+                    }
+                    if ($asset->warranty_expire_date !== $this->warranty_expire_date) {
+                        $changedData['warranty_expire_date_new'] = $this->warranty_expire_date;
+                    }
+                    if ($asset->end_of_life !== $this->end_of_life) {
+                        $changedData['end_of_life_new'] = $this->end_of_life;
+                    }
+                    if ($asset->invoice_amount !== $this->invoiceAmount) {
+                        $changedData['invoice_amount_new'] = $this->invoiceAmount;
+                    }
+                    //  dd($changedData);
+                    if (!empty($changedData)) {
+                        // dd($changedData);
+                        $asset->update([
+                            'vendor_id' => $this->selectedVendorId,
+                            'manufacturer' => $this->manufacturer,
+                            'asset_type' => $this->assetType,
+                            'asset_model' => $this->assetModel,
+                            'asset_specification' => $this->assetSpecification,
+                            'color' => $this->color,
+                            'version' => $this->version,
+                            'serial_number' => $this->serialNumber,
+                            'invoice_number' => $this->invoiceNumber,
+                            'taxable_amount' => $this->taxableAmount,
+                            'barcode' => $qrCodeBase64,
+                            'gst_state' => $this->gstState,
+                            'gst_central' => $this->gstCentral,
+                            'gst_ig' => $this->gstIg,
+                            'invoice_amount' => $this->invoiceAmount,
+                            'purchase_date' => $this->purchaseDate ? $this->purchaseDate : null,
+                            'warranty_expire_date' => $this->warranty_expire_date ? $this->warranty_expire_date : null,
+                            'end_of_life' => $this->end_of_life,
+                            'file_paths' => json_encode($fileDataArray),
+                        ]);
+                        FlashMessageHelper::flashSuccess("Asset updated successfully!");
+
+                        AssetsHistories::create([
+                            'vendor_id' => $changedData['vendor_id_new'] ?? null,
+                            'asset_id' => $this->asset_id,
+                            'manufacturer' => $changedData['manufacturer_new'] ?? null,
+                            'asset_type' => $changedData['asset_type_new'] ?? null,
+                            'asset_model' => $changedData['asset_model_new'] ?? null,
+                            'asset_specification' => $changedData['asset_specification_new'] ?? null,
+                            'color' => $changedData['color_new'] ?? null,
+                            'version' => $changedData['version_new'] ?? null,
+                            'serial_number' => $changedData['serial_number_new'] ?? null,
+                            'invoice_number' => $changedData['invoice_number_new'] ?? null,
+                            'taxable_amount' => $changedData['taxable_amount_new'] ?? null,
+                            // 'barcode' => $barcodeBase64,
+                            'gst_state' => $changedData['gst_state_new'] ?? null,
+                            'gst_central' => $changedData['gst_central_new'] ?? null,
+                            'gst_ig' => $changedData['gst_ig_new'] ?? null,
+                            'purchase_date' => $changedData['purchase_date_new'] ?? null,
+                            'warranty_expire_date' => $changedData['warranty_expire_date_new'] ?? null,
+                            'end_of_life' => $changedData['end_of_life_new'] ?? null,
+                            // 'file_paths' => json_encode($fileDataArray),
+                            'created_by' => $emp_id,
+                            'action' => 'update',
+                        ]);
+                    } else {
+                        FlashMessageHelper::flashWarning("Nothing to updated !");
+                    }
                 }
             } else {
-
                 // Create new asset record
                 for ($i = 0; $i < $this->quantity; $i++) {
-                     VendorAsset::create([
+                    $asset = VendorAsset::create([
                         'vendor_id' => $this->selectedVendorId,
                         'manufacturer' => $this->manufacturer,
                         'asset_type' => $this->assetType,
@@ -745,7 +886,7 @@ class VendorAssets extends Component
                         'invoice_number' => $this->invoiceNumber,
                         'taxable_amount' => $this->taxableAmount,
                         'invoice_amount' => $this->invoiceAmount,
-                        'barcode' => $barcodeBase64,
+                        'barcode' => $qrCodeBase64,
                         'gst_state' => $this->gstState,
                         'gst_central' => $this->gstCentral,
                         'gst_ig' => $this->gstIg,
@@ -753,6 +894,33 @@ class VendorAssets extends Component
                         'warranty_expire_date' => $this->warranty_expire_date ? $this->warranty_expire_date : null,
                         'end_of_life' => $this->end_of_life,
                         'file_paths' => json_encode($fileDataArray),
+                        'status' => 'Available',
+                    ]);
+                    $asset_id = VendorAsset::where('id', $asset->id)->select('asset_id')->first()->asset_id;
+                    AssetsHistories::create([
+                        'vendor_id' => $this->selectedVendorId,
+                        'asset_id' => $asset_id,
+                        'manufacturer' => $this->manufacturer,
+                        'asset_type' => $this->assetType,
+                        'asset_model' => $this->assetModel,
+                        'asset_specification' => $this->assetSpecification,
+                        'color' => $this->color,
+                        'version' => $this->version,
+                        'serial_number' => $this->serialNumber,
+                        'invoice_number' => $this->invoiceNumber,
+                        'taxable_amount' => $this->taxableAmount,
+                        'invoice_amount' => $this->invoiceAmount,
+                        'barcode' => $qrCodeBase64,
+                        'gst_state' => $this->gstState,
+                        'gst_central' => $this->gstCentral,
+                        'gst_ig' => $this->gstIg,
+                        'purchase_date' => $this->purchaseDate ? $this->purchaseDate : null,
+                        'warranty_expire_date' => $this->warranty_expire_date ? $this->warranty_expire_date : null,
+                        'end_of_life' => $this->end_of_life,
+                        'file_paths' => json_encode($fileDataArray),
+                        'created_by' => $emp_id,
+                        'action' => 'create',
+                        'status' => 'Available',
                     ]);
                 }
                 FlashMessageHelper::flashSuccess("Asset created successfully!");
@@ -760,6 +928,7 @@ class VendorAssets extends Component
 
             $this->reset();
         } catch (\Exception $e) {
+            // dd($e->getMessage());
             // Handle the exception and log the error
             Log::error('Error during form submission:', ['error' => $e->getMessage()]);
             FlashMessageHelper::flashError("An error occurred during submission. Please try again later!");
@@ -841,47 +1010,42 @@ class VendorAssets extends Component
 
 
     public function filter()
-{
-    try {
-        // Initialize the query
-        $query = VendorAsset::select('vendor_assets.*', 'vendors.vendor_name') // Select fields from both tables
-            ->join('vendors', 'vendor_assets.vendor_id', '=', 'vendors.vendor_id') // Join with the vendor table
-            ->whereIn('vendors.is_active', ['0', '1']); // Filter by active vendors
-
-        // Apply search filter
-        $trimmedEmpId = trim($this->searchEmp); // Trimmed search input
-        if (!empty($trimmedEmpId)) {
-            $query->where(function ($query) use ($trimmedEmpId) {
-                $query->where('vendors.vendor_id', 'like', '%' . $trimmedEmpId . '%')
-                    ->orWhere('vendors.vendor_name', 'like', '%' . $trimmedEmpId . '%')
-                    ->orWhere('vendor_assets.asset_id', 'like', '%' . $trimmedEmpId . '%')
-                    ->orWhere('vendor_assets.manufacturer', 'like', '%' . $trimmedEmpId . '%')
-                    ->orWhere('vendor_assets.asset_type', 'like', '%' . $trimmedEmpId . '%')
-                    ->orWhere('vendor_assets.invoice_number', 'like', '%' . $trimmedEmpId . '%')
-                    ->orWhere('vendor_assets.serial_number', 'like', '%' . $trimmedEmpId . '%')
-                    ->orWhere('vendor_assets.is_active', 'like', '%' . $trimmedEmpId . '%');
-            });
-        }
-
-        // Ordering and fetching results
-        return $query->orderBy($this->sortColumn, $this->sortDirection)->get();
-
-    } catch (\Exception $e) {
-        Log::error('Error in filter method: ' . $e->getMessage());
-        return collect(); // Return an empty collection on failure
-    }
-}
-
-    public function updated($propertyName)
     {
-        // Trigger calculation when any of these fields are updated
-        if (in_array($propertyName, ['gstIg', 'gstState', 'gstCentral', 'taxableAmount'])) {
-            $this->calculateInvoiceAmount();
+        try {
+            // Initialize the query
+            $query = VendorAsset::select('vendor_assets.*', 'vendors.vendor_name') // Select fields from both tables
+                ->join('vendors', 'vendor_assets.vendor_id', '=', 'vendors.vendor_id') // Join with the vendor table
+                ->whereIn('vendors.is_active', ['0', '1']); // Filter by active vendors
+
+            // Apply search filter
+            $trimmedEmpId = trim($this->searchEmp); // Trimmed search input
+            if (!empty($trimmedEmpId)) {
+                $query->where(function ($query) use ($trimmedEmpId) {
+                    $query->where('vendors.vendor_id', 'like', '%' . $trimmedEmpId . '%')
+                        ->orWhere('vendors.vendor_name', 'like', '%' . $trimmedEmpId . '%')
+                        ->orWhere('vendor_assets.asset_id', 'like', '%' . $trimmedEmpId . '%')
+                        ->orWhere('vendor_assets.manufacturer', 'like', '%' . $trimmedEmpId . '%')
+                        ->orWhere('vendor_assets.asset_type', 'like', '%' . $trimmedEmpId . '%')
+                        ->orWhere('vendor_assets.invoice_number', 'like', '%' . $trimmedEmpId . '%')
+                        ->orWhere('vendor_assets.serial_number', 'like', '%' . $trimmedEmpId . '%')
+                        ->orWhere('vendor_assets.is_active', 'like', '%' . $trimmedEmpId . '%');
+                });
+            }
+
+            // Ordering and fetching results
+            return $query->orderBy($this->sortColumn, $this->sortDirection)->get();
+        } catch (\Exception $e) {
+            Log::error('Error in filter method: ' . $e->getMessage());
+            return collect(); // Return an empty collection on failure
         }
     }
+
+
+
 
     public function calculateInvoiceAmount()
     {
+
         // Ensure inputs are numeric to avoid errors
         $gstIg = is_numeric($this->gstIg) ? (float) $this->gstIg : 0;
         $gstState = is_numeric($this->gstState) ? (float) $this->gstState : 0;
@@ -955,9 +1119,9 @@ class VendorAssets extends Component
             // You may want to display an error message to the user, if needed
             session()->flash('error', 'An error occurred while changing the sort order.');
         }
-            // You may want to display an error message to the user, if needed
-            session()->flash('error', 'An error occurred while changing the sort order.');
-        }
+        // You may want to display an error message to the user, if needed
+        session()->flash('error', 'An error occurred while changing the sort order.');
+    }
 
 
 
@@ -978,10 +1142,10 @@ class VendorAssets extends Component
             $this->vendorAssets = collect($this->vendorAssets)->map(function ($vendorAsset) use ($assetTypes) {
                 if (is_null($vendorAsset)) {
                     return [
-                        'asset_type_name' => 'N/A', // Default value when vendorAsset is null
+                        'asset_type_name' => '-', // Default value when vendorAsset is null
                     ];
                 }
-                $vendorAsset['asset_type_name'] = $assetTypes[$vendorAsset['asset_type']] ?? 'N/A';
+                $vendorAsset['asset_type_name'] = $assetTypes[$vendorAsset['asset_type']] ?? '-';
 
                 return $vendorAsset;
             });

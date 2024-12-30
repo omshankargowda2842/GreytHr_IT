@@ -91,7 +91,7 @@
                             <option value="In Use">In Use</option>
                             <option value="In Repair">In Repair</option>
                             <option value="Available">Available</option>
-                            <option value="null" selected>N/A</option>
+                            <option value="null" selected>Others</option>
                         </select>
                     </div>
                     <div class="col-6 col-md-2 col-sm-6">
@@ -178,17 +178,12 @@
                     @foreach($assetDetails as $assetDetail)
                     <tr>
                         <td class="vendor-table-head">{{ $loop->iteration }}</td>
-                        <td class="vendor-table-head">{{ $assetDetail['asset_id'] ?? 'N/A'}}</td>
+                        <td class="vendor-table-head">{{ $assetDetail['asset_id'] ?? '-'}}</td>
+                        <td class="vendor-table-head">{{ucwords(strtolower($assetDetail['manufacturer'] )) ?? '-' }}</td>
+                        <td class="vendor-table-head">{{ $assetDetail['serial_number'] ?? '-'}}</td>
+                        <td class="vendor-table-head">{{ $assetDetail['asset_names'] ?? '-'}}</td>
 
-                        <td class="vendor-table-head">{{ucwords(strtolower($assetDetail['manufacturer'] )) ?? 'N/A' }}
-                        </td>
-
-
-
-                        <td class="vendor-table-head">{{ $assetDetail['serial_number'] ?? 'N/A'}}</td>
-                        <td class="vendor-table-head">{{ $assetDetail['asset_names'] ?? 'N/A'}}</td>
-
-                        <td class="vendor-table-head">{{ $assetDetail['status'] ?? 'N/A'}}</td>
+                        <td class="vendor-table-head">{{ $assetDetail['status'] ?? '-'}}</td>
 
 
                     </tr>

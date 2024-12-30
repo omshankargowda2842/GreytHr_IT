@@ -70,7 +70,7 @@
                             </div>
                             <div class="col-8">
                                 <input type="number" id="quantity" wire:model.lazy="quantity"
-                                @if($editMode) disabled @endif
+                                    @if($editMode) disabled @endif
                                     wire:keydown="resetValidationForField('quantity')" class="form-control" min="1" />
                                 @error('quantity')
                                 <div class="text-danger">{{ $message }}</div>
@@ -288,9 +288,8 @@
                                 </label>
                             </div>
                             <div class="col-8">
-                                <input type="text" id="gstIg" wire:model.lazy="gstIg" placeholder="Rs"
-                                    wire:keydown="resetValidationForField('gstIg')" class="form-control"
-                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
+                                <input type="text" id="gstIg" wire:model="gstIg" wire:input="calculateInvoiceAmount" placeholder="Rs"
+                                    wire:keydown="resetValidationForField('gstIg')" class="form-control" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
                                     inputmode="decimal">
                             </div>
                         </div>
@@ -312,9 +311,8 @@
                                 </label><span class="text-danger">*</span>
                             </div>
                             <div class="col-8">
-                                <input type="text" id="gstState" wire:model.lazy="gstState" placeholder="Rs"
-                                    wire:keydown="resetValidationForField('gstState')" class="form-control"
-                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
+                                <input type="text" id="gstState" wire:model="gstState" wire:input="calculateInvoiceAmount" placeholder="Rs"
+                                    wire:keydown="resetValidationForField('gstState')" class="form-control" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
                                     inputmode="decimal">
                                 @error('gstState') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
@@ -330,9 +328,8 @@
                                 </label><span class="text-danger">*</span>
                             </div>
                             <div class="col-8">
-                                <input type="text" id="gstCentral" wire:model.lazy="gstCentral" placeholder="Rs"
-                                    wire:keydown="resetValidationForField('gstCentral')" class="form-control"
-                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
+                                <input type="text" id="gstCentral" wire:model="gstCentral" wire:input="calculateInvoiceAmount" placeholder="Rs"
+                                    wire:keydown="resetValidationForField('gstCentral')" class="form-control" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
                                     inputmode="decimal">
                                 @error('gstCentral') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
@@ -353,7 +350,7 @@
                                     Amount</label><span class="text-danger">*</span>
                             </div>
                             <div class="col-8">
-                                <input type="number" id="taxableAmount" wire:model.lazy="taxableAmount" placeholder="Rs"
+                                <input type="number" id="taxableAmount" wire:model="taxableAmount" wire:input="calculateInvoiceAmount" placeholder="Rs"
                                     wire:keydown="resetValidationForField('taxableAmount')" class="form-control">
                                 @error('taxableAmount') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
@@ -386,8 +383,7 @@
                     <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-4">
-                                <label for="purchaseDate" class="vendor-asset-label">Purchase
-                                    Date</label><span class="text-danger">*</span>
+                                <label for="purchaseDate" class="vendor-asset-label">Purchase Date</label><span class="text-danger">*</span>
                             </div>
                             <div class="col-8">
                                 <input type="date" id="purchaseDate" wire:model.lazy="purchaseDate"
@@ -406,7 +402,7 @@
                             <div class="col-8">
                                 <input type="date" id="warranty_expire_date" wire:model.lazy="warranty_expire_date"
                                     wire:change="resetValidationForField('warranty_expire_date')" class="form-control"
-                                    min="{{ \Carbon\Carbon::tomorrow()->toDateString() }}">
+                                    min="{{ $purchaseDate ? \Carbon\Carbon::parse($purchaseDate)->addDay()->toDateString() : \Carbon\Carbon::tomorrow()->toDateString() }}">
                                 @error('warranty_expire_date') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -432,12 +428,12 @@
 
                                 @if($barcode)
                                 <!-- <h6>Generated Barcode:</h6> -->
-                                <label for="barcode" class="vendor-asset-label">Generated Barcode
+                                <label for="barcode" class="vendor-asset-label">Generated QR Code
                                 </label>
                             </div>
                             <div class="col-8">
-                                <img src="data:image/png;base64,{{ $barcode }}" alt="Barcode"
-                                    style="max-width: 100%; height: auto;">
+                                <img src="{{ $barcode }}" alt="QR Code"
+                                    style="max-width: 100px;height: 100px;padding: 2px;border: 1px solid black;">
                                 @endif
                             </div>
                         </div>
@@ -644,7 +640,7 @@
                                 @endif
                             </span>
                         </th>
-                        <th class="vendor-table-head">Barcode Image</th>
+                        <th class="vendor-table-head">QR Code</th>
 
                         <th class="vendor-table-head d-flex justify-content-center">Actions</th>
                     </tr>
@@ -656,23 +652,23 @@
                     @foreach($vendorAssets as $vendorAsset)
                     <tr>
                         <td class="vendor-table-head">{{ $loop->iteration }}</td>
-                        <td class="vendor-table-head">{{ $vendorAsset->vendor_name ?? 'N/A'}}</td>
+                        <td class="vendor-table-head">{{ $vendorAsset->vendor_name ?? '-'}}</td>
 
-                        <td class="vendor-table-head">{{ $vendorAsset->asset_id ?? 'N/A'}}</td>
-                        <td class="vendor-table-head">{{ucwords(strtolower($vendorAsset->manufacturer )) ?? 'N/A' }}
+                        <td class="vendor-table-head">{{ $vendorAsset->asset_id ?? '-'}}</td>
+                        <td class="vendor-table-head">{{ucwords(strtolower($vendorAsset->manufacturer )) ?? '-' }}
                         </td>
-                        <td class="vendor-table-head">{{ ucwords(strtolower($vendorAsset['asset_type_name'])) ?? 'N/A'}}
+                        <td class="vendor-table-head">{{ ucwords(strtolower($vendorAsset['asset_type_name'])) ?? '-'}}
                         </td>
-                        <td class="vendor-table-head">{{ $vendorAsset->invoice_number ?? 'N/A'}}</td>
-                        <td class="vendor-table-head">{{ $vendorAsset->serial_number ?? 'N/A'}}</td>
+                        <td class="vendor-table-head">{{ $vendorAsset->invoice_number ?? '-'}}</td>
+                        <td class="vendor-table-head">{{ $vendorAsset->serial_number ?? '-'}}</td>
 
 
-                        <td class="vendor-table-head">{{ $vendorAsset->status ?? 'N/A'}}</td>
+                        <td class="vendor-table-head">{{ $vendorAsset->status ?? '-'}}</td>
 
                         <td class="vendor-table-head">
                             @if($vendorAsset->barcode)
                             <!-- Text "View Barcode" without any action -->
-                            <span>View Barcode</span>
+                            <span>View QR Code</span>
 
                             <!-- Eye icon to trigger the modal -->
                             <a href="#" data-bs-toggle="modal" data-bs-target="#barcodeModal{{ $vendorAsset->id }}"
@@ -686,20 +682,20 @@
                                 <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="barcodeModalLabel{{ $vendorAsset->id }}">Barcode
+                                            <h5 class="modal-title" id="barcodeModalLabel{{ $vendorAsset->id }}">QR Code
                                                 Preview</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                 aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body text-center">
-                                            <img src="data:image/png;base64,{{ $vendorAsset->barcode }}" alt="Barcode"
+                                            <img src="{{ $vendorAsset->barcode }}" alt="Barcode"
                                                 style="max-width: 100%; height: auto;">
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             @else
-                            No Barcode
+                            No QR Code
                             @endif
                         </td>
 
@@ -709,7 +705,7 @@
                             <!-- View Action -->
                             <div class="col mx-1">
                                 <button class="btn btn-white border-dark"
-                                    wire:click="showViewVendor({{ $vendorAsset->id }})">
+                                    wire:click="showViewVendor('{{ $vendorAsset->asset_id }}')">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
@@ -803,7 +799,7 @@
     @php
     $vendorAsset = \App\Models\VendorAsset::find($currentVendorId);
     @endphp
-    <div class="col-10 mt-4 view-details-modal">
+    <div class="col-11 mt-4 view-details-modal">
 
         <div class="d-flex justify-content-between align-items-center">
             <div>
@@ -815,231 +811,295 @@
                 Close
             </button>
         </div>
-
-
         <table class="table table-bordered mt-3 req-pro-table">
+            <div class="mb-4" style="border: 1px solid grey; border-radius: 5px;margin:5px 0px;padding:5px">
+                <div class="row" style="justify-content: space-between;">
+                    <div class="col" style=" text-decoration-line: underline;">Asset Details </div>
 
-            <tbody>
+                </div>
+                <div class="">
 
-                <tr>
-                    <td class="fs-6 fs-md-3 fs-lg-2">Vendor ID</td>
-                    <td class="view-td">{{ ucwords(strtolower($vendorAsset->vendor_id)) ?? 'N/A' }}</td>
-                </tr>
-                <tr>
-                    <td class="fs-6 fs-md-3 fs-lg-2">Manufacturer</td>
-                    <td class="view-td">{{ ucwords(strtolower($vendorAsset->manufacturer)) ?? 'N/A' }}</td>
-                </tr>
-                <tr>
-                    <td class="fs-6 fs-md-3 fs-lg-2">Asset Type</td>
-                    <td class="view-td">{{ ucwords(strtolower($vendorAsset->asset_type)) ?? 'N/A' }}</td>
-                </tr>
-                <tr>
-                    <td class="fs-6 fs-md-3 fs-lg-2">Asset Model</td>
-                    <td class="view-td">{{ ucwords(strtolower($vendorAsset->asset_model)) ?? 'N/A' }}</td>
-                </tr>
-                <tr>
-                    <td class="fs-6 fs-md-3 fs-lg-2">Asset Specification</td>
-                    <td class="view-td">{{ ucwords(strtolower($vendorAsset->asset_specification)) ?? 'N/A' }}</td>
-                </tr>
-                <tr>
-                    <td class="fs-6 fs-md-3 fs-lg-2">Color</td>
-                    <td class="view-td">{{ ucwords(strtolower($vendorAsset->color)) ?? 'N/A' }}</td>
-                </tr>
-                <tr>
-                    <td class="fs-6 fs-md-3 fs-lg-2">Version</td>
-                    <td class="view-td">{{ ucwords(strtolower($vendorAsset->version)) ?? 'N/A' }}</td>
-                </tr>
-                <tr>
-                    <td class="fs-6 fs-md-3 fs-lg-2">Serial Number</td>
-                    <td class="view-td">{{ $vendorAsset->serial_number ?? 'N/A' }}</td>
-                </tr>
-                <tr>
-                    <td class="fs-6 fs-md-3 fs-lg-2">Invoice Number</td>
-                    <td class="view-td"> {{ $vendorAsset->invoice_number ?? 'N/A' }}</td>
-                </tr>
+                    <div class="col">Status: <strong>{{$selectedUpdatedAssetsData->status?? '-'}}</strong></div>
+                    @if($selectedUpdatedAssetsData->vendor_id)
+                    @php
+                    $vendor_name = \App\Models\AssetsHistories::getVendorName($selectedUpdatedAssetsData->vendor_id); // Pass the emp_id
+                    @endphp
+                    <div class="col">Vendor Name: <strong>{{$vendor_name}}</strong></div>
+                    @else
+                    <div class="col">Vendor Name: <strong>-</strong></div>
+                    @endif
+                    <div class="col">Manufacturer: <strong>{{$selectedUpdatedAssetsData->manufacturer ?? '-'}}</strong></div>
+                    @if($selectedUpdatedAssetsData->asset_type)
+                    @php
+                    $asset_type = \App\Models\AssetsHistories::getAssetType($selectedUpdatedAssetsData->asset_type); // Pass the emp_id
+                    @endphp
+                    <div class="col">Asset Type: <strong>{{$asset_type}}</strong></div>
+                    @else
+                    <div class="col">Asset Type: <strong>-</strong></div>
+                    @endif
 
-                <tr>
-                    <td class="fs-6 fs-md-3 fs-lg-2">GST State</td>
-                    <td class="view-td">{{ $vendorAsset->gst_state ?? 'N/A' }}</td>
-                </tr>
-                <tr>
-                    <td class="fs-6 fs-md-3 fs-lg-2">GST Central</td>
-                    <td class="view-td">{{ $vendorAsset->gst_central ?? 'N/A' }}</td>
-                </tr>
-                <tr>
-                    <td class="fs-6 fs-md-3 fs-lg-2">Taxable Amount</td>
-                    <td class="view-td">Rs. {{ $vendorAsset->taxable_amount ?? 'N/A' }}</td>
-                </tr>
-                <tr>
-                    <td class="fs-6 fs-md-3 fs-lg-2">Invoice Amount</td>
-                    <td class="view-td">Rs. {{$vendorAsset->invoice_amount ?? 'N/A' }}</td>
-                </tr>
-                <tr>
-                    <td class="fs-6 fs-md-3 fs-lg-2">Purchase Date</td>
-                    <td class="view-td">{{ \Carbon\Carbon::parse($vendorAsset->purchase_date)->format('d-M-Y') }}</td>
-                </tr>
-                <tr>
-                    <td class="fs-6 fs-md-3 fs-lg-2">Attachments</td>
-                    <td>
-                        @if (!empty($vendorAsset->file_paths))
-                        @php
-                        // Check if $vendor->file_paths is a string or an array
-                        $fileDataArray = is_string($vendorAsset->file_paths)
-                        ? json_decode($vendorAsset->file_paths, true)
-                        : $vendorAsset->file_paths;
+                    <div class="col">Asset Model: <strong>{{$selectedUpdatedAssetsData->asset_model ?? '-'}}</strong></div>
 
-                        // Separate images and files
-                        foreach ($fileDataArray as $fileData) {
-                        if (isset($fileData['mime_type'])) {
-                        if (strpos($fileData['mime_type'], 'image') !== false) {
-                        $images[] = $fileData;
-                        } else {
-                        $files[] = $fileData;
-                        }
-                        }
-                        }
-                        @endphp
+                    <div class="col">Asset Specification: <strong>{{$selectedUpdatedAssetsData->asset_sepcification ?? '-'}}</strong></div>
+
+                    <div class="col">Colour: <strong>{{$selectedUpdatedAssetsData->color ?? '-'}}</strong></div>
+
+                    <div class="col">Version: <strong>{{$selectedUpdatedAssetsData->version ?? '-'}}</strong></div>
+
+                    <div class="col">Serial Number: <strong>{{$selectedUpdatedAssetsData->serial_number ?? '-'}}</strong></div>
+
+                    <div class="col">Invoice Number: <strong>{{$selectedUpdatedAssetsData->invoice_number ?? '-'}}</strong></div>
+
+                    <div class="col">GST: <strong>{{$selectedUpdatedAssetsData->gst_ig ?? '-'}}</strong></div>
+
+                    <div class="col">GST State: <strong>{{$selectedUpdatedAssetsData->gst_state ?? '-'}}</strong></div>
+
+                    <div class="col">GST Central: <strong>{{$selectedUpdatedAssetsData->gst_central ?? '-'}}</strong></div>
+
+                    <div class="col">Taxable Amount: <strong>{{$selectedUpdatedAssetsData->taxable_amount ?? '-'}}</strong></div>
+
+                    <div class="col"> Invoice Amount: <strong>{{$selectedUpdatedAssetsData->invoice_amount ?? '-'}}</strong></div>
+
+                    <div class="col"> Purchased Date: <strong>{{\Carbon\Carbon::parse($selectedUpdatedAssetsData->purchase_date)->format('d M, Y') ?? '-'}}</strong></div>
+                    <div class="col"> Warranty Expiration Date: <strong>{{\Carbon\Carbon::parse($selectedUpdatedAssetsData->warranty_expire_date)->format('d M, Y') ?? '-'}}</strong></div>
+
+                    <div class="col">End Of Life: <strong>{{$selectedUpdatedAssetsData->end_of_life ?? '-'}}</strong></div>
 
 
-                        {{-- view file popup --}}
-                        @if ($showViewImageDialog && $currentVendorId === $vendorAsset->id)
-                        <div class="modal custom-modal" tabindex="-1" role="dialog" style="display: block;">
-                            <div class="modal-dialog custom-modal-dialog custom-modal-dialog-centered modal-lg"
-                                role="document">
-                                <div class="modal-content custom-modal-content">
-                                    <div class="modal-header custom-modal-header">
-                                        <h5 class="modal-title view-file">Attached Images</h5>
-                                    </div>
-                                    <div class="modal-body custom-modal-body">
-                                        <div class="swiper-container">
-                                            <div class="swiper-wrapper">
-                                                @foreach ($images as $image)
-                                                @php
-                                                $base64File = $image['data'];
-                                                $mimeType = $image['mime_type'];
-                                                @endphp
-                                                <div class="swiper-slide">
-                                                    <img src="data:{{ $mimeType }};base64,{{ $base64File }}"
-                                                        class="img-fluid" alt="Image">
-                                                </div>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="modal-footer custom-modal-footer">
-                                        <button type="button" class="submit-btn"
-                                            wire:click.prevent="downloadImages({{ $vendorAsset->id }})">Download</button>
-                                        <button type="button" class="cancel-btn1"
-                                            wire:click="closeViewImage">Close</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-backdrop fade show blurred-backdrop"></div>
-                        @endif
-
-
-                        @if ($showViewFileDialog && $currentVendorId === $vendorAsset->id)
-                        <div class="modal" tabindex="-1" role="dialog" style="display: block;">
-                            <div class="modal-dialog modal-dialog-centered modal-md" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title viewfile">View Files</h5>
-                                    </div>
-                                    <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
-                                        <ul class="list-group list-group-flush">
-
-                                            @foreach ($files as $file)
-
-                                            @php
-
-                                            $base64File = $file['data'];
-
-                                            $mimeType = $file['mime_type'];
-
-                                            $originalName = $file['original_name'];
-
-                                            @endphp
-
-                                            <li>
-
-                                                <a href="data:{{ $mimeType }};base64,{{ $base64File }}"
-                                                    download="{{ $originalName }}"
-                                                    style="text-decoration: none; color: #007BFF; margin: 10px;">
-
-                                                    {{ $originalName }} <i class="fas fa-download"
-                                                        style="margin-left:5px"></i>
-
-                                                </a>
-
-                                            </li>
-
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="cancel-btn1"
-                                            wire:click="closeViewFile">Close</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-backdrop fade show blurred-backdrop"></div>
-                        @endif
-
-
-                        @php
-                        // Initialize $images and $files as empty arrays to avoid null issues
-                        $images = $images ?? [];
-                        $files = $files ?? [];
-                        @endphp
-                        <!-- Trigger Links -->
-                        @if (count($images) > 1)
-                        <a href="#" wire:click.prevent="showViewImage({{ $vendorAsset->id }})"
-                            style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
-                            View Images
-                        </a>
-                        @elseif (count($images) == 1)
-                        <a href="#" wire:click.prevent="showViewImage({{ $vendorAsset->id }})"
-                            style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
-                            View Image
-                        </a>
-                        @endif
-
-                        @if (count($files) > 1)
-                        <a href="#" wire:click.prevent="showViewFile({{ $vendorAsset->id }})"
-                            style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
-                            View Files
-                        </a>
-                        @elseif (count($files) == 1)
-                        <a href="#" wire:click.prevent="showViewFile({{ $vendorAsset->id }})"
-                            style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
-                            View File
-                        </a>
-                        @endif
-
-                        @if (count($images) == 0 && count($files) == 0)
-                        <label for="">No Attachments</label>
-                        @endif
-
-
-                        @endif
-
-                    </td>
-
-                </tr>
-
-            </tbody>
+                </div>
+            </div>
         </table>
+        <hr>
+
+        <button class="btn text-white" style="background-color: #02114f;" wire:click="viewAssetHistory">
+            {{ $showAssetHistory ? 'Hide History' : 'View History' }}
+        </button>
+
+
+
+
+
+        @if($showAssetHistory)
+        <h5 class="mt-2">View History Details :-</h5>
+        <table class="table table-bordered mt-3 req-pro-table">
+            @foreach($selectedAssetsData as $assetData)
+            @if($assetData->action=='update')
+            <div class="mb-4" style="border: 1px solid grey; border-radius: 5px;margin:5px 0px;padding:5px">
+                <div class="row" style="justify-content: space-between;">
+                    <div class="col" style=" text-decoration-line: underline;"> Fields Changes</div>
+                    <div class="col  text-end">Updated On: <strong>{{$assetData->created_at->format('d M, Y h:i A') }}</strong></div>
+                </div>
+                <div>
+                    @php
+                    $updatedBy = \App\Models\AssetsHistories::getEmployeeName($assetData->created_by); // Pass the emp_id
+                    @endphp
+                    <div class="col">Updated By :- <strong style="font-size: medium;color:#02114f">{{ $updatedBy}}</strong></div>
+
+                    @if($assetData->status)
+                    <div class="col">Status: <strong>{{$assetData->status}}</strong></div>
+                    @endif
+
+                    @if($assetData->vendor_id)
+                    @php
+                    $vendor_name = \App\Models\AssetsHistories::getVendorName($assetData->vendor_id); // Pass the emp_id
+                    @endphp
+                    <div class="col">Vendor Name: <strong>{{$vendor_name}}</strong></div>
+                    @endif
+
+                    @if($assetData->manufacturer)
+                    <div class="col">Manufacturer: <strong>{{$assetData->manufacturer}}</strong></div>
+                    @endif
+
+                    @if($assetData->asset_type)
+                    @php
+                    $asset_type = \App\Models\AssetsHistories::getAssetType($assetData->asset_type); // Pass the emp_id
+                    @endphp
+                    <div class="col">Asset Type: <strong>{{$asset_type}}</strong></div>
+                    @endif
+
+                    @if($assetData->asset_model)
+                    <div class="col">Asset Model: <strong>{{$assetData->asset_model}}</strong></div>
+                    @endif
+
+                    @if($assetData->asset_sepcification)
+                    <div class="col">Asset Specification: <strong>{{$assetData->asset_sepcification}}</strong></div>
+                    @endif
+
+                    @if($assetData->color)
+                    <div class="col">Colour: <strong>{{$assetData->color}}</strong></div>
+                    @endif
+
+                    @if($assetData->version)
+                    <div class="col">Version: <strong>{{$assetData->version}}</strong></div>
+                    @endif
+
+                    @if($assetData->serial_number)
+                    <div class="col">Serial Number: <strong>{{$assetData->serial_number}}</strong></div>
+                    @endif
+
+                    @if($assetData->invoice_number)
+                    <div class="col">Invoice Number: <strong>{{$assetData->invoice_number}}</strong></div>
+                    @endif
+
+                    @if($assetData->gst_ig)
+                    <div class="col">GST: <strong>{{$assetData->gst_ig}}</strong></div>
+                    @endif
+
+                    @if($assetData->gst_state)
+                    <div class="col">GST State: <strong>{{$assetData->gst_state}}</strong></div>
+                    @endif
+
+                    @if($assetData->gst_central)
+                    <div class="col">GST Central: <strong>{{$assetData->gst_central}}</strong></div>
+                    @endif
+
+                    @if($assetData->taxable_amount)
+                    <div class="col">Taxable Amount: <strong>{{$assetData->taxable_amount}}</strong></div>
+                    @endif
+
+                    @if($assetData->invoice_amount)
+                    <div class="col"> Invoice Amount: <strong>{{$assetData->invoice_amount}}</strong></div>
+                    @endif
+
+                    @if($assetData->purchase_date)
+                    <div class="col"> Purchased Date: <strong>{{\Carbon\Carbon::parse($assetData->purchase_date)->format('d M, Y')}}</strong></div>
+                    @endif
+                    @if($assetData->warranty_expire_date)
+                    <div class="col">Warranty Expiration Date: <strong>{{\Carbon\Carbon::parse($assetData->warranty_expire_date)->format('d M, Y')}}</strong></div>
+                    @endif
+
+                    @if($assetData->end_of_life)
+                    <div class="col">End Of Life: <strong>{{$assetData->end_of_life}}</strong></div>
+                    @endif
+
+                    @if($assetData->is_active=='0' || $assetData->is_active=='1' )
+                    <div class="col">Asset Status: <strong>
+                            @if($assetData->is_active==0)
+                            De-Activated
+                            @else
+                            Activated
+                            @endif </strong></div>
+                    @endif
+
+                    @if($assetData->delete_asset_reason)
+                    <div class="col">Asset Deactivated Reason: <strong>{{$assetData->delete_asset_reason}}</strong></div>
+                    @endif
+
+
+
+                </div>
+            </div>
+            @endif
+            @if($assetData->action=='create')
+            <div class="mb-4" style="border: 1px solid grey; border-radius: 5px;margin:5px 0px;padding:5px">
+                <div class="row" style="justify-content: space-between;">
+                    <div class="col" style=" text-decoration-line: underline;">Asset Created </div>
+                    <div class="col  text-end">Created On: <strong>{{$assetData->created_at->format('d M, Y h:i A') }}</strong></div>
+                </div>
+                <div>
+                    @php
+                    $updatedBy = \App\Models\AssetsHistories::getEmployeeName($assetData->created_by); // Pass the emp_id
+                    @endphp
+                    <div class="col">Created By :- <strong style="font-size: medium;color:#02114f">{{ $updatedBy}}</strong></div>
+
+                    <div class="col">Status: <strong>{{$assetData->status?? '-'}}</strong></div>
+                    @if($assetData->vendor_id)
+                    @php
+                    $vendor_name = \App\Models\AssetsHistories::getVendorName($assetData->vendor_id); // Pass the emp_id
+                    @endphp
+                    <div class="col">Vendor Name: <strong>{{$vendor_name}}</strong></div>
+                    @else
+                    <div class="col">Vendor Name: <strong>-</strong></div>
+                    @endif
+                    <div class="col">Manufacturer: <strong>{{$assetData->manufacturer ?? '-'}}</strong></div>
+                    @if($assetData->asset_type)
+                    @php
+                    $asset_type = \App\Models\AssetsHistories::getAssetType($assetData->asset_type); // Pass the emp_id
+                    @endphp
+                    <div class="col">Asset Type: <strong>{{$asset_type}}</strong></div>
+                    @else
+                    <div class="col">Asset Type: <strong>-</strong></div>
+                    @endif
+
+                    <div class="col">Asset Model: <strong>{{$assetData->asset_model ?? '-'}}</strong></div>
+
+                    <div class="col">Asset Specification: <strong>{{$assetData->asset_sepcification ?? '-'}}</strong></div>
+
+                    <div class="col">Colour: <strong>{{$assetData->color ?? '-'}}</strong></div>
+
+                    <div class="col">Version: <strong>{{$assetData->version ?? '-'}}</strong></div>
+
+                    <div class="col">Serial Number: <strong>{{$assetData->serial_number ?? '-'}}</strong></div>
+
+                    <div class="col">Invoice Number: <strong>{{$assetData->invoice_number ?? '-'}}</strong></div>
+
+                    <div class="col">GST: <strong>{{$assetData->gst_ig ?? '-'}}</strong></div>
+
+                    <div class="col">GST State: <strong>{{$assetData->gst_state ?? '-'}}</strong></div>
+
+                    <div class="col">GST Central: <strong>{{$assetData->gst_central ?? '-'}}</strong></div>
+
+                    <div class="col">Taxable Amount: <strong>{{$assetData->taxable_amount ?? '-'}}</strong></div>
+
+                    <div class="col"> Invoice Amount: <strong>{{$assetData->invoice_amount ?? '-'}}</strong></div>
+
+                    <div class="col"> Purchased Date: <strong>{{\Carbon\Carbon::parse($assetData->purchase_date)->format('d M, Y') ?? '-'}}</strong></div>
+                    <div class="col">Warranty Expiration Date: <strong>{{\Carbon\Carbon::parse($assetData->warranty_expire_date)->format('d M, Y') ?? '-'}}</strong></div>
+
+                    <div class="col">End Of Life: <strong>{{$assetData->end_of_life ?? '-'}}</strong></div>
+
+
+                </div>
+            </div>
+            @endif
+
+            @if($assetData->action=='assign')
+            <div class="mb-4" style="border: 1px solid grey; border-radius: 5px;margin:5px 0px;padding:5px">
+                <div class="row" style="justify-content: space-between;">
+                    <div class="col" style=" text-decoration-line: underline;">Asset Assigned </div>
+                    <div class="col  text-end">Updated On: <strong>{{$assetData->created_at->format('d M, Y h:i A') }}</strong></div>
+                </div>
+                <div>
+                    @php
+                    $updatedBy = \App\Models\AssetsHistories::getEmployeeName($assetData->created_by); // Pass the emp_id
+                    $assigned_to=\App\Models\AssetsHistories::getEmployeeName($assetData->assign_or_un_assign); // Pass the emp_id
+                    @endphp
+                    <div class="col">Assigned By :- <strong style="font-size: medium;color:#02114f">{{ $updatedBy}}</strong></div>
+
+                    <div class="col">Action : Assigned to <strong> {{ $assigned_to}}</strong></div>
+
+                    <div class="col">Status: <strong>{{$assetData->status?? '-'}}</strong></div>
+                </div>
+            </div>
+
+
+
+            @endif
+            @if($assetData->action=='un_assign')
+            <div class="mb-4" style="border: 1px solid grey; border-radius: 5px;margin:5px 0px;padding:5px">
+            <div class="row" style="justify-content: space-between;">
+                <div class="col" style=" text-decoration-line: underline;">Asset Un-Assigned </div>
+                <div class="col  text-end">Updated On: <strong>{{$assetData->created_at->format('d M, Y h:i A') }}</strong></div>
+            </div>
+            <div>
+                @php
+                $updatedBy = \App\Models\AssetsHistories::getEmployeeName($assetData->created_by); // Pass the emp_id
+                $assigned_to=\App\Models\AssetsHistories::getEmployeeName($assetData->assign_or_un_assign); // Pass the emp_id
+                @endphp
+                <div class="col">Un-Assigned By :- <strong style="font-size: medium;color:#02114f">{{ $updatedBy}}</strong></div>
+
+                <div class="col">Action : Un-Assigned from <strong>{{ $assigned_to}}</strong></div>
+
+                <div class="col">Status: <strong>{{$assetData->status?? '-'}}</strong></div>
+            </div>
+            </div>
+            @endif
+            @endforeach
+        </table>
+        @endif
 
     </div>
-
-
     @endif
-
-
-
     @if ($showLogoutModal)
     <div class="modal logout1" id="logoutModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
