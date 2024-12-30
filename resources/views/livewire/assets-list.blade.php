@@ -95,7 +95,7 @@
                         </select>
                     </div>
                     <div class="col-6 col-md-2 col-sm-6">
-                        <label for="" style="margin-right: 2px;">Items-Per-Page</label>
+                        <label for="" style="margin-right: 2px; white-space: nowrap;">Items-Per-Page</label>
                         <select class="form-select" wire:change='getAssetList' wire:model="perPage" style="width: 100%;">
                             <option value="10">10</option>
                             <option value="25">25</option>

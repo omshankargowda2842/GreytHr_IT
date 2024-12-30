@@ -26,21 +26,22 @@
             @if(auth()->check() && (auth()->user()->hasRole('admin') || auth()->user()->hasRole('super_admin')))
 
             @if($viewRecentRequests)
-            <div class="col-lg-9 col-md-10 col-xs-12" style="margin-left: 4%;">
+            <div class="col-lg-9 col-md-10 col-xs-12 " style="margin-left: 4%;">
 
-                <div class="d-flex  justify-content-between mb-4">
-                    <div>
+                <div class="row mb-4">
+                    <div class="col-12 col-md-6 d-flex flex-column align-items-start justify-content-center">
                         <h3 class="d-flex justify-content-start mb-5 headingForAllModules1">New Requests</h3>
 
                     </div>
 
-
-                    <div>
+                    <div class="col-12 col-md-6 d-flex align-items-start justify-content-end">
                         <button class="btn btn-success headingForAllModules"
-                            style="background-color: #02114f;color:white" wire:click="showRejectedRequest">Rejected
+                            style="background-color: #02114f;color:white;white-space: nowrap;font-size:13px;"
+                            wire:click="showRejectedRequest">Rejected
                             Requests</button>
 
-                        <button class="btn btn-success" style="background-color: #02114f;color:white"
+                        <button class="btn btn-success  ml-2"
+                            style="background-color: #02114f;color:white;font-size:13px;margin-left:3px;white-space: nowrap;"
                             wire:click="showAllRequest">Approved Requests</button>
                     </div>
 
@@ -363,7 +364,8 @@
                                                         style="font-size: 12px; display: none;" />
 
                                                     <!-- Label triggers file input -->
-                                                    <div class="d-flex" style="align-items: baseline; gap: 5px;">
+                                                    <div class="d-flex"
+                                                        style="align-items: baseline; gap: 5px;margin-top: 0%;">
                                                         <button class="btn btn-outline-secondary" type="button"
                                                             for="fileInput-{{ $recentRequest->id }}"
                                                             onclick="document.getElementById('fileInput-{{ $recentRequest->id }}').click();">
@@ -824,15 +826,15 @@
             @if(auth()->check() && (auth()->user()->hasRole('admin') || auth()->user()->hasRole('super_admin')))
 
             @if($viewRejectedRequests)
-            <div class="col-lg-9 col-md-10 col-xs-12" style="margin-left: 4%;">
+            <div class="col-lg-9 col-md-10 col-xs-12 " style="margin-left: 4%;">
 
                 <div class="d-flex  justify-content-between mb-4">
                     <div>
-                        <h3 class="d-flex justify-content-start mb-5">Rejected Requests</h3>
+                        <h3 class="d-flex justify-content-start mb-5 headingForAllModules1">Rejected Requests</h3>
 
                     </div>
                     <div>
-                        <button class="btn btn-success" style="background-color: #02114f;color:white"
+                        <button class="btn btn-success" style="background-color: #02114f;color:white;font-size:13px"
                             wire:click="showRecentRequest">Recent Requests</button>
                     </div>
 
@@ -1301,7 +1303,7 @@
                                 @if(auth()->check() && (auth()->user()->hasRole('admin') ||
                                 auth()->user()->hasRole('super_admin')))
                                 <div>
-                                    <button class="btn" style="background-color: #02114f; color: white;"
+                                    <button class="btn" style="background-color: #02114f; color: white;font-size:13px;"
                                         wire:click="showRecentRequest">Recent Requests</button>
                                 </div>
                                 @endif
@@ -1426,7 +1428,7 @@
                                             <td>Assign to <span class="text-danger">*</span></td>
                                             <td class="view-td">
                                                 <select class="req-selected-status" wire:model="selectedAssigne"
-                                                wire:change="handleSelectedAssigneChange">
+                                                    wire:change="handleSelectedAssigneChange">
                                                     <option value="" disabled hidden>Select Assignee</option>
                                                     @foreach($itData as $itName)
                                                     <option
@@ -1450,7 +1452,7 @@
 
                                             <td class="view-td">
                                                 <select wire:model="selectedStatus" class="req-selected-status"
-                                                wire:change="handleSelectedStatusChange">
+                                                    wire:change="handleSelectedStatusChange">
                                                     <option value="" disabled hidden>Select Status </option>
                                                     <option value="5">Pending</option>
                                                     <option value="16">Inprogress</option>
@@ -1503,7 +1505,7 @@
                                             <td>
 
                                                 <div>
-                                                    <div class="row">
+                                                    <div class="row req-comments">
                                                         <div class="col-10">
                                                             <textarea wire:model.lazy="comments"
                                                                 class="form-control"></textarea>
@@ -1727,8 +1729,8 @@
                                                                     style="font-size: 12px; display: none;" />
 
                                                                 <!-- Label triggers file input -->
-                                                                <div class="d-flex"
-                                                                    style="align-items: baseline; gap: 5px;">
+                                                                <div class="req-attachmentsIcon d-flex"
+                                                                    style="align-items: baseline; gap: 5px;margin-top: 40%;">
                                                                     <button class="btn btn-outline-secondary"
                                                                         type="button"
                                                                         for="fileInput-{{ $selectedRequest->id }}"
@@ -2593,7 +2595,7 @@
 
                                                                         <!-- Label triggers file input -->
                                                                         <div class="d-flex"
-                                                                            style="align-items: baseline; gap: 5px;">
+                                                                            style="align-items: baseline; gap: 5px;margin-top: 40%;">
                                                                             <button class="btn btn-outline-secondary"
                                                                                 type="button"
                                                                                 for="fileInput-{{ $record->id }}"
@@ -3044,8 +3046,7 @@
                                                         </span>
                                                     </th>
 
-                                                    <th class="req-table-head-Remarks">
-                                                        Remarks</th>
+
                                                     <th class="req-table-head">Time tracker</th>
                                                     <th class="req-table-head">Response time</th>
                                                     <th class="req-table-head">Change Status</th>
@@ -3282,29 +3283,6 @@
 
 
 
-                                                    <td>
-                                                        <form
-                                                            wire:submit.prevent="postInprogressRemarks('{{ $record->id }}')">
-                                                            <div class="row">
-                                                                <div class="col-12 d-flex align-items-center">
-                                                                    <!-- Textarea takes most of the width -->
-                                                                    <textarea
-                                                                        wire:model.lazy="remarks.{{ $record->id }}"
-                                                                        class="form-control me-2 req-remarks-textarea"
-                                                                        style="flex-grow: 1;"></textarea>
-
-                                                                    <!-- Button is small and aligned to the right -->
-                                                                    <button type="submit"
-                                                                        style="background-color: #02114f;"
-                                                                        class="btn text-white p-2"
-                                                                        style="height: fit-content;" @if($loading ||
-                                                                        empty($remarks[$record->id]))
-                                                                        disabled @endif>Post</button>
-                                                                </div>
-                                                            </div>
-
-                                                        </form>
-                                                    </td>
 
                                                     <td>
 
@@ -3568,7 +3546,7 @@
 
                                                                         <!-- Label triggers file input -->
                                                                         <div class="d-flex"
-                                                                            style="align-items: baseline; gap: 5px;">
+                                                                            style="align-items: baseline; gap: 5px;margin-top: 40%;">
                                                                             <button class="btn btn-outline-secondary"
                                                                                 type="button"
                                                                                 for="fileInput-{{ $record->id }}"
@@ -4096,19 +4074,19 @@
                                                 <div class="modal-body">
                                                     <div class="service-details">
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>Employee ID:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>{{ $selectedRecord->emp_id ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
 
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>Requested By:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>
                                                                     {{ $selectedRecord->emp->first_name ?? 'N/A' }}
                                                                     {{ $selectedRecord->emp->last_name ?? 'N/A' }}</span>
@@ -4116,91 +4094,91 @@
                                                         </div>
 
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>Catalog Request:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>{{ $selectedRecord->category ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>Subject:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>{{ $selectedRecord->subject ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>Description:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>{{ $selectedRecord->description ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>Distributor:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>{{ $selectedRecord->distributor_name ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>Phone:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>{{ $selectedRecord->mobile ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>MailBox:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>{{ $selectedRecord->mail ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>Priority:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>{{ $selectedRecord->priority ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>Selected Equipment:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>{{ $selectedRecord->selected_equipment ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>Status:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>{{ $selectedRecord->status_code ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>Assigned to:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>{{ $selectedRecord->assign_to ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
 
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>CC to:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>{{ $selectedRecord->cc_to ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
@@ -4208,31 +4186,30 @@
 
                                                         <!-- Display files if available -->
 
-                                                        <div  class="row service-detail-item">
-                                                        <div class="col-6">
-                                                            <strong>Attachments:</strong>
-                                                        </div>
 
-                                                        <div class="col-6">
 
-                                                            <td>
+                                                        <div id="modalFiles" class="row service-detail-item">
+                                                            <div class="col-6">
+                                                                <strong>Attachments:</strong>
+                                                            </div>
+
+                                                            <div class="col-6">
                                                                 @php
                                                                 $empImages = [];
                                                                 $empFiles = [];
+
                                                                 $fileDataArray = null;
 
-                                                                // Parse file paths
                                                                 if (isset($selectedRecord->file_paths) &&
                                                                 is_string($selectedRecord->file_paths)) {
                                                                 $fileDataArray =
-                                                                json_decode($selectedRecord->file_paths,
-                                                                true);
+                                                                json_decode($selectedRecord->file_paths, true);
                                                                 } elseif (isset($selectedRecord->file_paths) &&
                                                                 is_array($selectedRecord->file_paths)) {
                                                                 $fileDataArray = $selectedRecord->file_paths;
                                                                 }
 
-                                                                // Separate images and files
+                                                                // Separate empImages and files
                                                                 if (is_array($fileDataArray)) {
                                                                 foreach ($fileDataArray as $fileData) {
                                                                 if (isset($fileData['mime_type'])) {
@@ -4276,13 +4253,12 @@
                                                                 @endif
 
                                                                 @if (count($empImages) === 0 && count($empFiles) === 0)
-                                                                <label>N/A</label>
+                                                                <label for="">N/A</label>
                                                                 @endif
 
-                                                                <!-- View Images Modal -->
+                                                                {{-- View Images Modal --}}
                                                                 @if ($showViewEmpImageDialog && $currentImageRequesId
-                                                                ===
-                                                                $selectedRecord->id)
+                                                                === $selectedRecord->id)
                                                                 <div class="modal custom-modal" tabindex="-1"
                                                                     role="dialog" style="display: block;">
                                                                     <div class="modal-dialog custom-modal-dialog custom-modal-dialog-centered modal-lg"
@@ -4291,23 +4267,14 @@
                                                                             <div
                                                                                 class="modal-header custom-modal-header">
                                                                                 <h5 class="modal-title view-file">
-                                                                                    Attached
-                                                                                    Images</h5>
+                                                                                    Attached Images</h5>
                                                                             </div>
                                                                             <div class="modal-body custom-modal-body">
                                                                                 <div class="swiper-container">
                                                                                     <div class="swiper-wrapper">
                                                                                         @foreach ($empImages as $eImage)
-                                                                                        @php
-                                                                                        $base64FileE = $eImage['data']
-                                                                                        ??
-                                                                                        '';
-                                                                                        $mimeTypeE =
-                                                                                        $eImage['mime_type'] ??
-                                                                                        '';
-                                                                                        @endphp
                                                                                         <div class="swiper-slide">
-                                                                                            <img src="data:{{ $mimeTypeE }};base64,{{ $base64FileE }}"
+                                                                                            <img src="data:{{ $eImage['mime_type'] }};base64,{{ $eImage['data'] }}"
                                                                                                 class="img-fluid"
                                                                                                 alt="Image">
                                                                                         </div>
@@ -4330,7 +4297,7 @@
                                                                 </div>
                                                                 @endif
 
-                                                                <!-- View Files Modal -->
+                                                                {{-- View Files Modal --}}
                                                                 @if ($showViewEmpFileDialog && $currentImageRequesId ===
                                                                 $selectedRecord->id)
                                                                 <div class="modal" tabindex="-1" role="dialog"
@@ -4340,26 +4307,17 @@
                                                                         <div class="modal-content">
                                                                             <div class="modal-header">
                                                                                 <h5 class="modal-title viewfile">View
-                                                                                    Files
-                                                                                </h5>
+                                                                                    Files</h5>
                                                                             </div>
                                                                             <div class="modal-body"
                                                                                 style="max-height: 400px; overflow-y: auto;">
                                                                                 <ul class="list-group list-group-flush">
                                                                                     @foreach ($empFiles as $fileE)
-                                                                                    @php
-                                                                                    $base64FileE = $fileE['data'] ?? '';
-                                                                                    $mimeTypeE = $fileE['mime_type'] ??
-                                                                                    '';
-                                                                                    $originalNameE =
-                                                                                    $fileE['original_name']
-                                                                                    ?? 'Unknown File';
-                                                                                    @endphp
                                                                                     <li>
-                                                                                        <a href="data:{{ $mimeTypeE }};base64,{{ $base64FileE }}"
-                                                                                            download="{{ $originalNameE }}"
-                                                                                            style="text-decoration: none; color: #007BFF; margin: 10px;">
-                                                                                            {{ $originalNameE }}
+                                                                                        <a href="data:{{ $fileE['mime_type'] }};base64,{{ $fileE['data'] }}"
+                                                                                            download="{{ $fileE['original_name'] }}"
+                                                                                            style="text-decoration: none; color: #007BFF; margin: 10px;font-size:13px">
+                                                                                            {{ $fileE['original_name'] }}
                                                                                             <i class="fas fa-download"
                                                                                                 style="margin-left:5px"></i>
                                                                                         </a>
@@ -4378,19 +4336,19 @@
                                                                 <div class="modal-backdrop fade show blurred-backdrop">
                                                                 </div>
                                                                 @endif
-                                                            </td>
-
+                                                            </div>
                                                         </div>
 
-                                                        </div>
+
+
 
                                                         <div id="modalFiles" class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>IT Uploaded Files:</strong>
                                                             </div>
 
 
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <!-- it file Paths -->
                                                                 <td>
                                                                     @php
@@ -4593,9 +4551,9 @@
 
 
                                                         <div id="modalFiles" class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                             </div>
                                                         </div>
 
@@ -4748,7 +4706,8 @@
                         <!-- Header with Activity Count -->
                         <div class="activity-header d-flex justify-content-between mb-4">
                             <h5 class="text-lg font-semibold">Activities: {{ count($activityLogs) }}</h5>
-                            <button wire:click="filterLogs('field-change')" class="filter-btn text-sm text-gray-500">
+                            <button wire:click="filterLogs('field-change')" class="filter-btn text-sm text-gray-500"
+                                style="font-size: 13px;">
                                 <i class="fas fa-filter"></i> Filter by Field Change
                             </button>
 
@@ -4758,7 +4717,7 @@
                         <div class="d-flex flex-column">
                             @foreach ($activityLogs as $index => $log)
                             <div class="activity-entry bg-white p-4 rounded-lg shadow-md mb-4">
-                                <div class="log-header d-flex justify-content-between align-items-center">
+                                <div class="log-header">
                                     <div class="log-user d-flex align-items-center">
                                         <!-- Display initials -->
                                         <span class="initials text-lg font-bold">
@@ -4777,20 +4736,20 @@
                                 <!-- Log Details -->
                                 <div class="log-details mt-2">
                                     @if ($log->action && $log->details)
-                                    <div class="log-action text-sm text-gray-800 d-flex">
-                                        <div class="log-label" style="width: 150px; font-weight: bold;">
+                                    <div class="logAction text-sm text-gray-800">
+                                        <div class="logLabel">
                                             {{ $log->action }}
                                         </div>
-                                        <div class="log-value" style="width: calc(100% - 150px);">
+                                        <div class="logValue">
                                             {{ $log->details }}
                                         </div>
                                     </div>
                                     @endif
                                     @if ($log->assigned_to)
                                     <div class="log-sub-details mt-2 text-sm">
-                                        <div class="log-label" style="width: 150px; font-weight: bold;">Assigned to
+                                        <div class="logLabel">Assigned to
                                         </div>
-                                        <div class="log-value" style="width: calc(100% - 150px);">
+                                        <div class="logValue">
                                             {{ $log->assigned_to }}
                                         </div>
                                     </div>
@@ -4798,8 +4757,8 @@
 
                                     @if ($log->impact)
                                     <div class="log-sub-details mt-2 text-sm">
-                                        <div class="log-label" style="width: 150px; font-weight: bold;">Impact</div>
-                                        <div class="log-value" style="width: calc(100% - 150px);">
+                                        <div class="logLabel">Impact</div>
+                                        <div class="logValue">
                                             {{ $log->impact }}
                                         </div>
                                     </div>
@@ -4807,8 +4766,8 @@
 
                                     @if ($log->opened_by)
                                     <div class="log-sub-details mt-2 text-sm">
-                                        <div class="log-label" style="width: 150px; font-weight: bold;">Opened by</div>
-                                        <div class="log-value" style="width: calc(100% - 150px);">
+                                        <div class="logLabel">Opened by</div>
+                                        <div class="logValue">
                                             {{ $log->opened_by }}
                                         </div>
                                     </div>
@@ -4816,8 +4775,8 @@
 
                                     @if ($log->priority)
                                     <div class="log-sub-details mt-2 text-sm">
-                                        <div class="log-label" style="width: 150px; font-weight: bold;">Priority</div>
-                                        <div class="log-value" style="width: calc(100% - 150px);">
+                                        <div class="logLabel">Priority</div>
+                                        <div class="logValue">
                                             {{ $log->priority }}
                                         </div>
                                     </div>
@@ -4825,10 +4784,81 @@
 
                                     @if ($log->state)
                                     <div class="log-sub-details mt-2 text-sm">
-                                        <div class="log-label" style="width: 150px; font-weight: bold;">State</div>
-                                        <div class="log-value" style="width: calc(100% - 150px);">
+                                        <div class="logLabel">State</div>
+                                        <div class="logValue">
                                             {{ $log->state }}
                                         </div>
+                                    </div>
+                                    @endif
+
+
+
+                                    @if (!empty($log->attachments))
+                                    <div class="mt-2 text-sm">
+                                        @php
+                                        $images = [];
+                                        $files = [];
+                                        $fileDataArray = null;
+
+                                        // Check if attachments are a JSON string or an array
+                                        if (is_string($log->attachments)) {
+                                        $fileDataArray = json_decode($log->attachments, true);
+                                        } elseif (is_array($log->attachments)) {
+                                        $fileDataArray = $log->attachments;
+                                        }
+
+                                        // Ensure it's an array before processing
+                                        if (is_array($fileDataArray)) {
+                                        // Separate images and files
+                                        foreach ($fileDataArray as $fileData) {
+                                        if (isset($fileData['mime_type'])) {
+                                        if (strpos($fileData['mime_type'], 'image/') === 0) {
+                                        $images[] = $fileData;
+                                        } else {
+                                        $files[] = $fileData;
+                                        }
+                                        }
+                                        }
+                                        }
+                                        @endphp
+
+                                        <!-- Display Images in 3 per row -->
+                                        <div class="row">
+                                            @foreach ($images as $image)
+                                            @php
+                                            $base64File = $image['data'];
+                                            $mimeType = $image['mime_type'];
+                                            @endphp
+                                            <div class="col-4 mb-3">
+                                                <img src="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                    class="img-fluid" alt="Image" style="width: 100%; height: auto;">
+                                            </div>
+                                            @endforeach
+                                        </div>
+
+                                        <!-- Display Files in 3 per row -->
+                                        <div class="row mt-4">
+                                            @foreach ($files as $file)
+                                            @php
+                                            $base64File = $file['data'];
+                                            $mimeType = $file['mime_type'];
+                                            $originalName = $file['original_name'];
+                                            @endphp
+                                            <div class="col-4 mb-3">
+                                                <a href="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                    download="{{ $originalName }}"
+                                                    style="text-decoration: none; color: #007BFF; display: block;">
+                                                    {{ $originalName }} <i class="fas fa-download"
+                                                        style="margin-left: 5px;"></i>
+                                                </a>
+                                            </div>
+                                            @endforeach
+                                        </div>
+
+                                        <!-- Display N/A if no images or files -->
+                                        @if (count($images) == 0 && count($files) == 0)
+                                        <label for="">N/A</label>
+                                        @endif
                                     </div>
                                     @endif
                                     <!-- Add more log details as needed -->

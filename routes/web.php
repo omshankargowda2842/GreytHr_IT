@@ -56,7 +56,7 @@ Route::middleware(['auth:it', 'handleSession'])->group(function () {
             Route::get('/vendorAssets', VendorAssets::class)->name('vendorAssets');
             Route::get('/assetsList', AssetsList::class)->name('assetsList');
             Route::get('/employeeAssetList', AssignAssetEmployee::class)->name('employeeAssetList');
-            Route::get('/vendor', Vendors::class)->name('vendor');
+            Route::get('/vendors', Vendors::class)->name('vendors');
             Route::get('/itMembers', ItAddMember::class)->name('itMembers');
             Route::get('incidentRequests/{id?}', IncidentRequests::class)->name('incidentRequests');
             Route::get('serviceRequests/{id?}', ServiceRequests::class)->name('serviceRequests');
@@ -64,10 +64,10 @@ Route::middleware(['auth:it', 'handleSession'])->group(function () {
 
         // User Routes (accessible to all roles: user, admin, and super_admin)
         Route::middleware(['role:user|admin|super_admin'])->group(function () {
-            Route::get('/vendor', Vendors::class)->name('vendor');
+            Route::get('/vendors', Vendors::class)->name('vendors');
             Route::get('/itrequest/{id?}', RequestProcess::class)->name('requests');
         });
-    
+
 });
 
 

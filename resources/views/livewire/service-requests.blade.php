@@ -193,7 +193,7 @@
                                         <td>Assign to <span class="text-danger">*</span></td>
                                         <td class="view-td">
                                             <select class="req-selected-status" wire:model="selectedAssigne"
-                                            wire:change="handleSelectedAssigneChange">
+                                                wire:change="handleSelectedAssigneChange">
                                                 <option value="" disabled hidden>Select Assignee</option>
                                                 @foreach($itData as $itName)
                                                 <option
@@ -216,7 +216,7 @@
 
                                         <td class="view-td">
                                             <select wire:model="selectedStatus" class="req-selected-status"
-                                            wire:change="handleSelectedStatusChange">
+                                                wire:change="handleSelectedStatusChange">
                                                 <option value="" disabled hidden>Select Status </option>
                                                 <option value="5">Pending</option>
                                                 <option value="16">Inprogress</option>
@@ -268,7 +268,7 @@
                                         <td>
 
                                             <div>
-                                                <div class="row">
+                                                <div class="row req-comments">
                                                     <div class="col-10">
                                                         <textarea wire:model.lazy="comments"
                                                             class="form-control"></textarea>
@@ -431,7 +431,7 @@
 
                                                                     <a href="data:{{ $mimeTypeE }};base64,{{ $base64FileE }}"
                                                                         download="{{ $originalNameE }}"
-                                                                        style="text-decoration: none; color: #007BFF; margin: 10px;">
+                                                                        style="text-decoration: none; color: #007BFF; margin: 10px;font-size:13px ">
 
                                                                         {{ $originalNameE}} <i class="fas fa-download"
                                                                             style="margin-left:5px"></i>
@@ -483,7 +483,7 @@
                                                                 style="font-size: 12px; display: none;" />
 
                                                             <!-- Label triggers file input -->
-                                                            <div class="d-flex"
+                                                            <div class="req-attachmentsIcon d-flex"
                                                                 style="align-items: baseline; gap: 5px;">
                                                                 <button class="btn btn-outline-secondary" type="button"
                                                                     for="fileInput-{{ $serviceRequest->id }}"
@@ -721,7 +721,7 @@
 
                                                                     <a href="data:{{ $mimeType }};base64,{{ $base64File }}"
                                                                         download="{{ $originalName }}"
-                                                                        style="text-decoration: none; color: #007BFF; margin: 10px;">
+                                                                        style="text-decoration: none; color: #007BFF; margin: 10px;font-size:13px ">
 
                                                                         {{ $originalName }} <i class="fas fa-download"
                                                                             style="margin-left:5px"></i>
@@ -1083,7 +1083,7 @@
 
                                                                         <a href="data:{{ $mimeTypeE }};base64,{{ $base64FileE }}"
                                                                             download="{{ $originalNameE }}"
-                                                                            style="text-decoration: none; color: #007BFF; margin: 10px;">
+                                                                            style="text-decoration: none; color: #007BFF; margin: 10px;font-size:13px ">
 
                                                                             {{ $originalNameE}} <i
                                                                                 class="fas fa-download"
@@ -1241,8 +1241,8 @@
                                                                     style="font-size: 12px; display: none;" />
 
                                                                 <!-- Label triggers file input -->
-                                                                <div class="d-flex"
-                                                                    style="align-items: baseline; gap: 5px;">
+                                                                <div class="req-attachmentsIcon d-flex"
+                                                                    style="align-items: baseline; gap: 5px;margin-top: 40%;">
                                                                     <button class="btn btn-outline-secondary"
                                                                         type="button" for="fileInput-{{ $record->id }}"
                                                                         onclick="document.getElementById('fileInput-{{ $record->id }}').click();">
@@ -1477,7 +1477,7 @@
 
                                                                         <a href="data:{{ $mimeType }};base64,{{ $base64File }}"
                                                                             download="{{ $originalName }}"
-                                                                            style="text-decoration: none; color: #007BFF; margin: 10px;">
+                                                                            style="text-decoration: none; color: #007BFF; margin: 10px;font-size:13px ">
 
                                                                             {{ $originalName }} <i
                                                                                 class="fas fa-download"
@@ -1783,7 +1783,7 @@
 
                                                                         <a href="data:{{ $mimeTypeE }};base64,{{ $base64FileE }}"
                                                                             download="{{ $originalNameE }}"
-                                                                            style="text-decoration: none; color: #007BFF; margin: 10px;">
+                                                                            style="text-decoration: none; color: #007BFF; margin: 10px;font-size:13px ">
 
                                                                             {{ $originalNameE}} <i
                                                                                 class="fas fa-download"
@@ -2061,8 +2061,8 @@
                                                                     style="font-size: 12px; display: none;" />
 
                                                                 <!-- Label triggers file input -->
-                                                                <div class="d-flex"
-                                                                    style="align-items: baseline; gap: 5px;">
+                                                                <div class="req-attachmentsIcon d-flex"
+                                                                    style="align-items: baseline; gap: 5px;margin-top: 40%;">
                                                                     <button class="btn btn-outline-secondary"
                                                                         type="button" for="fileInput-{{ $record->id }}"
                                                                         onclick="document.getElementById('fileInput-{{ $record->id }}').click();">
@@ -2297,7 +2297,7 @@
 
                                                                         <a href="data:{{ $mimeType }};base64,{{ $base64File }}"
                                                                             download="{{ $originalName }}"
-                                                                            style="text-decoration: none; color: #007BFF; margin: 10px;">
+                                                                            style="text-decoration: none; color: #007BFF; margin: 10px;font-size:13px ">
 
                                                                             {{ $originalName }} <i
                                                                                 class="fas fa-download"
@@ -2385,7 +2385,7 @@
 
                         <div class="col-12 mt-2">
 
-                            <div class="col-3 mb-5">
+                            <div class="col-lg-3 col-md-3 col-5 mb-5">
                                 <label for="statusFilter" class="form-label">Filter by Status</label>
                                 <select wire:model="statusFilter" wire:change='loadServiceClosedDetails'
                                     id="statusFilter" class="form-select">
@@ -2627,30 +2627,7 @@
                                                         <span>{{ $selectedRecord->priority ?? 'N/A' }}</span>
                                                     </div>
                                                 </div>
-                                                <div class="row service-detail-item">
-                                                    <div class="col-6">
-                                                        <strong>Active Comments:</strong>
-                                                    </div>
-                                                    <div class="col-6">
-                                                        <span>{{ $selectedRecord->active_ser_comment ?? 'N/A' }}</span>
-                                                    </div>
-                                                </div>
-                                                <div class="row service-detail-item">
-                                                    <div class="col-6">
-                                                        <strong>Pending Remarks:</strong>
-                                                    </div>
-                                                    <div class="col-6">
-                                                        <span>{{ $selectedRecord->ser_pending_remarks ?? 'N/A' }}</span>
-                                                    </div>
-                                                </div>
-                                                <div class="row service-detail-item">
-                                                    <div class="col-6">
-                                                        <strong>Inprogress Remarks:</strong>
-                                                    </div>
-                                                    <div class="col-6">
-                                                        <span>{{ $selectedRecord->ser_inprogress_remarks ?? 'N/A' }}</span>
-                                                    </div>
-                                                </div>
+
                                                 <div class="row service-detail-item">
                                                     <div class="col-6">
                                                         <strong>Assigned To:</strong>
@@ -2850,7 +2827,7 @@
 
                                                                                     <a href="data:{{ $mimeTypeE }};base64,{{ $base64FileE }}"
                                                                                         download="{{ $originalNameE }}"
-                                                                                        style="text-decoration: none; color: #007BFF; margin: 10px;">
+                                                                                        style="text-decoration: none; color: #007BFF; margin: 10px;font-size:13px ">
 
                                                                                         {{ $originalNameE}} <i
                                                                                             class="fas fa-download"
@@ -3039,7 +3016,7 @@
 
                                                                                     <a href="data:{{ $mimeType }};base64,{{ $base64File }}"
                                                                                         download="{{ $originalName }}"
-                                                                                        style="text-decoration: none; color: #007BFF; margin: 10px;">
+                                                                                        style="text-decoration: none; color: #007BFF; font-size:13px ;margin: 10px;">
 
                                                                                         {{ $originalName }} <i
                                                                                             class="fas fa-download"
@@ -3137,7 +3114,8 @@
                 <!-- Header with Activity Count -->
                 <div class="activity-header d-flex justify-content-between mb-4">
                     <h5 class="text-lg font-semibold">Activities: {{ count($activityLogs) }}</h5>
-                    <button wire:click="filterLogs('field-change')" class="filter-btn text-sm text-gray-500">
+                    <button wire:click="filterLogs('field-change')" class="filter-btn text-sm text-gray-500"
+                        style="font-size: 13px;">
                         <i class="fas fa-filter"></i> Filter by Field Change
                     </button>
 
@@ -3147,14 +3125,14 @@
                 <div class="d-flex flex-column">
                     @foreach ($activityLogs as $index => $log)
                     <div class="activity-entry bg-white p-4 rounded-lg shadow-md mb-4">
-                        <div class="log-header d-flex justify-content-between align-items-center">
+                        <div class="log-header">
                             <div class="log-user d-flex align-items-center">
                                 <!-- Display initials -->
                                 <span class="initials text-lg font-bold">
                                     {{ $employeeInitials[$index] ?? '' }}
                                 </span>
                                 <span class="user-name ms-4 text-sm text-gray-600">
-                                    {{ $log->performed_by ?? 'Unknown' }}
+                                    {{ ucwords(strtolower( $log->performed_by ?? 'Unknown')) }}
                                 </span>
                             </div>
                             <div class="timestamp text-sm text-gray-500">
@@ -3166,19 +3144,20 @@
                         <!-- Log Details -->
                         <div class="log-details mt-2">
                             @if ($log->action && $log->details)
-                            <div class="log-action text-sm text-gray-800 d-flex">
-                                <div class="log-label" style="width: 150px; font-weight: bold;">
+                            <div class="logAction text-sm text-gray-800">
+                                <div class="logLabel">
                                     {{ $log->action }}
                                 </div>
-                                <div class="log-value" style="width: calc(100% - 150px);">
+                                <div class="logValue">
                                     {{ $log->details }}
                                 </div>
                             </div>
                             @endif
                             @if ($log->assigned_to)
                             <div class="log-sub-details mt-2 text-sm">
-                                <div class="log-label" style="width: 150px; font-weight: bold;">Assigned to</div>
-                                <div class="log-value" style="width: calc(100% - 150px);">
+                                <div class="logLabel">Assigned to
+                                </div>
+                                <div class="logValue">
                                     {{ $log->assigned_to }}
                                 </div>
                             </div>
@@ -3186,8 +3165,8 @@
 
                             @if ($log->impact)
                             <div class="log-sub-details mt-2 text-sm">
-                                <div class="log-label" style="width: 150px; font-weight: bold;">Impact</div>
-                                <div class="log-value" style="width: calc(100% - 150px);">
+                                <div class="logLabel">Impact</div>
+                                <div class="logValue">
                                     {{ $log->impact }}
                                 </div>
                             </div>
@@ -3195,8 +3174,8 @@
 
                             @if ($log->opened_by)
                             <div class="log-sub-details mt-2 text-sm">
-                                <div class="log-label" style="width: 150px; font-weight: bold;">Opened by</div>
-                                <div class="log-value" style="width: calc(100% - 150px);">
+                                <div class="logLabel">Opened by</div>
+                                <div class="logValue">
                                     {{ $log->opened_by }}
                                 </div>
                             </div>
@@ -3204,8 +3183,8 @@
 
                             @if ($log->priority)
                             <div class="log-sub-details mt-2 text-sm">
-                                <div class="log-label" style="width: 150px; font-weight: bold;">Priority</div>
-                                <div class="log-value" style="width: calc(100% - 150px);">
+                                <div class="logLabel">Priority</div>
+                                <div class="logValue">
                                     {{ $log->priority }}
                                 </div>
                             </div>
@@ -3213,12 +3192,84 @@
 
                             @if ($log->state)
                             <div class="log-sub-details mt-2 text-sm">
-                                <div class="log-label" style="width: 150px; font-weight: bold;">State</div>
-                                <div class="log-value" style="width: calc(100% - 150px);">
+                                <div class="logLabel">State</div>
+                                <div class="logValue">
                                     {{ $log->state }}
                                 </div>
                             </div>
                             @endif
+
+
+                            @if (!empty($log->attachments))
+                                <div class="mt-2 text-sm">
+                                    @php
+                                    $images = [];
+                                    $files = [];
+                                    $fileDataArray = null;
+
+                                    // Check if attachments are a JSON string or an array
+                                    if (is_string($log->attachments)) {
+                                    $fileDataArray = json_decode($log->attachments, true);
+                                    } elseif (is_array($log->attachments)) {
+                                    $fileDataArray = $log->attachments;
+                                    }
+
+                                    // Ensure it's an array before processing
+                                    if (is_array($fileDataArray)) {
+                                    // Separate images and files
+                                    foreach ($fileDataArray as $fileData) {
+                                    if (isset($fileData['mime_type'])) {
+                                    if (strpos($fileData['mime_type'], 'image/') === 0) {
+                                    $images[] = $fileData;
+                                    } else {
+                                    $files[] = $fileData;
+                                    }
+                                    }
+                                    }
+                                    }
+                                    @endphp
+
+                                    <!-- Display Images in 3 per row -->
+                                    <div class="row">
+                                        @foreach ($images as $image)
+                                        @php
+                                        $base64File = $image['data'];
+                                        $mimeType = $image['mime_type'];
+                                        @endphp
+                                        <div class="col-4 mb-3">
+                                            <img src="data:{{ $mimeType }};base64,{{ $base64File }}" class="img-fluid"
+                                                alt="Image" style="width: 100%; height: auto;">
+                                        </div>
+                                        @endforeach
+                                    </div>
+
+                                    <!-- Display Files in 3 per row -->
+                                    <div class="row mt-4">
+                                        @foreach ($files as $file)
+                                        @php
+                                        $base64File = $file['data'];
+                                        $mimeType = $file['mime_type'];
+                                        $originalName = $file['original_name'];
+                                        @endphp
+                                        <div class="col-4 mb-3">
+                                            <a href="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                download="{{ $originalName }}"
+                                                style="text-decoration: none; color: #007BFF; display: block;">
+                                                {{ $originalName }} <i class="fas fa-download"
+                                                    style="margin-left: 5px;"></i>
+                                            </a>
+                                        </div>
+                                        @endforeach
+                                    </div>
+
+                                    <!-- Display N/A if no images or files -->
+                                    @if (count($images) == 0 && count($files) == 0)
+                                    <label for="">N/A</label>
+                                    @endif
+                                </div>
+                                @endif
+
+                                
                             <!-- Add more log details as needed -->
                         </div>
                     </div>

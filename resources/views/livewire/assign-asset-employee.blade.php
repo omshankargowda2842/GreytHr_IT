@@ -27,7 +27,7 @@
         <div class="col-11 d-flex justify-content-between mb-4" style="margin-left: 4%;">
             <!-- Button aligned to the left -->
             <div class="col-md-5 d-flex justify-content-start">
-                <button class="btn text-white" style="background-color: #02114f;" wire:click="backVendor">
+                <button class="btn text-white" style="background-color: #02114f;font-size:13px;" wire:click="backVendor">
                     <i class="fas fa-arrow-left"></i> Back
                 </button>
             </div>
@@ -158,8 +158,8 @@
                 <h5 class="system-details-head">System Update Details</h5>
 
 
-                <div class="row mb-5">
-                    <div class="form-group col-md-4">
+                <div class="row" style="margin-bottom: 30px;">
+                    <div class="form-group col-md-4 mb-3">
                         <label>Sophos Antivirus:</label>
                         <div class="input-group">
                             <div class="form-check form-check-inline mb-0 mx-2">
@@ -176,7 +176,7 @@
 
                     </div>
 
-                    <div class="form-group col-md-4">
+                    <div class="form-group col-md-4 mb-3">
                         <label>VPN Creation:</label>
                         <div class="input-group">
                             <div class="form-check form-check-inline mb-0 mx-2">
@@ -208,7 +208,7 @@
                         </div>
                     </div> -->
 
-                    <div class="form-group col-md-4">
+                    <div class="form-group col-md-4 mb-3">
                         <label>System Upgradation:</label>
                         <div class="input-group">
                             <div class="form-check form-check-inline mb-0 mx-2">
@@ -225,9 +225,9 @@
                     </div>
                 </div>
 
-                <div class="row mb-5">
+                <div class="row" style="margin-bottom: 30px;">
 
-                    <div class="form-group col-md-4">
+                    <div class="form-group col-md-4 mb-3">
                         <label>OneDrive:</label>
                         <div class="input-group">
                             <div class="form-check form-check-inline mb-0 mx-2">
@@ -243,7 +243,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group col-md-4">
+                    <div class="form-group col-md-4 mb-3">
                         <label>Screenshot Programs:</label>
                         <div class="input-group">
                             <div class="form-check form-check-inline mb-0 mx-2">
@@ -261,13 +261,13 @@
                 </div>
 
 
-                <div class="row mb-5">
-                    <div class="form-group col-md-4">
+                <div class="row" style="margin-bottom: 30px;">
+                    <div class="form-group col-md-4 mb-3">
 
                         <label>Mac Address:</label>
                         <input type="text" class="form-control" wire:model="macAddress">
                     </div>
-                    <div class="form-group col-md-4">
+                    <div class="form-group col-md-4 mb-3">
                         <label>Laptop Received (Date):</label>
                         <input type="date" class="form-control" wire:model="laptopReceived">
                     </div>
@@ -313,16 +313,16 @@
 
                     <!-- Add Member Button aligned to the right -->
                     <div class="col-12 col-md-8 col-sm-12">
-                        <div class="text-end" >
+                        <div class="empAssetBtns" >
 
                             @if ($showOldEMployeeAssetBtn)
-                            <button class="btn text-white mr-3 mb-1" style="background-color: #02114f;"
+                            <button class="btn text-white mr-3 mb-1" style="background-color: #02114f;font-size:13px;"
                                 wire:click="oldAssetlisting">Previous Owners </button>
                             @endif
                             @if(auth()->check() && (auth()->user()->hasRole('admin') ||
                             auth()->user()->hasRole('super_admin')))
                             @if ($showAssignAssetBtn)
-                            <button class="btn text-white mb-1" style="background-color: #02114f;"
+                            <button class="btn text-white mb-1" style="background-color: #02114f;font-size:13px;"
                                 wire:click="assignAsset">Assign
                                 Asset</button>
                             @endif
@@ -590,7 +590,7 @@
                         <td class="view-td">{{ $vendor->mac_address ?? 'N/A' }}</td>
                     </tr>
                     <tr>
-                        <td>Laptop Received Date</td>
+                        <td>Asset Assigned Date</td>
                         <td class="view-td">
                             {{ \Carbon\Carbon::parse($vendor->laptop_received)->format('d-M-Y') ?? 'N/A' }}</td>
                     </tr>
@@ -635,10 +635,10 @@
             <div class="col-11 col-md-11 mb-2 mb-md-0">
                 <div class="row d-flex justify-content-between">
                     <!-- Employee ID Search Input -->
-                    <div class="col-4">
+                    <div class="col-lg-4 col-md-4 col-6">
                         @if($oldAssetBackButton)
 
-                        <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewVendor"
+                        <button class="btn text-white" style="background-color: #02114f;font-size:13px;" wire:click="closeViewVendor"
                             aria-label="Close">
                             <i class="fas fa-arrow-left"></i> Back
                         </button>
@@ -647,7 +647,7 @@
                     </div>
 
                     <!-- Add Member Button aligned to the right -->
-                    <div class="col-4">
+                    <div class="col-lg-4 col-md-4 col-6">
 
                         <input type="text" class="form-control" placeholder="Search..." wire:model="searchEmp"
                             wire:input="filter">
@@ -790,7 +790,7 @@
         <div class="col-10 mt-4 view-details-modal">
             <div class="d-flex justify-content-between align-items-center">
                 <h5>View Details</h5>
-                <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewEmpAsset"
+                <button class="btn text-white" style="background-color: #02114f;font-size:13px;" wire:click="closeViewEmpAsset"
                     aria-label="Close">
                     Close
                 </button>
@@ -883,7 +883,7 @@
                         <td class="view-td">{{ $vendor->mac_address ?? 'N/A' }}</td>
                     </tr>
                     <tr>
-                        <td>Laptop Received Date</td>
+                        <td>Asset Assigned Date</td>
                         <td class="view-td">
                             {{ \Carbon\Carbon::parse($vendor->laptop_received)->format('d-M-Y') ?? 'N/A' }}</td>
                     </tr>
@@ -934,7 +934,7 @@
 
                         <div class="row">
 
-                        <div class="col-5 req-remarks-div" style="display: flex;flex-direction:column">
+                        <div class="col-lg-5 col-md-4 col-10 req-remarks-div" style="display: flex;flex-direction:column">
                             <label style="text-align: left;" for="">Asset Status <span class="text-danger">*</span></label>
                             <select id="vendorStatus" wire:model.lazy="selectedStatus" wire:change="validatefield('selectedStatus')"
                                     class=" form-select" style="height: 33px; border-radius: 6px;">
@@ -946,9 +946,9 @@
                                 </select>
                                 @error('selectedStatus') <span class="text-danger d-flex align-start">{{ $message }}</span>@enderror
                             </div>
-                            <div class="col-7 req-remarks-div " style="display: flex;flex-direction:column">
+                            <div class="col-lg-7 col-md-4 col-10 req-remarks-div " style="display: flex;flex-direction:column">
                                 <label style="text-align: left;" for="">Reason<span class="text-danger">*</span></label>
-                                <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea logout4" wire:input="validatefield('reason')"
+                                <textarea wire:model.lazy="reason" class="form-control req-remarks-textarea logout4" wire:input="validatefield('reason')" style="font-size: 13px;"
                                     placeholder="Reason for Deactivation"></textarea>
                                     @error('reason') <span class="text-danger d-flex align-start">{{ $message }}</span>@enderror
 

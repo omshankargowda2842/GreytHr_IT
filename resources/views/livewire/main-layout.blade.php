@@ -46,7 +46,7 @@
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="#"
-                        class="{{ request()->routeIs('oldItMembers') || request()->routeIs('requests') || request()->routeIs('itMembers') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
+                        class="{{ request()->routeIs('oldItMembers') || request()->routeIs('requests') || request()->routeIs('incident') || request()->routeIs('service') || request()->routeIs('itMembers') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
                         <span class="sidebar-menu-item-link-icon"><i class="ri-group-line"></i></span>
                         <span class="sidebar-menu-item-link-text">IT</span>
                         <span class="sidebar-menu-item-link-arrow"><i class="ri-arrow-right-s-line"></i></span>
@@ -55,15 +55,32 @@
                         <li
                             class="{{ request()->routeIs('requests') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
                             <a href="#" wire:click='itRequest' class="sidebar-submenu-item-link">
-                                <span class="sidebar-submenu-item-link-text">IT Requests</span>
+                                <span class="sidebar-submenu-item-link-text">Catalog Requests</span>
                             </a>
                         </li>
+
+                        <li
+                            class="{{ request()->routeIs('incidentRequests') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
+                            <a href="#" wire:click='incRequest' class="sidebar-submenu-item-link">
+                                <span class="sidebar-submenu-item-link-text">Incident Requests</span>
+                            </a>
+                        </li>
+
+                        <li
+                            class="{{ request()->routeIs('serviceRequests') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
+                            <a href="#" wire:click='serRequest' class="sidebar-submenu-item-link">
+                                <span class="sidebar-submenu-item-link-text">Service Requests</span>
+                            </a>
+                        </li>
+
                         <li
                             class="{{ request()->routeIs('itMembers') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
                             <a href="#" wire:click='itMembers' class="sidebar-submenu-item-link">
                                 <span class="sidebar-submenu-item-link-text">IT Members</span>
                             </a>
                         </li>
+
+
                         <li
                             class="{{ request()->routeIs('oldItMembers') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
                             <a href="#" wire:click='oldRecords' class="sidebar-submenu-item-link">
@@ -95,14 +112,14 @@
 
                 <li class="sidebar-menu-item">
                     <a href="#"
-                        class="{{ request()->routeIs('vendor') || request()->routeIs('vendorAssets') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
+                        class="{{ request()->routeIs('vendors') || request()->routeIs('vendorAssets') ? 'active-menu sidebar-menu-item-link' : 'sidebar-menu-item-link' }}">
                         <span class="sidebar-menu-item-link-icon"><i class="ri-store-2-line"></i></span>
                         <span class="sidebar-menu-item-link-text">Vendors</span>
                         <span class="sidebar-menu-item-link-arrow"><i class="ri-arrow-right-s-line"></i></span>
                     </a>
                     <ul class="sidebar-submenu">
                         <li
-                            class="{{ request()->routeIs('vendor') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
+                            class="{{ request()->routeIs('vendors') ? 'active-submenu sidebar-submenu-item' : 'sidebar-submenu-item' }}">
                             <a href="#" wire:click='vendor' class="sidebar-submenu-item-link">
                                 <span class="sidebar-submenu-item-link-text">Vendor Management</span>
                             </a>
@@ -167,7 +184,15 @@
                 @break
 
                 @case('requests')
-                IT Requests
+                Catalog Requests
+                @break
+
+                @case('incidentRequests')
+                Incident Requests
+                @break
+
+                @case('serviceRequests')
+                Service Requests
                 @break
 
                 @case('itMembers')
@@ -182,7 +207,7 @@
                 Employee Assets
                 @break
 
-                @case('vendor')
+                @case('vendors')
                 Vendor Management
                 @break
 
@@ -218,7 +243,15 @@
                     @break
 
                     @case('requests')
-                    IT Requests
+                    Catalog Requests
+                    @break
+
+                    @case('incidentRequests')
+                    Incident Requests
+                    @break
+
+                    @case('serviceRequests')
+                    Service Requests
                     @break
 
                     @case('itMembers')
@@ -233,7 +266,7 @@
                     Employee Assets
                     @break
 
-                    @case('vendor')
+                    @case('vendors')
                     Vendor Management
                     @break
 
@@ -259,18 +292,6 @@
             </div>
             <div class="topbar-right">
                 <div class="d-flex align-items-center actions-container">
-                    <div class="dropdown ml-3">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Requests
-                        </button>
-                        <div class="dropdown-menu" style="z-index: 1000;" aria-labelledby="dropdownMenuButton">
-                            <a class="dropdown-item" href="#" wire:click='serRequest'>Service Request</a>
-                            <a class="dropdown-item" href="#" wire:click='incRequest'>Incident Request</a>
-                            <a class="dropdown-item" href="#">Catalog Request</a>
-                        </div>
-                    </div>
-
                     <!-- Notification Icon with Unread Count -->
                     <a class="notify position-relative" href="#" wire:click="toggleNotifications">
                         <i class="fa-regular fa-bell" style="font-size: 23px;"></i>
@@ -292,7 +313,8 @@
                                 <span style="color: black;">( {{ $unreadCount }} )</span>
                             </h6>
 
-                            <button class="btn-close notification-close-btn"  wire:click="toggleNotifications">&times;</button>
+                            <button class="btn-close notification-close-btn"
+                                wire:click="toggleNotifications">&times;</button>
                         </div>
                         <hr class="mb-3 mt-0">
                         <div class="sidebar-body">

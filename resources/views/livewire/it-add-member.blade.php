@@ -32,7 +32,7 @@
         <div class="col-11 col-md-11 mb-2 mb-md-0">
             <div class="row d-flex justify-content-between">
                 <!-- Employee ID Search Input -->
-                <div class="col-4">
+                <div class="col-lg-4 col-md-4 col-6">
                     <div class="input-group task-input-group-container">
                         <input type="text" class="form-control" placeholder="Search..." wire:model="searchEmp"
                             wire:input="filter">
@@ -192,7 +192,7 @@
 
 
 
-    <div class="col-7  mt-4 itadd-maincolumn">
+    <div class="col-lg-7 col-md-9 col-12  mt-4 itadd-maincolumn">
 
         <div class="d-flex justify-content-between align-items-center ">
             <h2 class="mb-4 addEditHeading">Add IT Member</h2>

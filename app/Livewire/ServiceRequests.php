@@ -1331,6 +1331,17 @@ public function uploadFiles($selectedRecordId)
             $attachments->it_file_paths=json_encode($allFiles);
             $attachments->save();
 
+
+            $employee = auth()->guard('it')->user();
+                $assigneName = $employee->employee_name;
+                ActivityLog::create([
+                    'request_id' => $attachments->snow_id, // Assuming this is the request ID
+                    'description' => "Uploaded file: {$file->getClientOriginalName()}",
+                    'performed_by' => $assigneName,
+                    'attachments' => json_encode($fileDataArray)
+                ]);
+
+                
             // Log successful update
             Log::info('Attachments updated successfully', [
                 'attachment_id' => $attachments->id ?? null,

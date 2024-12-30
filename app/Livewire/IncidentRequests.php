@@ -188,6 +188,8 @@ class IncidentRequests extends Component
                             'mime_type' => $mimeType,
                             'original_name' => $file->getClientOriginalName(),
                         ];
+
+
                     } else {
                         Log::error('File is not valid:', ['file' => $file->getClientOriginalName()]);
                     }
@@ -220,6 +222,16 @@ class IncidentRequests extends Component
 
                 $attachments->it_file_paths=json_encode($allFiles);
                 $attachments->save();
+
+                $employee = auth()->guard('it')->user();
+                $assigneName = $employee->employee_name;
+                ActivityLog::create([
+                    'request_id' => $attachments->snow_id, // Assuming this is the request ID
+                    'description' => "Uploaded file: {$file->getClientOriginalName()}",
+                    'performed_by' => $assigneName,
+                    'attachments' => json_encode($fileDataArray)
+                ]);
+
 
                 // Log successful update
                 Log::info('Attachments updated successfully', [

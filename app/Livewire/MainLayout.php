@@ -74,9 +74,11 @@ class MainLayout extends Component
         $tabs = [
             'dashboard' => 'dashboard',
             'requests' => 'itRequest',
+            'incidentRequests' => 'incRequest',
+            'serviceRequests' => 'serRequest',
             'itMembers' => 'itMembers',
             'oldItMembers' => 'oldRecords',
-            'vendor' => 'vendor',
+            'vendors' => 'vendor',
             'vendorAssets' => 'vendorAssets',
         ];
 
@@ -106,7 +108,7 @@ class MainLayout extends Component
 
     public function vendor()
     {
-        return redirect()->route('vendor');
+        return redirect()->route('vendors');
     }
 
     public function vendorAssets()
