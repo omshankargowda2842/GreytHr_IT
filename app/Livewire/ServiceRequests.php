@@ -15,9 +15,11 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
+use Livewire\Features\SupportFileUploads\WithFileUploads;
 
 class ServiceRequests extends Component
 {
+    use WithFileUploads;
     public $loading = false;
     public $employeeInitials;
     public $serviceRequestDetails = false;
@@ -961,6 +963,33 @@ class ServiceRequests extends Component
 }
 
 
+
+public function handleSelectedAssigneChange()
+{
+    // Reset validation for the field
+    $this->resetValidationForField('selectedAssigne');
+
+    // Call the SelectedAssigne method
+    $this->SelectedAssigne();
+}
+
+
+public function handleSelectedStatusChange()
+{
+    // Reset validation for the field
+    $this->resetValidationForField('selectedStatus');
+
+    // Call the SelectedStatus method
+    $this->SelectedStatus();
+}
+
+public function resetValidationForField($field)
+{
+    // Reset error for the specific field when typing
+    $this->resetErrorBag($field);
+}
+
+
     public $serviceOpenCount;
     public $servicePendingCount;
     public $serviceInprogressCount;
@@ -1044,6 +1073,294 @@ public function closeViewImage()
 {
     $this->showViewImageDialog = false;
 }
+
+
+
+public $showViewEmpFileDialog = false;
+public $showViewEmpImageDialog = false;
+
+
+public function showViewEmpImage($serviceId)
+{
+    $this->currentServiceId = $serviceId;
+    $this->showViewEmpImageDialog = true;
+}
+
+
+
+public function showViewEmpFile($serviceId)
+{
+    $this->currentServiceId = $serviceId;
+    $this->showViewEmpFileDialog = true;
+}
+
+
+public function closeViewEmpImage()
+{
+    $this->showViewEmpImageDialog = false;
+}
+
+public function closeViewEmpFile()
+{
+    $this->showViewEmpFileDialog = false;
+}
+
+
+
+public function downloadITImages($serviceId)
+{
+
+    try {
+        $service = collect($this->allServiceDetails)->firstWhere('id', $serviceId);
+
+        if (!$service) {
+            // service not found
+            return response()->json(['message' => 'Service not found'], 404);
+        }
+
+        $fileDataArray = is_string($service->it_file_paths)
+            ? json_decode($service->it_file_paths, true)
+            : $service->it_file_paths;
+
+        // Filter images
+        $images = array_filter(
+            $fileDataArray,
+            function ($fileData) {
+                // Ensure 'mime_type' key exists and is valid
+                return isset($fileData['mime_type']) && strpos($fileData['mime_type'], 'image') !== false;
+            }
+        );
+
+        // If only one image, provide direct download
+        if (count($images) === 1) {
+            $image = reset($images); // Get the single image
+            $base64File = $image['data'];
+            $mimeType = $image['mime_type'];
+            $originalName = $image['original_name'];
+
+            // Decode base64 content
+            $fileContent = base64_decode($base64File);
+
+            // Return the image directly
+            return response()->stream(
+                function () use ($fileContent) {
+                    echo $fileContent;
+                },
+                200,
+                [
+                    'Content-Type' => $mimeType,
+                    'Content-Disposition' => 'attachment; filename="' . $originalName . '"',
+                ]
+            );
+        }
+
+        // If multiple images, create a ZIP file
+        if (count($images) > 1) {
+            $zipFileName = 'images.zip';
+            $zip = new \ZipArchive();
+            $zip->open(storage_path($zipFileName), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+
+            foreach ($images as $image) {
+                $base64File = $image['data'];
+                $mimeType = $image['mime_type'];
+                $extension = explode('/', $mimeType)[1];
+                $imageName = uniqid() . '.' . $extension;
+
+                $zip->addFromString($imageName, base64_decode($base64File));
+            }
+
+            $zip->close();
+
+            return response()->download(storage_path($zipFileName))->deleteFileAfterSend(true);
+        }
+
+        // If no images, return an appropriate response
+        return response()->json(['message' => 'No images found'], 404);
+    } catch (\Exception $e) {
+        // Handle any exception that occurs and return a proper response
+        return response()->json(['message' => 'An error occurred while processing the images', 'error' => $e->getMessage()], 500);
+    }
+}
+
+
+
+
+
+public $previews=[];
+public $all_files = [];
+public $it_file_paths = [];
+public $showSuccessMsg=false;
+
+public function updatedItFilePaths($value, $recordId)
+{
+
+// Assuming it_file_paths is an array of files for a specific request ID
+foreach ($this->it_file_paths[$recordId] as $file) {
+    // Ensure no duplicate files are added
+    $existingFileNames = array_map(function ($existingFile) {
+        return $existingFile->getClientOriginalName();
+    }, $this->all_files);
+
+    // Check if the file is already in the list
+    if (!in_array($file->getClientOriginalName(), $existingFileNames)) {
+        // Append only new files to all_files
+        $this->all_files[] = $file;
+
+        try {
+            // Generate previews only for the new file
+            if (in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'])) {
+                $base64Image = base64_encode(file_get_contents($file->getRealPath()));
+                $this->previews[] = [
+                    'url' => 'data:' . $file->getMimeType() . ';base64,' . $base64Image,
+                    'type' => 'image',
+                    'name' => $file->getClientOriginalName(),
+                ];
+            } else {
+                $this->previews[] = [
+                    'type' => 'file',
+                    'name' => $file->getClientOriginalName(),
+                ];
+            }
+        } catch (\Throwable $th) {
+            Log::error('Error generating preview:', [
+                'file' => $file->getClientOriginalName(),
+                'error' => $th->getMessage(),
+            ]);
+        }
+    }
+}
+
+$this->showSuccessMsg = true;
+$this->showFilePreviewModal = true;
+$this->selectedRecordId = $recordId;
+
+}
+
+public $showFilePreviewModal = false;
+
+
+
+    public function hideFilePreviewModal()
+{
+    // Hide the modal by setting the property to false
+    $this->showFilePreviewModal = false;
+}
+
+public function  hideSuccessMsg(){
+    $this->showSuccessMsg=false;
+}
+
+public function removeFile($index)
+{
+    if (isset($this->all_files[$index])) {
+        unset($this->all_files[$index]);
+        unset($this->previews[$index]);
+        $this->all_files = array_values($this->all_files);
+        $this->previews = array_values($this->previews);
+    }
+
+}
+
+
+public $selectedRecordId = null;  // Add this to store the selected record's ID
+
+// When opening the file preview modal
+
+
+public function uploadFiles($selectedRecordId)
+{
+
+    $this->it_file_paths = $this->all_files;
+
+    $attachments = IncidentRequest::find($selectedRecordId);
+
+    // Initialize fileDataArray
+    $fileDataArray = [];
+
+    if ($this->it_file_paths) {
+        // Validate files
+        $this->validate([
+            'it_file_paths.*' => 'nullable|file|mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif|max:40960',
+        ]);
+
+
+        // Process each file
+        foreach ($this->it_file_paths as $file) {
+            try {
+                if ($file->isValid()) {
+                    $fileContent = file_get_contents($file->getRealPath());
+                    $mimeType = $file->getMimeType();
+                    $base64File = base64_encode($fileContent);
+
+                    // Add new file to the array
+                    $fileDataArray[] = [
+                        'data' => $base64File,
+                        'mime_type' => $mimeType,
+                        'original_name' => $file->getClientOriginalName(),
+                    ];
+                } else {
+                    Log::error('File is not valid:', ['file' => $file->getClientOriginalName()]);
+                }
+            } catch (\Exception $e) {
+                Log::error('Error processing file:', [
+                    'file' => $file->getClientOriginalName(),
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+    }
+
+
+    // If the record exists, update the file paths
+
+    if ($attachments) {
+        try {
+            // Log before update
+            Log::info('Attempting to update attachments', [
+                'attachment_id' => $attachments->id ?? null, // Log the ID if available
+                'existing_it_file_paths' => $attachments->it_file_paths, // Log existing file paths
+                'new_it_file_paths' => $fileDataArray, // Log the new file data array
+            ]);
+
+            // Perform the update
+            // dd(json_encode($fileDataArray));
+
+            $existingFiles = json_decode($attachments->it_file_paths, true) ?? [];
+            $allFiles = array_merge($existingFiles, $fileDataArray);
+
+            $attachments->it_file_paths=json_encode($allFiles);
+            $attachments->save();
+
+            // Log successful update
+            Log::info('Attachments updated successfully', [
+                'attachment_id' => $attachments->id ?? null,
+                'updated_it_file_paths' => json_encode($fileDataArray),
+            ]);
+
+            $this->previews=[];
+            $this->all_files = [];
+        } catch (\Exception $e) {
+            // Log any errors
+            Log::error('Error updating attachments', [
+                'error_message' => $e->getMessage(),
+                'attachment_id' => $attachments->id ?? null,
+                'new_it_file_paths' => $fileDataArray,
+            ]);
+
+            // Optionally, rethrow the exception if needed
+            throw $e;
+        }
+    }
+
+
+
+    // Optional: return a success message or redirect
+    FlashMessageHelper::flashSuccess("Files uploaded successfully!");
+    $this->showFilePreviewModal = false;
+
+}
+
+
 
 
 public function downloadImages($serviceId)

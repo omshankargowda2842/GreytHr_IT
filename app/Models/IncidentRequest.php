@@ -38,6 +38,7 @@ class IncidentRequest extends Model
         'priority',
         'assigned_dept',
         'file_path',
+        'it_file_paths',
 
         'status_code',
     ];

@@ -287,13 +287,14 @@
                     <!-- Notification Sidebar -->
                     <div class="notification-sidebar {{ $isVisible ? 'show' : '' }}">
                         <div class="sidebar-header">
-                            <h5>
+                            <h6 style="color:#778899">
                                 Notifications
-                                <span class="badge bg-danger rounded-pill">{{ $unreadCount }}</span>
-                            </h5>
+                                <span style="color: black;">( {{ $unreadCount }} )</span>
+                            </h6>
 
-                            <button class="close-btn btn btn-primary" wire:click="toggleNotifications">&times;</button>
+                            <button class="btn-close notification-close-btn"  wire:click="toggleNotifications">&times;</button>
                         </div>
+                        <hr class="mb-3 mt-0">
                         <div class="sidebar-body">
                             @livewire('all-tickets-notifications')
                             <!-- Include the notifications component here -->

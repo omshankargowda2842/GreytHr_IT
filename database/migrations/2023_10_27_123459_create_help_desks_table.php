@@ -32,6 +32,7 @@ return new class extends Migration
              $table->text('customer_visible_notes')->nullable();
              $table->string('assign_to')->nullable();
              $table->json('file_paths')->nullable();
+             $table->json('cat_file_paths')->nullable();
             $table->string('cc_to')->nullable(); // CC to field (nullable)
             $table->tinyInteger('status_code')->default(8);
             $table->timestamp('cat_progress_since')->nullable();
