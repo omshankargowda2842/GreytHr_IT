@@ -280,6 +280,8 @@ padding: 10px;
  }
 
  .req-pro-req-pro-nav {
+    overflow-x: auto;
+    white-space: nowrap;
      width: 100%;
      margin-top: 10px;
      background-color: #fff;
@@ -287,12 +289,66 @@ padding: 10px;
      /* Ensure it stays below the navbar */
  }
 
- @media (max-width: 992px) {
+ .req-attachmentsIcon{
+    align-items: baseline; gap: 5px;
+ }
+
+ @media (max-width: 450px) {
+    .req-attachmentsIcon{
+        align-items: baseline; gap: 5px;margin-left: 15%;
+     }
+ }
+
+ @media (min-width: 768px) and (max-width: 1080px) {
+    .req-attachmentsIcon{
+        align-items: baseline; gap: 5px;margin-left: 15%;
+     }
+
+ }
+ @media (min-width: 769px) and (max-width: 1221px){
      .req-pro-req-pro-nav {
-         width: 89%;
+         width: 82%;
          z-index: auto;
      }
  }
+
+ @media (min-width: 360px) and (max-width: 768px){
+    .req-pro-req-pro-nav {
+        width: 98%;
+        z-index: auto;
+    }
+
+    .logAction{
+        display: flex;
+        flex-direction: column;
+    }
+    .logLabel{
+        width: 150px; font-weight: bold;
+    }
+
+
+.logValue{
+    width: calc(160% - 150px);
+    font-size: 12px;
+}
+
+}
+
+.log-sub-details{
+
+}
+
+.logAction{
+    display: flex;
+}
+.logLabel{
+    width: 150px; font-weight: bold;
+}
+
+.logValue{
+    width: calc(160% - 150px);
+}
+
 
  .req-pro-head {
      display: flex;
@@ -789,7 +845,11 @@ padding: 10px;
 
 .req-timebar {
     height: 50px;
-    width: 165px
+    width: 165px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
 }
  .req-remarks-div {
      display: flex;
@@ -917,12 +977,24 @@ padding: 10px;
     font-size: 10px;
 }
 
+.btnFontSize{
+    font-size: 13px;
+}
+
+.empAssetBtns{
+    text-align: end;
+}
 
  @media (min-width: 768px) and (max-width: 1220px) {
      .req-pro-head {
          width: 110%;
      }
 
+     .req-comments{
+        display: flex;
+        flex-direction: column;
+
+     }
      req-pro-nav .tab {
          width: 26%;
      }
@@ -934,6 +1006,18 @@ padding: 10px;
          flex-direction: column;
      }
 
+     .empAssetBtns{
+        margin-top: 10px;
+        text-align: center;
+    }
+     .activity-entry .log-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-direction: column;
+        margin-bottom: 10%;
+    }
+
      req-pro-nav .tab {
          width: 25%;
      }
@@ -944,6 +1028,17 @@ padding: 10px;
  }
 
  @media (max-width: 768px) {
+    .req-pro-main-page {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .req-comments{
+        display: flex;
+        flex-direction: column;
+
+     }
+
      .request-card {
          flex: 1 1 calc(50% - 36px);
      }
@@ -1009,6 +1104,14 @@ padding: 10px;
     background-color: #ffffff;
     margin-left: 21%;
 }
+
+@media (min-width: 360px) and (max-width: 991px) {
+
+    .itadd-maincolumn {
+        margin-left: 2%;
+    }
+}
+
 .view-details-modal {
     padding: 10px;
     border-radius: 8px;
@@ -2366,6 +2469,20 @@ w
 }
 
 
+.notification-item {
+    padding: 15px; /* Inner spacing for each notification */
+    margin-bottom: 10px; /* Space between notifications */
+    border: 1px solid #ddd; /* Light border around each notification */
+    border-radius: 5px; /* Optional: Rounded corners for a cleaner look */
+    background-color: #f9f9f9; /* Light background to distinguish each notification */
+}
+
+.notification-item:last-child {
+    margin-bottom: 0; /* Remove margin for the last item */
+}
+
+
+
 .notification-sidebar {
     position: fixed;
     right: 0;
@@ -2383,17 +2500,22 @@ w
     transform: translateX(0);
 }
 
+.notification-close-btn{
+    font-size: 7px;
+    border-radius: 50%;
+    padding: 7px;
+    border: 1px solid #778899;
+}
 .sidebar-header {
     padding: 15px;
-    background: #343a40;
-    color: #fff;
+    background: white;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 .sidebar-body {
-    padding: 15px;
+    padding: 5px;
     overflow-y: auto;
     height: calc(100% - 50px);
 }

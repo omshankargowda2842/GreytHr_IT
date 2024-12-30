@@ -26,7 +26,7 @@
 
 
     <div class="col-11 d-flex justify-content-start mb-1 mt-4" style="margin-left: 5%;">
-        <button class="btn text-white btn-sm" style="background-color: #02114f;" wire:click='cancel'> <i
+        <button class="btn text-white btn-sm" style="background-color: #02114f;font-size:13px;" wire:click='cancel'> <i
                 class="fas fa-arrow-left"></i> Back</button>
 
     </div>
@@ -344,7 +344,7 @@
 
                 <div class="d-flex justify-content-center">
                     <button type="submit" class="btn text-white border-white"
-                        style="background-color: #02114f;">{{ $editMode ? 'Update' : 'Submit' }}</button>
+                        style="background-color: #02114f;font-size:13px;">{{ $editMode ? 'Update' : 'Submit' }}</button>
                 </div>
             </form>
         </div>
@@ -375,7 +375,7 @@
                 auth()->user()->hasRole('super_admin')))
                 <div class="col-6 col-md-8 col-sm-6 text-end">
                     <button class="btn text-white btn-sm" wire:click='showAddVendorMember'
-                        style="padding: 7px;background-color: #02114f;white-space:nowrap;"><i
+                        style="padding: 7px;background-color: #02114f;white-space:nowrap;font-size:13px;"><i
                             class="fas fa-user-plus"></i> Add
                         Vendor</button>
                 </div>
@@ -513,7 +513,7 @@
             <div>
                 <h5>View Details</h5>
             </div>
-            <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewVendor"
+            <button class="btn text-white" style="background-color: #02114f;font-size:13px;" wire:click="closeViewVendor"
                 aria-label="Close">
 
                 Close

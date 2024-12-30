@@ -20,12 +20,14 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Livewire\Features\SupportFileUploads\WithFileUploads;
 use PHPUnit\TextUI\Help;
 
 use function Termwind\render;
 
 class RequestProcess extends Component
 {
+    use WithFileUploads;
     public $activeTab = 'active';
     public $requests = [];
     public $viewingDetails = false;
@@ -479,7 +481,7 @@ class RequestProcess extends Component
             'priority' => $value,
             'request_id' => $this->recentRequest->request_id,
         ]);
-        FlashMessageHelper::flashSuccess("Priority updated successfully!!");
+        FlashMessageHelper::flashSuccess("Priority updated successfully!");
 
         // Optionally, you can flash a success message or notify the user
     }
@@ -670,6 +672,33 @@ class RequestProcess extends Component
     public $modalPurpose = '';
     public $showStatusModal = false;
 
+
+
+
+    public function handleSelectedAssigneChange()
+    {
+        // Reset validation for the field
+        $this->resetValidationForField('selectedAssigne');
+
+        // Call the SelectedAssigne method
+        $this->SelectedAssigne();
+    }
+
+
+    public function handleSelectedStatusChange()
+    {
+        // Reset validation for the field
+        $this->resetValidationForField('selectedStatus');
+
+        // Call the SelectedStatus method
+        $this->SelectedStatus();
+    }
+
+    public function resetValidationForField($field)
+    {
+        // Reset error for the specific field when typing
+        $this->resetErrorBag($field);
+    }
 
     public function SelectedAssigne()
     {
@@ -1337,7 +1366,7 @@ class RequestProcess extends Component
             FlashMessageHelper::flashSuccess("Comment posted successfully!");
         } else {
             // Handle case where task not found or no comment provided
-            FlashMessageHelper::flashError("Task not found or no comment provided.");
+            FlashMessageHelper::flashError("Please Provide the Comments.");
         }
     } catch (\Exception $e) {
         // Log the exception for debugging
@@ -1600,6 +1629,195 @@ public function updateCounts()
 
 
 
+    public $previews=[];
+    public $all_files = [];
+    public $cat_file_paths = [];
+    public $showSuccessMsg=false;
+
+    public function updatedCatFilePaths($value, $recordId)
+{
+
+    // Assuming cat_file_paths is an array of files for a specific request ID
+    foreach ($this->cat_file_paths[$recordId] as $file) {
+        // Ensure no duplicate files are added
+        $existingFileNames = array_map(function ($existingFile) {
+            return $existingFile->getClientOriginalName();
+        }, $this->all_files);
+
+        // Check if the file is already in the list
+        if (!in_array($file->getClientOriginalName(), $existingFileNames)) {
+            // Append only new files to all_files
+            $this->all_files[] = $file;
+
+            try {
+                // Generate previews only for the new file
+                if (in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'])) {
+                    $base64Image = base64_encode(file_get_contents($file->getRealPath()));
+                    $this->previews[] = [
+                        'url' => 'data:' . $file->getMimeType() . ';base64,' . $base64Image,
+                        'type' => 'image',
+                        'name' => $file->getClientOriginalName(),
+                    ];
+                } else {
+                    $this->previews[] = [
+                        'type' => 'file',
+                        'name' => $file->getClientOriginalName(),
+                    ];
+                }
+            } catch (\Throwable $th) {
+                Log::error('Error generating preview:', [
+                    'file' => $file->getClientOriginalName(),
+                    'error' => $th->getMessage(),
+                ]);
+            }
+        }
+    }
+
+    $this->showSuccessMsg = true;
+    $this->showFilePreviewModal = true;
+    $this->selectedRecordId = $recordId;
+
+}
+
+    public $showFilePreviewModal = false;
+
+
+
+        public function hideFilePreviewModal()
+    {
+        // Hide the modal by setting the property to false
+        $this->showFilePreviewModal = false;
+    }
+
+    public function  hideSuccessMsg(){
+        $this->showSuccessMsg=false;
+    }
+
+    public function removeFile($index)
+    {
+        if (isset($this->all_files[$index])) {
+            unset($this->all_files[$index]);
+            unset($this->previews[$index]);
+            $this->all_files = array_values($this->all_files);
+            $this->previews = array_values($this->previews);
+        }
+
+    }
+
+
+    public $selectedRecordId = null;  // Add this to store the selected record's ID
+
+// When opening the file preview modal
+
+
+    public function uploadFiles($selectedRecordId)
+    {
+
+
+
+        $this->cat_file_paths = $this->all_files;
+
+        $attachments = HelpDesks::find($selectedRecordId);
+
+        // Initialize fileDataArray
+        $fileDataArray = [];
+
+        if ($this->cat_file_paths) {
+            // Validate files
+            $this->validate([
+                'cat_file_paths.*' => 'nullable|file|mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif|max:40960',
+            ]);
+
+
+            // Process each file
+            foreach ($this->cat_file_paths as $file) {
+                try {
+                    if ($file->isValid()) {
+                        $fileContent = file_get_contents($file->getRealPath());
+                        $mimeType = $file->getMimeType();
+                        $base64File = base64_encode($fileContent);
+
+                        // Add new file to the array
+                        $fileDataArray[] = [
+                            'data' => $base64File,
+                            'mime_type' => $mimeType,
+                            'original_name' => $file->getClientOriginalName(),
+                        ];
+                    } else {
+                        Log::error('File is not valid:', ['file' => $file->getClientOriginalName()]);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Error processing file:', [
+                        'file' => $file->getClientOriginalName(),
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+        }
+
+
+        // If the record exists, update the file paths
+
+        if ($attachments) {
+            try {
+                // Log before update
+                Log::info('Attempting to update attachments', [
+                    'attachment_id' => $attachments->id ?? null, // Log the ID if available
+                    'existing_cat_file_paths' => $attachments->cat_file_paths, // Log existing file paths
+                    'new_cat_file_paths' => $fileDataArray, // Log the new file data array
+                ]);
+
+                // Perform the update
+                // dd(json_encode($fileDataArray));
+
+                $existingFiles = json_decode($attachments->cat_file_paths, true) ?? [];
+                $allFiles = array_merge($existingFiles, $fileDataArray);
+
+                $attachments->cat_file_paths=json_encode($allFiles);
+                $attachments->save();
+
+
+                $employee = auth()->guard('it')->user();
+                $assigneName = $employee->employee_name;
+                ActivityLog::create([
+                    'request_id' => $attachments->request_id, // Assuming this is the request ID
+                    'description' => "Uploaded file: {$file->getClientOriginalName()}",
+                    'performed_by' => $assigneName,
+                    'attachments' => json_encode($fileDataArray)
+                ]);
+
+                // Log successful update
+                Log::info('Attachments updated successfully', [
+                    'attachment_id' => $attachments->id ?? null,
+                    'updated_cat_file_paths' => json_encode($fileDataArray),
+                ]);
+
+                $this->previews=[];
+                $this->all_files = [];
+            } catch (\Exception $e) {
+                // Log any errors
+                Log::error('Error updating attachments', [
+                    'error_message' => $e->getMessage(),
+                    'attachment_id' => $attachments->id ?? null,
+                    'new_cat_file_paths' => $fileDataArray,
+                ]);
+
+                // Optionally, rethrow the exception if needed
+                throw $e;
+            }
+        }
+
+
+
+        // Optional: return a success message or redirect
+        FlashMessageHelper::flashSuccess("Files uploaded successfully!");
+        $this->showFilePreviewModal = false;
+
+    }
+
+
+
+
 public $showViewImageDialog = false;
 public $currentImageRequesId;
 public $showViewFileDialog = false;
@@ -1625,6 +1843,114 @@ public function closeViewImage()
 {
     $this->showViewImageDialog = false;
 }
+
+
+public $showViewEmpImageDialog = false;
+public $showViewEmpFileDialog = false;
+
+
+
+public function showViewEmpImage($imgRequestId)
+{
+    $this->currentImageRequesId = $imgRequestId;
+    $this->showViewEmpImageDialog = true;
+}
+
+
+
+public function showViewEmpFile($imgRequestId)
+{
+    $this->currentImageRequesId = $imgRequestId;
+    $this->showViewEmpFileDialog = true;
+}
+
+
+public function closeViewEmpImage()
+{
+    $this->showViewEmpImageDialog = false;
+}
+
+public function closeViewEmpFile()
+{
+    $this->showViewEmpFileDialog = false;
+}
+
+
+
+public function downloadITImages($imgRequestId)
+{
+    try {
+        $catalog = collect($this->allRequestDetails)->firstWhere('id', $imgRequestId);
+
+        if (!$catalog) {
+            // catalog not found
+            return response()->json(['message' => 'catalog not found'], 404);
+        }
+
+        $fileDataArray = is_string($catalog->cat_file_paths)
+            ? json_decode($catalog->cat_file_paths, true)
+            : $catalog->cat_file_paths;
+
+        // Filter images
+        $images = array_filter(
+            $fileDataArray,
+            function ($fileData) {
+                // Ensure 'mime_type' key exists and is valid
+                return isset($fileData['mime_type']) && strpos($fileData['mime_type'], 'image') !== false;
+            }
+        );
+
+        // If only one image, provide direct download
+        if (count($images) === 1) {
+            $image = reset($images); // Get the single image
+            $base64File = $image['data'];
+            $mimeType = $image['mime_type'];
+            $originalName = $image['original_name'];
+
+            // Decode base64 content
+            $fileContent = base64_decode($base64File);
+
+            // Return the image directly
+            return response()->stream(
+                function () use ($fileContent) {
+                    echo $fileContent;
+                },
+                200,
+                [
+                    'Content-Type' => $mimeType,
+                    'Content-Disposition' => 'attachment; filename="' . $originalName . '"',
+                ]
+            );
+        }
+
+        // If multiple images, create a ZIP file
+        if (count($images) > 1) {
+            $zipFileName = 'images.zip';
+            $zip = new \ZipArchive();
+            $zip->open(storage_path($zipFileName), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+
+            foreach ($images as $image) {
+                $base64File = $image['data'];
+                $mimeType = $image['mime_type'];
+                $extension = explode('/', $mimeType)[1];
+                $imageName = uniqid() . '.' . $extension;
+
+                $zip->addFromString($imageName, base64_decode($base64File));
+            }
+
+            $zip->close();
+
+            return response()->download(storage_path($zipFileName))->deleteFileAfterSend(true);
+        }
+
+        // If no images, return an appropriate response
+        return response()->json(['message' => 'No images found'], 404);
+    } catch (\Exception $e) {
+        // Handle any exception that occurs and return a proper response
+        return response()->json(['message' => 'An error occurred while processing the images', 'error' => $e->getMessage()], 500);
+    }
+}
+
 
 
 public function downloadImages($imgRequestId)

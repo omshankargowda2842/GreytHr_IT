@@ -10,7 +10,7 @@ class HelpDesks extends Model
 {
     use HasFactory;
     protected $fillable=[
-        'emp_id', 'category', 'subject', 'description', 'file_path', 'cc_to', 'priority','status_code','mail','mobile','distributor_name','selected_equipment','rejection_reason','active_comment','closed_notes','cancel_notes','req_end_date','pending_remarks','pending_notes','inprogress_notes','cat_progress_since','total_cat_progress_time','assign_to','customer_visible_notes'
+        'emp_id', 'category', 'subject', 'description', 'file_path', 'cc_to', 'priority','status_code','mail','mobile','distributor_name','selected_equipment','rejection_reason','active_comment','closed_notes','cancel_notes','req_end_date','pending_remarks','pending_notes','cat_file_paths','inprogress_notes','cat_progress_since','total_cat_progress_time','assign_to','customer_visible_notes'
      ];
     public function emp()
     {
@@ -35,9 +35,22 @@ class HelpDesks extends Model
     protected static function booted()
     {
         static::created(function ($helpDesk) {
-            $title = 'Catalog Request'; // Default title
+
+            $employee = EmployeeDetails::where('emp_id', $helpDesk->emp_id)->first();
+
+            if (!$employee) {
+                Log::error("Employee not found for ID: {$helpDesk->employee_id}");
+                return; // Prevent creating a notification if the employee is not found
+            }
+
+            $employeeName = "{$employee->first_name} {$employee->last_name}";
+
+            $title = "Catalog Request Raised by {$employeeName}";
             $message = "Subject : {$helpDesk->category}";
             $redirect_url = 'itrequest?currentCatalogId=' . $helpDesk->id;
+
+
+
             // Check if any value is missing, log it if necessary
             if (!$title || !$message || !$redirect_url) {
                 Log::error('Missing required notification data: title, message or redirect_url');

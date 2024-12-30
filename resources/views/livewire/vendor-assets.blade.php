@@ -25,7 +25,7 @@
     @if($showAddVendor)
 
     <div class="col-11 d-flex justify-content-start mb-1 mt-4" style="margin-left: 5%;">
-        <button class="btn text-white btn-sm" style="background-color: #02114f;" wire:click='cancel'> <i
+        <button class="btn text-white btn-sm" style="background-color: #02114f;font-size:13px;" wire:click='cancel'> <i
                 class="fas fa-arrow-left"></i> Back</button>
 
     </div>
@@ -148,7 +148,7 @@
                                                     wire:keydown="resetValidationForField('newAssetName')">
                                                 <button type="button" wire:click="createAssetType"
                                                     class="btn text-white"
-                                                    style="background-color: #02114f;">Create</button>
+                                                    style="background-color: #02114f;font-size:13px;">Create</button>
                                             </div>
 
 
@@ -523,7 +523,7 @@
                 </div>
                 <div class="d-flex justify-content-center">
                     <button type="button" wire:click="submit" class="btn text-white border-white"
-                        style="background-color: #02114f;">{{ $editMode ? 'Update' : 'Submit' }}</button>
+                        style="background-color: #02114f;font-size:13px;">{{ $editMode ? 'Update' : 'Submit' }}</button>
                 </div>
             </form>
         </div>
@@ -541,7 +541,7 @@
         <div class="col-11 col-md-11 mb-2 mb-md-0">
             <div class="row d-flex justify-content-between">
                 <!-- Employee ID Search Input -->
-                <div class="col-4">
+                <div class="col-lg-4 col-md-4 col-6">
                     <div class="input-group task-input-group-container">
                         <input type="text" class="form-control" placeholder="Search..." wire:model="searchEmp"
                             wire:input="filter">
@@ -553,7 +553,7 @@
                 auth()->user()->hasRole('super_admin')))
                 <div class="col-auto">
                     <button class="btn text-white btn-sm" wire:click='showAddVendorMember'
-                        style="padding: 7px;background-color: #02114f;">
+                        style="padding: 7px;background-color: #02114f;font-size:13px;">
                         <i class="fas fa-box " style="margin-right: 5px;"></i> Add Asset
                     </button>
                 </div>
@@ -805,7 +805,7 @@
             <div>
                 <h5>View Details</h5>
             </div>
-            <button class="btn text-white" style="background-color: #02114f;" wire:click="closeViewVendor"
+            <button class="btn text-white" style="background-color: #02114f;font-size:13px;" wire:click="closeViewVendor"
                 aria-label="Close">
 
                 Close

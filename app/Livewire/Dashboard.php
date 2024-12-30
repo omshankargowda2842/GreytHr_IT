@@ -147,7 +147,7 @@ class Dashboard extends Component
 
     public function vendorMod()
     {
-         return redirect()->route('vendor');
+         return redirect()->route('vendors');
     }
 
     public function assetMod()

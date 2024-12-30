@@ -74,9 +74,11 @@ class MainLayout extends Component
         $tabs = [
             'dashboard' => 'dashboard',
             'requests' => 'itRequest',
+            'incidentRequests' => 'incRequest',
+            'serviceRequests' => 'serRequest',
             'itMembers' => 'itMembers',
             'oldItMembers' => 'oldRecords',
-            'vendor' => 'vendor',
+            'vendors' => 'vendor',
             'vendorAssets' => 'vendorAssets',
         ];
 

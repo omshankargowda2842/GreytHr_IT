@@ -38,6 +38,7 @@ class IncidentRequest extends Model
         'priority',
         'assigned_dept',
         'file_path',
+        'it_file_paths',
 
         'status_code',
     ];
@@ -78,12 +79,21 @@ public function status()
             $message = '';
             $redirect_url = '';
 
+            $employee = EmployeeDetails::where('emp_id', $incidentRequest->emp_id)->first();
+
+            if (!$employee) {
+                Log::error("Employee not found for ID: {$incidentRequest->employee_id}");
+                return; // Prevent creating a notification if the employee is not found
+            }
+
+            $employeeName = "{$employee->first_name} {$employee->last_name}";
+         
             if ($incidentRequest->category == 'Incident Request') {
-                $title = ' Incident Request';
+                $title = "Incident Request Raised by {$employeeName}";
                 $message = "Subject : {$incidentRequest->short_description}";
                 $redirect_url = 'incidentRequests?currentRequestId=' . $incidentRequest->id;
             } elseif ($incidentRequest->category == 'Service Request') {
-                $title = ' Service Request';
+                $title =  "Service Request Raised by {$employeeName}";
                 $message = "Subject : {$incidentRequest->short_description}";
                 $redirect_url = 'serviceRequests?currentRequestId=' . $incidentRequest->id;
             }

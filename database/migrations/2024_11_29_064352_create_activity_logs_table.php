@@ -22,7 +22,8 @@ return new class extends Migration
             $table->string('opened_by')->nullable(); // Name or ID of the person who opened the request
             $table->string('priority')->nullable(); // Priority level (e.g., 'High', 'Medium', 'Low')
             $table->string('state')->nullable();
-            $table->timestamps(); //
+            $table->json('attachments')->nullable();
+            $table->timestamps(); 
         });
     }
 
