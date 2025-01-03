@@ -236,6 +236,16 @@ class AssignAssetEmployee extends Component
         }
     }
 
+
+    public function updatedSelectedCategory($value)
+{
+
+    $this->selectedCategory = $value;
+    $this->selectedAsset = null;
+    $this->fetchAssetDetails();
+
+}
+
     public function loadAssets()
     {
         try {

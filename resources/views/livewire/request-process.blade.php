@@ -1,7 +1,7 @@
     <div class="main">
 
         <div wire:loading
-            wire:target="submit,setActiveTab,rejectionModal,selectPriority,closePopup,showRejectedRequest,selectedInprogress,closePendingModal,closeClosedModal,selectedClosed,selectedPending,closeInprogressModal,inprogressForDesks,loadLogs,pendingForDesks,closeModal,rejectStatus,cancelModal,cancelStatus,viewRecord,Cancel,viewRejectDetails,closeRejectDetails,closeDetails,closeDetailsBack,selectedStatus,viewApproveDetails,showAllRequest,showRecentRequest,approveStatus,updateStatus,postComment,updateAssigne,redirectBasedOnStatus,viewDetails,openForDesks,postInprogressRemarks,postPendingRemarks,postRemarks,closeForDesks,showViewImage,showViewFile,closeViewFile,downloadImages,closeViewImage,selectedAssigne,SelectedStatus,closeStatusModal,submitStatusReason,activeCatalogSubmit,showViewEmpImage,showViewEmpFile,closeViewEmpImage,closeViewEmpFile,downloadITImages">
+            wire:target="submit,setActiveTab,rejectionModal,selectPriority,closePopup,showRejectedRequest,loadClosedRecordsByAssigne,loadInprogessRecordsByAssigne,loadPendingRecordsByAssigne,selectedInprogress,closePendingModal,closeClosedModal,selectedClosed,selectedPending,closeInprogressModal,inprogressForDesks,loadLogs,pendingForDesks,closeModal,rejectStatus,cancelModal,cancelStatus,viewRecord,Cancel,viewRejectDetails,closeRejectDetails,closeDetails,closeDetailsBack,selectedStatus,viewApproveDetails,showAllRequest,showRecentRequest,approveStatus,updateStatus,postComment,updateAssigne,redirectBasedOnStatus,viewDetails,openForDesks,postInprogressRemarks,postPendingRemarks,postRemarks,closeForDesks,showViewImage,showViewFile,closeViewFile,downloadImages,closeViewImage,selectedAssigne,SelectedStatus,closeStatusModal,submitStatusReason,activeCatalogSubmit,showViewEmpImage,showViewEmpFile,closeViewEmpImage,closeViewEmpFile,downloadITImages">
             <div class="loader-overlay">
                 <div>
                     <div class="logo">
@@ -1730,7 +1730,7 @@
 
                                                                 <!-- Label triggers file input -->
                                                                 <div class="req-attachmentsIcon d-flex"
-                                                                    style="align-items: baseline; gap: 5px;margin-top: 40%;">
+                                                                    style="align-items: baseline; gap: 5px;">
                                                                     <button class="btn btn-outline-secondary"
                                                                         type="button"
                                                                         for="fileInput-{{ $selectedRequest->id }}"
@@ -2099,10 +2099,29 @@
 
                                 <div class="col-12 mt-2">
 
+
+                                    <div class="col-lg-3 col-md-3 col-5 mb-5">
+                                        <div>
+                                            <label for="assignee" class="form-label">Select Assignee</label>
+                                            <select id="assignee" class="form-control"
+                                                wire:model="statusPenFilterAssigne"
+                                                wire:change="loadPendingRecordsByAssigne">
+                                                <option value="" disabled selected>-- Select Assignee --</option>
+                                                <option value="">All</option>
+                                                @foreach ($itAssigneMemebers as $member)
+                                                <option
+                                                    value="{{ $member['first_name'] }} {{ $member['last_name'] }} {{ $member['emp_id'] }}">
+                                                    {{ $member['first_name'] }} {{ $member['last_name'] }}
+                                                </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
                                     <div class="table-responsive req-table-res">
 
                                         <table class="custom-table">
-                                            @if($forIT->where('status_code', '5')->count() > 0)
+                                            @if($catalogPendingDetails->count() > 0)
                                             <thead>
 
                                                 <tr>
@@ -2245,8 +2264,8 @@
                                             @endif
                                             <tbody>
 
-                                                @if($forIT->where('status_code', '5')->count() > 0)
-                                                @foreach ($forIT->where('status_code', '5') as $index =>$record)
+                                                @if($catalogPendingDetails->count() > 0)
+                                                @foreach ($catalogPendingDetails as $index =>$record)
                                                 @php
                                                 $ccToArray = explode(',', $record->cc_to);
                                                 @endphp
@@ -2595,7 +2614,7 @@
 
                                                                         <!-- Label triggers file input -->
                                                                         <div class="d-flex"
-                                                                            style="align-items: baseline; gap: 5px;margin-top: 40%;">
+                                                                            style="align-items: baseline; gap: 5px;">
                                                                             <button class="btn btn-outline-secondary"
                                                                                 type="button"
                                                                                 for="fileInput-{{ $record->id }}"
@@ -2914,10 +2933,29 @@
 
                                 <div class="col-12 mt-2">
 
+                                    <div class="col-lg-3 col-md-3 col-5 mb-5">
+                                        <div>
+                                            <label for="assignee" class="form-label">Select Assignee</label>
+                                            <select id="assignee" class="form-control"
+                                                wire:model="statusInproFilterAssigne"
+                                                wire:change="loadInprogessRecordsByAssigne">
+                                                <option value="" disabled selected>-- Select Assignee --</option>
+                                                <option value="">All</option>
+                                                @foreach ($itAssigneMemebers as $member)
+                                                <option
+                                                    value="{{ $member['first_name'] }} {{ $member['last_name'] }} {{ $member['emp_id'] }}">
+                                                    {{ $member['first_name'] }} {{ $member['last_name'] }}
+                                                </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
+
                                     <div class="table-responsive req-table-res">
 
                                         <table class="custom-table">
-                                            @if($forIT->where('status_code', '16')->count() > 0)
+                                            @if($catalogInprogressDetails->count() > 0)
                                             <thead>
 
                                                 <tr>
@@ -3060,8 +3098,8 @@
                                             @endif
                                             <tbody>
 
-                                                @if($forIT->where('status_code', '16')->count() > 0)
-                                                @foreach ($forIT->where('status_code', '16') as $index =>$record)
+                                                @if($catalogInprogressDetails->count() > 0)
+                                                @foreach ($catalogInprogressDetails as $index =>$record)
                                                 @php
                                                 $ccToArray = explode(',', $record->cc_to);
                                                 @endphp
@@ -3546,7 +3584,7 @@
 
                                                                         <!-- Label triggers file input -->
                                                                         <div class="d-flex"
-                                                                            style="align-items: baseline; gap: 5px;margin-top: 40%;">
+                                                                            style="align-items: baseline; gap: 5px;">
                                                                             <button class="btn btn-outline-secondary"
                                                                                 type="button"
                                                                                 for="fileInput-{{ $record->id }}"
@@ -3866,11 +3904,45 @@
                                 <div class="col-12 mt-2">
 
 
+                                    <div class="row d-flex">
+                                        <!-- Assignee Filter -->
+                                        <div class="col-lg-3 col-md-3 col-5 mb-5">
+                                            <div>
+                                                <label for="assignee" class="form-label">Select Assignee</label>
+                                                <select id="assignee" class="form-control"
+                                                    wire:model="statusClsdFilterAssigne"
+                                                    wire:change="loadClosedRecordsByAssigne">
+                                                    <option value="" disabled selected>-- Select Assignee --</option>
+                                                    <option value="">All</option>
+                                                    @foreach ($itAssigneMemebers as $member)
+                                                    <option
+                                                        value="{{ $member['first_name'] }} {{ $member['last_name'] }} {{ $member['emp_id'] }}">
+                                                        {{ $member['first_name'] }} {{ $member['last_name'] }}
+                                                    </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Status Filter -->
+                                        <div class="col-lg-3 col-md-3 col-5 mb-5">
+                                            <label for="statusFilter" class="form-label">Filter by Status</label>
+                                            <select wire:model="statusFilter" wire:change="loadClosedRecordsByAssigne"
+                                                id="statusFilter" class="form-select">
+                                                <option value="">All</option>
+                                                <option value="15">Cancelled</option>
+                                                <option value="11">Completed</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+
+
                                     <div class="table-responsive  req-closed-table-res">
 
 
                                         <table class="custom-table">
-                                            @if($forIT->whereIn('status_code', ['11', '15'])->count() > 0)
+                                            @if($catalogClosedDetails->count() > 0)
                                             <thead>
 
                                                 <tr>
@@ -3911,8 +3983,8 @@
                                             @endif
                                             <tbody>
 
-                                                @if($forIT->whereIn('status_code', ['11', '15'])->count() > 0)
-                                                @foreach ($forIT as $record)
+                                                @if($catalogClosedDetails->count() > 0)
+                                                @foreach ($catalogClosedDetails as $record)
                                                 @php
                                                 $ccToArray = explode(',', $record->cc_to);
                                                 @endphp
