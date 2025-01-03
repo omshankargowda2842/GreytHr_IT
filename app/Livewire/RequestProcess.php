@@ -93,6 +93,7 @@ class RequestProcess extends Component
 
     public function mount($id = null)
     {
+
         try {
             // Get the authenticated user
             $employee = auth()->user();
@@ -144,6 +145,162 @@ class RequestProcess extends Component
             $this->viewEmpRequest = true; // Default to showing employee requests
         }
     }
+
+
+    public $statusFilter = '';
+
+
+
+    public $catalogPendingDetails = '';
+    public $catalogInprogressDetails = '';
+    public $catalogClosedDetails = '';
+    public $statusPenFilterAssigne = '';
+    public $statusInproFilterAssigne = '';
+    public $statusClsdFilterAssigne = '';
+    public $itAssigneMemebers = [];
+
+
+
+
+
+    public function loadPendingRecordsByAssigne()
+    {
+        // Fetch the assignee members based on department and status
+
+        try {
+
+            $requestCategories = Request::select('Request', 'category')
+            ->where('Request', 'IT') // Adjust this to match the condition for IT requests
+            ->pluck('category');
+
+            // Fetch IT data (empIt related data)
+            $this->itData = IT::with('empIt')->get();
+
+            // Start the query to load incident details with status code 16
+
+                $query = HelpDesks::with('emp')
+                    ->where('status_code', '5')
+                    ->whereIn('category', $requestCategories)
+                    ->orderBy($this->sortColumn, $this->sortDirection)
+                    ->orderBy('created_at', 'desc');
+
+
+            // Apply filter by the selected assignee if provided
+            if ($this->statusPenFilterAssigne) {
+
+                $query->where('assign_to', $this->statusPenFilterAssigne); // Filter by the selected Employee ID
+            } else {
+                // If no filter is selected, default to showing records with status code 16
+                $query->where('status_code', 5);
+            }
+
+            // Execute the query and fetch the records
+            $this->catalogPendingDetails = $query->get();
+
+        } catch (\Exception $e) {
+            // Log any error that occurs during the query execution
+            Log::error("Error loading Catalog details: " . $e->getMessage(), ['exception' => $e]);
+            FlashMessageHelper::flashError('An error occurred while loading Catalog details.');
+            $this->catalogPendingDetails = collect(); // Set to an empty collection in case of an error
+        }
+    }
+
+
+    public function loadInprogessRecordsByAssigne()
+    {
+        // Fetch the assignee members based on department and status
+
+        try {
+
+            $requestCategories = Request::select('Request', 'category')
+            ->where('Request', 'IT') // Adjust this to match the condition for IT requests
+            ->pluck('category');
+
+            // Fetch IT data (empIt related data)
+            $this->itData = IT::with('empIt')->get();
+
+            // Start the query to load incident details with status code 16
+
+                $query =  $this->forIT = HelpDesks::with('emp')
+                ->where('status_code', '16')
+                ->whereIn('category', $requestCategories)
+                ->orderBy($this->sortColumn, $this->sortDirection)
+                ->orderBy('created_at', 'desc');
+
+
+
+            // Apply filter by the selected assignee if provided
+            if ($this->statusInproFilterAssigne) {
+
+                $query->where('assign_to', $this->statusInproFilterAssigne); // Filter by the selected Employee ID
+            } else {
+                // If no filter is selected, default to showing records with status code 16
+                $query->where('status_code', 16);
+            }
+
+            // Execute the query and fetch the records
+            $this->catalogInprogressDetails = $query->get();
+
+        } catch (\Exception $e) {
+            // Log any error that occurs during the query execution
+            Log::error("Error loading Catalog details: " . $e->getMessage(), ['exception' => $e]);
+            FlashMessageHelper::flashError('An error occurred while loading Catalog details.');
+            $this->catalogInprogressDetails = collect(); // Set to an empty collection in case of an error
+        }
+    }
+
+
+
+    public function loadClosedRecordsByAssigne()
+    {
+        // Fetch the assignee members based on department and status
+
+        try {
+
+            $requestCategories = Request::select('Request', 'category')
+            ->where('Request', 'IT') // Adjust this to match the condition for IT requests
+            ->pluck('category');
+
+            // Fetch IT data (empIt related data)
+            $this->itData = IT::with('empIt')->get();
+
+            // Start the query to load incident details with status code 16
+
+                $query = HelpDesks::with('emp')
+                ->whereIn('status_code', ['11', '15'])
+                    ->whereIn('category',  $requestCategories)
+                    ->orderBy($this->sortColumn, $this->sortDirection)
+                    ->orderBy('created_at', 'desc')
+                   ;
+
+
+                   if ($this->statusFilter) {
+                    if ($this->statusFilter == '11') {
+                        $query->where('status_code', 11); // Completed
+                    } elseif ($this->statusFilter == '15') {
+                        $query->where('status_code', 15); // Cancelled
+                    }
+                }
+
+
+            // Apply filter by the selected assignee if provided
+            if ($this->statusClsdFilterAssigne) {
+                $query->where('assign_to', $this->statusClsdFilterAssigne); // Filter by the selected Employee ID
+            }
+
+            // Execute the query and fetch the records
+            $this->catalogClosedDetails = $query->get();
+
+        } catch (\Exception $e) {
+            // Log any error that occurs during the query execution
+            Log::error("Error loading Catalog details: " . $e->getMessage(), ['exception' => $e]);
+            FlashMessageHelper::flashError('An error occurred while loading Catalog details.');
+            $this->catalogClosedDetails = collect();  // Set to an empty collection in case of an error
+        }
+    }
+
+
+
 
 
     public function updatedCurrentCatalogId($id)
@@ -1722,6 +1879,38 @@ public function updateCounts()
         // Initialize fileDataArray
         $fileDataArray = [];
 
+
+        if ($this->cat_file_paths) {
+            foreach ($this->cat_file_paths as $file) {
+                $mimeType = $file->getMimeType();
+
+                // Check if the file is an image
+                if (strpos($mimeType, 'image/') === 0) {
+                    // Validate image file size
+                    if ($file->getSize() > 1024 * 1024) { // 1 MB in bytes
+                        FlashMessageHelper::flashError("The image {$file->getClientOriginalName()} exceeds the 1 MB size limit.");
+                        return; // Stop further processing
+                    }
+                } else {
+                    // Validate non-image file size
+                    if ($file->getSize() >  100 * 1024 * 1024) { // 500 MB in bytes
+                        FlashMessageHelper::flashError("The file {$file->getClientOriginalName()} exceeds the 500 MB size limit.");
+                        return; // Stop further processing
+                    }
+                }
+            }
+
+            // Validate files based on their types
+            $this->validate([
+                'cat_file_paths.*' => [
+                    'nullable',
+                    'file',
+                    'mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif',
+                    'max:512000', // Maximum size in KB (500 MB for general validation)
+                ],
+            ]);
+        }
+
         if ($this->cat_file_paths) {
             // Validate files
             $this->validate([
@@ -2043,6 +2232,15 @@ public function downloadImages($imgRequestId)
   public function render()
 {
     try {
+
+        $this->loadPendingRecordsByAssigne();
+        $this->loadInprogessRecordsByAssigne();
+        $this->loadClosedRecordsByAssigne();
+        $this->itAssigneMemebers = EmployeeDetails::where('sub_dept_id', '9915')
+        ->where('dept_id', '8803')
+        ->where('status', 1)
+        ->orderBy('first_name', 'asc')
+        ->get();
         // Fetch IT request categories
         $requestCategories = Request::select('Request', 'category')
             ->where('Request', 'IT') // Adjust this to match the condition for IT requests
@@ -2092,29 +2290,31 @@ public function downloadImages($imgRequestId)
                 ->orderBy($this->sortColumn, $this->sortDirection)
                 ->whereIn('category',  $requestCategories)
                 ->get();
-        } elseif ($this->activeTab == 'pending') {
-            $this->forIT = HelpDesks::with('emp')
-                ->where('status_code', '5')
-                ->whereIn('category', $requestCategories)
-                ->orderBy($this->sortColumn, $this->sortDirection)
-                ->orderBy('created_at', 'desc')
-                ->get();
-        }elseif ($this->activeTab == 'inprogress') {
-            $this->forIT = HelpDesks::with('emp')
-                ->where('status_code', '16')
-                ->whereIn('category', $requestCategories)
-                ->orderBy($this->sortColumn, $this->sortDirection)
-                ->orderBy('created_at', 'desc')
-                ->get();
         }
-        elseif ($this->activeTab == 'closed') {
-            $this->forIT = HelpDesks::with('emp')
-            ->whereIn('status_code', ['11', '15'])
-                ->whereIn('category',  $requestCategories)
-                ->orderBy($this->sortColumn, $this->sortDirection)
-                ->orderBy('created_at', 'desc')
-                ->get();
-        }
+        //  elseif ($this->activeTab == 'pending') {
+        //     $this->forIT = HelpDesks::with('emp')
+        //         ->where('status_code', '5')
+        //         ->whereIn('category', $requestCategories)
+        //         ->orderBy($this->sortColumn, $this->sortDirection)
+        //         ->orderBy('created_at', 'desc')
+        //         ->get();
+        // }
+        // elseif ($this->activeTab == 'inprogress') {
+        //     $this->forIT = HelpDesks::with('emp')
+        //         ->where('status_code', '16')
+        //         ->whereIn('category', $requestCategories)
+        //         ->orderBy($this->sortColumn, $this->sortDirection)
+        //         ->orderBy('created_at', 'desc')
+        //         ->get();
+        // }
+        // elseif ($this->activeTab == 'closed') {
+        //     $this->forIT = HelpDesks::with('emp')
+        //     ->whereIn('status_code', ['11', '15'])
+        //         ->whereIn('category',  $requestCategories)
+        //         ->orderBy($this->sortColumn, $this->sortDirection)
+        //         ->orderBy('created_at', 'desc')
+        //         ->get();
+        // }
 
         // Handling IT requests after 7 days to update status
         if (auth()->guard('it')->check()) {

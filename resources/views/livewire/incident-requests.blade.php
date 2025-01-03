@@ -1,7 +1,7 @@
 <div class="main">
 
     <div wire:loading
-        wire:target="submit,setActiveTab,viewIncidentDetails,viewRecord,showViewEmpImage,showViewEmpFile,closeViewEmpImage,handleSelectedAssigneChange,handleSelectedStatusChange,closeViewEmpFile,closeIncidentDetails,closePopup,filterLogs,updateAssigne,closeViewItFile,showViewItImage,showViewItFile,closeViewItImage,uploadFiles,downloadITImages,SelectedAssigne,set,closeInprogressModal,selectedInprogress,activeIncidentSubmit,selectedStatus,closeModal,set,loadIncidentClosedDetails,postInprogressRemarks,toggleSortOrder,pendingForDesks,loadLogs,inprogressForDesks,handleStatusChange,updateStatus,postComment,redirectBasedOnStatus,postRemarks,closeForDesks,showViewImage,showViewFile,closeViewFile,downloadImages,closeViewImage,selectedPending,closePendingModal,selectedClosed,closeClosedModal,closeStatusModal,submitStatusReason">
+        wire:target="submit,setActiveTab,viewIncidentDetails,viewRecord,showViewEmpImage,showViewEmpFile,closeViewEmpImage,handleSelectedAssigneChange,handleSelectedStatusChange,closeViewEmpFile,closeIncidentDetails,closePopup,filterLogs,updateAssigne,closeViewItFile,showViewItImage,showViewItFile,closeViewItImage,uploadFiles,downloadITImages,SelectedAssigne,set,closeInprogressModal,selectedInprogress,activeIncidentSubmit,selectedStatus,closeModal,set,loadClosedRecordsByAssigne,loadInprogessRecordsByAssigne,loadPendingRecordsByAssigne,postInprogressRemarks,toggleSortOrder,pendingForDesks,loadLogs,inprogressForDesks,handleStatusChange,updateStatus,postComment,redirectBasedOnStatus,postRemarks,closeForDesks,showViewImage,showViewFile,closeViewFile,downloadImages,closeViewImage,selectedPending,closePendingModal,selectedClosed,closeClosedModal,closeStatusModal,submitStatusReason">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -106,7 +106,7 @@
 
                             <div>
                                 <span class="badge  text-black"
-                                    style="color: #17C653 !important;background-color:black;font-size:12px">
+                                    style="color: white !important;background-color:black;font-size:12px">
                                     Active <span
                                         class="badge rounded-pill bg-white text-dark">{{ $incidentOpenCount}}</span>
                                 </span>
@@ -854,7 +854,7 @@
 
                         <div>
                             <span class="badge  text-black"
-                                style="color: #17C653 !important;background-color:black;font-size:12px">
+                                style="color: white !important;background-color:black;font-size:12px">
                                 Pending <span
                                     class="badge rounded-pill bg-white text-dark">{{ $incidentPendingCount}}</span>
                             </span>
@@ -865,6 +865,25 @@
 
                     <div class="row">
                         <div class="col-12 mt-2">
+
+                            <div class="col-lg-3 col-md-3 col-5 mb-5">
+                                <div>
+                                    <label for="assignee" class="form-label">Select Assignee</label>
+                                    <select id="assignee" class="form-control" wire:model="statusPenFilterAssigne"
+                                        wire:change="loadPendingRecordsByAssigne">
+                                        <option value="" disabled selected>-- Select Assignee --</option>
+                                        <option value="">All</option>
+                                        @foreach ($itAssigneMemebers as $member)
+                                        <option
+                                            value="{{ $member['first_name'] }} {{ $member['last_name'] }} {{ $member['emp_id'] }}">
+                                            {{ $member['first_name'] }} {{ $member['last_name'] }}
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+
                             <div class="table-responsive req-table-res">
                                 <table class="custom-table">
                                     @if($incidentPendingDetails->count() > 0)
@@ -1545,16 +1564,35 @@
 
                         <div>
                             <span class="badge  text-black"
-                                style="color: #17C653 !important;background-color:black;font-size:12px">
+                                style="color: white !important;background-color:black;font-size:12px">
                                 Inprogress <span
                                     class="badge rounded-pill bg-white text-dark">{{ $incidentprogressCount}}</span>
                             </span>
                         </div>
-
                     </div>
+
 
                     <div class="row">
                         <div class="col-12 mt-2">
+                            <div class="col-lg-3 col-md-3 col-5 mb-5">
+                                <div>
+                                    <label for="assignee" class="form-label">Select Assignee</label>
+                                    <select id="assignee" class="form-control" wire:model="statusInproFilterAssigne"
+                                        wire:change="loadInprogessRecordsByAssigne">
+                                        <option value="" disabled selected>-- Select Assignee --</option>
+                                        <option value="">All</option>
+                                        @foreach ($itAssigneMemebers as $member)
+                                        <option
+                                            value="{{ $member['first_name'] }} {{ $member['last_name'] }} {{ $member['emp_id'] }}">
+                                            {{ $member['first_name'] }} {{ $member['last_name'] }}
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+
+
                             <div class="table-responsive req-table-res">
                                 <table class="custom-table">
                                     @if($incidentInprogressDetails->count() > 0)
@@ -1571,6 +1609,19 @@
                                                     @endif
                                                 </span>
                                             </th>
+
+                                            <th scope="col" class="req-table-head">Employee ID
+                                                <span wire:click.debounce.500ms="toggleSortOrder('emp_id')"
+                                                    style="cursor: pointer;">
+                                                    @if($sortColumn == 'emp_id')
+                                                    <i
+                                                        class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }}"></i>
+                                                    @else
+                                                    <i class="fas fa-sort"></i>
+                                                    @endif
+                                                </span>
+                                            </th>
+
                                             <th class="req-table-head">Category
                                                 <span wire:click.debounce.500ms="toggleSortOrder('category')"
                                                     style="cursor: pointer;">
@@ -1626,6 +1677,7 @@
 
                                         <tr>
                                             <td>{{ $record->snow_id }}</td>
+                                            <td>{{ $record->emp_id ?? 'N/A' }}</td>
                                             <td>{{ $record->category ?? 'N/A' }}</td>
                                             <td>{{ $record->short_description ?? 'N/A' }}</td>
                                             <td>{{ $record->description ?? 'N/A' }}</td>
@@ -2359,7 +2411,7 @@
 
                         <div>
                             <span class="badge  text-black"
-                                style="color: #17C653 !important;background-color:black;font-size:12px">
+                                style="color: white !important;background-color:black;font-size:12px">
                                 Closed <span
                                     class="badge rounded-pill bg-white text-dark">{{ $incidentClosedCount}}</span>
                             </span>
@@ -2370,15 +2422,37 @@
 
                         <div class="col-12 mt-2">
 
-                            <div class="col-lg-3 col-md-3 col-5 mb-5">
-                                <label for="statusFilter" class="form-label">Filter by Status</label>
-                                <select wire:model="statusFilter" wire:change='loadIncidentClosedDetails'
-                                    id="statusFilter" class="form-select">
-                                    <option value="">All</option>
-                                    <option value="11">Completed</option>
-                                    <option value="15">Cancelled</option>
-                                </select>
+                            <div class="row d-flex">
+                                <!-- Assignee Filter -->
+                                <div class="col-lg-3 col-md-3 col-5 mb-5">
+                                    <div>
+                                        <label for="assignee" class="form-label">Select Assignee</label>
+                                        <select id="assignee" class="form-control" wire:model="statusClsdFilterAssigne"
+                                            wire:change="loadClosedRecordsByAssigne">
+                                            <option value="" disabled selected>-- Select Assignee --</option>
+                                            <option value="">All</option>
+                                            @foreach ($itAssigneMemebers as $member)
+                                            <option
+                                                value="{{ $member['first_name'] }} {{ $member['last_name'] }} {{ $member['emp_id'] }}">
+                                                {{ $member['first_name'] }} {{ $member['last_name'] }}
+                                            </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Status Filter -->
+                                <div class="col-lg-3 col-md-3 col-5 mb-5">
+                                    <label for="statusFilter" class="form-label">Filter by Status</label>
+                                    <select wire:model="statusFilter" wire:change="loadClosedRecordsByAssigne"
+                                        id="statusFilter" class="form-select">
+                                        <option value="">All</option>
+                                        <option value="15">Cancelled</option>
+                                        <option value="11">Completed</option>
+                                    </select>
+                                </div>
                             </div>
+
 
                             <div class="table-responsive  req-closed-table-res">
 

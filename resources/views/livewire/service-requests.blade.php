@@ -2,7 +2,7 @@
 
 
     <div wire:loading
-        wire:target="submit,setActiveTab,viewRecord,closeServiceDetails,closePopup,filterLogs,updateAssigne,handleSelectedAssigneChange,handleSelectedStatusChange,selectedStatus,closeInprogressModal,selectedInprogress,closeStatusModal,submitStatusReason,selectedAssigne,closeModal,set,loadServiceClosedDetails  ,toggleSortOrder,pendingForDesks,loadLogs,inprogressForDesks,viewServiceDetails,handleStatusChange,updateStatus,postComment,activeServiceSubmit,closeForDesks,showViewImage,showViewFile,closeViewFile,downloadImages,closeViewImage,selectedPending,closePendingModal,selectedClosed,closeClosedModal,set,showViewEmpImage,showViewEmpFile,closeViewEmpImage,closeViewEmpFile,downloadITImages">
+        wire:target="submit,setActiveTab,viewRecord,closeServiceDetails,closePopup,loadClosedRecordsByAssigne,loadInprogessRecordsByAssigne,loadPendingRecordsByAssigne,filterLogs,updateAssigne,handleSelectedAssigneChange,handleSelectedStatusChange,selectedStatus,closeInprogressModal,selectedInprogress,closeStatusModal,submitStatusReason,selectedAssigne,closeModal,set,toggleSortOrder,pendingForDesks,loadLogs,inprogressForDesks,viewServiceDetails,handleStatusChange,updateStatus,postComment,activeServiceSubmit,closeForDesks,showViewImage,showViewFile,closeViewFile,downloadImages,closeViewImage,selectedPending,closePendingModal,selectedClosed,closeClosedModal,set,showViewEmpImage,showViewEmpFile,closeViewEmpImage,closeViewEmpFile,downloadITImages">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -109,7 +109,7 @@
 
                             <div>
                                 <span class="badge  text-black"
-                                    style="color: #17C653 !important;background-color:black;font-size:12px">
+                                    style="color: white !important;background-color:black;font-size:12px">
                                     Active <span
                                         class="badge rounded-pill bg-white text-dark">{{ $serviceOpenCount}}</span>
                                 </span>
@@ -854,7 +854,7 @@
 
                         <div>
                             <span class="badge  text-black"
-                                style="color: #17C653 !important;background-color:black;font-size:12px">
+                                style="color: white !important;background-color:black;font-size:12px">
                                 Pending <span
                                     class="badge rounded-pill bg-white text-dark">{{ $servicePendingCount}}</span>
                             </span>
@@ -864,6 +864,25 @@
 
                     <div class="row">
                         <div class="col-12 mt-2">
+
+                            <div class="col-lg-3 col-md-3 col-5 mb-5">
+                                <div>
+                                    <label for="assignee" class="form-label">Select Assignee</label>
+                                    <select id="assignee" class="form-control" wire:model="statusPenFilterAssigne"
+                                        wire:change="loadPendingRecordsByAssigne">
+                                        <option value="" disabled selected>-- Select Assignee --</option>
+                                        <option value="">All</option>
+                                        @foreach ($itAssigneMemebers as $member)
+                                        <option
+                                            value="{{ $member['first_name'] }} {{ $member['last_name'] }} {{ $member['emp_id'] }}">
+                                            {{ $member['first_name'] }} {{ $member['last_name'] }}
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+
                             <div class="table-responsive req-table-res">
                                 <table class="custom-table">
                                     @if($servicePendingDetails->count() > 0)
@@ -1548,7 +1567,7 @@
 
                         <div>
                             <span class="badge  text-black"
-                                style="color: #17C653 !important;background-color:black;font-size:12px">
+                                style="color: white !important;background-color:black;font-size:12px">
                                 Inprogress <span
                                     class="badge rounded-pill bg-white text-dark">{{ $serviceInprogressCount}}</span>
                             </span>
@@ -1558,6 +1577,24 @@
 
                     <div class="row">
                         <div class="col-12 mt-2">
+
+                            <div class="col-lg-3 col-md-3 col-5 mb-5">
+                                <div>
+                                    <label for="assignee" class="form-label">Select Assignee</label>
+                                    <select id="assignee" class="form-control" wire:model="statusInproFilterAssigne"
+                                        wire:change="loadInprogessRecordsByAssigne">
+                                        <option value="" disabled selected>-- Select Assignee --</option>
+                                        <option value="">All</option>
+                                        @foreach ($itAssigneMemebers as $member)
+                                        <option
+                                            value="{{ $member['first_name'] }} {{ $member['last_name'] }} {{ $member['emp_id'] }}">
+                                            {{ $member['first_name'] }} {{ $member['last_name'] }}
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
                             <div class="table-responsive req-table-res">
                                 <table class="custom-table">
                                     @if($serviceInprogressDetails->count() > 0)
@@ -2373,7 +2410,7 @@
 
                         <div>
                             <span class="badge  text-black"
-                                style="color: #17C653 !important;background-color:black;font-size:12px">
+                                style="color: white !important;background-color:black;font-size:12px">
                                 Closed <span
                                     class="badge rounded-pill bg-white text-dark">{{ $serviceClosedCount}}</span>
                             </span>
@@ -2385,14 +2422,36 @@
 
                         <div class="col-12 mt-2">
 
-                            <div class="col-lg-3 col-md-3 col-5 mb-5">
-                                <label for="statusFilter" class="form-label">Filter by Status</label>
-                                <select wire:model="statusFilter" wire:change='loadServiceClosedDetails'
-                                    id="statusFilter" class="form-select">
-                                    <option value="">All</option>
-                                    <option value="11">Completed</option>
-                                    <option value="15">Cancelled</option>
-                                </select>
+
+                            <div class="row d-flex">
+                                <!-- Assignee Filter -->
+                                <div class="col-lg-3 col-md-3 col-5 mb-5">
+                                    <div>
+                                        <label for="assignee" class="form-label">Select Assignee</label>
+                                        <select id="assignee" class="form-control" wire:model="statusClsdFilterAssigne"
+                                            wire:change="loadClosedRecordsByAssigne">
+                                            <option value="" disabled selected>-- Select Assignee --</option>
+                                            <option value="">All</option>
+                                            @foreach ($itAssigneMemebers as $member)
+                                            <option
+                                                value="{{ $member['first_name'] }} {{ $member['last_name'] }} {{ $member['emp_id'] }}">
+                                                {{ $member['first_name'] }} {{ $member['last_name'] }}
+                                            </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Status Filter -->
+                                <div class="col-lg-3 col-md-3 col-5 mb-5">
+                                    <label for="statusFilter" class="form-label">Filter by Status</label>
+                                    <select wire:model="statusFilter" wire:change="loadClosedRecordsByAssigne"
+                                        id="statusFilter" class="form-select">
+                                        <option value="">All</option>
+                                        <option value="15">Cancelled</option>
+                                        <option value="11">Completed</option>
+                                    </select>
+                                </div>
                             </div>
 
                             <div class="table-responsive  req-closed-table-res">
@@ -3201,75 +3260,75 @@
 
 
                             @if (!empty($log->attachments))
-                                <div class="mt-2 text-sm">
+                            <div class="mt-2 text-sm">
+                                @php
+                                $images = [];
+                                $files = [];
+                                $fileDataArray = null;
+
+                                // Check if attachments are a JSON string or an array
+                                if (is_string($log->attachments)) {
+                                $fileDataArray = json_decode($log->attachments, true);
+                                } elseif (is_array($log->attachments)) {
+                                $fileDataArray = $log->attachments;
+                                }
+
+                                // Ensure it's an array before processing
+                                if (is_array($fileDataArray)) {
+                                // Separate images and files
+                                foreach ($fileDataArray as $fileData) {
+                                if (isset($fileData['mime_type'])) {
+                                if (strpos($fileData['mime_type'], 'image/') === 0) {
+                                $images[] = $fileData;
+                                } else {
+                                $files[] = $fileData;
+                                }
+                                }
+                                }
+                                }
+                                @endphp
+
+                                <!-- Display Images in 3 per row -->
+                                <div class="row">
+                                    @foreach ($images as $image)
                                     @php
-                                    $images = [];
-                                    $files = [];
-                                    $fileDataArray = null;
-
-                                    // Check if attachments are a JSON string or an array
-                                    if (is_string($log->attachments)) {
-                                    $fileDataArray = json_decode($log->attachments, true);
-                                    } elseif (is_array($log->attachments)) {
-                                    $fileDataArray = $log->attachments;
-                                    }
-
-                                    // Ensure it's an array before processing
-                                    if (is_array($fileDataArray)) {
-                                    // Separate images and files
-                                    foreach ($fileDataArray as $fileData) {
-                                    if (isset($fileData['mime_type'])) {
-                                    if (strpos($fileData['mime_type'], 'image/') === 0) {
-                                    $images[] = $fileData;
-                                    } else {
-                                    $files[] = $fileData;
-                                    }
-                                    }
-                                    }
-                                    }
+                                    $base64File = $image['data'];
+                                    $mimeType = $image['mime_type'];
                                     @endphp
-
-                                    <!-- Display Images in 3 per row -->
-                                    <div class="row">
-                                        @foreach ($images as $image)
-                                        @php
-                                        $base64File = $image['data'];
-                                        $mimeType = $image['mime_type'];
-                                        @endphp
-                                        <div class="col-4 mb-3">
-                                            <img src="data:{{ $mimeType }};base64,{{ $base64File }}" class="img-fluid"
-                                                alt="Image" style="width: 100%; height: auto;">
-                                        </div>
-                                        @endforeach
+                                    <div class="col-4 mb-3">
+                                        <img src="data:{{ $mimeType }};base64,{{ $base64File }}" class="img-fluid"
+                                            alt="Image" style="width: 100%; height: auto;">
                                     </div>
-
-                                    <!-- Display Files in 3 per row -->
-                                    <div class="row mt-4">
-                                        @foreach ($files as $file)
-                                        @php
-                                        $base64File = $file['data'];
-                                        $mimeType = $file['mime_type'];
-                                        $originalName = $file['original_name'];
-                                        @endphp
-                                        <div class="col-4 mb-3">
-                                            <a href="data:{{ $mimeType }};base64,{{ $base64File }}"
-                                                download="{{ $originalName }}"
-                                                style="text-decoration: none; color: #007BFF; display: block;">
-                                                {{ $originalName }} <i class="fas fa-download"
-                                                    style="margin-left: 5px;"></i>
-                                            </a>
-                                        </div>
-                                        @endforeach
-                                    </div>
-
-                                    <!-- Display N/A if no images or files -->
-                                    @if (count($images) == 0 && count($files) == 0)
-                                    <label for="">N/A</label>
-                                    @endif
+                                    @endforeach
                                 </div>
-                                @endif
 
-                                
+                                <!-- Display Files in 3 per row -->
+                                <div class="row mt-4">
+                                    @foreach ($files as $file)
+                                    @php
+                                    $base64File = $file['data'];
+                                    $mimeType = $file['mime_type'];
+                                    $originalName = $file['original_name'];
+                                    @endphp
+                                    <div class="col-4 mb-3">
+                                        <a href="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                            download="{{ $originalName }}"
+                                            style="text-decoration: none; color: #007BFF; display: block;">
+                                            {{ $originalName }} <i class="fas fa-download"
+                                                style="margin-left: 5px;"></i>
+                                        </a>
+                                    </div>
+                                    @endforeach
+                                </div>
+
+                                <!-- Display N/A if no images or files -->
+                                @if (count($images) == 0 && count($files) == 0)
+                                <label for="">N/A</label>
+                                @endif
+                            </div>
+                            @endif
+
+
                             <!-- Add more log details as needed -->
                         </div>
                     </div>

@@ -2496,6 +2496,14 @@ w
     transition: transform 0.3s ease;
 }
 
+
+
+@media (min-width: 300px) and (max-width: 500px) {
+    .notification-sidebar {
+        width: 300px;
+    }
+
+ }
 .notification-sidebar.show {
     transform: translateX(0);
 }

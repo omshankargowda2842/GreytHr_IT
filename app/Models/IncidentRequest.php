@@ -37,7 +37,7 @@ class IncidentRequest extends Model
         'ser_end_date',
         'priority',
         'assigned_dept',
-        'file_path',
+        'file_paths',
         'it_file_paths',
 
         'status_code',
@@ -87,7 +87,7 @@ public function status()
             }
 
             $employeeName = "{$employee->first_name} {$employee->last_name}";
-         
+
             if ($incidentRequest->category == 'Incident Request') {
                 $title = "Incident Request Raised by {$employeeName}";
                 $message = "Subject : {$incidentRequest->short_description}";

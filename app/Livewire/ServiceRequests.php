@@ -53,7 +53,10 @@ class ServiceRequests extends Component
 
     public function mount($id = null){
 
-        $this->loadServiceClosedDetails();
+        $this->loadClosedRecordsByAssigne();
+        $this->loadInprogessRecordsByAssigne();
+
+        $this->loadPendingRecordsByAssigne();
         $this->loadLogs();
 
 
@@ -922,45 +925,127 @@ class ServiceRequests extends Component
 
 
 
-        public $statusFilter = '';
+
+            public $statusFilter = '';
 
 
-    public function loadServiceClosedDetails()
+
+    public $statusPenFilterAssigne = '';
+    public $statusInproFilterAssigne = '';
+    public $statusClsdFilterAssigne = '';
+    public $itAssigneMemebers = [];
+
+
+
+    public function loadPendingRecordsByAssigne()
+    {
+        // Fetch the assignee members based on department and status
+
+
+        try {
+            // Start the query to load incident details with status code 16
+            $query = IncidentRequest::with('emp')
+            ->orderBy('created_at', 'desc')
+            ->where('category', 'Service Request')
+            ->where('status_code', 5);
+
+
+            // Apply filter by the selected assignee if provided
+            if ($this->statusPenFilterAssigne) {
+
+                $query->where('ser_assign_to', $this->statusPenFilterAssigne); // Filter by the selected Employee ID
+            } else {
+                // If no filter is selected, default to showing records with status code 16
+                $query->where('status_code', 5);
+            }
+
+            // Execute the query and fetch the records
+            $this->servicePendingDetails = $query->get();
+
+        } catch (\Exception $e) {
+            // Log any error that occurs during the query execution
+            Log::error("Error loading incident details: " . $e->getMessage(), ['exception' => $e]);
+            FlashMessageHelper::flashError('An error occurred while loading incident details.');
+            $this->servicePendingDetails = collect(); // Set to an empty collection in case of an error
+        }
+    }
+
+
+
+    public function loadClosedRecordsByAssigne()
+    {
+        try {
+            Log::info("Status Filter: " . $this->statusFilter);  // Debugging
+            Log::info("Assignee Filter: " . $this->statusClsdFilterAssigne);  // Debugging
+
+            // Start building the query to load incident closed details
+            $query = IncidentRequest::with('emp')
+                ->orderBy($this->sortColumn, $this->sortDirection)
+                ->where('category', 'Service Request')
+                ->whereIn('status_code', [11, 15]); // Default to completed and cancelled status
+
+            // Apply the status filter if selected
+            if ($this->statusFilter) {
+                if ($this->statusFilter == '11') {
+                    $query->where('status_code', 11); // Completed
+                } elseif ($this->statusFilter == '15') {
+                    $query->where('status_code', 15); // Cancelled
+                }
+            }
+
+            // Apply the assignee filter if selected
+            if ($this->statusClsdFilterAssigne) {
+
+                $query->where('ser_assign_to', $this->statusClsdFilterAssigne); // Filter by employee ID
+            }
+
+            // Execute the query and fetch the records
+            $this->serviceClosedDetails = $query->get();
+
+        } catch (\Exception $e) {
+            Log::error("Error loading incident closed details: " . $e->getMessage(), [
+                'exception' => $e,
+            ]);
+            FlashMessageHelper::flashError('An error occurred while loading incident details.');
+            $this->serviceClosedDetails = collect(); // Set to an empty collection in case of an error
+        }
+    }
+
+
+
+
+    public function loadInprogessRecordsByAssigne()
 {
+    // Fetch the assignee members based on department and status
 
     try {
-        // Start the query to load Service closed details
+        // Start the query to load incident details with status code 16
         $query = IncidentRequest::with('emp')
-            ->orderBy($this->sortColumn, $this->sortDirection)
-            ->where('category', 'Service Request');  // Ensure we are only getting Service Requests
+            ->orderBy('created_at', 'desc')
+            ->where('category', 'Service Request')
+            ->where('status_code', 16);
 
 
-        // Apply status filter if it's selected
-        if ($this->statusFilter) {
-            if ($this->statusFilter == '11') {
-                // Filter by completed status
-                $query->where('status_code', 11);
-            } elseif ($this->statusFilter == '15') {
-                // Filter by cancelled status
-                $query->where('status_code', 15);
-            }
+        // Apply filter by the selected assignee if provided
+        if ($this->statusInproFilterAssigne) {
+
+            $query->where('ser_assign_to', $this->statusInproFilterAssigne); // Filter by the selected Employee ID
         } else {
-            // If no filter is selected, default to showing completed or cancelled records
-            $query->whereIn('status_code', [11, 15]);
+            // If no filter is selected, default to showing records with status code 16
+            $query->where('status_code', 16);
         }
 
         // Execute the query and fetch the records
-        $this->serviceClosedDetails = $query->get();
+        $this->serviceInprogressDetails = $query->get();
 
     } catch (\Exception $e) {
         // Log any error that occurs during the query execution
-        Log::error("Error loading Service closed details: " . $e->getMessage(), [
-            'exception' => $e,
-        ]);
-        FlashMessageHelper::flashError('An error occurred while loading Service details.');
-        $this->serviceClosedDetails = collect(); // Set to an empty collection in case of an error
+        Log::error("Error loading incident details: " . $e->getMessage(), ['exception' => $e]);
+        FlashMessageHelper::flashError('An error occurred while loading incident details.');
+        $this->serviceInprogressDetails = collect(); // Set to an empty collection in case of an error
     }
 }
+
 
 
 
@@ -1277,6 +1362,40 @@ public function uploadFiles($selectedRecordId)
     // Initialize fileDataArray
     $fileDataArray = [];
 
+
+    if ($this->it_file_paths) {
+        foreach ($this->it_file_paths as $file) {
+            $mimeType = $file->getMimeType();
+
+            // Check if the file is an image
+            if (strpos($mimeType, 'image/') === 0) {
+                // Validate image file size
+                if ($file->getSize() > 1024 * 1024) { // 1 MB in bytes
+                    FlashMessageHelper::flashError("The image {$file->getClientOriginalName()} exceeds the 1 MB size limit.");
+                    return; // Stop further processing
+                }
+            } else {
+                // Validate non-image file size
+                if ($file->getSize() >  100 * 1024 * 1024) { // 500 MB in bytes
+                    FlashMessageHelper::flashError("The file {$file->getClientOriginalName()} exceeds the 500 MB size limit.");
+                    return; // Stop further processing
+                }
+            }
+        }
+
+        // Validate files based on their types
+        $this->validate([
+            'it_file_paths.*' => [
+                'nullable',
+                'file',
+                'mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif',
+                'max:512000', // Maximum size in KB (500 MB for general validation)
+            ],
+        ]);
+    }
+
+
+
     if ($this->it_file_paths) {
         // Validate files
         $this->validate([
@@ -1341,7 +1460,7 @@ public function uploadFiles($selectedRecordId)
                     'attachments' => json_encode($fileDataArray)
                 ]);
 
-                
+
             // Log successful update
             Log::info('Attachments updated successfully', [
                 'attachment_id' => $attachments->id ?? null,
@@ -1455,6 +1574,17 @@ public function downloadImages($serviceId)
     public function render()
     {
 
+        $this->loadClosedRecordsByAssigne();
+        $this->loadInprogessRecordsByAssigne();
+
+        $this->loadPendingRecordsByAssigne();
+
+        $this->itAssigneMemebers = EmployeeDetails::where('sub_dept_id', '9915')
+        ->where('dept_id', '8803')
+        ->where('status', 1)
+        ->orderBy('first_name', 'asc')
+        ->get();
+
 
         $this->allServiceDetails =IncidentRequest::with('emp')
         ->orderBy('created_at', 'desc')
@@ -1468,17 +1598,17 @@ public function downloadImages($serviceId)
         ->where('status_code', 10)
         ->get();
 
-        $this->servicePendingDetails = IncidentRequest::with('emp')
-        ->orderBy('created_at', 'desc')
-        ->where('category', 'Service Request')
-        ->where('status_code', 5)
-        ->get();
+        // $this->servicePendingDetails = IncidentRequest::with('emp')
+        // ->orderBy('created_at', 'desc')
+        // ->where('category', 'Service Request')
+        // ->where('status_code', 5)
+        // ->get();
 
-        $this->serviceInprogressDetails = IncidentRequest::with('emp')
-        ->orderBy('created_at', 'desc')
-        ->where('category', 'Service Request')
-        ->where('status_code', 16)
-        ->get();
+        // $this->serviceInprogressDetails = IncidentRequest::with('emp')
+        // ->orderBy('created_at', 'desc')
+        // ->where('category', 'Service Request')
+        // ->where('status_code', 16)
+        // ->get();
 
         // $this->serviceClosedDetails = IncidentRequest::with('emp')
         // ->orderBy('created_at', 'desc')
