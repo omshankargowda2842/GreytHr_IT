@@ -1533,7 +1533,7 @@ public function downloadITImages($incidentId)
             $this->incidentClosedCount = IncidentRequest::with('emp')
             ->orderBy('created_at', 'desc')
             ->where('category', 'Incident Request')
-            ->where('status_code',['11','15'])
+             ->whereIn('status_code',['11','15'])
             ->count();
 
 
