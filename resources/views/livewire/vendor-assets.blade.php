@@ -763,9 +763,18 @@
                                     class="vendor-status-select">
                                     <option value="" disabled selected>Select Status</option>
                                     <!-- Placeholder option -->
-                                    <option value="In Use">In Use</option>
-                                    <option value="In Repair">In Repair</option>
                                     <option value="Available">Available</option>
+                                    <option value="Absent">Absent</option>
+                                    <option value="In Maintenance">In Maintenance</option>
+                                    <option value="In Repair">In Repair</option>
+                                    <option value="In Stock">In Stock</option>
+                                    <option value="In Use">In Use</option>
+                                    <option value="Installed">Installed</option>
+                                    <option value="On Order">On Order</option>
+                                    <option value="Pending Install">Pending Install</option>
+                                    <option value="Pending Repair">Pending Repair</option>
+                                    <option value="Retired">Retired</option>
+                                    <option value="Stolen"> Stolen</option>
                                 </select>
                             </div>
 
@@ -819,6 +828,7 @@
                 </div>
                 <div class="">
 
+                    <div class="col">Asset ID: <strong>{{$selectedUpdatedAssetsData->asset_id?? '-'}}</strong></div>
                     <div class="col">Status: <strong>{{$selectedUpdatedAssetsData->status?? '-'}}</strong></div>
                     @if($selectedUpdatedAssetsData->vendor_id)
                     @php

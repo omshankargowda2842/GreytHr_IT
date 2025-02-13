@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Helpers\FlashMessageHelper;
+use App\Models\ActivityLog;
 use App\Models\asset_types_table;
 use App\Models\AssetAssignments;
 use App\Models\AssetsHistories;
@@ -12,9 +13,11 @@ use App\Models\VendorAsset;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
+use Livewire\Features\SupportFileUploads\WithFileUploads;
 
 class AssignAssetEmployee extends Component
 {
+    use WithFileUploads;
     public $assetSelect = [];
     public $assetSelectEmp = [];
     public $assignedAssetIds = [];
@@ -58,7 +61,11 @@ class AssignAssetEmployee extends Component
     public $selectedStatus = '';
     public $deleteAsset_id;
     public $previousAssignedAssets;
-
+    public $showSuccessMsg=false;
+    public $previews=[];
+    public $all_files = [];
+    public $it_file_paths = [];
+    public $file_paths = []; // Array to store the uploaded files
 
 
     public function oldAssetlisting()
@@ -237,6 +244,492 @@ class AssignAssetEmployee extends Component
     }
 
 
+
+
+    public function updatedFilePaths($value)
+{
+    $this->handleFileSelection($value);
+}
+
+public function handleFileSelection($value)
+{
+    foreach ($this->file_paths as $file) {
+        // Ensure no duplicate files are added
+        $existingFileNames = array_map(function ($existingFile) {
+            return $existingFile->getClientOriginalName();
+        }, $this->all_files);
+
+        if (!in_array($file->getClientOriginalName(), $existingFileNames)) {
+            // Append only new files to all_files
+            $this->all_files[] = $file;
+
+            try {
+                // Generate previews only for the new file
+                if (in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'])) {
+                    $base64Image = base64_encode(file_get_contents($file->getRealPath()));
+                    $this->previews[] = [
+                        'url' => 'data:' . $file->getMimeType() . ';base64,' . $base64Image,
+                        'type' => 'image',
+                        'name' => $file->getClientOriginalName(),
+                    ];
+
+                } else {
+                    $this->previews[] = [
+                        'type' => 'file',
+                        'name' => $file->getClientOriginalName(),
+                    ];
+                }
+            } catch (\Throwable $th) {
+                Log::error('Error generating preview:', [
+                    'file' => $file->getClientOriginalName(),
+                    'error' => $th->getMessage(),
+                ]);
+            }
+        }
+    }
+
+    $this->showSuccessMsg = true;
+    $this->showFilePreviewModal = true;
+}
+
+
+    public function updatedItFilePaths($value , $fileid)
+{
+    // dd($fileid);
+
+    // Assuming it_file_paths is an array of files for a specific request ID
+    foreach ($this->it_file_paths[$fileid] as $file) {
+        // Ensure no duplicate files are added
+        $existingFileNames = array_map(function ($existingFile) {
+            return $existingFile->getClientOriginalName();
+        }, $this->all_files);
+
+        if (!in_array($file->getClientOriginalName(), $existingFileNames)) {
+            // Append only new files to all_files
+            $this->all_files[] = $file;
+
+            try {
+                // Generate previews only for the new file
+                if (in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'])) {
+                    $base64Image = base64_encode(file_get_contents($file->getRealPath()));
+                    $this->previews[] = [
+                        'url' => 'data:' . $file->getMimeType() . ';base64,' . $base64Image,
+                        'type' => 'image',
+                        'name' => $file->getClientOriginalName(),
+                    ];
+
+                } else {
+                    $this->previews[] = [
+                        'type' => 'file',
+                        'name' => $file->getClientOriginalName(),
+                    ];
+                }
+            } catch (\Throwable $th) {
+                Log::error('Error generating preview:', [
+                    'file' => $file->getClientOriginalName(),
+                    'error' => $th->getMessage(),
+                ]);
+            }
+        }
+    }
+
+
+    $this->showSuccessMsg = true;
+    $this->showFilePreviewModal = true;
+    // $this->selectedRecordId = $recordId;
+
+}
+
+    public $showFilePreviewModal = false;
+
+
+
+        public function hideFilePreviewModal()
+    {
+        // Hide the modal by setting the property to false
+        $this->showFilePreviewModal = false;
+    }
+
+    public function  hideSuccessMsg(){
+        $this->showSuccessMsg=false;
+    }
+
+    public function removeFile($index)
+    {
+        if (isset($this->all_files[$index])) {
+            unset($this->all_files[$index]);
+            unset($this->previews[$index]);
+            $this->all_files = array_values($this->all_files);
+            $this->previews = array_values($this->previews);
+        }
+
+    }
+
+
+    public $selectedRecordId ;  // Add this to store the selected record's ID
+
+// When opening the file preview modal
+
+
+    public function uploadFiles($selectedRecordId)
+    {
+
+        // dd($selectedRecordId);
+
+        $this->it_file_paths = $this->all_files;
+
+        $attachments = AssignAssetEmp::find($selectedRecordId);
+
+        // Initialize fileDataArray
+        $fileDataArray = [];
+
+        if ($this->it_file_paths) {
+            foreach ($this->it_file_paths as $file) {
+                $mimeType = $file->getMimeType();
+
+                // Check if the file is an image
+                if (strpos($mimeType, 'image/') === 0) {
+                    // Validate image file size
+                    if ($file->getSize() > 1024 * 1024) { // 1 MB in bytes
+                        FlashMessageHelper::flashError("The image {$file->getClientOriginalName()} exceeds the 1 MB size limit.");
+                        return; // Stop further processing
+                    }
+                } else {
+                    // Validate non-image file size
+                    if ($file->getSize() >  100 * 1024 * 1024) { // 100 MB in bytes
+                        FlashMessageHelper::flashError("The file {$file->getClientOriginalName()} exceeds the 100 MB size limit.");
+                        return; // Stop further processing
+                    }
+                }
+            }
+
+            // Validate files based on their types
+            $this->validate([
+                'it_file_paths.*' => [
+                    'nullable',
+                    'file',
+                    'mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif',
+                    'max:512000', // Maximum size in KB (500 MB for general validation)
+                ],
+            ]);
+        }
+
+
+        if ($this->it_file_paths) {
+
+
+
+
+            // Process each file
+            foreach ($this->it_file_paths as $file) {
+                try {
+                    if ($file->isValid()) {
+                        $fileContent = file_get_contents($file->getRealPath());
+                        $mimeType = $file->getMimeType();
+                        $base64File = base64_encode($fileContent);
+
+                        // Add new file to the array
+                        $fileDataArray[] = [
+                            'data' => $base64File,
+                            'mime_type' => $mimeType,
+                            'original_name' => $file->getClientOriginalName(),
+                        ];
+
+
+                    } else {
+                        Log::error('File is not valid:', ['file' => $file->getClientOriginalName()]);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Error processing file:', [
+                        'file' => $file->getClientOriginalName(),
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+        }
+
+
+        // If the record exists, update the file paths
+
+        if ($attachments) {
+            try {
+                // Log before update
+                Log::info('Attempting to update attachments', [
+                    'attachment_id' => $attachments->id ?? null, // Log the ID if available
+                    'existing_it_file_paths' => $attachments->asset_deactivate_file_path, // Log existing file paths
+                    'new_it_file_paths' => $fileDataArray, // Log the new file data array
+                ]);
+
+                // Perform the update
+                // dd(json_encode($fileDataArray));
+
+                $existingFiles = json_decode($attachments->asset_deactivate_file_path, true) ?? [];
+                $allFiles = array_merge($existingFiles, $fileDataArray);
+
+
+                $attachments->asset_deactivate_file_path=json_encode($allFiles);
+                $attachments->save();
+
+                FlashMessageHelper::flashSuccess("Files uploaded successfully!");
+                $this->showFilePreviewModal = false;
+
+
+                $employee = auth()->guard('it')->user();
+                $assigneName = $employee->employee_name;
+                // ActivityLog::create([
+                //     'request_id' => $attachments->snow_id, // Assuming this is the request ID
+                //     'description' => "Uploaded file: {$file->getClientOriginalName()}",
+                //     'performed_by' => $assigneName,
+                //     'attachments' => json_encode($fileDataArray)
+                // ]);
+
+
+                // Log successful update
+                Log::info('Attachments updated successfully', [
+                    'attachment_id' => $attachments->id ?? null,
+                    'updated_it_file_paths' => json_encode($fileDataArray),
+                ]);
+                // Optional: return a success message or redirect
+
+
+                $this->previews=[];
+                $this->all_files = [];
+
+            } catch (\Exception $e) {
+                // Log any errors
+                Log::error('Error updating attachments', [
+                    'error_message' => $e->getMessage(),
+                    'attachment_id' => $attachments->id ?? null,
+                    'new_it_file_paths' => $fileDataArray,
+                ]);
+
+                // Optionally, rethrow the exception if needed
+                throw $e;
+            }
+        }
+
+
+    }
+
+
+
+
+public $showViewImageDialog = false;
+public $showViewEmpImageDialog = false;
+public $currentassetID;
+public $showViewFileDialog = false;
+public $showViewEmpFileDialog = false;
+public function closeViewFile()
+{
+    $this->showViewFileDialog = false;
+}
+public function showViewImage($assetID)
+{
+    $this->currentassetID = $assetID;
+    $this->showViewImageDialog = true;
+}
+
+
+public function showViewFile($assetID)
+{
+    $this->currentassetID = $assetID;
+    $this->showViewFileDialog = true;
+}
+
+public function closeViewImage()
+{
+    $this->showViewImageDialog = false;
+}
+
+
+
+public function showViewEmpImage($assetID)
+{
+    $this->currentassetID = $assetID;
+    $this->showViewEmpImageDialog = true;
+}
+
+
+
+public function showViewEmpFile($assetID)
+{
+    $this->currentassetID = $assetID;
+    $this->showViewEmpFileDialog = true;
+}
+
+
+public function closeViewEmpImage()
+{
+    $this->showViewEmpImageDialog = false;
+}
+
+public function closeViewEmpFile()
+{
+    $this->showViewEmpFileDialog = false;
+}
+
+
+public function downloadImages($assetID)
+{
+    try {
+
+        $selectedAssetID = collect($this->allActiveAssetDetails)->firstWhere('id', $assetID);
+
+        if (!$selectedAssetID) {
+            // selectedAssetID not found
+            return response()->json(['message' => 'selectedAssetID not found'], 404);
+        }
+
+        $fileDataArray = is_string($selectedAssetID->asset_assign_file_path)
+            ? json_decode($selectedAssetID->asset_assign_file_path, true)
+            : $selectedAssetID->asset_assign_file_path;
+
+        // Filter images
+        $images = array_filter(
+            $fileDataArray,
+            function ($fileData) {
+                // Ensure 'mime_type' key exists and is valid
+                return isset($fileData['mime_type']) && strpos($fileData['mime_type'], 'image') !== false;
+            }
+        );
+
+        // If only one image, provide direct download
+        if (count($images) === 1) {
+            $image = reset($images); // Get the single image
+            $base64File = $image['data'];
+            $mimeType = $image['mime_type'];
+            $originalName = $image['original_name'];
+
+            // Decode base64 content
+            $fileContent = base64_decode($base64File);
+
+            // Return the image directly
+            return response()->stream(
+                function () use ($fileContent) {
+                    echo $fileContent;
+                },
+                200,
+                [
+                    'Content-Type' => $mimeType,
+                    'Content-Disposition' => 'attachment; filename="' . $originalName . '"',
+                ]
+            );
+        }
+
+        // If multiple images, create a ZIP file
+        if (count($images) > 1) {
+            $zipFileName = 'images.zip';
+            $zip = new \ZipArchive();
+            $zip->open(storage_path($zipFileName), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+
+            foreach ($images as $image) {
+                $base64File = $image['data'];
+                $mimeType = $image['mime_type'];
+                $extension = explode('/', $mimeType)[1];
+                $imageName = uniqid() . '.' . $extension;
+
+                $zip->addFromString($imageName, base64_decode($base64File));
+            }
+
+            $zip->close();
+
+            return response()->download(storage_path($zipFileName))->deleteFileAfterSend(true);
+        }
+
+        // If no images, return an appropriate response
+        return response()->json(['message' => 'No images found'], 404);
+    } catch (\Exception $e) {
+        // Handle any exception that occurs and return a proper response
+        return response()->json(['message' => 'An error occurred while processing the images', 'error' => $e->getMessage()], 500);
+    }
+}
+
+
+
+public function downloadITImages($assetID)
+{
+
+
+    try {
+
+        $selectedAssetID = collect($this->allAssetDetails)->firstWhere('id', $assetID);
+
+        if (!$selectedAssetID) {
+            // selectedAssetID not found
+            return response()->json(['message' => 'selectedAssetID not found'], 404);
+        }
+
+        $fileDataArray = is_string($selectedAssetID->asset_deactivate_file_path)
+            ? json_decode($selectedAssetID->asset_deactivate_file_path, true)
+            : $selectedAssetID->asset_deactivate_file_path;
+
+
+        // Filter images
+        $images = array_filter(
+            $fileDataArray,
+            function ($fileData) {
+                // Ensure 'mime_type' key exists and is valid
+                return isset($fileData['mime_type']) && strpos($fileData['mime_type'], 'image') !== false;
+            }
+        );
+
+
+        // If only one image, provide direct download
+        if (count($images) === 1) {
+            $image = reset($images); // Get the single image
+            $base64File = $image['data'];
+            $mimeType = $image['mime_type'];
+            $originalName = $image['original_name'];
+
+            // Decode base64 content
+            $fileContent = base64_decode($base64File);
+
+            // Return the image directly
+            return response()->stream(
+                function () use ($fileContent) {
+                    echo $fileContent;
+                },
+                200,
+                [
+                    'Content-Type' => $mimeType,
+                    'Content-Disposition' => 'attachment; filename="' . $originalName . '"',
+                ]
+            );
+        }
+
+        // If multiple images, create a ZIP file
+        if (count($images) > 1) {
+            $zipFileName = 'images.zip';
+            $zip = new \ZipArchive();
+            $zip->open(storage_path($zipFileName), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+
+            foreach ($images as $image) {
+                $base64File = $image['data'];
+                $mimeType = $image['mime_type'];
+                $extension = explode('/', $mimeType)[1];
+                $imageName = uniqid() . '.' . $extension;
+
+                $zip->addFromString($imageName, base64_decode($base64File));
+            }
+
+            $zip->close();
+
+            return response()->download(storage_path($zipFileName))->deleteFileAfterSend(true);
+        }
+
+        // If no images, return an appropriate response
+        return response()->json(['message' => 'No images found'], 404);
+    } catch (\Exception $e) {
+        // Handle any exception that occurs and return a proper response
+        return response()->json(['message' => 'An error occurred while processing the images', 'error' => $e->getMessage()], 500);
+    }
+}
+
+
+
+
+
+
     public function updatedSelectedCategory($value)
 {
 
@@ -255,8 +748,8 @@ class AssignAssetEmployee extends Component
                 $this->assetSelect = VendorAsset::join('asset_types_tables', 'vendor_assets.asset_type', '=', 'asset_types_tables.id')
                     ->where('vendor_assets.is_active', 1)
                     ->where(function ($query) {
-                        $query->where('vendor_assets.status', '!=', 'In Repair')
-                            ->orWhereNull('vendor_assets.status'); // Include rows where status is NULL
+                        $query->whereIn('vendor_assets.status', ['In Stock', 'Available'])
+                        ->orWhereNull('vendor_assets.status');  // Include rows where status is NULL
                     })
                     ->select('vendor_assets.asset_id', 'asset_types_tables.asset_names')
                     ->get();
@@ -470,6 +963,45 @@ class AssignAssetEmployee extends Component
 
         $this->validate();
 
+        $this->validate([
+            'file_paths.*' => 'nullable|file|mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif', // Adjust max size as needed
+        ]);
+
+        $filePaths = $this->file_paths ?? [];
+        $fileDataArray = [];
+
+        $existingFiles = [];
+        if ($this->isUpdateMode && $this->assignmentId) {
+            $existingAssignment = AssignAssetEmp::find($this->assignmentId);
+            if ($existingAssignment && $existingAssignment->asset_assign_file_path) {
+                $existingFiles = json_decode($existingAssignment->asset_assign_file_path, true) ?? [];
+            }
+        }
+
+        if (!empty($filePaths) && is_array($filePaths)) {
+            foreach ($filePaths as $file) {
+                if ($file->isValid()) {
+                    try {
+                        $fileDataArray[] = [
+                            'data' => base64_encode(file_get_contents($file->getRealPath())),
+                            'mime_type' => $file->getMimeType(),
+                            'original_name' => $file->getClientOriginalName(),
+                        ];
+                    } catch (\Exception $e) {
+                        Log::error('Error processing file', [
+                            'file_name' => $file->getClientOriginalName(),
+                            'error' => $e->getMessage(),
+                        ]);
+                        FlashMessageHelper::flashError('An error occurred while processing the file.');
+                        return;
+                    }
+                } else {
+                    FlashMessageHelper::flashError('Invalid file uploaded.');
+                    return;
+                }
+            }
+        }
+
         // Get the asset type of the currently assigned asset for the selected employee
         $selectedAssetType = AssignAssetEmp::where('emp_id', $this->selectedEmployee)
             ->where('is_active', 1)  // Add the condition for 'is_active'
@@ -514,6 +1046,8 @@ class AssignAssetEmployee extends Component
 
         // }
 
+        $mergedFiles = array_merge($existingFiles, $fileDataArray);
+
         try {
             $emp_id = auth()->guard('it')->user()->emp_id;
             if ($this->isUpdateMode && $this->assignmentId) {
@@ -535,6 +1069,7 @@ class AssignAssetEmployee extends Component
                         'asset_type' => $this->assetDetails->asset_type,
                         'employee_name' => $this->empDetails->first_name . ' ' . $this->empDetails->last_name,
                         'department' => $this->empDetails->job_role,
+                        'asset_assign_file_path' => !empty($mergedFiles) ? json_encode($mergedFiles) : null,
                         'sophos_antivirus' => $this->sophosAntivirus,
                         'vpn_creation' => $this->vpnCreation,
                         'teramind' => $this->teramind,
@@ -555,6 +1090,7 @@ class AssignAssetEmployee extends Component
                         'asset_type' => $this->assetDetails->asset_type,
                         'employee_name' => $this->empDetails->first_name . ' ' . $this->empDetails->last_name,
                         'department' => $this->empDetails->job_role,
+                        'asset_assign_file_path' => !empty($mergedFiles) ? json_encode($mergedFiles) : null,
                         'sophos_antivirus' => $this->sophosAntivirus,
                         'vpn_creation' => $this->vpnCreation,
                         'teramind' => $this->teramind,
@@ -586,6 +1122,7 @@ class AssignAssetEmployee extends Component
                     'asset_type' => $this->assetDetails->asset_type,
                     'employee_name' => $this->empDetails->first_name . ' ' . $this->empDetails->last_name,
                     'department' => $this->empDetails->job_role,
+                    'asset_assign_file_path' => !empty($mergedFiles) ? json_encode($mergedFiles) : null,
                     'sophos_antivirus' => $this->sophosAntivirus,
                     'vpn_creation' => $this->vpnCreation,
                     'teramind' => $this->teramind,
@@ -795,9 +1332,21 @@ class AssignAssetEmployee extends Component
         }
     }
 
+    public $allAssetDetails;
+    public $allActiveAssetDetails;
     public function render()
     {
         try {
+
+            $this->allAssetDetails = AssignAssetEmp::query()
+            ->where('is_active', 0)
+            ->get();
+
+            $this->allActiveAssetDetails = AssignAssetEmp::query()
+            ->where('is_active', 1)
+            ->get();
+
+
             $assetTypes = asset_types_table::pluck('asset_names', 'id');
             $employeeAssetLists = !empty($this->filteredEmployeeAssets)
                 ? $this->filteredEmployeeAssets

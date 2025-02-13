@@ -124,68 +124,37 @@
                         </button>
                         @endif
                         <div class="req-pro-tablediv">
-
                             <div class="d-flex justify-content-between align-items-center">
                                 <h5 class="m-2">View Details</h5>
-
                             </div>
-
                             <table class="table table-bordered mt-3 req-pro-table">
-
-
-
                                 <tbody>
                                     <tr>
-
                                         <td>Incident ID</td>
-
                                         <td class="view-td">{{$incidentRequest->snow_id ?? 'N/A' }}</td>
-
                                     </tr>
-
-
                                     <tr>
-
                                         <td>Requested By</td>
-
                                         <td class="view-td">{{$incidentRequest->emp->first_name }}
                                             {{$incidentRequest->emp->last_name }}
                                         </td>
-
                                     </tr>
-
                                     <tr>
-
                                         <td>Assigned Department</td>
-
                                         <td class="view-td">{{$incidentRequest->assigned_dept ?? 'N/A' }}</td>
-
                                     </tr>
-
                                     <tr>
-
                                         <td>Short description</td>
-
                                         <td class="view-td">{{$incidentRequest->short_description ??'N/A' }}</td>
-
                                     </tr>
-
                                     <tr>
-
                                         <td>Description</td>
-
                                         <td class="view-td">{{$incidentRequest->description ??'N/A' }}</td>
-
                                     </tr>
-
                                     <tr>
-
                                         <td>Priority</td>
-
                                         <td class="view-td">{{$incidentRequest->priority ??'N/A' }}</td>
-
                                     </tr>
-
                                     <tr>
                                         <td>Assign to <span class="text-danger">*</span></td>
                                         <td class="view-td">
@@ -203,14 +172,10 @@
                                             </select>
                                             @error('selectedAssigne') <span class="text-danger">{{ $message }}</span>
                                             @enderror
-
                                         </td>
-
                                     </tr>
-
                                     <tr>
                                         <td>Status <span class="text-danger">*</span></td>
-
                                         <td class="view-td">
                                             <select wire:model="selectedStatus" class="req-selected-status"
                                                 wire:change="handleSelectedStatusChange">
@@ -223,10 +188,8 @@
                                             </select>
                                             @error('selectedStatus') <span class="text-danger">{{ $message }}</span>
                                             @enderror
-
                                         </td>
                                     </tr>
-
                                     @if($showStatusModal)
                                     <div class="modal fade show d-block" tabindex="-1" role="dialog"
                                         style="background-color: rgba(0, 0, 0, 0.5);">
@@ -258,12 +221,9 @@
                                         </div>
                                     </div>
                                     @endif
-
-
                                     <tr>
                                         <td>Comments</td>
                                         <td>
-
                                             <div>
                                                 <div class="row req-comments">
                                                     <div class="col-10">
@@ -277,22 +237,21 @@
                                                             @if($loading) disabled @endif>Post</button>
                                                     </div>
                                                 </div>
-
-
                                             </div>
                                         </td>
                                     </tr>
-
-
-
+                                    <tr>
+                                        <td>Created At</td>
+                                        <td class="view-td">
+                                            {{ \Carbon\Carbon::parse($incidentRequest->created_at)->format('d-M-Y') ?? 'N/A' }}
+                                        </td>
+                                    </tr>
                                     <tr>
                                         <td class="fs-6 fs-md-3 fs-lg-2">Attachments</td>
-
                                         <td>
                                             @php
                                             $empImages = [];
                                             $empFiles = [];
-
                                             // Check if $incidentRequest->file_paths is a string, array, or null
                                             $fileDataArray = null;
 
@@ -539,6 +498,8 @@
                                                                     <img src="{{ $preview['url'] }}" alt="Preview"
                                                                         class="img-thumbnail"
                                                                         style="width: 75px; height: 75px;" />
+                                                                    <span class="mt-1 uploaded-file-name"
+                                                                        style="display: block; width: 100%;">{{ $preview['name'] }}</span>
                                                                     @else
                                                                     <div class="d-flex flex-column align-items-center">
                                                                         <i class="fas fa-file fa-3x"
@@ -749,6 +710,8 @@
 
 
 
+
+
                                 </tbody>
 
                             </table>
@@ -945,6 +908,7 @@
                                             <th class="req-table-head"> Change Status</th>
                                             <th class="req-table-head"> Files Upload</th>
                                             <th class="req-table-head">IT Uploaded Files</th>
+                                            <th class="req-table-head">Created At</th>
                                             <th class="req-table-head"> Logs</th>
                                         </tr>
                                     </thead>
@@ -1319,6 +1283,8 @@
                                                                         <img src="{{ $preview['url'] }}" alt="Preview"
                                                                             class="img-thumbnail"
                                                                             style="width: 75px; height: 75px;" />
+                                                                        <span class="mt-1 uploaded-file-name"
+                                                                            style="display: block; width: 100%;">{{ $preview['name'] }}</span>
                                                                         @else
                                                                         <div
                                                                             class="d-flex flex-column align-items-center">
@@ -1522,6 +1488,9 @@
                                                 @endif
 
                                             </td>
+                                            <td class="text-nowrap">
+                                                {{ \Carbon\Carbon::parse($record->created_at)->format('d-M-Y') ?? 'N/A' }}
+                                            </td>
 
                                             <td>
                                                 <i wire:click="loadLogs('{{ $record->snow_id }}')"
@@ -1666,6 +1635,7 @@
                                             <th class="req-table-head"> Change Status</th>
                                             <th class="req-table-head"> Files Upload</th>
                                             <th class="req-table-head">IT Uploaded Files</th>
+                                            <th class="req-table-head">Created At</th>
                                             <th class="req-table-head"> Logs</th>
                                         </tr>
                                     </thead>
@@ -2159,6 +2129,8 @@
                                                                         <img src="{{ $preview['url'] }}" alt="Preview"
                                                                             class="img-thumbnail"
                                                                             style="width: 75px; height: 75px;" />
+                                                                        <span class="mt-1 uploaded-file-name"
+                                                                            style="display: block; width: 100%;">{{ $preview['name'] }}</span>
                                                                         @else
                                                                         <div
                                                                             class="d-flex flex-column align-items-center">
@@ -2360,6 +2332,10 @@
                                             </td>
 
 
+                                            <td class="text-nowrap">
+                                                {{ \Carbon\Carbon::parse($record->created_at)->format('d-M-Y') ?? 'N/A' }}
+                                            </td>
+
 
 
 
@@ -2482,6 +2458,7 @@
                                             <th class="req-closed-th">Status</th>
                                             <th class="req-closed-th">Response time tracker</th>
                                             <th class="req-closed-th">View</th>
+                                            <th class="req-table-head">Created At</th>
                                             <th class="req-table-head"> Logs</th>
                                         </tr>
 
@@ -2584,6 +2561,12 @@
                                                     wire:key="view-record-{{  $record->id }}"> <i
                                                         class="fas fa-eye"></i></button>
                                             </td>
+
+                                            <td class="text-nowrap">
+                                                {{ \Carbon\Carbon::parse($record->created_at)->format('d-M-Y') ?? 'N/A' }}
+                                            </td>
+
+
                                             <td>
                                                 <i wire:click="loadLogs('{{ $record->snow_id }}')"
                                                     wire:key="view-logs-{{  $record->snow_id }}"

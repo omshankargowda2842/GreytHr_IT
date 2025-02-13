@@ -281,6 +281,7 @@ class ServiceRequests extends Component
     {
         $this->showStatusModal = false;
         $this->reset(['pendingReason', 'pendingRequestId','modalPurpose']);
+        $this->selectedStatus = '';
     }
 
 

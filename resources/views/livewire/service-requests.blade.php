@@ -287,6 +287,17 @@
                                     </tr>
 
 
+                                    <tr>
+
+                                        <td>Created At</td>
+
+                                        <td class="view-td">
+                                            {{ \Carbon\Carbon::parse($serviceRequest->created_at)->format('d-M-Y') ?? 'N/A' }}
+                                        </td>
+
+                                    </tr>
+
+
 
                                     <tr>
                                         <td class="fs-6 fs-md-3 fs-lg-2">Attachments</td>
@@ -540,6 +551,8 @@
                                                                     <img src="{{ $preview['url'] }}" alt="Preview"
                                                                         class="img-thumbnail"
                                                                         style="width: 75px; height: 75px;" />
+                                                                        <span class="mt-1 uploaded-file-name"
+                                                                        style="display: block; width: 100%;">{{ $preview['name'] }}</span>
                                                                     @else
                                                                     <div class="d-flex flex-column align-items-center">
                                                                         <i class="fas fa-file fa-3x"
@@ -749,6 +762,9 @@
                                     </tr>
 
 
+
+
+
                                 </tbody>
 
                             </table>
@@ -942,6 +958,7 @@
                                             <th class="req-table-head"> change Status</th>
                                             <th class="req-table-head"> Files Upload</th>
                                             <th class="req-table-head">IT Uploaded Files</th>
+                                            <th class="req-table-head">Created At</th>
                                             <th class="req-table-head"> Logs</th>
                                         </tr>
                                     </thead>
@@ -1317,6 +1334,8 @@
                                                                         <img src="{{ $preview['url'] }}" alt="Preview"
                                                                             class="img-thumbnail"
                                                                             style="width: 75px; height: 75px;" />
+                                                                            <span class="mt-1 uploaded-file-name"
+                                                                            style="display: block; width: 100%;">{{ $preview['name'] }}</span>
                                                                         @else
                                                                         <div
                                                                             class="d-flex flex-column align-items-center">
@@ -1521,6 +1540,8 @@
 
                                             </td>
 
+                                            <td class="text-nowrap">{{ \Carbon\Carbon::parse($record->created_at)->format('d-M-Y') ?? 'N/A' }} </td>
+
 
 
                                             <td>
@@ -1656,6 +1677,7 @@
                                             <th class="req-table-head"> change Status</th>
                                             <th class="req-table-head"> Files Upload</th>
                                             <th class="req-table-head">IT Uploaded Files</th>
+                                            <th class="req-table-head">Created At</th>
                                             <th class="req-table-head"> Logs</th>
                                         </tr>
                                     </thead>
@@ -2155,6 +2177,8 @@
                                                                         <img src="{{ $preview['url'] }}" alt="Preview"
                                                                             class="img-thumbnail"
                                                                             style="width: 75px; height: 75px;" />
+                                                                            <span class="mt-1 uploaded-file-name"
+                                                                            style="display: block; width: 100%;">{{ $preview['name'] }}</span>
                                                                         @else
                                                                         <div
                                                                             class="d-flex flex-column align-items-center">
@@ -2359,9 +2383,7 @@
 
                                             </td>
 
-
-
-
+                                            <td class="text-nowrap">{{ \Carbon\Carbon::parse($record->created_at)->format('d-M-Y') ?? 'N/A' }} </td>
 
 
                                             <td>
@@ -2483,6 +2505,7 @@
                                             <th class="req-table-head">Response time tracker</th>
 
                                             <th class="req-closed-th">View</th>
+                                            <th class="req-table-head">Created At</th>
                                             <th class="req-table-head"> Logs</th>
 
                                         </tr>
@@ -2587,6 +2610,10 @@
                                                     wire:key="view-record-{{  $record->id }}"> <i
                                                         class="fas fa-eye"></i></button>
                                             </td>
+
+                                            <td class="text-nowrap">{{ \Carbon\Carbon::parse($record->created_at)->format('d-M-Y') ?? 'N/A' }} </td>
+
+
                                             <td>
                                                 <i wire:click="loadLogs('{{ $record->snow_id }}')"
                                                     wire:key="view-logs-{{  $record->snow_id }}"

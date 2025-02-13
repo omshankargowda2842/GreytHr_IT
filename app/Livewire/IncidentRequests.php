@@ -451,7 +451,8 @@ public function handleSelectedStatusChange()
     public function closeStatusModal()
     {
         $this->showStatusModal = false;
-        $this->reset(['pendingReason', 'pendingRequestId','modalPurpose']);
+        $this->reset(['pendingReason', 'pendingRequestId','modalPurpose',]);
+        $this->selectedStatus = '';
     }
 
 
