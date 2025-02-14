@@ -16,6 +16,8 @@ class AssignAssetEmp extends Model
         'manufacturer',
         'asset_type',
         'employee_name',
+        'asset_assign_file_path',
+        'asset_deactivate_file_path',
         'department',
         'sophos_antivirus',
         'vpn_creation',

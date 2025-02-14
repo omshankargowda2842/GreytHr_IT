@@ -148,19 +148,18 @@
 
                                 <td class="view-td">
                                     <!-- Dropdown for Priority -->
-                                    <select wire:model="priority" class="form-control"
-                                        wire:change="selectPriority($event.target.value)">
+                                    <select
+                                        wire:change="selectPriority('{{ $recentRequest->id }}', $event.target.value)"
+                                        class="form-control">
                                         <option value="high" @if($recentRequest->priority == 'high') selected
-                                            @endif>High
-                                        </option>
+                                            @endif>High</option>
                                         <option value="medium" @if($recentRequest->priority == 'medium') selected
-                                            @endif>Medium
-                                        </option>
-                                        <option value="low" @if($recentRequest->priority == 'low') selected
-                                            @endif>Low
+                                            @endif>Medium</option>
+                                        <option value="low" @if($recentRequest->priority == 'low') selected @endif>Low
                                         </option>
                                     </select>
                                 </td>
+
 
                             </tr>
 
@@ -169,6 +168,16 @@
                                 <td>Select Equipment</td>
 
                                 <td class="view-td">{{$recentRequest->selected_equipment ??'N/A' }}</td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td>Created At</td>
+
+                                <td class="view-td">
+                                    {{ \Carbon\Carbon::parse($recentRequest->created_at)->format('d-M-Y') ?? 'N/A' }}
+                                </td>
 
                             </tr>
 
@@ -420,6 +429,8 @@
                                                             <img src="{{ $preview['url'] }}" alt="Preview"
                                                                 class="img-thumbnail"
                                                                 style="width: 75px; height: 75px;" />
+                                                            <span class="mt-1 uploaded-file-name"
+                                                                style="display: block; width: 100%;">{{ $preview['name'] }}</span>
                                                             @else
                                                             <div class="d-flex flex-column align-items-center">
                                                                 <i class="fas fa-file fa-3x"
@@ -1108,6 +1119,19 @@
 
                             </tr>
 
+
+                            <tr>
+
+                                <td>Created At</td>
+
+                                <td class="view-td">
+                                    {{ \Carbon\Carbon::parse($rejectedRequest->created_at)->format('d-M-Y') ?? 'N/A' }}
+                                </td>
+
+                            </tr>
+
+
+
                         </tbody>
 
                     </table>
@@ -1787,6 +1811,8 @@
                                                                         <img src="{{ $preview['url'] }}" alt="Preview"
                                                                             class="img-thumbnail"
                                                                             style="width: 75px; height: 75px;" />
+                                                                        <span class="mt-1 uploaded-file-name"
+                                                                            style="display: block; width: 100%;">{{ $preview['name'] }}</span>
                                                                         @else
                                                                         <div
                                                                             class="d-flex flex-column align-items-center">
@@ -2000,6 +2026,16 @@
 
                                             </td>
 
+
+                                        </tr>
+
+                                        <tr>
+
+                                            <td>Created At</td>
+
+                                            <td class="view-td">
+                                                {{ \Carbon\Carbon::parse($selectedRequest->created_at)->format('d-M-Y') ?? 'N/A' }}
+                                            </td>
 
                                         </tr>
 
@@ -2256,6 +2292,7 @@
                                                     <th class="req-table-head">Change Status</th>
                                                     <th class="req-table-head"> Files Upload</th>
                                                     <th class="req-table-head">IT Uploaded Files</th>
+                                                    <th class="req-table-head">Created At</th>
                                                     <th class="req-table-head">Logs</th>
 
                                                 </tr>
@@ -2670,6 +2707,8 @@
                                                                                 <img src="{{ $preview['url'] }}"
                                                                                     alt="Preview" class="img-thumbnail"
                                                                                     style="width: 75px; height: 75px;" />
+                                                                                <span class="mt-1 uploaded-file-name"
+                                                                                    style="display: block; width: 100%;">{{ $preview['name'] }}</span>
                                                                                 @else
                                                                                 <div
                                                                                     class="d-flex flex-column align-items-center">
@@ -2876,6 +2915,9 @@
                                                         <div class="modal-backdrop fade show blurred-backdrop"></div>
                                                         @endif
 
+                                                    </td>
+
+                                                    <td class="text-nowrap">{{ \Carbon\Carbon::parse($record->created_at)->format('d-M-Y') ?? 'N/A' }}
                                                     </td>
 
 
@@ -3090,6 +3132,7 @@
                                                     <th class="req-table-head">Change Status</th>
                                                     <th class="req-table-head"> Files Upload</th>
                                                     <th class="req-table-head">IT Uploaded Files</th>
+                                                    <th class="req-table-head">Created At</th>
                                                     <th class="req-table-head">Logs</th>
 
                                                 </tr>
@@ -3640,6 +3683,8 @@
                                                                                 <img src="{{ $preview['url'] }}"
                                                                                     alt="Preview" class="img-thumbnail"
                                                                                     style="width: 75px; height: 75px;" />
+                                                                                <span class="mt-1 uploaded-file-name"
+                                                                                    style="display: block; width: 100%;">{{ $preview['name'] }}</span>
                                                                                 @else
                                                                                 <div
                                                                                     class="d-flex flex-column align-items-center">
@@ -3848,6 +3893,10 @@
 
                                                     </td>
 
+                                                    <td class="text-nowrap">{{ \Carbon\Carbon::parse($record->created_at)->format('d-M-Y') ?? 'N/A' }}
+
+                                                    </td>
+
                                                     <td>
                                                         <i wire:click="loadLogs('{{ $record->request_id }}')"
                                                             class="fas fa-clock-rotate-left"
@@ -3975,6 +4024,7 @@
                                                     <th class="req-closed-th">Status</th>
                                                     <th class="req-closed-th">Response time</th>
                                                     <th class="req-closed-th">View</th>
+                                                    <th class="req-table-head">Created At</th>
                                                     <th class="req-closed-th">Logs</th>
 
                                                 </tr>
@@ -4086,6 +4136,10 @@
                                                             wire:click="viewRecord({{ $record->id }})">
                                                             <i class="fas fa-eye"></i>
                                                         </button>
+                                                    </td>
+
+                                                    <td class="text-nowrap">{{ \Carbon\Carbon::parse($record->created_at)->format('d-M-Y') ?? 'N/A' }}
+
                                                     </td>
 
                                                     <td>

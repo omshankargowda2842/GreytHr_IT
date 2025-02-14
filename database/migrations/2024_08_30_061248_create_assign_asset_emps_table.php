@@ -20,6 +20,8 @@ return new class extends Migration
             $table->integer('asset_type')->nullable();
             $table->string('employee_name',100)->nullable();
             $table->string('department',100)->nullable();
+            $table->json('asset_assign_file_path')->nullable();
+            $table->json('asset_deactivate_file_path')->nullable();
             $table->string('system_name',100)->nullable();
             $table->string('sophos_antivirus',10)->nullable();
             $table->string('vpn_creation',10)->nullable();

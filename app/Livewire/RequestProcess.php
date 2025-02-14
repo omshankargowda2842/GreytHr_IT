@@ -617,17 +617,20 @@ class RequestProcess extends Component
     }
 
     public $priority;
-    public function selectPriority($value)
-    {
-        // Update the priority field in the database
 
-        $activityDetails = '';
+    public function selectPriority($id, $value)
+{
+    try {
+        // Find the request by ID
+        $this->recentRequest = HelpDesks::findOrFail($id);
+
+        // Update the priority field in the database
         $this->recentRequest->priority = $value;
         $this->recentRequest->save();
 
-
+        // Log the activity
         $employee = auth()->guard('it')->user();
-        $RejetedEmployeeName =  ucwords(strtolower($employee->employee_name));
+        $RejetedEmployeeName = ucwords(strtolower($employee->employee_name));
 
         $activityDetails = "Priority has been changed to {$value} for Request ID - {$this->recentRequest->request_id}";
         ActivityLog::create([
@@ -638,10 +641,15 @@ class RequestProcess extends Component
             'priority' => $value,
             'request_id' => $this->recentRequest->request_id,
         ]);
-        FlashMessageHelper::flashSuccess("Priority updated successfully!");
 
-        // Optionally, you can flash a success message or notify the user
+        // Flash a success message
+        FlashMessageHelper::flashSuccess("Priority updated successfully!");
+    } catch (\Exception $e) {
+        FlashMessageHelper::flashError("Failed to update priority.");
+        Log::error("Error updating priority: " . $e->getMessage());
     }
+}
+
 
 
          public $showPendingModal = false;
@@ -895,6 +903,7 @@ class RequestProcess extends Component
     {
         $this->showStatusModal = false;
         $this->reset(['pendingReason', 'pendingRequestId','modalPurpose']);
+        $this->selectedStatus = '';
     }
 
 
@@ -2274,6 +2283,7 @@ public function downloadImages($imgRequestId)
             ->orderBy($this->sortColumn, $this->sortDirection)
             ->whereIn('category',  $requestCategories)
             ->get();
+
 
         $this->rejectDetails = HelpDesks::with('emp')
             ->where('status_code', '3')

@@ -88,9 +88,18 @@
                         <label for="">Status</label>
                         <select name="" wire:model="selectedStatus" wire:change="getAssetList" id="" class="form-select">
                             <option value="">All</option>
-                            <option value="In Use">In Use</option>
-                            <option value="In Repair">In Repair</option>
                             <option value="Available">Available</option>
+                            <option value="Absent">Absent</option>
+                            <option value="In Maintenance">In Maintenance</option>
+                            <option value="In Repair">In Repair</option>
+                            <option value="In Stock">In Stock</option>
+                            <option value="In Use">In Use</option>
+                            <option value="Installed">Installed</option>
+                            <option value="On Order">On Order</option>
+                            <option value="Pending Install">Pending Install</option>
+                            <option value="Pending Repair">Pending Repair</option>
+                            <option value="Retired">Retired</option>
+                            <option value="Stolen"> Stolen</option>
                             <option value="null" selected>Others</option>
                         </select>
                     </div>

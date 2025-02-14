@@ -116,7 +116,7 @@
             <p class="sub-heading">Short description: <strong>{{ $shortDescription }}</strong></p>
         </div>
 
-        <!-- Footer --> 
+        <!-- Footer -->
         <div class="mt-2">
             <p class="sub-heading">Thank you,</p>
             <p class="sub-heading">Fulfillment Team</p>
