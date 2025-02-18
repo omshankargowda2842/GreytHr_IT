@@ -37,7 +37,7 @@ class IncidentRequests extends Component
     public $incidentInprogressDetails;
     public $selectedAssigne;
     public $itData;
-    public $selectedStatus;
+    public $selectedStatus ='';
     public $comments;
     public $assignTo;
     public  $remarks = [];
@@ -63,6 +63,8 @@ class IncidentRequests extends Component
 
     public function mount($id = null)
     {
+        Log::info($this->selectedRequests);
+
         $this->loadClosedRecordsByAssigne();
         $this->loadInprogessRecordsByAssigne();
 
@@ -77,6 +79,85 @@ class IncidentRequests extends Component
             $this->viewincidentDetails($this->currentRequestId);
         }
     }
+
+
+
+    public $selectedRequests = []; // Stores selected request IDs
+    public $bulkAssignee = '';   // Tracks selected Assignee
+    public $bulkStatus = null;     // Tracks selected Status
+
+    public $checkboxModal = false;
+    public $checkboxPendingModal = false;
+    public $checkboxClosingModal = false;
+    public function checkboxMultiSelection(){
+
+        $this->checkboxModal = count($this->selectedRequests) > 0;
+    }
+
+    public function checkboxPendingMultiSelection(){
+
+        $this->checkboxPendingModal = count($this->selectedRequests) > 0;
+    }
+
+    public function checkboxClosingMultiSelection(){
+
+        $this->checkboxClosingModal = count($this->selectedRequests) > 0;
+    }
+
+    public function applyBulkActions()
+{
+
+    if (count($this->selectedRequests) === 0) {
+        FlashMessageHelper::flashError( 'No requests selected.');
+        return;
+    }
+
+
+    if (!$this->bulkAssignee) {
+        FlashMessageHelper::flashError( 'Please select an assignee .');
+        return;
+    }
+    if (!$this->selectedStatus) {
+        FlashMessageHelper::flashError( 'Please select an status.');
+        return;
+    }
+
+    $this->loading = true;
+
+    try {
+        // Perform bulk operations here (e.g., updating the database)
+        foreach ($this->selectedRequests as $requestId) {
+            $request = IncidentRequest::find($requestId); // Replace with your model
+
+            if ($this->bulkAssignee) {
+                $request->inc_assign_to = $this->bulkAssignee;
+            }
+            if ($this->selectedStatus) {
+                $request->status_code = $this->selectedStatus;
+            }
+            $request->save();
+
+
+        }
+        $this->selectedRequests = [];
+        $this->checkboxModal = false;
+        $this->selectedAssigne ='';
+        $this->selectedStatus ='';
+        FlashMessageHelper::flashSuccess('Requests updated successfully.');
+        $this->resetSelection();
+    } catch (\Exception $e) {
+        FlashMessageHelper::flashError('Failed to update requests: ' . $e->getMessage());
+    } finally {
+        $this->loading = false;
+    }
+}
+
+public function resetSelection()
+{
+    $this->selectedRequests = [];
+    $this->selectedStatus = null;
+    $this->bulkStatus = null;
+}
 
 
     public $previews=[];
@@ -381,6 +462,7 @@ public function handleSelectedStatusChange()
     $this->resetValidationForField('selectedStatus');
 
     // Call the SelectedStatus method
+
     $this->SelectedStatus();
 }
 
@@ -394,7 +476,9 @@ public function handleSelectedStatusChange()
 
     public function SelectedStatus()
     {
+
          if ($this->selectedStatus === '5') {
+
 
             $this->modalPurpose = 'Pending';
             $this->showStatusModal = true;
@@ -447,14 +531,412 @@ public function handleSelectedStatusChange()
     public $modalPurpose = '';
     public $showStatusModal = false;
     public $pendingRequestId = '';
+    public $showBulkInprogressModal = false;
+
+
+
+    public function bulkSelectedInprogress()
+    {
+
+
+        $this->showBulkInprogressModal =true;
+        $this->updateCounts();
+    }
+
+    public function closeBulkInprogressModal()
+    {
+        $this->showBulkInprogressModal = false;
+        $this->reset(['pendingReason', 'pendingRequestId','modalPurpose']);
+    }
+
+    public function bulkSubmitReason()
+    {
+
+        if (count($this->selectedRequests) === 0) {
+            FlashMessageHelper::flashError( 'No requests selected.');
+            return;
+        }
+        $this->validate([
+            'pendingReason' => 'required|string|max:255',
+            ]);
+
+                try {
+
+                    foreach ($this->selectedRequests as $requestId) {
+                    $task = IncidentRequest::find($requestId);
+
+                    $employee = auth()->guard('it')->user();
+
+                    if ($this->pendingReason) {
+                        ActivityLog::create([
+                            'action' => "Inprogress Notes",
+                            'details' => $this->pendingReason,
+                            'performed_by' => $employee->employee_name,
+                            'request_type' => 'Incident Request',
+                            'request_id' => $task->snow_id,
+                        ]);
+                    }
+
+                    if ($task) {
+                        if ($task->in_progress_since === null) {
+                            // If it's the first time switching to InProgress, set the current time
+                            $task->in_progress_since = now();
+                        }
+
+                        $task->update([
+                            'inc_inprogress_notes' => $this->pendingReason,
+                            'status_code' => 16,
+                        ]);
+
+
+                        $employee = auth()->guard('it')->user();
+
+                        $activityDetails = '';
+                        // Flash a success message based on the selected status
+                        $activityDetails = "Work in Progress was Inprogress for Request ID - {$task->snow_id}";
+
+                        $assigneName = $employee->employee_name;
+                        ActivityLog::create([
+                            'action' => 'State',
+                            'details' => $activityDetails,
+                            'performed_by' => $assigneName,
+                            'request_type' => 'Incident Request',
+                            'request_id' => $task->snow_id,
+                        ]);
+
+                        $this->closeInprogressModal();
+                        $this->updateCounts();
+                    }
+                }
+
+                } catch (\Exception $e) {
+                    // Log the error or handle it as needed
+                    Log::error("Error in inprogressForDesks method: " . $e->getMessage());
+
+                    // Optionally flash an error message
+                    FlashMessageHelper::flashError("An error occurred while updating the task status.");
+                }
+
+
+                if ($task) {
+                    FlashMessageHelper::flashSuccess("Status has been set to Inprogress");
+
+                }
+                $this->selectedStatus='';
+                $this->selectedRequests = [];
+                $this->checkboxPendingModal = false;
+                $this->closeBulkInprogressModal();
+                $this->updateCounts();
+
+    }
+
 
     public function closeStatusModal()
     {
         $this->showStatusModal = false;
         $this->reset(['pendingReason', 'pendingRequestId','modalPurpose',]);
-        $this->selectedStatus = '';
+        // $this->selectedStatus = '';
     }
 
+
+    public function bulkSubmitStatusReason()
+    {
+
+        if (count($this->selectedRequests) === 0) {
+            FlashMessageHelper::flashError( 'No requests selected.');
+            return;
+        }
+
+        $this->validate([
+            'pendingReason' => 'required|string|max:255',
+        ]);
+
+        foreach ($this->selectedRequests as $requestId) {
+            $task = IncidentRequest::find($requestId);
+
+            if ($task && $this->modalPurpose) {
+                if ($this->modalPurpose === 'Pending') {
+                    $task->update(['inc_pending_notes' => $this->pendingReason]);
+
+                    $employee = auth()->guard('it')->user();
+                    $assignedAssignee = EmployeeDetails::where('emp_id', $task->emp_id)->first();
+                    $employeeEmail = $assignedAssignee->email;
+                    $employeeName = $task->emp->first_name . ' ' . $task->emp->last_name;
+                    $shortDescription = $task->description;
+
+                    Mail::to($employeeEmail)->send(new statusRequestMail(
+                        $employeeName,
+                        $task->request_id,
+                        $this->pendingReason,
+                        $shortDescription,
+                        $task->category,
+                        'Pending'
+                    ));
+
+                    $activityDetails = "Work in Progress was Pending for Request ID - {$task->snow_id}";
+
+                    ActivityLog::create([
+                        'action' => 'State',
+                        'details' => $activityDetails,
+                        'performed_by' => $employee->employee_name,
+                        'request_type' => 'Incident Request',
+                        'request_id' => $task->snow_id,
+                    ]);
+                } elseif ($this->modalPurpose === 'Cancel') {
+                    $task->update([
+                        'inc_cancel_notes' => $this->pendingReason,
+                        'inc_end_date' => now(),
+                    ]);
+
+                    $employee = auth()->guard('it')->user();
+                    $assignedAssignee = EmployeeDetails::where('emp_id', $task->emp_id)->first();
+                    $activityDetails = "Work in Progress was Cancelled for Request ID - {$task->snow_id}";
+
+                    ActivityLog::create([
+                        'action' => 'State',
+                        'details' => $activityDetails,
+                        'performed_by' => $employee->employee_name,
+                        'request_type' => 'Incident Request',
+                        'request_id' => $task->snow_id,
+                    ]);
+
+                } elseif ($this->modalPurpose === 'Completed') {
+                    $task->update([
+                        'inc_completed_notes' => $this->pendingReason,
+                        'inc_end_date' => now(),
+                    ]);
+
+                    $employee = auth()->guard('it')->user();
+                    $assignedAssignee = EmployeeDetails::where('emp_id', $task->emp_id)->first();
+
+                    $activityDetails = "Work in Progress was Completed for Request ID - {$task->snow_id}";
+
+                    ActivityLog::create([
+                        'action' => 'State',
+                        'details' => $activityDetails,
+                        'performed_by' => $employee->employee_name,
+                        'request_type' => 'Incident Request',
+                        'request_id' => $task->snow_id,
+                    ]);
+                }
+
+                // Common Activity Log for all statuses
+                ActivityLog::create([
+                    'action' => $this->modalPurpose,
+                    'details' => $this->pendingReason,
+                    'performed_by' => $employee->employee_name,
+                    'request_type' => 'Incident Request',
+                    'request_id' => $task->snow_id,
+                ]);
+            } else {
+                FlashMessageHelper::flashError("Task not found or invalid status for Request ID: $requestId");
+            }
+        }
+
+        if ($this->modalPurpose === 'Pending') {
+            FlashMessageHelper::flashSuccess("Status has been set to Pending");
+
+        }elseif ($this->modalPurpose === 'Completed') {
+
+            FlashMessageHelper::flashSuccess("Status has been set to Completed");
+
+        }elseif ($this->modalPurpose === 'Cancel') {
+            FlashMessageHelper::flashSuccess("Status has been set to Cancelled");
+
+        }
+
+        $this->closeStatusModal();
+    }
+
+
+      // INPROGRESS TAB............................
+
+      public $showBulkPendingModal = false;
+      public $showBulkClosedModal = false;
+
+      public function handleBulkInprogressStatus($value){
+
+
+          if($value == 5){
+
+          $this->showBulkPendingModal = true;
+
+          }
+          elseif($value == 11){
+              $this->showBulkClosedModal = true;
+
+          }
+      }
+
+      public function closeBulkPendingModal()
+      {
+          $this->showBulkPendingModal = false;
+          $this->reset(['pendingReason', 'pendingRequestId','modalPurpose']);
+      }
+
+      public function closeBulkClosedModal()
+      {
+          $this->showBulkClosedModal = false;
+          $this->reset(['pendingReason', 'pendingRequestId','modalPurpose','customerVisibleNotes']);
+      }
+
+      public function bulkPendingForDesks()
+          {
+
+
+        if (count($this->selectedRequests) === 0) {
+            FlashMessageHelper::flashError( 'No requests selected.');
+            return;
+        }
+              $this->validate([
+                  'pendingReason' => 'required|string|max:255',
+                  ]);
+
+          foreach ($this->selectedRequests as $requestId) {
+              $task = IncidentRequest::find($requestId);
+
+
+              $employee = auth()->guard('it')->user();
+
+              if($this->pendingReason){
+
+                  ActivityLog::create([
+                      'action' => "Pending Notes",
+                      'details' => $this->pendingReason,
+                      'performed_by' => $employee->employee_name,
+                      'request_type' => 'Incident Request',
+                      'request_id' => $task->snow_id,
+                      ]);
+
+              }
+
+              if ($task) {
+                  $elapsedTime = \Carbon\Carbon::parse($task->in_progress_since)->diffInMinutes(now());
+
+                  // Update the total in-progress time and set status to Pending
+                  $task->total_in_progress_time += $elapsedTime;  // Add elapsed time to total
+
+                  $task->update([
+                      'inc_pending_notes' => $this->pendingReason,
+                      'status_code' => 5,
+                      'in_progress_since' => null,
+                      ]);
+
+                      $employee = auth()->guard('it')->user();
+
+                      $activityDetails = '';
+                      // Flash a success message based on the selected status
+                      $activityDetails = "Work in Progress was Pending for Request ID - {$task->snow_id}";
+
+
+                      $assigneName = $employee->employee_name;
+                      ActivityLog::create([
+                      'action' => 'State',
+                      'details' => $activityDetails,
+                      'performed_by' => $assigneName,
+                      'request_type' => 'Incident Request',
+                      'request_id' => $task->snow_id,
+                      ]);
+              }
+
+          }
+          $this->selectedRequests = [];
+          $this->selectedRecord=[];
+
+          $this->checkboxClosingModal = false;
+          FlashMessageHelper::flashSuccess("Status has been set to Pending");
+
+          $this->closeBulkPendingModal();
+          $this->updateCounts();
+
+          if($task){
+              FlashMessageHelper::flashSuccess("Status has been set to Pending");
+          }
+
+
+      }
+
+      public function bulkCloseForDesks()
+      {
+
+        if (count($this->selectedRequests) === 0) {
+            FlashMessageHelper::flashError( 'No requests selected.');
+            return;
+        }
+
+              $this->validate([
+                  'pendingReason' => 'required|string|max:255',
+                  'customerVisibleNotes' => 'required|string|max:255',
+                  ]);
+          foreach ($this->selectedRequests as $requestId) {
+
+              $task = IncidentRequest::find($requestId);
+
+
+              $employee = auth()->guard('it')->user();
+
+              if($this->pendingReason && $this->customerVisibleNotes){
+
+                  ActivityLog::create([
+                      'action' => "Closed Notes",
+                      'details' => "Closed Notes: {$this->pendingReason} ||| Customer Visible Notes: {$this->customerVisibleNotes}",
+                      'performed_by' => $employee->employee_name,
+                      'request_type' => 'Incident Request',
+                      'request_id' => $task->snow_id,
+                      ]);
+
+              }
+
+              if ($task) {
+
+                  $totalElapsedMinutes = 0;
+
+                  if ($task->in_progress_since) {
+                      $totalElapsedMinutes = \Carbon\Carbon::parse($task->in_progress_since)->diffInMinutes(now());
+                  }
+
+                  // Add the previously tracked progress time if exists
+                  if (isset($task->total_in_progress_time)) {
+                      $totalElapsedMinutes += $task->total_in_progress_time;
+                  }
+
+                  $task->update([
+                      'status_code' => '11', // Closed
+                      'total_in_progress_time' => $totalElapsedMinutes, // Store the total progress time
+                      'in_progress_since' => null, // Reset the progress start time
+                      'inc_end_date' => now(),
+                      'inc_completed_notes' => $this->pendingReason,
+                      'inc_customer_visible_notes' => $this->customerVisibleNotes,
+                      ]);
+
+                      $employee = auth()->guard('it')->user();
+
+                      $activityDetails = '';
+                      // Flash a success message based on the selected status
+                      $activityDetails = "Work in Progress was Closed for Request ID - {$task->snow_id}";
+
+                      $assigneName = $employee->employee_name;
+                      ActivityLog::create([
+                      'action' => 'State',
+                      'details' => $activityDetails,
+                      'performed_by' => $assigneName,
+                      'request_type' => 'Incident Request',
+                      'request_id' => $task->snow_id,
+                      ]);
+              }
+          }
+          $this->selectedRecord ='';
+          $this->selectedRequests = [];
+          $this->checkboxClosingModal = false;
+          $this->closeBulkClosedModal();
+          $this->updateCounts();
+
+              if($task){
+                  FlashMessageHelper::flashSuccess("Status has been set to Closed");
+              }
+
+
+      }
 
 
 
