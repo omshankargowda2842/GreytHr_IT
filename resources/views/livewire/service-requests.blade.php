@@ -1,8 +1,6 @@
 <div class="main">
-
-
     <div wire:loading
-        wire:target="closeBulkPendingModal,closeBulkClosedModal,bulkPendingForDesks,bulkCloseForDesks,submit,setActiveTab,viewRecord,closeServiceDetails,closeBulkInprogressModal,bulkSubmitReason,closePopup,bulkSubmitStatusReason,applyBulkActions,loadClosedRecordsByAssigne,loadInprogessRecordsByAssigne,loadPendingRecordsByAssigne,filterLogs,updateAssigne,handleSelectedAssigneChange,handleSelectedStatusChange,selectedStatus,closeInprogressModal,selectedInprogress,closeStatusModal,submitStatusReason,selectedAssigne,closeModal,set,toggleSortOrder,pendingForDesks,loadLogs,inprogressForDesks,viewServiceDetails,handleStatusChange,updateStatus,postComment,activeServiceSubmit,closeForDesks,showViewImage,showViewFile,closeViewFile,downloadImages,closeViewImage,selectedPending,closePendingModal,selectedClosed,closeClosedModal,set,showViewEmpImage,showViewEmpFile,closeViewEmpImage,closeViewEmpFile,downloadITImages">
+        wire:target="exportRequests,clearFilters,closeBulkPendingModal,closeBulkClosedModal,bulkPendingForDesks,bulkCloseForDesks,submit,setActiveTab,viewRecord,closeServiceDetails,closeBulkInprogressModal,bulkSubmitReason,closePopup,bulkSubmitStatusReason,applyBulkActions,loadClosedRecordsByAssigne,loadInprogessRecordsByAssigne,loadPendingRecordsByAssigne,filterLogs,updateAssigne,handleSelectedAssigneChange,handleSelectedStatusChange,selectedStatus,closeInprogressModal,selectedInprogress,closeStatusModal,submitStatusReason,selectedAssigne,closeModal,set,toggleSortOrder,pendingForDesks,loadLogs,inprogressForDesks,viewServiceDetails,handleStatusChange,updateStatus,postComment,activeServiceSubmit,closeForDesks,showViewImage,showViewFile,closeViewFile,downloadImages,closeViewImage,selectedPending,closePendingModal,selectedClosed,closeClosedModal,set,showViewEmpImage,showViewEmpFile,closeViewEmpImage,closeViewEmpFile,downloadITImages">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -117,6 +115,39 @@
 
                         </div>
 
+
+                        <div class="container export-main">
+                            <h5 class="mb-4">Export Services</h5>
+
+                            <div class="row" style="display: flex;justify-content: space-evenly;align-items: center;">
+                                <!-- Export Format -->
+                                <div class="col-md-4 mb-3">
+                                    <label for="format" class="form-label">Export Format:</label>
+                                    <select id="format" wire:model="exportFormat" class="form-select">
+                                        <option value="" selected disabled hidden>Select Export Format</option>
+                                        <option value="excel">Excel</option>
+                                        <option value="csv">CSV</option>
+                                        <option value="pdf">PDF</option>
+                                    </select>
+                                </div>
+
+                                <!-- Request ID -->
+                                <div class="col-md-4 mb-3">
+                                    <label for="requestId" class="form-label">Service ID:</label>
+                                    <input id="requestId" type="text" wire:model="requestId" class="form-control"
+                                        placeholder="Enter Request ID (Optional)">
+                                </div>
+
+
+                                <div class="col-md-3 mb-3 d-flex justify-content-center">
+                                    <button wire:click.prevent="clearFilters"
+                                        class="btn btn-secondary mt-3 me-2">Clear</button>
+                                    <button wire:click.prevent="exportRequests(10)"
+                                        class="btn btn-primary mt-3">Download</button>
+                                </div>
+                            </div>
+
+                        </div>
 
                         @if($serviceRequestDetails && $serviceRequest)
 
@@ -836,7 +867,8 @@
                                         <!-- Checkbox for Selection -->
                                         <div>
                                             <input type="checkbox" wire:model="selectedRequests"
-                                                wire:click="checkboxMultiSelection" value="{{ $request->id }}" wire:key=rsetID-{{ $request->id}}>
+                                                wire:click="checkboxMultiSelection" value="{{ $request->id }}"
+                                                wire:key=rsetID-{{ $request->id}}>
                                         </div>
                                         <div class="ms-3">
                                             <p class="req-reqBy-Dep">Service ID:
@@ -951,6 +983,61 @@
                     <div class="row">
                         <div class="col-12 mt-2">
 
+
+                            <div class="container export-main">
+                                <h5 class="mb-4">Export Services</h5>
+
+                                <div class="row"
+                                    style="display: flex;justify-content: space-evenly;align-items: center;">
+                                    <!-- Export Format -->
+                                    <div class="col-md-2 mb-3">
+                                        <label for="format" class="form-label">Export Format:</label>
+                                        <select id="format" wire:model="exportFormat" class="form-select">
+                                            <option value="" selected disabled hidden>Select Export Format</option>
+                                            <option value="excel">Excel</option>
+                                            <option value="csv">CSV</option>
+                                            <option value="pdf">PDF</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Request ID -->
+                                    <div class="col-md-3 mb-3">
+                                        <label for="requestId" class="form-label">Service ID:</label>
+                                        <input id="requestId" type="text" wire:model="requestId" class="form-control"
+                                            placeholder="Enter Request ID (Optional)">
+                                    </div>
+
+                                    <!-- Assignee -->
+                                    <div class="col-md-4 mb-3">
+                                        <label for="assignee" class="form-label">Select Assignee:</label>
+                                        <select class="form-select" wire:model="assignee">
+                                            <!-- Default option with empty value (shown when no selection is made) -->
+                                            <option value="" disabled hidden>Select Assignee (Optional)</option>
+
+                                            <!-- Loop through IT data -->
+                                            @foreach($itData as $itName)
+                                            <option
+                                                value="{{ ucwords(strtolower($itName->empIt->first_name)) }} {{ ucwords(strtolower($itName->empIt->last_name)) }} {{ $itName->empIt->emp_id }}">
+                                                {{ ucwords(strtolower($itName->empIt->first_name)) }}
+                                                {{ ucwords(strtolower($itName->empIt->last_name)) }}
+                                                ({{ $itName->empIt->emp_id }})
+                                            </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-3 mb-3 d-flex justify-content-center">
+                                        <button wire:click.prevent="clearFilters"
+                                            class="btn btn-secondary mt-3 me-2">Clear</button>
+
+                                        <button wire:click.prevent="exportRequests(5)"
+                                            class="btn btn-primary mt-3">Download</button>
+                                    </div>
+                                </div>
+
+                            </div>
+
+
                             <div class="row">
                                 @if($checkboxModal)
 
@@ -1003,7 +1090,6 @@
                                 </div>
                                 @endif
                             </div>
-
 
                             <div class="col-lg-3 col-md-3 col-5 mb-5">
                                 <div>
@@ -1098,7 +1184,8 @@
                                         <tr>
                                             <td>
                                                 <input type="checkbox" wire:model="selectedRequests"
-                                                    wire:click='checkboxMultiSelection' value="{{ $record->id }}" wire:key=recdID-{{ $record->id}}>
+                                                    wire:click='checkboxMultiSelection' value="{{ $record->id }}"
+                                                    wire:key=recdID-{{ $record->id}}>
                                             </td>
 
                                             <td>{{ $record->snow_id }}</td>
@@ -1730,6 +1817,58 @@
 
                     </div>
 
+                    <div class="container export-main">
+                        <h5 class="mb-4">Export Services</h5>
+
+                        <div class="row" style="display: flex;justify-content: space-evenly;align-items: center;">
+                            <!-- Export Format -->
+                            <div class="col-md-2 mb-3">
+                                <label for="format" class="form-label">Export Format:</label>
+                                <select id="format" wire:model="exportFormat" class="form-select">
+                                    <option value="" selected disabled hidden>Select Export Format</option>
+                                    <option value="excel">Excel</option>
+                                    <option value="csv">CSV</option>
+                                    <option value="pdf">PDF</option>
+                                </select>
+                            </div>
+
+                            <!-- Request ID -->
+                            <div class="col-md-3 mb-3">
+                                <label for="requestId" class="form-label">Service ID:</label>
+                                <input id="requestId" type="text" wire:model="requestId" class="form-control"
+                                    placeholder="Enter Request ID (Optional)">
+                            </div>
+
+                            <!-- Assignee -->
+                            <div class="col-md-4 mb-3">
+                                <label for="assignee" class="form-label">Select Assignee:</label>
+                                <select class="form-select" wire:model="assignee">
+                                    <!-- Default option with empty value (shown when no selection is made) -->
+                                    <option value="" disabled hidden>Select Assignee (Optional)</option>
+
+                                    <!-- Loop through IT data -->
+                                    @foreach($itData as $itName)
+                                    <option
+                                        value="{{ ucwords(strtolower($itName->empIt->first_name)) }} {{ ucwords(strtolower($itName->empIt->last_name)) }} {{ $itName->empIt->emp_id }}">
+                                        {{ ucwords(strtolower($itName->empIt->first_name)) }}
+                                        {{ ucwords(strtolower($itName->empIt->last_name)) }}
+                                        ({{ $itName->empIt->emp_id }})
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-3 mb-3 d-flex justify-content-center">
+                                <button wire:click.prevent="clearFilters"
+                                    class="btn btn-secondary mt-3 me-2">Clear</button>
+
+                                <button wire:click.prevent="exportRequests(16)"
+                                    class="btn btn-primary mt-3">Download</button>
+                            </div>
+                        </div>
+
+                    </div>
+
                     <div class="row">
                         <div class="col-12 mt-2">
 
@@ -1924,7 +2063,8 @@
                                         <tr>
                                             <td>
                                                 <input type="checkbox" wire:model="selectedRequests"
-                                                    wire:click='checkboxMultiSelection' value="{{ $record->id }}" wire:key=rcrdID-{{ $record->id}}>
+                                                    wire:click='checkboxMultiSelection' value="{{ $record->id }}"
+                                                    wire:key=rcrdID-{{ $record->id}}>
                                             </td>
                                             <td>{{ $record->snow_id }}</td>
                                             <td>{{ $record->category ?? 'N/A' }}</td>
@@ -2684,6 +2824,65 @@
 
                         <div class="col-12 mt-2">
 
+                            <div class="container export-main">
+                                <h5 class="mb-4">Export Services</h5>
+
+                                <div class="row"
+                                    style="display: flex;justify-content: space-evenly;align-items: center;">
+                                    <!-- Export Format -->
+                                    <div class="col-md-4 mb-3">
+                                        <label for="format" class="form-label">Export Format:</label>
+                                        <select id="format" wire:model="exportFormat" class="form-select">
+                                            <option value="" selected disabled hidden>Select Export Format</option>
+                                            <option value="excel">Excel</option>
+                                            <option value="csv">CSV</option>
+                                            <option value="pdf">PDF</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Request ID -->
+                                    <div class="col-md-4 mb-3">
+                                        <label for="requestId" class="form-label">Service ID:</label>
+                                        <input id="requestId" type="text" wire:model="requestId" class="form-control"
+                                            placeholder="Enter Request ID (Optional)">
+                                    </div>
+
+                                    <!-- Assignee -->
+                                    <div class="col-md-4 mb-3">
+                                        <label for="assignee" class="form-label">Select Assignee:</label>
+                                        <select class="form-select" wire:model="assignee">
+                                            <!-- Default option with empty value (shown when no selection is made) -->
+                                            <option value="" disabled hidden>Select Assignee (Optional)</option>
+
+                                            <!-- Loop through IT data -->
+                                            @foreach($itData as $itName)
+                                            <option
+                                                value="{{ ucwords(strtolower($itName->empIt->first_name)) }} {{ ucwords(strtolower($itName->empIt->last_name)) }} {{ $itName->empIt->emp_id }}">
+                                                {{ ucwords(strtolower($itName->empIt->first_name)) }}
+                                                {{ ucwords(strtolower($itName->empIt->last_name)) }}
+                                                ({{ $itName->empIt->emp_id }})
+                                            </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+
+                                    <div class="col-md-12 d-flex justify-content-between align-items-center">
+
+                                        <button wire:click.prevent="clearFilters" class="btn btn-secondary mt-3 me-2"
+                                            style="font-size: 11px;">Clear</button>
+                                        <button wire:click.prevent="exportRequests('11')" class="btn btn-primary mt-3"
+                                            style="font-size: 11px;">Download Completed Requests</button>
+                                        <button wire:click.prevent="exportRequests('15')" class="btn btn-primary mt-3"
+                                            style="font-size: 11px;">Download Cancelled Requests</button>
+                                        <button wire:click.prevent="exportRequests('11,15')"
+                                            class="btn btn-primary mt-3" style="font-size: 11px;">Download All</button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
 
                             <div class="row d-flex">
                                 <!-- Assignee Filter -->

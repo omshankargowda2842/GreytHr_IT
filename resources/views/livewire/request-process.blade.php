@@ -1,7 +1,7 @@
     <div class="main">
 
         <div wire:loading
-            wire:target="approveBulkNewRqsStatus,rejectionBulkRqsModal,bulkSubmitStatusReason,applyBulkActions,bulkSelectedInprogress,closeBulkInprogressModal,bulkSubmitReason,handleBulkInprogressStatus,closeBulkPendingModal,closeBulkClosedModal,bulkPendingForDesks,bulkCloseForDesks,submit,setActiveTab,rejectionModal,selectPriority,closePopup,showRejectedRequest,loadClosedRecordsByAssigne,loadInprogessRecordsByAssigne,loadPendingRecordsByAssigne,selectedInprogress,closePendingModal,closeClosedModal,selectedClosed,selectedPending,closeInprogressModal,inprogressForDesks,loadLogs,pendingForDesks,closeModal,rejectStatus,cancelModal,cancelStatus,viewRecord,Cancel,viewRejectDetails,closeRejectDetails,closeDetails,closeDetailsBack,selectedStatus,viewApproveDetails,showAllRequest,showRecentRequest,approveStatus,updateStatus,postComment,updateAssigne,redirectBasedOnStatus,viewDetails,openForDesks,postInprogressRemarks,postPendingRemarks,postRemarks,closeForDesks,showViewImage,showViewFile,closeViewFile,downloadImages,closeViewImage,selectedAssigne,SelectedStatus,closeStatusModal,submitStatusReason,activeCatalogSubmit,showViewEmpImage,showViewEmpFile,closeViewEmpImage,closeViewEmpFile,downloadITImages">
+            wire:target="exportRequests,clearFilters,approveBulkNewRqsStatus,rejectionBulkRqsModal,bulkSubmitStatusReason,applyBulkActions,bulkSelectedInprogress,closeBulkInprogressModal,bulkSubmitReason,handleBulkInprogressStatus,closeBulkPendingModal,closeBulkClosedModal,bulkPendingForDesks,bulkCloseForDesks,submit,setActiveTab,rejectionModal,selectPriority,closePopup,showRejectedRequest,loadClosedRecordsByAssigne,loadInprogessRecordsByAssigne,loadPendingRecordsByAssigne,selectedInprogress,closePendingModal,closeClosedModal,selectedClosed,selectedPending,closeInprogressModal,inprogressForDesks,loadLogs,pendingForDesks,closeModal,rejectStatus,cancelModal,cancelStatus,viewRecord,Cancel,viewRejectDetails,closeRejectDetails,closeDetails,closeDetailsBack,selectedStatus,viewApproveDetails,showAllRequest,showRecentRequest,approveStatus,updateStatus,postComment,updateAssigne,redirectBasedOnStatus,viewDetails,openForDesks,postInprogressRemarks,postPendingRemarks,postRemarks,closeForDesks,showViewImage,showViewFile,closeViewFile,downloadImages,closeViewImage,selectedAssigne,SelectedStatus,closeStatusModal,submitStatusReason,activeCatalogSubmit,showViewEmpImage,showViewEmpFile,closeViewEmpImage,closeViewEmpFile,downloadITImages">
             <div class="loader-overlay">
                 <div>
                     <div class="logo">
@@ -46,6 +46,40 @@
                     </div>
 
                 </div>
+
+                <div class="container export-main">
+                    <h5 class="mb-4">Export Catalog</h5>
+
+                    <div class="row" style="display: flex;justify-content: space-evenly;align-items: center;">
+                        <!-- Export Format -->
+                        <div class="col-md-4 mb-3">
+                            <label for="format" class="form-label">Export Format:</label>
+                            <select id="format" wire:model="exportFormat" class="form-select">
+                                <option value="" selected disabled hidden>Select Export Format</option>
+                                <option value="excel">Excel</option>
+                                <option value="csv">CSV</option>
+                                <option value="pdf">PDF</option>
+                            </select>
+                        </div>
+
+                        <!-- Request ID -->
+                        <div class="col-md-4 mb-3">
+                            <label for="requestId" class="form-label">Catalog ID:</label>
+                            <input id="requestId" type="text" wire:model="requestId" class="form-control"
+                                placeholder="Enter Request ID (Optional)">
+                        </div>
+
+
+                        <div class="col-md-3 mb-3 d-flex justify-content-center">
+                            <button wire:click.prevent="clearFilters" class="btn btn-secondary mt-3 me-2">Clear</button>
+
+                            <button wire:click.prevent="exportRequests(8)"
+                                class="btn btn-primary mt-3">Download</button>
+                        </div>
+                    </div>
+
+                </div>
+
 
                 @if($recentrequestDetails && $recentRequest)
 
@@ -655,7 +689,7 @@
 
                 <div class="scrollable-container">
                     @if($checkboxNewRqsModal)
-                    <div class="d-flex justify-content-between mb-3">
+                    <div class="d-flex justify-content-between mb-5">
                         <!-- Bulk Status Dropdown -->
                         <div class="col-md-4">
                             <select wire:model="selectedStatus" class="req-selected-status"
@@ -906,6 +940,39 @@
                     <div>
                         <button class="btn btn-success" style="background-color: #02114f;color:white;font-size:13px"
                             wire:click="showRecentRequest">Recent Requests</button>
+                    </div>
+
+                </div>
+
+                <div class="container export-main">
+                    <h5 class="mb-4">Export Catalog</h5>
+
+                    <div class="row" style="display: flex;justify-content: space-evenly;align-items: center;">
+                        <!-- Export Format -->
+                        <div class="col-md-4 mb-3">
+                            <label for="format" class="form-label">Export Format:</label>
+                            <select id="format" wire:model="exportFormat" class="form-select">
+                                <option value="" selected disabled hidden>Select Export Format</option>
+                                <option value="excel">Excel</option>
+                                <option value="csv">CSV</option>
+                                <option value="pdf">PDF</option>
+                            </select>
+                        </div>
+
+                        <!-- Request ID -->
+                        <div class="col-md-4 mb-3">
+                            <label for="requestId" class="form-label">Catalog ID:</label>
+                            <input id="requestId" type="text" wire:model="requestId" class="form-control"
+                                placeholder="Enter Request ID (Optional)">
+                        </div>
+
+
+                        <div class="col-md-3 mb-3 d-flex justify-content-center">
+                            <button wire:click.prevent="clearFilters" class="btn btn-secondary mt-3 me-2">Clear</button>
+
+                            <button wire:click.prevent="exportRequests(3)"
+                                class="btn btn-primary mt-3">Download</button>
+                        </div>
                     </div>
 
                 </div>
@@ -1393,6 +1460,41 @@
                                 @endif
                             </div>
 
+
+                            <div class="container export-main">
+                                <h5 class="mb-4">Export Catalog</h5>
+
+                                <div class="row"
+                                    style="display: flex;justify-content: space-evenly;align-items: center;">
+                                    <!-- Export Format -->
+                                    <div class="col-md-4 mb-3">
+                                        <label for="format" class="form-label">Export Format:</label>
+                                        <select id="format" wire:model="exportFormat" class="form-select">
+                                            <option value="" selected disabled hidden>Select Export Format</option>
+                                            <option value="excel">Excel</option>
+                                            <option value="csv">CSV</option>
+                                            <option value="pdf">PDF</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Request ID -->
+                                    <div class="col-md-4 mb-3">
+                                        <label for="requestId" class="form-label">Catalog ID:</label>
+                                        <input id="requestId" type="text" wire:model="requestId" class="form-control"
+                                            placeholder="Enter Request ID (Optional)">
+                                    </div>
+
+
+                                    <div class="col-md-3 mb-3 d-flex justify-content-center">
+                                        <button wire:click.prevent="clearFilters"
+                                            class="btn btn-secondary mt-3 me-2">Clear</button>
+
+                                        <button wire:click.prevent="exportRequests(10)"
+                                            class="btn btn-primary mt-3">Download</button>
+                                    </div>
+                                </div>
+
+                            </div>
 
                             @if($viewingDetails && $selectedRequest)
 
@@ -2278,6 +2380,60 @@
 
                                 <div class="col-12 mt-2">
 
+                                    <div class="container export-main">
+                                        <h5 class="mb-4">Export Catalog</h5>
+
+                                        <div class="row"
+                                            style="display: flex;justify-content: space-evenly;align-items: center;">
+                                            <!-- Export Format -->
+                                            <div class="col-md-4 mb-3">
+                                                <label for="format" class="form-label">Export Format:</label>
+                                                <select id="format" wire:model="exportFormat" class="form-select">
+                                                    <option value="" selected disabled hidden>Select Export Format
+                                                    </option>
+                                                    <option value="excel">Excel</option>
+                                                    <option value="csv">CSV</option>
+                                                    <option value="pdf">PDF</option>
+                                                </select>
+                                            </div>
+
+                                            <!-- Request ID -->
+                                            <div class="col-md-4 mb-3">
+                                                <label for="requestId" class="form-label">Catalog ID:</label>
+                                                <input id="requestId" type="text" wire:model="requestId"
+                                                    class="form-control" placeholder="Enter Request ID (Optional)">
+                                            </div>
+
+                                            <!-- Assignee -->
+                                            <div class="col-md-4 mb-3">
+                                                <label for="assignee" class="form-label">Select Assignee:</label>
+                                                <select class="form-select" wire:model="assignee">
+                                                    <!-- Default option with empty value (shown when no selection is made) -->
+                                                    <option value="" disabled hidden>Select Assignee (Optional)
+                                                    </option>
+
+                                                    <!-- Loop through IT data -->
+                                                    @foreach($itData as $itName)
+                                                    <option
+                                                        value="{{ ucwords(strtolower($itName->empIt->first_name)) }} {{ ucwords(strtolower($itName->empIt->last_name)) }} {{ $itName->empIt->emp_id }}">
+                                                        {{ ucwords(strtolower($itName->empIt->first_name)) }}
+                                                        {{ ucwords(strtolower($itName->empIt->last_name)) }}
+                                                        ({{ $itName->empIt->emp_id }})
+                                                    </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-3 mb-3 d-flex justify-content-center">
+                                                <button wire:click.prevent="clearFilters"
+                                                    class="btn btn-secondary mt-3 me-2">Clear</button>
+
+                                                <button wire:click.prevent="exportRequests(5)"
+                                                    class="btn btn-primary mt-3">Download</button>
+                                            </div>
+                                        </div>
+
+                                    </div>
                                     <div class="row">
                                         @if($checkboxPendingModal)
 
@@ -3181,6 +3337,59 @@
 
                                 <div class="col-12 mt-2">
 
+                                    <div class="container export-main">
+                                        <h5 class="mb-4">Export Catalog</h5>
+
+                                        <div class="row"
+                                            style="display: flex;justify-content: space-evenly;align-items: center;">
+                                            <!-- Export Format -->
+                                            <div class="col-md-4 mb-3">
+                                                <label for="format" class="form-label">Export Format:</label>
+                                                <select id="format" wire:model="exportFormat" class="form-select">
+                                                    <option value="" selected disabled hidden>Select Export Format
+                                                    </option>
+                                                    <option value="excel">Excel</option>
+                                                    <option value="csv">CSV</option>
+                                                    <option value="pdf">PDF</option>
+                                                </select>
+                                            </div>
+
+                                            <!-- Request ID -->
+                                            <div class="col-md-4 mb-3">
+                                                <label for="requestId" class="form-label">Catalog ID:</label>
+                                                <input id="requestId" type="text" wire:model="requestId"
+                                                    class="form-control" placeholder="Enter Request ID (Optional)">
+                                            </div>
+
+                                            <!-- Assignee -->
+                                            <div class="col-md-4 mb-3">
+                                                <label for="assignee" class="form-label">Select Assignee:</label>
+                                                <select class="form-select" wire:model="assignee">
+                                                    <!-- Default option with empty value (shown when no selection is made) -->
+                                                    <option value="" disabled hidden>Select Assignee (Optional)</option>
+
+                                                    <!-- Loop through IT data -->
+                                                    @foreach($itData as $itName)
+                                                    <option
+                                                        value="{{ ucwords(strtolower($itName->empIt->first_name)) }} {{ ucwords(strtolower($itName->empIt->last_name)) }} {{ $itName->empIt->emp_id }}">
+                                                        {{ ucwords(strtolower($itName->empIt->first_name)) }}
+                                                        {{ ucwords(strtolower($itName->empIt->last_name)) }}
+                                                        ({{ $itName->empIt->emp_id }})
+                                                    </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-3 mb-3 d-flex justify-content-center">
+                                                <button wire:click.prevent="clearFilters"
+                                                    class="btn btn-secondary mt-3 me-2">Clear</button>
+
+                                                <button wire:click.prevent="exportRequests(16)"
+                                                    class="btn btn-primary mt-3">Download</button>
+                                            </div>
+                                        </div>
+
+                                    </div>
 
                                     <div class="row">
                                         @if($checkboxClosingModal)
@@ -4264,6 +4473,72 @@
                             <div class="row">
 
                                 <div class="col-12 mt-2">
+
+                                    <div class="container export-main">
+                                        <h5 class="mb-4">Export Catalog</h5>
+
+                                        <div class="row"
+                                            style="display: flex;justify-content: space-evenly;align-items: center;">
+                                            <!-- Export Format -->
+                                            <div class="col-md-4 mb-3">
+                                                <label for="format" class="form-label">Export Format:</label>
+                                                <select id="format" wire:model="exportFormat" class="form-select">
+                                                    <option value="" selected disabled hidden>Select Export Format
+                                                    </option>
+                                                    <option value="excel">Excel</option>
+                                                    <option value="csv">CSV</option>
+                                                    <option value="pdf">PDF</option>
+                                                </select>
+                                            </div>
+
+                                            <!-- Request ID -->
+                                            <div class="col-md-4 mb-3">
+                                                <label for="requestId" class="form-label">Catalog ID:</label>
+                                                <input id="requestId" type="text" wire:model="requestId"
+                                                    class="form-control" placeholder="Enter Request ID (Optional)">
+                                            </div>
+
+                                            <!-- Assignee -->
+                                            <div class="col-md-4 mb-3">
+                                                <label for="assignee" class="form-label">Select Assignee:</label>
+                                                <select class="form-select" wire:model="assignee">
+                                                    <!-- Default option with empty value (shown when no selection is made) -->
+                                                    <option value="" disabled hidden>Select Assignee (Optional)</option>
+
+                                                    <!-- Loop through IT data -->
+                                                    @foreach($itData as $itName)
+                                                    <option
+                                                        value="{{ ucwords(strtolower($itName->empIt->first_name)) }} {{ ucwords(strtolower($itName->empIt->last_name)) }} {{ $itName->empIt->emp_id }}">
+                                                        {{ ucwords(strtolower($itName->empIt->first_name)) }}
+                                                        {{ ucwords(strtolower($itName->empIt->last_name)) }}
+                                                        ({{ $itName->empIt->emp_id }})
+                                                    </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+
+                                            <div class="col-md-12 d-flex justify-content-between align-items-center">
+
+                                                <button wire:click.prevent="clearFilters"
+                                                    class="btn btn-secondary mt-3 me-2"
+                                                    style="font-size: 11px;">Clear</button>
+                                                <button wire:click.prevent="exportRequests('11')"
+                                                    class="btn btn-primary mt-3" style="font-size: 11px;">Download
+                                                    Completed Requests</button>
+                                                <button wire:click.prevent="exportRequests('15')"
+                                                    class="btn btn-primary mt-3" style="font-size: 11px;">Download
+                                                    Cancelled Requests</button>
+                                                <button wire:click.prevent="exportRequests('11,15')"
+                                                    class="btn btn-primary mt-3" style="font-size: 11px;">Download
+                                                    All</button>
+
+                                            </div>
+
+
+                                        </div>
+
+                                    </div>
 
 
                                     <div class="row d-flex">

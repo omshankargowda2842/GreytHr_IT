@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Exports\CatalogExport;
 use App\Helpers\FlashMessageHelper;
 use App\Mail\ApproveRequestMail;
 use App\Mail\assigneRequestMail;
@@ -14,6 +15,7 @@ use App\Models\HelpDesks;
 use App\Models\HolidayCalendar;
 use App\Models\Request;
 use App\Models\IT;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 // use Illuminate\Http\Client\Request;
@@ -21,6 +23,7 @@ use Livewire\Component;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
+use Maatwebsite\Excel\Facades\Excel;
 use PHPUnit\TextUI\Help;
 
 use function Termwind\render;
@@ -148,6 +151,67 @@ class RequestProcess extends Component
     }
 
 
+
+    public $exportFormat = 'excel'; // Default format
+    public $requestId=''; // Filter for a specific request ID
+    public $assignee = '';  // Filter by assignee
+    public $category;
+
+
+    public function  exportRequests($statusCodes)
+    {
+
+        $requestCategories = Request::select('Request', 'category')
+        ->where('Request', 'IT') // Adjust this to match the condition for IT requests
+        ->pluck('category');
+
+    // Fetch HelpDesk records based on the category and companyId
+
+        $statusCodes = explode(',', $statusCodes);
+        // Build the query with mandatory filters
+        $query = HelpDesks::query()
+            ->whereIn('category',  $requestCategories)
+            ->whereIn('status_code', $statusCodes); // Mandatory filter: Status Code
+
+
+        // Apply optional filters for request ID and assignee
+        if ($this->requestId) {
+            $query->where('request_id', $this->requestId); // Filter by Request ID (assuming 'snow_id' is correct field)
+        }
+
+        if ($this->assignee) {
+            $query->where('assign_to', $this->assignee); // Filter by Assignee
+        }
+
+        // Retrieve the filtered records
+        $records = $query->get();
+        // Check if records exist
+        if ($records->isEmpty()) {
+            session()->flash('message', 'No records found for the selected filters.');
+            return;
+        }
+
+        // Export data based on selected format
+        if (in_array($this->exportFormat, ['excel', 'csv'])) {
+            return Excel::download(new CatalogExport($records), "catalog." . ($this->exportFormat === 'excel' ? 'xlsx' : 'csv'));
+        }
+
+        if ($this->exportFormat === 'pdf') {
+            $pdf = Pdf::loadView('exports.catalog', ['records' => $records]);
+
+            return response()->streamDownload(function () use ($pdf) {
+                echo $pdf->output();
+            }, 'catalog.pdf');
+        }
+
+        $this->reset(['requestId', 'assignee', 'exportFormat']);
+    }
+
+
+    public function clearFilters()
+    {
+        $this->reset(['exportFormat', 'requestId', 'assignee']);
+    }
 
 
     public $selectedRequests = []; // Stores selected request IDs

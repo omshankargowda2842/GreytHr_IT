@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Exports\ServiceExport;
 use App\Helpers\FlashMessageHelper;
 use App\Mail\assigneRequestMail;
 use App\Mail\cancelRequestMail;
@@ -11,11 +12,13 @@ use App\Models\EmployeeDetails;
 use App\Models\IncidentRequest;
 use App\Models\IT;
 use App\Models\ServiceRequest;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ServiceRequests extends Component
 {
@@ -69,6 +72,64 @@ class ServiceRequests extends Component
         }
     }
 
+
+
+    public $exportFormat = 'excel'; // Default format
+    public $requestId=''; // Filter for a specific request ID
+    public $assignee = '';  // Filter by assignee
+    public $category;
+
+
+    public function  exportRequests($statusCodes)
+    {
+        $statusCodes = explode(',', $statusCodes);
+        // Build the query with mandatory filters
+        $query = IncidentRequest::query()
+            ->where('category', 'Service Request') // Mandatory filter: Category
+            ->whereIn('status_code', $statusCodes); // Mandatory filter: Status Code
+
+        // Apply optional filters for request ID and assignee
+        if ($this->requestId) {
+            $query->where('snow_id', $this->requestId); // Filter by Request ID (assuming 'snow_id' is correct field)
+        }
+
+        if ($this->assignee) {
+            $query->where('ser_assign_to', $this->assignee); // Filter by Assignee
+        }
+
+        // Retrieve the filtered records
+        $records = $query->get();
+
+        // Check if records exist
+        if ($records->isEmpty()) {
+            session()->flash('message', 'No records found for the selected filters.');
+            return;
+        }
+
+        // Export data based on selected format
+        if (in_array($this->exportFormat, ['excel', 'csv'])) {
+            return Excel::download(new ServiceExport($records), "services." . ($this->exportFormat === 'excel' ? 'xlsx' : 'csv'));
+        }
+
+        if ($this->exportFormat === 'pdf') {
+            $pdf = Pdf::loadView('exports.services', ['records' => $records]);
+
+            return response()->streamDownload(function () use ($pdf) {
+                echo $pdf->output();
+            }, 'services.pdf');
+        }
+
+        $this->reset(['requestId', 'assignee', 'exportFormat']);
+    }
+
+
+
+    public function clearFilters()
+    {
+
+        $this->reset(['exportFormat', 'requestId', 'assignee']);
+    }
+    
 
     public function bulkSubmitStatusReason()
     {
