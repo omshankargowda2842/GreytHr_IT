@@ -1,7 +1,7 @@
     <div class="main">
 
         <div wire:loading
-            wire:target="submit,setActiveTab,rejectionModal,selectPriority,closePopup,showRejectedRequest,closePendingModal,submitPendingReason,inprogressForDesks,loadLogs,pendingForDesks,closeModal,rejectStatus,cancelModal,cancelStatus,viewRecord,Cancel,viewRejectDetails,closeRejectDetails,closeDetails,closeDetailsBack,selectedStatus,viewApproveDetails,showAllRequest,showRecentRequest,approveStatus,updateStatus,postComment,updateAssigne,redirectBasedOnStatus,viewDetails,openForDesks,postInprogressRemarks,postPendingRemarks,postRemarks,closeForDesks">
+            wire:target="exportRequests,clearFilters,approveBulkNewRqsStatus,rejectionBulkRqsModal,bulkSubmitStatusReason,applyBulkActions,bulkSelectedInprogress,closeBulkInprogressModal,bulkSubmitReason,handleBulkInprogressStatus,closeBulkPendingModal,closeBulkClosedModal,bulkPendingForDesks,bulkCloseForDesks,submit,setActiveTab,rejectionModal,selectPriority,closePopup,showRejectedRequest,loadClosedRecordsByAssigne,loadInprogessRecordsByAssigne,loadPendingRecordsByAssigne,selectedInprogress,closePendingModal,closeClosedModal,selectedClosed,selectedPending,closeInprogressModal,inprogressForDesks,loadLogs,pendingForDesks,closeModal,rejectStatus,cancelModal,cancelStatus,viewRecord,Cancel,viewRejectDetails,closeRejectDetails,closeDetails,closeDetailsBack,selectedStatus,viewApproveDetails,showAllRequest,showRecentRequest,approveStatus,updateStatus,postComment,updateAssigne,redirectBasedOnStatus,viewDetails,openForDesks,postInprogressRemarks,postPendingRemarks,postRemarks,closeForDesks,showViewImage,showViewFile,closeViewFile,downloadImages,closeViewImage,selectedAssigne,SelectedStatus,closeStatusModal,submitStatusReason,activeCatalogSubmit,showViewEmpImage,showViewEmpFile,closeViewEmpImage,closeViewEmpFile,downloadITImages">
             <div class="loader-overlay">
                 <div>
                     <div class="logo">
@@ -26,25 +26,60 @@
             @if(auth()->check() && (auth()->user()->hasRole('admin') || auth()->user()->hasRole('super_admin')))
 
             @if($viewRecentRequests)
-            <div class="col-lg-9 col-md-10 col-xs-12" style="margin-left: 4%;">
+            <div class="col-lg-9 col-md-10 col-xs-12 " style="margin-left: 4%;">
 
-                <div class="d-flex  justify-content-between mb-4">
-                    <div>
+                <div class="row mb-4">
+                    <div class="col-12 col-md-6 d-flex flex-column align-items-start justify-content-center">
                         <h3 class="d-flex justify-content-start mb-5 headingForAllModules1">New Requests</h3>
 
                     </div>
 
-
-                    <div>
+                    <div class="col-12 col-md-6 d-flex align-items-start justify-content-end">
                         <button class="btn btn-success headingForAllModules"
-                            style="background-color: #02114f;color:white" wire:click="showRejectedRequest">Rejected
+                            style="background-color: #02114f;color:white;white-space: nowrap;font-size:13px;"
+                            wire:click="showRejectedRequest">Rejected
                             Requests</button>
 
-                        <button class="btn btn-success" style="background-color: #02114f;color:white"
+                        <button class="btn btn-success  ml-2"
+                            style="background-color: #02114f;color:white;font-size:13px;margin-left:3px;white-space: nowrap;"
                             wire:click="showAllRequest">Approved Requests</button>
                     </div>
 
                 </div>
+
+                <div class="container export-main">
+                    <h5 class="mb-4">Export Catalog</h5>
+
+                    <div class="row" style="display: flex;justify-content: space-evenly;align-items: center;">
+                        <!-- Export Format -->
+                        <div class="col-md-4 mb-3">
+                            <label for="format" class="form-label">Export Format:</label>
+                            <select id="format" wire:model="exportFormat" class="form-select">
+                                <option value="" selected disabled hidden>Select Export Format</option>
+                                <option value="excel">Excel</option>
+                                <option value="csv">CSV</option>
+                                <option value="pdf">PDF</option>
+                            </select>
+                        </div>
+
+                        <!-- Request ID -->
+                        <div class="col-md-4 mb-3">
+                            <label for="requestId" class="form-label">Catalog ID:</label>
+                            <input id="requestId" type="text" wire:model="requestId" class="form-control"
+                                placeholder="Enter Request ID (Optional)">
+                        </div>
+
+
+                        <div class="col-md-3 mb-3 d-flex justify-content-center">
+                            <button wire:click.prevent="clearFilters" class="btn btn-secondary mt-3 me-2">Clear</button>
+
+                            <button wire:click.prevent="exportRequests(8)"
+                                class="btn btn-primary mt-3">Download</button>
+                        </div>
+                    </div>
+
+                </div>
+
 
                 @if($recentrequestDetails && $recentRequest)
 
@@ -86,7 +121,7 @@
 
                             <tr>
 
-                                <td>Catologue Request</td>
+                                <td>Catalog Request</td>
 
                                 <td class="view-td">{{$recentRequest->category ?? 'N/A' }}</td>
 
@@ -132,62 +167,6 @@
 
                             </tr>
 
-                            <tr>
-                                <td>Attach Files</td>
-                                <td class="view-td">
-                                    @if($recentRequest->image_url)
-                                    <a href="#" data-toggle="modal" class="requestAttachments"
-                                        data-target="#attachmentsModal-{{ $recentRequest->id }}">
-                                        <i class="fas fa-eye"></i> View Attachments
-                                    </a>
-                                    @else
-                                    <span>-</span>
-                                    @endif
-                                </td>
-                            </tr>
-
-                            <!-- Modal -->
-                            <div class="modal fade" id="attachmentsModal-{{ $recentRequest->id }}" tabindex="-1"
-                                role="dialog" aria-labelledby="attachmentsModalLabel-{{ $recentRequest->id }}"
-                                aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="attachmentsModalLabel-{{ $recentRequest->id }}">
-                                                Attachments</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <!-- Swiper -->
-                                            <div class="swiper-container">
-                                                <div class="swiper-wrapper">
-
-                                                    <div class="swiper-slide reqResSwiper">
-
-                                                        <img src="{{ $recentRequest->image_url }}" class="req-Res-Image"
-                                                            alt="Image">
-                                                    </div>
-                                                </div>
-                                                <!-- Add Pagination -->
-                                                <div class="swiper-pagination"></div>
-                                                <!-- Add Navigation -->
-                                                <div class="swiper-button-next"></div>
-                                                <div class="swiper-button-prev"></div>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn text-white"
-                                                style="background-color: #02114f;" data-dismiss="modal">Close</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-
-
-
 
                             <tr>
 
@@ -203,19 +182,18 @@
 
                                 <td class="view-td">
                                     <!-- Dropdown for Priority -->
-                                    <select wire:model="priority" class="form-control"
-                                        wire:change="selectPriority($event.target.value)">
+                                    <select
+                                        wire:change="selectPriority('{{ $recentRequest->id }}', $event.target.value)"
+                                        class="form-control">
                                         <option value="high" @if($recentRequest->priority == 'high') selected
-                                            @endif>High
-                                        </option>
+                                            @endif>High</option>
                                         <option value="medium" @if($recentRequest->priority == 'medium') selected
-                                            @endif>Medium
-                                        </option>
-                                        <option value="low" @if($recentRequest->priority == 'low') selected
-                                            @endif>Low
+                                            @endif>Medium</option>
+                                        <option value="low" @if($recentRequest->priority == 'low') selected @endif>Low
                                         </option>
                                     </select>
                                 </td>
+
 
                             </tr>
 
@@ -226,6 +204,472 @@
                                 <td class="view-td">{{$recentRequest->selected_equipment ??'N/A' }}</td>
 
                             </tr>
+
+                            <tr>
+
+                                <td>Created At</td>
+
+                                <td class="view-td">
+                                    {{ \Carbon\Carbon::parse($recentRequest->created_at)->format('d-M-Y') ?? 'N/A' }}
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+                                <td class="fs-6 fs-md-3 fs-lg-2">Attachments</td>
+
+                                <td>
+                                    @php
+                                    $empImages = [];
+                                    $empFiles = [];
+
+                                    // Check if $recentRequest->file_paths is a string, array, or null
+                                    $fileDataArray = null;
+
+                                    if (isset($recentRequest->file_paths) &&
+                                    is_string($recentRequest->file_paths))
+                                    {
+                                    $fileDataArray = json_decode($recentRequest->file_paths, true);
+                                    } elseif (isset($recentRequest->file_paths) &&
+                                    is_array($recentRequest->file_paths)) {
+                                    $fileDataArray = $recentRequest->file_paths;
+                                    }
+
+                                    // Ensure $fileDataArray is a valid array before looping
+                                    if (is_array($fileDataArray)) {
+                                    // Separate empImages and files
+                                    foreach ($fileDataArray as $fileData) {
+                                    if (isset($fileData['mime_type'])) {
+                                    if (strpos($fileData['mime_type'], 'image/') === 0) {
+                                    $empImages[] = $fileData;
+                                    } else {
+                                    $empFiles[] = $fileData;
+                                    }
+                                    }
+                                    }
+                                    }
+                                    @endphp
+
+
+
+
+                                    @php
+                                    // Initialize $images and $files as empty arrays to avoid null issues
+                                    $empImages = $empImages ?? [];
+                                    $empFiles = $empFiles ?? [];
+                                    @endphp
+                                    <!-- Trigger Links -->
+                                    @if (count($empImages) > 1)
+                                    <a href="#" wire:click.prevent="showViewEmpImage({{ $recentRequest->id }})"
+                                        style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                        View Images
+                                    </a>
+                                    @elseif (count($empImages) == 1)
+                                    <a href="#" wire:click.prevent="showViewEmpImage({{ $recentRequest->id }})"
+                                        style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                        View Image
+                                    </a>
+                                    @endif
+
+                                    @if (count($empFiles) > 1)
+                                    <a href="#" wire:click.prevent="showViewEmpFile({{ $recentRequest->id }})"
+                                        style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                        View Files
+                                    </a>
+                                    @elseif (count($empFiles) == 1)
+                                    <a href="#" wire:click.prevent="showViewEmpFile({{ $recentRequest->id }})"
+                                        style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                        View File
+                                    </a>
+                                    @endif
+
+                                    @if (count($empImages) == 0 && count($empFiles) == 0)
+                                    <label for="">N/A</label>
+                                    @endif
+
+
+                                    {{-- view file popup --}}
+                                    @if ($showViewEmpImageDialog && $currentImageRequesId === $recentRequest->id)
+                                    <div class="modal custom-modal" tabindex="-1" role="dialog" style="display: block;">
+                                        <div class="modal-dialog custom-modal-dialog custom-modal-dialog-centered modal-lg"
+                                            role="document">
+                                            <div class="modal-content custom-modal-content">
+                                                <div class="modal-header custom-modal-header">
+                                                    <h5 class="modal-title view-file">Attached Images</h5>
+                                                </div>
+                                                <div class="modal-body custom-modal-body">
+
+                                                    <div class="swiper-container">
+
+                                                        <div class="swiper-wrapper">
+                                                            @foreach ($empImages as $eImage)
+                                                            @php
+                                                            $base64FileE = $eImage['data'];
+                                                            $mimeTypeE = $eImage['mime_type'];
+                                                            @endphp
+                                                            <div class="swiper-slide">
+                                                                <img src="data:{{ $mimeTypeE }};base64,{{ $base64FileE }}"
+                                                                    class="img-fluid" alt="Image">
+                                                            </div>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="modal-footer custom-modal-footer">
+                                                    <button type="button" class="submit-btn"
+                                                        wire:click.prevent="downloadImages({{ $recentRequest->id }})">Download</button>
+                                                    <button type="button" class="cancel-btn1"
+                                                        wire:click="closeViewEmpImage">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-backdrop fade show blurred-backdrop"></div>
+                                    @endif
+
+
+                                    @if ($showViewEmpFileDialog && $currentImageRequesId === $recentRequest->id)
+                                    <div class="modal" tabindex="-1" role="dialog" style="display: block;">
+                                        <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title viewfile">View Files</h5>
+                                                </div>
+                                                <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+                                                    <ul class="list-group list-group-flush">
+
+                                                        @foreach ($empFiles as $fileE)
+
+                                                        @php
+
+                                                        $base64FileE = $fileE['data'];
+
+                                                        $mimeTypeE = $fileE['mime_type'];
+
+                                                        $originalNameE = $fileE['original_name'];
+
+                                                        @endphp
+
+                                                        <li>
+
+                                                            <a href="data:{{ $mimeTypeE }};base64,{{ $base64FileE }}"
+                                                                download="{{ $originalNameE }}"
+                                                                style="text-decoration: none; color: #007BFF; margin: 10px;">
+
+                                                                {{ $originalNameE}} <i class="fas fa-download"
+                                                                    style="margin-left:5px"></i>
+
+                                                            </a>
+
+                                                        </li>
+
+                                                        @endforeach
+                                                    </ul>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="cancel-btn1"
+                                                        wire:click="closeViewEmpFile">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-backdrop fade show blurred-backdrop"></div>
+                                    @endif
+
+                                </td>
+
+                            </tr>
+
+
+
+                            <tr>
+                                <td class="fs-6 fs-md-3 fs-lg-2">File Upload</td>
+
+
+                                <td>
+                                    <!-- Attachments -->
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <p class="text-primary">
+                                                        <label for="file" class="vendor-asset-label">Attachments</label>
+
+                                                    </p>
+                                                </div>
+                                                <div class="col-8">
+                                                    <!-- File input hidden -->
+                                                    <input id="fileInput-{{ $recentRequest->id }}" type="file"
+                                                        wire:model="cat_file_paths.{{ $recentRequest->id }}"
+                                                        class="form-control-file" multiple
+                                                        style="font-size: 12px; display: none;" />
+
+                                                    <!-- Label triggers file input -->
+                                                    <div class="d-flex"
+                                                        style="align-items: baseline; gap: 5px;margin-top: 0%;">
+                                                        <button class="btn btn-outline-secondary" type="button"
+                                                            for="fileInput-{{ $recentRequest->id }}"
+                                                            onclick="document.getElementById('fileInput-{{ $recentRequest->id }}').click();">
+                                                            <i class="fa-solid fa-paperclip"></i>
+                                                        </button>
+                                                    </div>
+
+
+                                                    <div wire:loading
+                                                        wire:target="cat_file_paths.{{ $recentRequest->id }}"
+                                                        class="mt-2">
+                                                        <i class="fas fa-spinner fa-spin"></i>
+                                                        Uploading...
+                                                    </div>
+
+                                                    @error('cat_file_paths.' . $recentRequest->id . '.*')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                </td>
+
+
+
+                                <!-- File Preview Modal -->
+                                @if($showFilePreviewModal)
+
+                                <div class="modal fade show d-block" tabindex="-1" role="dialog"
+                                    style="background-color: rgba(0, 0, 0, 0.5);">
+                                    <div class="modal-dialog modal-dialog-centered  modal-lg">
+                                        <div class="modal-content">
+
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="filePreviewModalLabel">File
+                                                    Preview</h5>
+                                                <button type="button" class="btn-close"
+                                                    wire:click="hideFilePreviewModal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="d-flex flex-column align-items-center">
+                                                    <h6>Selected Files</h6>
+                                                    <div class="d-flex flex-wrap gap-3">
+                                                        <!-- Loop through files and display previews -->
+                                                        @foreach ($previews as $index => $preview)
+                                                        <div class="file-preview-container text-center"
+                                                            style="padding: 5px; border: 1px solid black; width: 120px; height: 120px; border-radius: 5px; position: relative; overflow: hidden;">
+                                                            @if ($preview['type'] == 'image')
+                                                            <img src="{{ $preview['url'] }}" alt="Preview"
+                                                                class="img-thumbnail"
+                                                                style="width: 75px; height: 75px;" />
+                                                            <span class="mt-1 uploaded-file-name"
+                                                                style="display: block; width: 100%;">{{ $preview['name'] }}</span>
+                                                            @else
+                                                            <div class="d-flex flex-column align-items-center">
+                                                                <i class="fas fa-file fa-3x"
+                                                                    style="width: 75px; height: 75px;"></i>
+                                                                <span class="mt-1 uploaded-file-name"
+                                                                    style="display: block; width: 100%;">{{ $preview['name'] }}</span>
+                                                            </div>
+                                                            @endif
+
+                                                            <!-- Delete icon -->
+                                                            <button type="button" class="delete-icon btn btn-danger"
+                                                                wire:click="removeFile({{ $index }})"
+                                                                style="position: absolute; top: 5%; right: 5%; z-index: 5; font-size: 12px;">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                        </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    wire:click="hideFilePreviewModal">Close</button>
+                                                <button type="button" class="btn btn-primary"
+                                                    wire:click="uploadFiles({{ $selectedRecordId }})">Upload
+                                                    Files</button>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @endif
+
+
+                            </tr>
+
+
+                            <tr>
+                                <td class="fs-6 fs-md-3 fs-lg-2">IT Uploaded Files</td>
+
+
+                                <td>
+                                    @php
+                                    $images = [];
+                                    $files = [];
+
+
+                                    // Check if $recentRequest->cat_file_paths is a string, array, or null
+                                    $fileDataArray = null;
+
+                                    if (isset($recentRequest->cat_file_paths) &&
+                                    is_string($recentRequest->cat_file_paths))
+                                    {
+                                    $fileDataArray = json_decode($recentRequest->cat_file_paths, true);
+                                    } elseif (isset($recentRequest->cat_file_paths) &&
+                                    is_array($recentRequest->cat_file_paths)) {
+                                    $fileDataArray = $recentRequest->cat_file_paths;
+                                    }
+
+                                    // Ensure $fileDataArray is a valid array before looping
+                                    if (is_array($fileDataArray)) {
+                                    // Separate images and files
+                                    foreach ($fileDataArray as $fileData) {
+                                    if (isset($fileData['mime_type'])) {
+                                    if (strpos($fileData['mime_type'], 'image/') === 0) {
+                                    $images[] = $fileData;
+                                    } else {
+                                    $files[] = $fileData;
+                                    }
+                                    }
+                                    }
+                                    }
+                                    @endphp
+
+
+
+
+                                    @php
+                                    // Initialize $images and $files as empty arrays to avoid null issues
+                                    $images = $images ?? [];
+                                    $files = $files ?? [];
+                                    @endphp
+                                    <!-- Trigger Links -->
+                                    @if (count($images) > 1)
+                                    <a href="#" wire:click.prevent="showViewImage({{ $recentRequest->id }})"
+                                        style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                        View Images
+                                    </a>
+                                    @elseif (count($images) == 1)
+                                    <a href="#" wire:click.prevent="showViewImage({{ $recentRequest->id }})"
+                                        style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                        View Image
+                                    </a>
+                                    @endif
+
+                                    @if (count($files) > 1)
+                                    <a href="#" wire:click.prevent="showViewFile({{ $recentRequest->id }})"
+                                        style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;margin-left:2px;">
+                                        View Files
+                                    </a>
+                                    @elseif (count($files) == 1)
+                                    <a href="#" wire:click.prevent="showViewFile({{ $recentRequest->id }})"
+                                        style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                        View File
+                                    </a>
+                                    @endif
+
+                                    @if (count($images) == 0 && count($files) == 0)
+                                    <label for="">N/A</label>
+                                    @endif
+
+                                    {{-- view file popup --}}
+                                    @if ($showViewImageDialog && $currentImageRequesId === $recentRequest->id)
+                                    <div class="modal custom-modal" tabindex="-1" role="dialog" style="display: block;">
+                                        <div class="modal-dialog custom-modal-dialog custom-modal-dialog-centered modal-lg"
+                                            role="document">
+                                            <div class="modal-content custom-modal-content">
+                                                <div class="modal-header custom-modal-header">
+                                                    <h5 class="modal-title view-file">Attached Images</h5>
+                                                </div>
+                                                <div class="modal-body custom-modal-body">
+                                                    <div class="swiper-container">
+                                                        <div class="swiper-wrapper">
+                                                            @foreach ($images as $image)
+                                                            @php
+                                                            $base64File = $image['data'];
+                                                            $mimeType = $image['mime_type'];
+                                                            @endphp
+                                                            <div class="swiper-slide">
+                                                                <img src="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                                    class="img-fluid" alt="Image">
+                                                            </div>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="modal-footer custom-modal-footer">
+                                                    <button type="button" class="submit-btn"
+                                                        wire:click.prevent="downloadITImages({{ $recentRequest->id }})">Download</button>
+                                                    <button type="button" class="cancel-btn1"
+                                                        wire:click="closeViewImage">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-backdrop fade show blurred-backdrop"></div>
+                                    @endif
+
+
+                                    @if ($showViewFileDialog && $currentImageRequesId === $recentRequest->id)
+                                    <div class="modal" tabindex="-1" role="dialog" style="display: block;">
+                                        <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title viewfile">View Files</h5>
+                                                </div>
+                                                <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+                                                    <ul class="list-group list-group-flush">
+
+                                                        @foreach ($files as $file)
+
+                                                        @php
+
+                                                        $base64File = $file['data'];
+
+                                                        $mimeType = $file['mime_type'];
+
+                                                        $originalName = $file['original_name'];
+
+                                                        @endphp
+
+                                                        <li>
+
+                                                            <a href="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                                download="{{ $originalName }}"
+                                                                style="text-decoration: none; color: #007BFF; margin: 10px;">
+
+                                                                {{ $originalName }} <i class="fas fa-download"
+                                                                    style="margin-left:5px"></i>
+
+                                                            </a>
+
+                                                        </li>
+
+                                                        @endforeach
+                                                    </ul>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="cancel-btn1"
+                                                        wire:click="closeViewFile">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-backdrop fade show blurred-backdrop"></div>
+                                    @endif
+
+                                </td>
+
+
+                            </tr>
+
+
 
                         </tbody>
 
@@ -244,14 +688,73 @@
                 @if($recentDetails && $recentDetails->where('status_code', '8')->count() > 0)
 
                 <div class="scrollable-container">
+                    @if($checkboxNewRqsModal)
+                    <div class="d-flex justify-content-between mb-5">
+                        <!-- Bulk Status Dropdown -->
+                        <div class="col-md-4">
+                            <select wire:model="selectedStatus" class="req-selected-status"
+                                wire:change="handleBulkNewRqsStatusChange">
+                                <option value="" disabled hidden>Select Status</option>
+                                <option value="10">Approve</option>
+                                <option value="3">Reject</option>
+                            </select>
+                            @error('selectedStatus')
+                            <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                    </div>
+                    @endif
+                    @if ($showRejectionBulkRqsModal)
+                    <div class="modal logout1" id="logoutModal" tabindex="-1">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header text-white logout2">
+                                    <h6 class="modal-title logout3" id="logoutModalLabel">Confirm Rejection</h6>
+                                </div>
+                                <div class="modal-body text-center logout4">
+                                    Are you sure you want to Reject?
+                                </div>
+                                <div class="modal-body text-center">
+                                    <form wire:submit.prevent="rejectBulkRqsStatus">
+                                        <span class="text-danger d-flex align-start">*</span>
+                                        <div class="row">
+                                            <div class="col-12 req-remarks-div">
+                                                <textarea wire:model.lazy="reason"
+                                                    class="form-control req-remarks-textarea logout5"
+                                                    placeholder="Reason for Rejection"></textarea>
+                                            </div>
+                                        </div>
+                                        @error('reason')
+                                        <span class="text-danger d-flex align-start">{{ $message }}</span>
+                                        @enderror
+                                        <div class="d-flex justify-content-center p-3">
+                                            <button type="submit" class="submit-btn mr-3">Reject</button>
+                                            <button type="button" class="cancel-btn1 ml-3"
+                                                wire:click="Cancel">Cancel</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-backdrop fade show"></div>
+                    @endif
+
                     <div class="req-pro-card">
 
                         @foreach ($recentDetails->where('status_code', '8') as $index => $request)
 
                         <div class="request-card">
 
-                            <div class="req-pro-card-body">
+                            <div class="req-pro-card-body d-flex align-items-center justify-content-between">
 
+                                <!-- Checkbox for Selection -->
+                                <div>
+                                    <input type="checkbox" wire:model="selectedRequests"
+                                        wire:click="checkboxNewRqsMultiSelection" value="{{ $request->id }}"
+                                        wire:key=reqstID-{{ $request->id}}>
+                                </div>
                                 <div>
 
                                     <p class="req-reqBy-Dep">Request ID:
@@ -275,8 +778,10 @@
                                 </div>
 
                                 <div class="p-2">
-                                    <button wire:click="viewApproveDetails({{ $index }})"
-                                        class="req-pro-view-details-btn" @if($loading) disabled @endif>View</button>
+                                    <button wire:click="$set('currentCatalogId', {{ $request->id }})"
+                                        class="req-pro-view-details-btn" @if($loading) disabled @endif>
+                                        View
+                                    </button>
 
                                     <button wire:click="approveStatus('{{ $request->id }}')" class="req-pro-approve-btn"
                                         @if($loading) disabled @endif>Approve</button>
@@ -425,16 +930,49 @@
             @if(auth()->check() && (auth()->user()->hasRole('admin') || auth()->user()->hasRole('super_admin')))
 
             @if($viewRejectedRequests)
-            <div class="col-lg-9 col-md-10 col-xs-12" style="margin-left: 4%;">
+            <div class="col-lg-9 col-md-10 col-xs-12 " style="margin-left: 4%;">
 
                 <div class="d-flex  justify-content-between mb-4">
                     <div>
-                        <h3 class="d-flex justify-content-start mb-5">Rejected Requests</h3>
+                        <h3 class="d-flex justify-content-start mb-5 headingForAllModules1">Rejected Requests</h3>
 
                     </div>
                     <div>
-                        <button class="btn btn-success" style="background-color: #02114f;color:white"
+                        <button class="btn btn-success" style="background-color: #02114f;color:white;font-size:13px"
                             wire:click="showRecentRequest">Recent Requests</button>
+                    </div>
+
+                </div>
+
+                <div class="container export-main">
+                    <h5 class="mb-4">Export Catalog</h5>
+
+                    <div class="row" style="display: flex;justify-content: space-evenly;align-items: center;">
+                        <!-- Export Format -->
+                        <div class="col-md-4 mb-3">
+                            <label for="format" class="form-label">Export Format:</label>
+                            <select id="format" wire:model="exportFormat" class="form-select">
+                                <option value="" selected disabled hidden>Select Export Format</option>
+                                <option value="excel">Excel</option>
+                                <option value="csv">CSV</option>
+                                <option value="pdf">PDF</option>
+                            </select>
+                        </div>
+
+                        <!-- Request ID -->
+                        <div class="col-md-4 mb-3">
+                            <label for="requestId" class="form-label">Catalog ID:</label>
+                            <input id="requestId" type="text" wire:model="requestId" class="form-control"
+                                placeholder="Enter Request ID (Optional)">
+                        </div>
+
+
+                        <div class="col-md-3 mb-3 d-flex justify-content-center">
+                            <button wire:click.prevent="clearFilters" class="btn btn-secondary mt-3 me-2">Clear</button>
+
+                            <button wire:click.prevent="exportRequests(3)"
+                                class="btn btn-primary mt-3">Download</button>
+                        </div>
                     </div>
 
                 </div>
@@ -480,7 +1018,7 @@
 
                             <tr>
 
-                                <td>Catologue Request</td>
+                                <td>Catalog Request</td>
 
                                 <td class="view-td">{{$rejectedRequest->category ?? 'N/A' }}</td>
 
@@ -526,60 +1064,158 @@
 
                             </tr>
 
+
                             <tr>
-                                <td>Attach Files</td>
-                                <td class="view-td">
-                                    @if($rejectedRequest->image_url)
-                                    <a href="#" data-toggle="modal" class="requestAttachments"
-                                        data-target="#attachmentsModal-{{ $rejectedRequest->id }}">
-                                        <i class="fas fa-eye"></i> View Attachments
+                                <td class="fs-6 fs-md-3 fs-lg-2">Attachments</td>
+                                <td>
+                                    @if (!empty($rejectedRequest->file_paths))
+                                    @php
+                                    // Check if $rejectedRequest->file_paths is a string or an array
+                                    $fileDataArray = is_string($rejectedRequest->file_paths)
+                                    ? json_decode($rejectedRequest->file_paths, true)
+                                    : $rejectedRequest->file_paths;
+
+                                    // Separate images and files
+                                    foreach ($fileDataArray as $fileData) {
+                                    if (isset($fileData['mime_type'])) {
+                                    if (strpos($fileData['mime_type'], 'image') !== false) {
+                                    $images[] = $fileData;
+                                    } else {
+                                    $files[] = $fileData;
+                                    }
+                                    }
+                                    }
+                                    @endphp
+
+
+                                    {{-- view file popup --}}
+                                    @if ($showViewImageDialog && $currentImageRequesId === $rejectedRequest->id)
+                                    <div class="modal custom-modal" tabindex="-1" role="dialog" style="display: block;">
+                                        <div class="modal-dialog custom-modal-dialog custom-modal-dialog-centered modal-lg"
+                                            role="document">
+                                            <div class="modal-content custom-modal-content">
+                                                <div class="modal-header custom-modal-header">
+                                                    <h5 class="modal-title view-file">Attached Images</h5>
+                                                </div>
+                                                <div class="modal-body custom-modal-body">
+                                                    <div class="swiper-container">
+                                                        <div class="swiper-wrapper">
+                                                            @foreach ($images as $image)
+                                                            @php
+                                                            $base64File = $image['data'];
+                                                            $mimeType = $image['mime_type'];
+                                                            @endphp
+                                                            <div class="swiper-slide">
+                                                                <img src="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                                    class="img-fluid" alt="Image">
+                                                            </div>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="modal-footer custom-modal-footer">
+                                                    <button type="button" class="submit-btn"
+                                                        wire:click.prevent="downloadImages({{ $rejectedRequest->id }})">Download</button>
+                                                    <button type="button" class="cancel-btn1"
+                                                        wire:click="closeViewImage">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-backdrop fade show blurred-backdrop"></div>
+                                    @endif
+
+
+                                    @if ($showViewFileDialog && $currentImageRequesId === $rejectedRequest->id)
+                                    <div class="modal" tabindex="-1" role="dialog" style="display: block;">
+                                        <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title viewfile">View Files</h5>
+                                                </div>
+                                                <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+                                                    <ul class="list-group list-group-flush">
+
+                                                        @foreach ($files as $file)
+
+                                                        @php
+
+                                                        $base64File = $file['data'];
+
+                                                        $mimeType = $file['mime_type'];
+
+                                                        $originalName = $file['original_name'];
+
+                                                        @endphp
+
+                                                        <li>
+
+                                                            <a href="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                                download="{{ $originalName }}"
+                                                                style="text-decoration: none; color: #007BFF; margin: 10px;">
+
+                                                                {{ $originalName }} <i class="fas fa-download"
+                                                                    style="margin-left:5px"></i>
+
+                                                            </a>
+
+                                                        </li>
+
+                                                        @endforeach
+                                                    </ul>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="cancel-btn1"
+                                                        wire:click="closeViewFile">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-backdrop fade show blurred-backdrop"></div>
+                                    @endif
+
+
+                                    @php
+                                    // Initialize $images and $files as empty arrays to avoid null issues
+                                    $images = $images ?? [];
+                                    $files = $files ?? [];
+                                    @endphp
+                                    <!-- Trigger Links -->
+                                    @if (count($images) > 1)
+                                    <a href="#" wire:click.prevent="showViewImage({{ $rejectedRequest->id }})"
+                                        style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                        View Images
                                     </a>
-                                    @else
-                                    <span>-</span>
+                                    @elseif (count($images) == 1)
+                                    <a href="#" wire:click.prevent="showViewImage({{ $rejectedRequest->id }})"
+                                        style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                        View Image
+                                    </a>
+                                    @endif
+
+                                    @if (count($files) > 1)
+                                    <a href="#" wire:click.prevent="showViewFile({{ $rejectedRequest->id }})"
+                                        style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;margin-left:2px;">
+                                        View Files
+                                    </a>
+                                    @elseif (count($files) == 1)
+                                    <a href="#" wire:click.prevent="showViewFile({{ $rejectedRequest->id }})"
+                                        style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                        View File
+                                    </a>
+                                    @endif
+
+                                    @if (count($images) == 0 && count($files) == 0)
+                                    <label for="">N/A</label>
+                                    @endif
+
+
                                     @endif
 
                                 </td>
+
                             </tr>
-
-                            <!-- Modal -->
-                            <div class="modal fade" id="attachmentsModal-{{ $rejectedRequest->id }}" tabindex="-1"
-                                role="dialog" aria-labelledby="attachmentsModalLabel-{{ $rejectedRequest->id }}"
-                                aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title"
-                                                id="attachmentsModalLabel-{{ $rejectedRequest->id }}">
-                                                Attachments</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <!-- Swiper -->
-                                            <div class="swiper-container">
-                                                <div class="swiper-wrapper">
-
-                                                    <div class="swiper-slide reqResSwiper">
-
-                                                        <img src="{{ $rejectedRequest->image_url }}"
-                                                            class="req-Res-Image" alt="Image">
-                                                    </div>
-                                                </div>
-                                                <!-- Add Pagination -->
-                                                <div class="swiper-pagination"></div>
-                                                <!-- Add Navigation -->
-                                                <div class="swiper-button-next"></div>
-                                                <div class="swiper-button-prev"></div>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn text-white"
-                                                style="background-color: #02114f;" data-dismiss="modal">Close</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
 
 
@@ -609,6 +1245,19 @@
 
                             </tr>
 
+
+                            <tr>
+
+                                <td>Created At</td>
+
+                                <td class="view-td">
+                                    {{ \Carbon\Carbon::parse($rejectedRequest->created_at)->format('d-M-Y') ?? 'N/A' }}
+                                </td>
+
+                            </tr>
+
+
+
                         </tbody>
 
                     </table>
@@ -622,6 +1271,7 @@
                 @if($rejectDetails->where('status_code', '3')->count() > 0)
 
                 <div class="scrollable-container">
+
                     <div class="req-pro-card">
 
                         @foreach ($rejectDetails->where('status_code', '3') as $index => $request)
@@ -804,12 +1454,47 @@
                                 @if(auth()->check() && (auth()->user()->hasRole('admin') ||
                                 auth()->user()->hasRole('super_admin')))
                                 <div>
-                                    <button class="btn" style="background-color: #02114f; color: white;"
+                                    <button class="btn" style="background-color: #02114f; color: white;font-size:13px;"
                                         wire:click="showRecentRequest">Recent Requests</button>
                                 </div>
                                 @endif
                             </div>
 
+
+                            <div class="container export-main">
+                                <h5 class="mb-4">Export Catalog</h5>
+
+                                <div class="row"
+                                    style="display: flex;justify-content: space-evenly;align-items: center;">
+                                    <!-- Export Format -->
+                                    <div class="col-md-4 mb-3">
+                                        <label for="format" class="form-label">Export Format:</label>
+                                        <select id="format" wire:model="exportFormat" class="form-select">
+                                            <option value="" selected disabled hidden>Select Export Format</option>
+                                            <option value="excel">Excel</option>
+                                            <option value="csv">CSV</option>
+                                            <option value="pdf">PDF</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Request ID -->
+                                    <div class="col-md-4 mb-3">
+                                        <label for="requestId" class="form-label">Catalog ID:</label>
+                                        <input id="requestId" type="text" wire:model="requestId" class="form-control"
+                                            placeholder="Enter Request ID (Optional)">
+                                    </div>
+
+
+                                    <div class="col-md-3 mb-3 d-flex justify-content-center">
+                                        <button wire:click.prevent="clearFilters"
+                                            class="btn btn-secondary mt-3 me-2">Clear</button>
+
+                                        <button wire:click.prevent="exportRequests(10)"
+                                            class="btn btn-primary mt-3">Download</button>
+                                    </div>
+                                </div>
+
+                            </div>
 
                             @if($viewingDetails && $selectedRequest)
 
@@ -853,7 +1538,7 @@
 
                                         <tr>
 
-                                            <td>Catologue Request</td>
+                                            <td>Catalog Request</td>
 
                                             <td class="view-td">{{$selectedRequest->category ?? 'N/A' }}</td>
 
@@ -899,63 +1584,6 @@
 
                                         </tr>
 
-                                        <tr>
-                                            <td>Attach Files</td>
-                                            <td class="view-td">
-                                                @if($selectedRequest->image_url)
-                                                <a href="#" data-toggle="modal" class="requestAttachments"
-                                                    data-target="#attachmentsModal-{{ $selectedRequest->id }}">
-                                                    <i class="fas fa-eye"></i> View Attachments
-                                                </a>
-                                                @else
-                                                <span>-</span>
-                                                @endif
-                                            </td>
-                                        </tr>
-
-                                        <!-- Modal -->
-                                        <div class="modal fade" id="attachmentsModal-{{ $selectedRequest->id }}"
-                                            tabindex="-1" role="dialog"
-                                            aria-labelledby="attachmentsModalLabel-{{ $selectedRequest->id }}"
-                                            aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title"
-                                                            id="attachmentsModalLabel-{{ $selectedRequest->id }}">
-                                                            Attachments</h5>
-                                                        <button type="button" class="close" data-dismiss="modal"
-                                                            aria-label="Close">
-
-                                                        </button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <!-- Swiper -->
-                                                        <div class="swiper-container">
-                                                            <div class="swiper-wrapper">
-
-                                                                <div class="swiper-slide reqResSwiper">
-
-                                                                    <img src="{{ $selectedRequest->image_url }}"
-                                                                        class="req-Res-Image" alt="Image">
-                                                                </div>
-                                                            </div>
-                                                            <!-- Add Pagination -->
-                                                            <div class="swiper-pagination"></div>
-                                                            <!-- Add Navigation -->
-                                                            <div class="swiper-button-next"></div>
-                                                            <div class="swiper-button-prev"></div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn text-white"
-                                                            style="background-color: #02114f;"
-                                                            data-dismiss="modal">Close</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
 
                                         <tr>
 
@@ -981,11 +1609,12 @@
 
                                         </tr>
 
+
                                         <tr>
                                             <td>Assign to <span class="text-danger">*</span></td>
                                             <td class="view-td">
                                                 <select class="req-selected-status" wire:model="selectedAssigne"
-                                                    wire:change="updateAssigne('{{ $selectedRequest->id }}')">
+                                                    wire:change="handleSelectedAssigneChange">
                                                     <option value="" disabled hidden>Select Assignee</option>
                                                     @foreach($itData as $itName)
                                                     <option
@@ -1009,7 +1638,7 @@
 
                                             <td class="view-td">
                                                 <select wire:model="selectedStatus" class="req-selected-status"
-                                                    wire:change="handleStatusChange('{{ $selectedRequest->id }}')">
+                                                    wire:change="handleSelectedStatusChange">
                                                     <option value="" disabled hidden>Select Status </option>
                                                     <option value="5">Pending</option>
                                                     <option value="16">Inprogress</option>
@@ -1023,22 +1652,22 @@
                                             </td>
                                         </tr>
 
-
-                                        @if($showPendingModal)
+                                        @if($showStatusModal)
                                         <div class="modal fade show d-block" tabindex="-1" role="dialog"
                                             style="background-color: rgba(0, 0, 0, 0.5);">
                                             <div class="modal-dialog modal-dialog-centered">
-                                                <!-- Added modal-dialog-centered for vertical centering -->
                                                 <div class="modal-content">
                                                     <div class="modal-header">
-                                                        <h5 class="modal-title">Reason for Pending Status</h5>
+                                                        <h5 class="modal-title">
+                                                            Reason for {{ $modalPurpose }}
+                                                        </h5>
                                                         <button type="button" class="btn-close"
-                                                            wire:click="closePendingModal" aria-label="Close"></button>
+                                                            wire:click="closeStatusModal" aria-label="Close"></button>
                                                     </div>
                                                     <div class="modal-body flex-column">
-                                                        <label for="pendingReason" class="form-label">Reason <span
+                                                        <label for="reason" class="form-label">Reason <span
                                                                 class="text-danger">*</span></label>
-                                                        <textarea id="pendingReason" class="form-control"
+                                                        <textarea id="reason" class="form-control"
                                                             wire:model.defer="pendingReason" rows="3"></textarea>
                                                         @error('pendingReason')
                                                         <span class="text-danger">{{ $message }}</span>
@@ -1046,9 +1675,9 @@
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary"
-                                                            wire:click="closePendingModal">Close</button>
+                                                            wire:click="closeStatusModal">Close</button>
                                                         <button type="button" class="btn btn-primary"
-                                                            wire:click="submitPendingReason">Submit</button>
+                                                            wire:click="submitStatusReason({{ $selectedRequest->id }})">Submit</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1062,7 +1691,7 @@
                                             <td>
 
                                                 <div>
-                                                    <div class="row">
+                                                    <div class="row req-comments">
                                                         <div class="col-10">
                                                             <textarea wire:model.lazy="comments"
                                                                 class="form-control"></textarea>
@@ -1083,6 +1712,496 @@
 
 
 
+                                        <tr>
+                                            <td class="fs-6 fs-md-3 fs-lg-2">Attachments</td>
+
+                                            <td>
+                                                @php
+                                                $empImages = [];
+                                                $empFiles = [];
+
+                                                // Check if $selectedRequest->file_paths is a string, array, or null
+                                                $fileDataArray = null;
+
+                                                if (isset($selectedRequest->file_paths) &&
+                                                is_string($selectedRequest->file_paths))
+                                                {
+                                                $fileDataArray = json_decode($selectedRequest->file_paths, true);
+                                                } elseif (isset($selectedRequest->file_paths) &&
+                                                is_array($selectedRequest->file_paths)) {
+                                                $fileDataArray = $selectedRequest->file_paths;
+                                                }
+
+                                                // Ensure $fileDataArray is a valid array before looping
+                                                if (is_array($fileDataArray)) {
+                                                // Separate empImages and files
+                                                foreach ($fileDataArray as $fileData) {
+                                                if (isset($fileData['mime_type'])) {
+                                                if (strpos($fileData['mime_type'], 'image/') === 0) {
+                                                $empImages[] = $fileData;
+                                                } else {
+                                                $empFiles[] = $fileData;
+                                                }
+                                                }
+                                                }
+                                                }
+                                                @endphp
+
+
+
+
+                                                @php
+                                                // Initialize $images and $files as empty arrays to avoid null issues
+                                                $empImages = $empImages ?? [];
+                                                $empFiles = $empFiles ?? [];
+                                                @endphp
+                                                <!-- Trigger Links -->
+                                                @if (count($empImages) > 1)
+                                                <a href="#"
+                                                    wire:click.prevent="showViewEmpImage({{ $selectedRequest->id }})"
+                                                    style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                    View Images
+                                                </a>
+                                                @elseif (count($empImages) == 1)
+                                                <a href="#"
+                                                    wire:click.prevent="showViewEmpImage({{ $selectedRequest->id }})"
+                                                    style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                    View Image
+                                                </a>
+                                                @endif
+
+                                                @if (count($empFiles) > 1)
+                                                <a href="#"
+                                                    wire:click.prevent="showViewEmpFile({{ $selectedRequest->id }})"
+                                                    style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                    View Files
+                                                </a>
+                                                @elseif (count($empFiles) == 1)
+                                                <a href="#"
+                                                    wire:click.prevent="showViewEmpFile({{ $selectedRequest->id }})"
+                                                    style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                    View File
+                                                </a>
+                                                @endif
+
+                                                @if (count($empImages) == 0 && count($empFiles) == 0)
+                                                <label for="">N/A</label>
+                                                @endif
+
+
+                                                {{-- view file popup --}}
+                                                @if ($showViewEmpImageDialog && $currentImageRequesId ===
+                                                $selectedRequest->id)
+                                                <div class="modal custom-modal" tabindex="-1" role="dialog"
+                                                    style="display: block;">
+                                                    <div class="modal-dialog custom-modal-dialog custom-modal-dialog-centered modal-lg"
+                                                        role="document">
+                                                        <div class="modal-content custom-modal-content">
+                                                            <div class="modal-header custom-modal-header">
+                                                                <h5 class="modal-title view-file">Attached Images</h5>
+                                                            </div>
+                                                            <div class="modal-body custom-modal-body">
+
+                                                                <div class="swiper-container">
+
+                                                                    <div class="swiper-wrapper">
+                                                                        @foreach ($empImages as $eImage)
+                                                                        @php
+                                                                        $base64FileE = $eImage['data'];
+                                                                        $mimeTypeE = $eImage['mime_type'];
+                                                                        @endphp
+                                                                        <div class="swiper-slide">
+                                                                            <img src="data:{{ $mimeTypeE }};base64,{{ $base64FileE }}"
+                                                                                class="img-fluid" alt="Image">
+                                                                        </div>
+                                                                        @endforeach
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="modal-footer custom-modal-footer">
+                                                                <button type="button" class="submit-btn"
+                                                                    wire:click.prevent="downloadImages({{ $selectedRequest->id }})">Download</button>
+                                                                <button type="button" class="cancel-btn1"
+                                                                    wire:click="closeViewEmpImage">Close</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-backdrop fade show blurred-backdrop"></div>
+                                                @endif
+
+
+                                                @if ($showViewEmpFileDialog && $currentImageRequesId ===
+                                                $selectedRequest->id)
+                                                <div class="modal" tabindex="-1" role="dialog" style="display: block;">
+                                                    <div class="modal-dialog modal-dialog-centered modal-md"
+                                                        role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title viewfile">View Files</h5>
+                                                            </div>
+                                                            <div class="modal-body"
+                                                                style="max-height: 400px; overflow-y: auto;">
+                                                                <ul class="list-group list-group-flush">
+
+                                                                    @foreach ($empFiles as $fileE)
+
+                                                                    @php
+
+                                                                    $base64FileE = $fileE['data'];
+
+                                                                    $mimeTypeE = $fileE['mime_type'];
+
+                                                                    $originalNameE = $fileE['original_name'];
+
+                                                                    @endphp
+
+                                                                    <li>
+
+                                                                        <a href="data:{{ $mimeTypeE }};base64,{{ $base64FileE }}"
+                                                                            download="{{ $originalNameE }}"
+                                                                            style="text-decoration: none; color: #007BFF; margin: 10px;">
+
+                                                                            {{ $originalNameE}} <i
+                                                                                class="fas fa-download"
+                                                                                style="margin-left:5px"></i>
+
+                                                                        </a>
+
+                                                                    </li>
+
+                                                                    @endforeach
+                                                                </ul>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="cancel-btn1"
+                                                                    wire:click="closeViewEmpFile">Close</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-backdrop fade show blurred-backdrop"></div>
+                                                @endif
+
+                                            </td>
+
+                                        </tr>
+
+
+
+                                        <tr>
+                                            <td class="fs-6 fs-md-3 fs-lg-2">File Upload</td>
+
+
+                                            <td>
+                                                <!-- Attachments -->
+                                                <div class="row mb-3">
+                                                    <div class="col-md-8">
+                                                        <div class="row">
+                                                            <div class="col-4">
+                                                                <p class="text-primary">
+                                                                    <label for="file"
+                                                                        class="vendor-asset-label">Attachments</label>
+
+                                                                </p>
+                                                            </div>
+                                                            <div class="col-8">
+                                                                <!-- File input hidden -->
+                                                                <input id="fileInput-{{ $selectedRequest->id }}"
+                                                                    type="file"
+                                                                    wire:model="cat_file_paths.{{ $selectedRequest->id }}"
+                                                                    class="form-control-file" multiple
+                                                                    style="font-size: 12px; display: none;" />
+
+                                                                <!-- Label triggers file input -->
+                                                                <div class="req-attachmentsIcon d-flex"
+                                                                    style="align-items: baseline; gap: 5px;">
+                                                                    <button class="btn btn-outline-secondary"
+                                                                        type="button"
+                                                                        for="fileInput-{{ $selectedRequest->id }}"
+                                                                        onclick="document.getElementById('fileInput-{{ $selectedRequest->id }}').click();">
+                                                                        <i class="fa-solid fa-paperclip"></i>
+                                                                    </button>
+                                                                </div>
+
+
+                                                                <div wire:loading
+                                                                    wire:target="cat_file_paths.{{ $selectedRequest->id }}"
+                                                                    class="mt-2">
+                                                                    <i class="fas fa-spinner fa-spin"></i>
+                                                                    Uploading...
+                                                                </div>
+
+                                                                @error('cat_file_paths.' . $selectedRequest->id . '.*')
+                                                                <span class="text-danger">{{ $message }}</span>
+                                                                @enderror
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+                                            </td>
+
+
+
+                                            <!-- File Preview Modal -->
+                                            @if($showFilePreviewModal)
+
+                                            <div class="modal fade show d-block" tabindex="-1" role="dialog"
+                                                style="background-color: rgba(0, 0, 0, 0.5);">
+                                                <div class="modal-dialog modal-dialog-centered  modal-lg">
+                                                    <div class="modal-content">
+
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="filePreviewModalLabel">File
+                                                                Preview</h5>
+                                                            <button type="button" class="btn-close"
+                                                                wire:click="hideFilePreviewModal"
+                                                                aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="d-flex flex-column align-items-center">
+                                                                <h6>Selected Files</h6>
+                                                                <div class="d-flex flex-wrap gap-3">
+                                                                    <!-- Loop through files and display previews -->
+                                                                    @foreach ($previews as $index => $preview)
+                                                                    <div class="file-preview-container text-center"
+                                                                        style="padding: 5px; border: 1px solid black; width: 120px; height: 120px; border-radius: 5px; position: relative; overflow: hidden;">
+                                                                        @if ($preview['type'] == 'image')
+                                                                        <img src="{{ $preview['url'] }}" alt="Preview"
+                                                                            class="img-thumbnail"
+                                                                            style="width: 75px; height: 75px;" />
+                                                                        <span class="mt-1 uploaded-file-name"
+                                                                            style="display: block; width: 100%;">{{ $preview['name'] }}</span>
+                                                                        @else
+                                                                        <div
+                                                                            class="d-flex flex-column align-items-center">
+                                                                            <i class="fas fa-file fa-3x"
+                                                                                style="width: 75px; height: 75px;"></i>
+                                                                            <span class="mt-1 uploaded-file-name"
+                                                                                style="display: block; width: 100%;">{{ $preview['name'] }}</span>
+                                                                        </div>
+                                                                        @endif
+
+                                                                        <!-- Delete icon -->
+                                                                        <button type="button"
+                                                                            class="delete-icon btn btn-danger"
+                                                                            wire:click="removeFile({{ $index }})"
+                                                                            style="position: absolute; top: 5%; right: 5%; z-index: 5; font-size: 12px;">
+                                                                            <i class="fas fa-times"></i>
+                                                                        </button>
+                                                                    </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                wire:click="hideFilePreviewModal">Close</button>
+                                                            <button type="button" class="btn btn-primary"
+                                                                wire:click="uploadFiles({{ $selectedRecordId }})">Upload
+                                                                Files</button>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            @endif
+
+
+                                        </tr>
+
+
+                                        <tr>
+                                            <td class="fs-6 fs-md-3 fs-lg-2">IT Uploaded Files</td>
+
+
+                                            <td>
+                                                @php
+                                                $images = [];
+                                                $files = [];
+
+
+                                                // Check if $selectedRequest->cat_file_paths is a string, array, or null
+                                                $fileDataArray = null;
+
+                                                if (isset($selectedRequest->cat_file_paths) &&
+                                                is_string($selectedRequest->cat_file_paths))
+                                                {
+                                                $fileDataArray = json_decode($selectedRequest->cat_file_paths, true);
+                                                } elseif (isset($selectedRequest->cat_file_paths) &&
+                                                is_array($selectedRequest->cat_file_paths)) {
+                                                $fileDataArray = $selectedRequest->cat_file_paths;
+                                                }
+
+                                                // Ensure $fileDataArray is a valid array before looping
+                                                if (is_array($fileDataArray)) {
+                                                // Separate images and files
+                                                foreach ($fileDataArray as $fileData) {
+                                                if (isset($fileData['mime_type'])) {
+                                                if (strpos($fileData['mime_type'], 'image/') === 0) {
+                                                $images[] = $fileData;
+                                                } else {
+                                                $files[] = $fileData;
+                                                }
+                                                }
+                                                }
+                                                }
+                                                @endphp
+
+
+
+
+                                                @php
+                                                // Initialize $images and $files as empty arrays to avoid null issues
+                                                $images = $images ?? [];
+                                                $files = $files ?? [];
+                                                @endphp
+                                                <!-- Trigger Links -->
+                                                @if (count($images) > 1)
+                                                <a href="#"
+                                                    wire:click.prevent="showViewImage({{ $selectedRequest->id }})"
+                                                    style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                    View Images
+                                                </a>
+                                                @elseif (count($images) == 1)
+                                                <a href="#"
+                                                    wire:click.prevent="showViewImage({{ $selectedRequest->id }})"
+                                                    style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                    View Image
+                                                </a>
+                                                @endif
+
+                                                @if (count($files) > 1)
+                                                <a href="#"
+                                                    wire:click.prevent="showViewFile({{ $selectedRequest->id }})"
+                                                    style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;margin-left:2px;">
+                                                    View Files
+                                                </a>
+                                                @elseif (count($files) == 1)
+                                                <a href="#"
+                                                    wire:click.prevent="showViewFile({{ $selectedRequest->id }})"
+                                                    style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                    View File
+                                                </a>
+                                                @endif
+
+                                                @if (count($images) == 0 && count($files) == 0)
+                                                <label for="">N/A</label>
+                                                @endif
+
+                                                {{-- view file popup --}}
+                                                @if ($showViewImageDialog && $currentImageRequesId ===
+                                                $selectedRequest->id)
+                                                <div class="modal custom-modal" tabindex="-1" role="dialog"
+                                                    style="display: block;">
+                                                    <div class="modal-dialog custom-modal-dialog custom-modal-dialog-centered modal-lg"
+                                                        role="document">
+                                                        <div class="modal-content custom-modal-content">
+                                                            <div class="modal-header custom-modal-header">
+                                                                <h5 class="modal-title view-file">Attached Images</h5>
+                                                            </div>
+                                                            <div class="modal-body custom-modal-body">
+                                                                <div class="swiper-container">
+                                                                    <div class="swiper-wrapper">
+                                                                        @foreach ($images as $image)
+                                                                        @php
+                                                                        $base64File = $image['data'];
+                                                                        $mimeType = $image['mime_type'];
+                                                                        @endphp
+                                                                        <div class="swiper-slide">
+                                                                            <img src="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                                                class="img-fluid" alt="Image">
+                                                                        </div>
+                                                                        @endforeach
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="modal-footer custom-modal-footer">
+                                                                <button type="button" class="submit-btn"
+                                                                    wire:click.prevent="downloadITImages({{ $selectedRequest->id }})">Download</button>
+                                                                <button type="button" class="cancel-btn1"
+                                                                    wire:click="closeViewImage">Close</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-backdrop fade show blurred-backdrop"></div>
+                                                @endif
+
+
+                                                @if ($showViewFileDialog && $currentImageRequesId ===
+                                                $selectedRequest->id)
+                                                <div class="modal" tabindex="-1" role="dialog" style="display: block;">
+                                                    <div class="modal-dialog modal-dialog-centered modal-md"
+                                                        role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title viewfile">View Files</h5>
+                                                            </div>
+                                                            <div class="modal-body"
+                                                                style="max-height: 400px; overflow-y: auto;">
+                                                                <ul class="list-group list-group-flush">
+
+                                                                    @foreach ($files as $file)
+
+                                                                    @php
+
+                                                                    $base64File = $file['data'];
+
+                                                                    $mimeType = $file['mime_type'];
+
+                                                                    $originalName = $file['original_name'];
+
+                                                                    @endphp
+
+                                                                    <li>
+
+                                                                        <a href="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                                            download="{{ $originalName }}"
+                                                                            style="text-decoration: none; color: #007BFF; margin: 10px;">
+
+                                                                            {{ $originalName }} <i
+                                                                                class="fas fa-download"
+                                                                                style="margin-left:5px"></i>
+
+                                                                        </a>
+
+                                                                    </li>
+
+                                                                    @endforeach
+                                                                </ul>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="cancel-btn1"
+                                                                    wire:click="closeViewFile">Close</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-backdrop fade show blurred-backdrop"></div>
+                                                @endif
+
+                                            </td>
+
+
+                                        </tr>
+
+                                        <tr>
+
+                                            <td>Created At</td>
+
+                                            <td class="view-td">
+                                                {{ \Carbon\Carbon::parse($selectedRequest->created_at)->format('d-M-Y') ?? 'N/A' }}
+                                            </td>
+
+                                        </tr>
+
+
 
                                     </tbody>
 
@@ -1090,7 +2209,8 @@
 
                                 <div class="d-flex justify-content-center align-items-center">
                                     <button class="btn text-white mb-3" style="background-color: #02114f;"
-                                        wire:click="redirectBasedOnStatus" @if($loading) disabled @endif>Submit</button>
+                                        wire:click="activeCatalogSubmit('{{ $selectedRequest->id }}')" @if($loading)
+                                        disabled @endif>Submit</button>
                                 </div>
 
 
@@ -1102,13 +2222,62 @@
 
                             @if($forIT->where('status_code', '10')->count() > 0)
                             <div class="scrollable-container">
+                                @if($checkboxModal)
+                                <div class="d-flex justify-content-between mb-3">
+                                    <!-- Bulk Assign Dropdown -->
+                                    <div class="col-md-4">
+                                        <select class="req-selected-status" wire:model="bulkAssignee"
+                                            wire:change="handleSelectedAssigneChange">
+                                            <option value="" disabled hidden>Select Assignee</option>
+                                            @foreach($itData as $itName)
+                                            <option
+                                                value="{{ $itName->empIt->first_name }} {{ $itName->empIt->last_name }} {{ $itName->empIt->emp_id }}">
+                                                {{ ucwords(strtolower($itName->empIt->first_name)) }}
+                                                {{ ucwords(strtolower($itName->empIt->last_name)) }}
+                                                ({{ ucwords(strtolower($itName->empIt->emp_id)) }})
+                                            </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <!-- Bulk Status Dropdown -->
+                                    <div class="col-md-4">
+                                        <select wire:model="selectedStatus" class="req-selected-status"
+                                            wire:change="handleSelectedStatusChange">
+                                            <option value="" disabled hidden>Select Status</option>
+                                            <option value="5">Pending</option>
+                                            <option value="16">Inprogress</option>
+                                            <option value="11">Completed</option>
+                                            <option value="15">Cancel</option>
+                                        </select>
+                                        @error('selectedStatus')
+                                        <span class="text-danger">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <!-- Apply Button -->
+                                    <button class="btn text-white" style="background-color: #02114f;"
+                                        wire:click="applyBulkActions">
+                                        Apply
+                                    </button>
+                                </div>
+
+                                @endif
                                 <div class="req-pro-card">
 
                                     @foreach ($forIT->where('status_code', '10') as $index => $request)
 
                                     <div class="request-card">
 
-                                        <div class="req-pro-card-body">
+                                        <div
+                                            class="req-pro-card-body d-flex align-items-center justify-content-between">
+
+                                            <!-- Checkbox for Selection -->
+                                            <div>
+                                                <input type="checkbox" wire:model="selectedRequests"
+                                                    wire:click="checkboxMultiSelection" value="{{ $request->id }}"
+                                                    wire:key=reqstID-{{ $request->id}}>
+                                            </div>
 
                                             <div>
 
@@ -1144,6 +2313,40 @@
                                     @endforeach
 
                                 </div>
+
+                                <!-- Modal for Reason -->
+                                @if($showStatusModal)
+                                <div class="modal fade show d-block" tabindex="-1" role="dialog"
+                                    style="background-color: rgba(0, 0, 0, 0.5);">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Reason for {{ $modalPurpose }}</h5>
+                                                <button type="button" class="btn-close" wire:click="closeStatusModal"
+                                                    aria-label="Close"></button>
+                                            </div>
+                                            <div class="d-flex justify-content-center flex-column m-3">
+                                                <label for="reason" class="form-label">Reason <span
+                                                        class="text-danger">*</span></label>
+                                                <textarea id="reason" class="form-control"
+                                                    wire:model.defer="pendingReason" rows="3"></textarea>
+                                                @error('pendingReason')
+                                                <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    wire:click="closeStatusModal">Close</button>
+                                                <button type="button" class="btn btn-primary"
+                                                    wire:click="bulkSubmitStatusReason">
+                                                    Submit
+                                                </button>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
                             </div>
 
                             @else
@@ -1177,14 +2380,144 @@
 
                                 <div class="col-12 mt-2">
 
+                                    <div class="container export-main">
+                                        <h5 class="mb-4">Export Catalog</h5>
+
+                                        <div class="row"
+                                            style="display: flex;justify-content: space-evenly;align-items: center;">
+                                            <!-- Export Format -->
+                                            <div class="col-md-4 mb-3">
+                                                <label for="format" class="form-label">Export Format:</label>
+                                                <select id="format" wire:model="exportFormat" class="form-select">
+                                                    <option value="" selected disabled hidden>Select Export Format
+                                                    </option>
+                                                    <option value="excel">Excel</option>
+                                                    <option value="csv">CSV</option>
+                                                    <option value="pdf">PDF</option>
+                                                </select>
+                                            </div>
+
+                                            <!-- Request ID -->
+                                            <div class="col-md-4 mb-3">
+                                                <label for="requestId" class="form-label">Catalog ID:</label>
+                                                <input id="requestId" type="text" wire:model="requestId"
+                                                    class="form-control" placeholder="Enter Request ID (Optional)">
+                                            </div>
+
+                                            <!-- Assignee -->
+                                            <div class="col-md-4 mb-3">
+                                                <label for="assignee" class="form-label">Select Assignee:</label>
+                                                <select class="form-select" wire:model="assignee">
+                                                    <!-- Default option with empty value (shown when no selection is made) -->
+                                                    <option value="" disabled hidden>Select Assignee (Optional)
+                                                    </option>
+
+                                                    <!-- Loop through IT data -->
+                                                    @foreach($itData as $itName)
+                                                    <option
+                                                        value="{{ ucwords(strtolower($itName->empIt->first_name)) }} {{ ucwords(strtolower($itName->empIt->last_name)) }} {{ $itName->empIt->emp_id }}">
+                                                        {{ ucwords(strtolower($itName->empIt->first_name)) }}
+                                                        {{ ucwords(strtolower($itName->empIt->last_name)) }}
+                                                        ({{ $itName->empIt->emp_id }})
+                                                    </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-3 mb-3 d-flex justify-content-center">
+                                                <button wire:click.prevent="clearFilters"
+                                                    class="btn btn-secondary mt-3 me-2">Clear</button>
+
+                                                <button wire:click.prevent="exportRequests(5)"
+                                                    class="btn btn-primary mt-3">Download</button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="row">
+                                        @if($checkboxPendingModal)
+
+                                        <div class="d-flex justify-content-between mb-3">
+
+                                            <!-- Bulk Status Dropdown -->
+                                            <div class="col-md-4">
+                                                <label for="" class="" style="white-space: nowrap;"> Please select the
+                                                    status for multi selection</label>
+                                                <select wire:model="selectedStatus" class="req-selected-status"
+                                                    wire:click="bulkSelectedInprogress">
+                                                    <option value="" disabled hidden>Select Status</option>
+                                                    <option value="16">Inprogress</option>
+                                                </select>
+                                                @error('selectedStatus')
+                                                <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        @endif
+
+                                        @if($showBulkInprogressModal)
+                                        <div class="modal fade show d-block" tabindex="-1" role="dialog"
+                                            style="background-color: rgba(0, 0, 0, 0.5);">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">
+                                                            Reason for Inprogress
+                                                        </h5>
+                                                        <button type="button" class="btn-close"
+                                                            wire:click="closeBulkInprogressModal"
+                                                            aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body flex-column">
+                                                        <label for="reason" class="form-label">Reason <span
+                                                                class="text-danger">*</span></label>
+                                                        <textarea id="reason" class="form-control"
+                                                            wire:model.defer="pendingReason" rows="3"></textarea>
+                                                        @error('pendingReason')
+                                                        <span class="text-danger">{{ $message }}</span>
+                                                        @enderror
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            wire:click="closeBulkInprogressModal">Close</button>
+                                                        <button type="button" class="btn btn-primary"
+                                                            wire:click="bulkSubmitReason">Submit</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endif
+                                    </div>
+
+
+                                    <div class="col-lg-3 col-md-3 col-5 mb-5">
+                                        <div>
+                                            <label for="assignee" class="form-label">Select Assignee</label>
+                                            <select id="assignee" class="form-control"
+                                                wire:model="statusPenFilterAssigne"
+                                                wire:change="loadPendingRecordsByAssigne">
+                                                <option value="" disabled selected>-- Select Assignee --</option>
+                                                <option value="">All</option>
+                                                @foreach ($itAssigneMemebers as $member)
+                                                <option
+                                                    value="{{ $member['first_name'] }} {{ $member['last_name'] }} {{ $member['emp_id'] }}">
+                                                    {{ $member['first_name'] }} {{ $member['last_name'] }}
+                                                </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
                                     <div class="table-responsive req-table-res">
 
                                         <table class="custom-table">
-                                            @if($forIT->where('status_code', '5')->count() > 0)
+                                            @if($catalogPendingDetails->count() > 0)
                                             <thead>
 
                                                 <tr>
 
+                                                    <th class="req-table-head">Select
+                                                    </th>
                                                     <th scope="col" class="req-table-head">Employee ID
                                                         <span wire:click.debounce.500ms="toggleSortOrder('emp_id')"
                                                             style="cursor: pointer;">
@@ -1201,7 +2534,7 @@
 
                                                     </th>
 
-                                                    <th class="req-table-head">Catologue Request
+                                                    <th class="req-table-head">Catalog Request
                                                         <span wire:click.debounce.500ms="toggleSortOrder('category')"
                                                             style="cursor: pointer;">
                                                             @if($sortColumn == 'category')
@@ -1310,10 +2643,12 @@
                                                     </th>
 
 
-                                                    <th class="req-table-head-Remarks">
-                                                        Remarks</th>
-                                                    <th class="req-table-head">Change Status</th>
 
+                                                    <th class="req-table-head">Response Time</th>
+                                                    <th class="req-table-head">Change Status</th>
+                                                    <th class="req-table-head"> Files Upload</th>
+                                                    <th class="req-table-head">IT Uploaded Files</th>
+                                                    <th class="req-table-head">Created At</th>
                                                     <th class="req-table-head">Logs</th>
 
                                                 </tr>
@@ -1322,12 +2657,17 @@
                                             @endif
                                             <tbody>
 
-                                                @if($forIT->where('status_code', '5')->count() > 0)
-                                                @foreach ($forIT->where('status_code', '5') as $index =>$record)
+                                                @if($catalogPendingDetails->count() > 0)
+                                                @foreach ($catalogPendingDetails as $index =>$record)
                                                 @php
                                                 $ccToArray = explode(',', $record->cc_to);
                                                 @endphp
                                                 <tr>
+                                                    <td>
+                                                        <input type="checkbox" wire:model="selectedRequests"
+                                                            wire:click='checkboxPendingMultiSelection'
+                                                            value="{{ $record->id }}" wire:key=rcdID-{{ $record->id}}>
+                                                    </td>
 
                                                     <td scope="row">{{ $record->emp_id }}</td>
 
@@ -1349,64 +2689,180 @@
                                                     <td>{{ $record->mail ??'N/A' }}</td>
 
 
-                                                    <td class="view-td">
-                                                        @if($record->image_url)
-                                                        <a href="#" data-toggle="modal" class="requestAttachments"
-                                                            data-target="#attachmentsModal-{{ $record->id }}">
-                                                            <i class="fas fa-eye"></i> View Attachments
+                                                    <!-- emp file paths -->
+
+                                                    <td>
+                                                        @php
+                                                        $empImages = [];
+                                                        $empFiles = [];
+
+                                                        // Check if $record->file_paths is a string, array, or null
+                                                        $fileDataArray = null;
+
+                                                        if (isset($record->file_paths) &&
+                                                        is_string($record->file_paths))
+                                                        {
+                                                        $fileDataArray = json_decode($record->file_paths, true);
+                                                        } elseif (isset($record->file_paths) &&
+                                                        is_array($record->file_paths)) {
+                                                        $fileDataArray = $record->file_paths;
+                                                        }
+
+                                                        // Ensure $fileDataArray is a valid array before looping
+                                                        if (is_array($fileDataArray)) {
+                                                        // Separate empImages and files
+                                                        foreach ($fileDataArray as $fileData) {
+                                                        if (isset($fileData['mime_type'])) {
+                                                        if (strpos($fileData['mime_type'], 'image/') === 0) {
+                                                        $empImages[] = $fileData;
+                                                        } else {
+                                                        $empFiles[] = $fileData;
+                                                        }
+                                                        }
+                                                        }
+                                                        }
+                                                        @endphp
+
+
+
+
+                                                        @php
+
+                                                        $empImages = $empImages ?? [];
+                                                        $empFiles = $empFiles ?? [];
+                                                        @endphp
+                                                        <!-- Trigger Links -->
+                                                        @if (count($empImages) > 1)
+                                                        <a href="#"
+                                                            wire:click.prevent="showViewEmpImage({{ $record->id }})"
+                                                            style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                            View Images
                                                         </a>
-                                                        @else
-                                                        <span>-</span>
+                                                        @elseif (count($empImages) == 1)
+                                                        <a href="#"
+                                                            wire:click.prevent="showViewEmpImage({{ $record->id }})"
+                                                            style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                            View Image
+                                                        </a>
                                                         @endif
 
-                                                    </td>
+                                                        @if (count($empFiles) > 1)
+                                                        <a href="#"
+                                                            wire:click.prevent="showViewEmpFile({{ $record->id }})"
+                                                            style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                            View Files
+                                                        </a>
+                                                        @elseif (count($empFiles) == 1)
+                                                        <a href="#"
+                                                            wire:click.prevent="showViewEmpFile({{ $record->id }})"
+                                                            style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                            View File
+                                                        </a>
+                                                        @endif
+
+                                                        @if (count($empImages) == 0 && count($empFiles) == 0)
+                                                        <label for="">N/A</label>
+                                                        @endif
 
 
-                                                    <!-- Modal -->
-                                                    <div class="modal fade" id="attachmentsModal-{{ $record->id }}"
-                                                        tabindex="-1" role="dialog"
-                                                        aria-labelledby="attachmentsModalLabel-{{ $record->id }}"
-                                                        aria-hidden="true">
-                                                        <div class="modal-dialog modal-dialog-centered modal-lg"
-                                                            role="document">
-                                                            <div class="modal-content">
-                                                                <div class="modal-header">
-                                                                    <h5 class="modal-title"
-                                                                        id="attachmentsModalLabel-{{ $record->id }}">
-                                                                        Attachments</h5>
-                                                                    <button type="button" class="close"
-                                                                        data-dismiss="modal" aria-label="Close">
+                                                        {{-- view file popup --}}
+                                                        @if ($showViewEmpImageDialog && $currentImageRequesId ===
+                                                        $record->id)
+                                                        <div class="modal custom-modal" tabindex="-1" role="dialog"
+                                                            style="display: block;">
+                                                            <div class="modal-dialog custom-modal-dialog custom-modal-dialog-centered modal-lg"
+                                                                role="document">
+                                                                <div class="modal-content custom-modal-content">
+                                                                    <div class="modal-header custom-modal-header">
+                                                                        <h5 class="modal-title view-file">Attached
+                                                                            Images</h5>
+                                                                    </div>
+                                                                    <div class="modal-body custom-modal-body">
 
-                                                                    </button>
-                                                                </div>
-                                                                <div class="modal-body">
-                                                                    <!-- Swiper -->
-                                                                    <div class="swiper-container">
-                                                                        <div class="swiper-wrapper">
+                                                                        <div class="swiper-container">
 
-                                                                            <div class="swiper-slide reqResSwiper">
-
-                                                                                <img src="{{ $record->image_url }}"
-                                                                                    class="req-Res-Image" alt="Image">
+                                                                            <div class="swiper-wrapper">
+                                                                                @foreach ($empImages as $eImage)
+                                                                                @php
+                                                                                $base64FileE = $eImage['data'];
+                                                                                $mimeTypeE = $eImage['mime_type'];
+                                                                                @endphp
+                                                                                <div class="swiper-slide">
+                                                                                    <img src="data:{{ $mimeTypeE }};base64,{{ $base64FileE }}"
+                                                                                        class="img-fluid" alt="Image">
+                                                                                </div>
+                                                                                @endforeach
                                                                             </div>
                                                                         </div>
-                                                                        <!-- Add Pagination -->
-                                                                        <div class="swiper-pagination"></div>
-                                                                        <!-- Add Navigation -->
-                                                                        <div class="swiper-button-next"></div>
-                                                                        <div class="swiper-button-prev"></div>
                                                                     </div>
-                                                                </div>
-                                                                <div class="modal-footer">
-                                                                    <button type="button" class="btn text-white"
-                                                                        style="background-color: #02114f;"
-                                                                        data-dismiss="modal">Close</button>
+
+                                                                    <div class="modal-footer custom-modal-footer">
+                                                                        <button type="button" class="submit-btn"
+                                                                            wire:click.prevent="downloadImages({{ $record->id }})">Download</button>
+                                                                        <button type="button" class="cancel-btn1"
+                                                                            wire:click="closeViewEmpImage">Close</button>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </div>
+                                                        <div class="modal-backdrop fade show blurred-backdrop"></div>
+                                                        @endif
 
 
+                                                        @if ($showViewEmpFileDialog && $currentImageRequesId ===
+                                                        $record->id)
+                                                        <div class="modal" tabindex="-1" role="dialog"
+                                                            style="display: block;">
+                                                            <div class="modal-dialog modal-dialog-centered modal-md"
+                                                                role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title viewfile">View Files</h5>
+                                                                    </div>
+                                                                    <div class="modal-body"
+                                                                        style="max-height: 400px; overflow-y: auto;">
+                                                                        <ul class="list-group list-group-flush">
+
+                                                                            @foreach ($empFiles as $fileE)
+
+                                                                            @php
+
+                                                                            $base64FileE = $fileE['data'];
+
+                                                                            $mimeTypeE = $fileE['mime_type'];
+
+                                                                            $originalNameE = $fileE['original_name'];
+
+                                                                            @endphp
+
+                                                                            <li>
+
+                                                                                <a href="data:{{ $mimeTypeE }};base64,{{ $base64FileE }}"
+                                                                                    download="{{ $originalNameE }}"
+                                                                                    style="text-decoration: none; color: #007BFF; margin: 10px;">
+
+                                                                                    {{ $originalNameE}} <i
+                                                                                        class="fas fa-download"
+                                                                                        style="margin-left:5px"></i>
+
+                                                                                </a>
+
+                                                                            </li>
+
+                                                                            @endforeach
+                                                                        </ul>
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="cancel-btn1"
+                                                                            wire:click="closeViewEmpFile">Close</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-backdrop fade show blurred-backdrop"></div>
+                                                        @endif
+
+                                                    </td>
 
 
 
@@ -1424,40 +2880,409 @@
 
                                                     <td>{{ $record['assign_to'] }}</td>
 
-
-
-
-
-
-
                                                     <td>
-                                                        <form
-                                                            wire:submit.prevent="postPendingRemarks('{{ $record->id }}')">
-                                                            <div class="row">
-                                                                <div class="col-12 d-flex align-items-center">
-                                                                    <!-- Textarea takes most of the width -->
-                                                                    <textarea
-                                                                        wire:model.lazy="remarks.{{ $record->id }}"
-                                                                        class="form-control me-2 req-remarks-textarea"
-                                                                        style="flex-grow: 1;"></textarea>
+                                                        <div class="req-timebar">
+                                                            @if($record->created_at)
+                                                            @php
+                                                            // Parse the start and end dates
+                                                            $startDate = \Carbon\Carbon::parse($record->created_at);
 
-                                                                    <!-- Button is small and aligned to the right -->
-                                                                    <button type="submit"
-                                                                        style="background-color: #02114f;"
-                                                                        class="btn text-white p-2"
-                                                                        style="height: fit-content;" @if($loading ||
-                                                                        empty($remarks[$record->id]))
-                                                                        disabled @endif>Post</button>
-                                                                </div>
-                                                            </div>
+                                                            // If 'req_end_date' exists, use it; otherwise, use current
 
-                                                        </form>
+                                                            $endDate = $record->req_end_date ?
+                                                            \Carbon\Carbon::parse($record->req_end_date) :
+                                                            \Carbon\Carbon::now();
+
+                                                            // Calculate total elapsed time in minutes
+                                                            $totalElapsedMinutes = $startDate->diffInMinutes($endDate);
+
+                                                            // If there is additional service progress time, add it
+                                                            if (isset($record->total_ser_progress_time)) {
+                                                            $totalElapsedMinutes += $record->total_ser_progress_time;
+                                                            }
+
+                                                            // Calculate years, days, hours, and minutes from the
+
+                                                            $years = floor($totalElapsedMinutes / 525600);
+
+                                                            $remainingMinutes = $totalElapsedMinutes % 525600;
+
+                                                            $days = floor($remainingMinutes / 1440);
+                                                            $remainingMinutes %= 1440;
+
+                                                            $hours = floor($remainingMinutes / 60);
+                                                            $minutes = $remainingMinutes % 60;
+
+                                                            $maxTime = 30 * 1440; // 30 days * 1440 minutes
+                                                            $percentage = min(($totalElapsedMinutes / $maxTime) * 100,
+                                                            100);
+                                                            @endphp
+
+                                                            <!-- Display elapsed time with conditions -->
+                                                            @if ($totalElapsedMinutes < 60) <span>{{ $minutes }}
+                                                                minute{{ $minutes != 1 ? 's' : '' }}</span>
+                                                                @elseif ($totalElapsedMinutes < 1440) <span>{{ $hours }}
+                                                                    hour{{ $hours != 1 ? 's' : '' }} {{ $minutes }}
+                                                                    minute{{ $minutes != 1 ? 's' : '' }}</span>
+                                                                    @elseif ($totalElapsedMinutes < 525600) <span>
+                                                                        {{ $days }}
+                                                                        day{{ $days != 1 ? 's' : '' }} {{ $hours }}
+                                                                        hour{{ $hours != 1 ? 's' : '' }} {{ $minutes }}
+                                                                        minute{{ $minutes != 1 ? 's' : '' }}</span>
+                                                                        @else
+                                                                        <span>{{ $years }}
+                                                                            year{{ $years != 1 ? 's' : '' }}
+                                                                            {{ $days }} day{{ $days != 1 ? 's' : '' }}
+                                                                            {{ $hours }}
+                                                                            hour{{ $hours != 1 ? 's' : '' }}
+                                                                            {{ $minutes }}
+                                                                            minute{{ $minutes != 1 ? 's' : '' }}</span>
+                                                                        @endif
+
+                                                                        @else
+                                                                        <span>No time tracked</span>
+                                                                        @endif
+                                                        </div>
                                                     </td>
+
+
                                                     <td>
-                                                        <button wire:click="inprogressForDesks('{{ $record->id }}')"
+                                                        <button wire:click="selectedInprogress('{{ $record->id }}')"
+                                                            wire:key="inprogress-desks-{{ $record->id }}"
                                                             class="btn btn-white border-black text-black" @if($loading)
                                                             disabled @endif>Inprogress</button>
                                                     </td>
+
+
+                                                    @if($showInprogressModal)
+                                                    <div class="modal fade show d-block" tabindex="-1" role="dialog"
+                                                        style="background-color: rgba(0, 0, 0, 0.5);">
+                                                        <div class="modal-dialog modal-dialog-centered">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title">
+                                                                        Reason for Inprogress
+                                                                    </h5>
+                                                                    <button type="button" class="btn-close"
+                                                                        wire:click="closeInprogressModal"
+                                                                        aria-label="Close"></button>
+                                                                </div>
+                                                                <div class="modal-body flex-column">
+                                                                    <label for="reason" class="form-label">Reason <span
+                                                                            class="text-danger">*</span></label>
+                                                                    <textarea id="reason" class="form-control"
+                                                                        wire:model.defer="pendingReason"
+                                                                        rows="3"></textarea>
+                                                                    @error('pendingReason')
+                                                                    <span class="text-danger">{{ $message }}</span>
+                                                                    @enderror
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary"
+                                                                        wire:click="closeInprogressModal">Close</button>
+                                                                    <button type="button" class="btn btn-primary"
+                                                                        wire:click="inprogressForDesks({{  $selectedTaskId}})">Submit</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @endif
+
+
+
+                                                    <td>
+                                                        <!-- Attachments -->
+                                                        <div class="row mb-3">
+                                                            <div class="col-md-6">
+                                                                <div class="row">
+                                                                    <div class="col-4">
+                                                                        <p class="text-primary">
+                                                                            <label for="file"
+                                                                                class="vendor-asset-label">Attachments</label>
+
+                                                                        </p>
+                                                                    </div>
+                                                                    <div class="col-8">
+                                                                        <!-- File input hidden -->
+                                                                        <input id="fileInput-{{ $record->id }}"
+                                                                            type="file"
+                                                                            wire:model="cat_file_paths.{{ $record->id }}"
+                                                                            class="form-control-file" multiple
+                                                                            style="font-size: 12px; display: none;" />
+
+                                                                        <!-- Label triggers file input -->
+                                                                        <div class="d-flex"
+                                                                            style="align-items: baseline; gap: 5px;">
+                                                                            <button class="btn btn-outline-secondary"
+                                                                                type="button"
+                                                                                for="fileInput-{{ $record->id }}"
+                                                                                onclick="document.getElementById('fileInput-{{ $record->id }}').click();">
+                                                                                <i class="fa-solid fa-paperclip"></i>
+                                                                            </button>
+                                                                        </div>
+
+
+                                                                        <div wire:loading
+                                                                            wire:target="cat_file_paths.{{ $record->id }}"
+                                                                            class="mt-2">
+                                                                            <i class="fas fa-spinner fa-spin"></i>
+                                                                            Uploading...
+                                                                        </div>
+
+                                                                        @error('cat_file_paths.' . $record->id . '.*')
+                                                                        <span class="text-danger">{{ $message }}</span>
+                                                                        @enderror
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+
+                                                    </td>
+
+                                                    <!-- File Preview Modal -->
+                                                    @if($showFilePreviewModal)
+
+                                                    <div class="modal fade show d-block" tabindex="-1" role="dialog"
+                                                        style="background-color: rgba(0, 0, 0, 0.5);">
+                                                        <div class="modal-dialog modal-dialog-centered  modal-lg">
+                                                            <div class="modal-content">
+
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title" id="filePreviewModalLabel">
+                                                                        File
+                                                                        Preview</h5>
+                                                                    <button type="button" class="btn-close"
+                                                                        wire:click="hideFilePreviewModal"
+                                                                        aria-label="Close"></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <div class="d-flex flex-column align-items-center">
+                                                                        <h6>Selected Files</h6>
+                                                                        <div class="d-flex flex-wrap gap-3">
+                                                                            <!-- Loop through files and display previews -->
+                                                                            @foreach ($previews as $index => $preview)
+                                                                            <div class="file-preview-container text-center"
+                                                                                style="padding: 5px; border: 1px solid black; width: 120px; height: 120px; border-radius: 5px; position: relative; overflow: hidden;">
+                                                                                @if ($preview['type'] == 'image')
+                                                                                <img src="{{ $preview['url'] }}"
+                                                                                    alt="Preview" class="img-thumbnail"
+                                                                                    style="width: 75px; height: 75px;" />
+                                                                                <span class="mt-1 uploaded-file-name"
+                                                                                    style="display: block; width: 100%;">{{ $preview['name'] }}</span>
+                                                                                @else
+                                                                                <div
+                                                                                    class="d-flex flex-column align-items-center">
+                                                                                    <i class="fas fa-file fa-3x"
+                                                                                        style="width: 75px; height: 75px;"></i>
+                                                                                    <span
+                                                                                        class="mt-1 uploaded-file-name"
+                                                                                        style="display: block; width: 100%;">{{ $preview['name'] }}</span>
+                                                                                </div>
+                                                                                @endif
+
+                                                                                <!-- Delete icon -->
+                                                                                <button type="button"
+                                                                                    class="delete-icon btn btn-danger"
+                                                                                    wire:click="removeFile({{ $index }})"
+                                                                                    style="position: absolute; top: 5%; right: 5%; z-index: 5; font-size: 12px;">
+                                                                                    <i class="fas fa-times"></i>
+                                                                                </button>
+                                                                            </div>
+                                                                            @endforeach
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary"
+                                                                        wire:click="hideFilePreviewModal">Close</button>
+                                                                    <button type="button" class="btn btn-primary"
+                                                                        wire:click="uploadFiles({{ $selectedRecordId }})">Upload
+                                                                        Files</button>
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    @endif
+
+                                                    <!-- it file Paths -->
+
+                                                    <td>
+                                                        @php
+                                                        $images = [];
+                                                        $files = [];
+
+
+                                                        // Check if $record->cat_file_paths is a string, array, or null
+                                                        $fileDataArray = null;
+
+                                                        if (isset($record->cat_file_paths) &&
+                                                        is_string($record->cat_file_paths))
+                                                        {
+                                                        $fileDataArray = json_decode($record->cat_file_paths, true);
+                                                        } elseif (isset($record->cat_file_paths) &&
+                                                        is_array($record->cat_file_paths)) {
+                                                        $fileDataArray = $record->cat_file_paths;
+                                                        }
+
+                                                        // Ensure $fileDataArray is a valid array before looping
+                                                        if (is_array($fileDataArray)) {
+                                                        // Separate images and files
+                                                        foreach ($fileDataArray as $fileData) {
+                                                        if (isset($fileData['mime_type'])) {
+                                                        if (strpos($fileData['mime_type'], 'image/') === 0) {
+                                                        $images[] = $fileData;
+                                                        } else {
+                                                        $files[] = $fileData;
+                                                        }
+                                                        }
+                                                        }
+                                                        }
+                                                        @endphp
+
+
+
+
+                                                        @php
+
+                                                        $images = $images ?? [];
+                                                        $files = $files ?? [];
+                                                        @endphp
+                                                        <!-- Trigger Links -->
+                                                        @if (count($images) > 1)
+                                                        <a href="#"
+                                                            wire:click.prevent="showViewImage({{ $record->id }})"
+                                                            style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                            View Images
+                                                        </a>
+                                                        @elseif (count($images) == 1)
+                                                        <a href="#"
+                                                            wire:click.prevent="showViewImage({{ $record->id }})"
+                                                            style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                            View Image
+                                                        </a>
+                                                        @endif
+
+                                                        @if (count($files) > 1)
+                                                        <a href="#" wire:click.prevent="showViewFile({{ $record->id }})"
+                                                            style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;margin-left:2px;">
+                                                            View Files
+                                                        </a>
+                                                        @elseif (count($files) == 1)
+                                                        <a href="#" wire:click.prevent="showViewFile({{ $record->id }})"
+                                                            style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                            View File
+                                                        </a>
+                                                        @endif
+
+                                                        @if (count($images) == 0 && count($files) == 0)
+                                                        <label for="">N/A</label>
+                                                        @endif
+
+                                                        {{-- view file popup --}}
+                                                        @if ($showViewImageDialog && $currentImageRequesId ===
+                                                        $record->id)
+                                                        <div class="modal custom-modal" tabindex="-1" role="dialog"
+                                                            style="display: block;">
+                                                            <div class="modal-dialog custom-modal-dialog custom-modal-dialog-centered modal-lg"
+                                                                role="document">
+                                                                <div class="modal-content custom-modal-content">
+                                                                    <div class="modal-header custom-modal-header">
+                                                                        <h5 class="modal-title view-file">Attached
+                                                                            Images</h5>
+                                                                    </div>
+                                                                    <div class="modal-body custom-modal-body">
+                                                                        <div class="swiper-container">
+                                                                            <div class="swiper-wrapper">
+                                                                                @foreach ($images as $image)
+                                                                                @php
+                                                                                $base64File = $image['data'];
+                                                                                $mimeType = $image['mime_type'];
+                                                                                @endphp
+                                                                                <div class="swiper-slide">
+                                                                                    <img src="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                                                        class="img-fluid" alt="Image">
+                                                                                </div>
+                                                                                @endforeach
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="modal-footer custom-modal-footer">
+                                                                        <button type="button" class="submit-btn"
+                                                                            wire:click.prevent="downloadITImages({{ $record->id }})">Download</button>
+                                                                        <button type="button" class="cancel-btn1"
+                                                                            wire:click="closeViewImage">Close</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-backdrop fade show blurred-backdrop"></div>
+                                                        @endif
+
+
+                                                        @if ($showViewFileDialog && $currentImageRequesId ===
+                                                        $record->id)
+                                                        <div class="modal" tabindex="-1" role="dialog"
+                                                            style="display: block;">
+                                                            <div class="modal-dialog modal-dialog-centered modal-md"
+                                                                role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title viewfile">View Files</h5>
+                                                                    </div>
+                                                                    <div class="modal-body"
+                                                                        style="max-height: 400px; overflow-y: auto;">
+                                                                        <ul class="list-group list-group-flush">
+
+                                                                            @foreach ($files as $file)
+
+                                                                            @php
+
+                                                                            $base64File = $file['data'];
+
+                                                                            $mimeType = $file['mime_type'];
+
+                                                                            $originalName = $file['original_name'];
+
+                                                                            @endphp
+
+                                                                            <li>
+
+                                                                                <a href="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                                                    download="{{ $originalName }}"
+                                                                                    style="text-decoration: none; color: #007BFF; margin: 10px;">
+
+                                                                                    {{ $originalName }} <i
+                                                                                        class="fas fa-download"
+                                                                                        style="margin-left:5px"></i>
+
+                                                                                </a>
+
+                                                                            </li>
+
+                                                                            @endforeach
+                                                                        </ul>
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="cancel-btn1"
+                                                                            wire:click="closeViewFile">Close</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-backdrop fade show blurred-backdrop"></div>
+                                                        @endif
+
+                                                    </td>
+
+                                                    <td class="text-nowrap">
+                                                        {{ \Carbon\Carbon::parse($record->created_at)->format('d-M-Y') ?? 'N/A' }}
+                                                    </td>
+
+
                                                     <td>
                                                         <i wire:click="loadLogs('{{ $record->request_id }}')"
                                                             class="fas fa-clock-rotate-left"
@@ -1468,7 +3293,7 @@
 
 
                                                 <tr class="req-cc-tr">
-                                                    <td colspan="19" class="req-cc-td">
+                                                    <td colspan="20" class="req-cc-td">
                                                         <div class="req-cc-div">
                                                             <strong style="margin-left: 5px;">CC TO: </strong>
                                                             {{ (empty($ccToArray) || (count($ccToArray) === 1 && $ccToArray[0] === '-')) ? 'N/A' : implode(', ', $ccToArray) }}
@@ -1505,21 +3330,194 @@
 
                             <div>
                                 <h3 class="req-inprogress-heading">
-                                    In Progress Requests</h3>
+                                    InProgress Requests</h3>
                             </div>
 
                             <div class="row ">
 
                                 <div class="col-12 mt-2">
 
+                                    <div class="container export-main">
+                                        <h5 class="mb-4">Export Catalog</h5>
+
+                                        <div class="row"
+                                            style="display: flex;justify-content: space-evenly;align-items: center;">
+                                            <!-- Export Format -->
+                                            <div class="col-md-4 mb-3">
+                                                <label for="format" class="form-label">Export Format:</label>
+                                                <select id="format" wire:model="exportFormat" class="form-select">
+                                                    <option value="" selected disabled hidden>Select Export Format
+                                                    </option>
+                                                    <option value="excel">Excel</option>
+                                                    <option value="csv">CSV</option>
+                                                    <option value="pdf">PDF</option>
+                                                </select>
+                                            </div>
+
+                                            <!-- Request ID -->
+                                            <div class="col-md-4 mb-3">
+                                                <label for="requestId" class="form-label">Catalog ID:</label>
+                                                <input id="requestId" type="text" wire:model="requestId"
+                                                    class="form-control" placeholder="Enter Request ID (Optional)">
+                                            </div>
+
+                                            <!-- Assignee -->
+                                            <div class="col-md-4 mb-3">
+                                                <label for="assignee" class="form-label">Select Assignee:</label>
+                                                <select class="form-select" wire:model="assignee">
+                                                    <!-- Default option with empty value (shown when no selection is made) -->
+                                                    <option value="" disabled hidden>Select Assignee (Optional)</option>
+
+                                                    <!-- Loop through IT data -->
+                                                    @foreach($itData as $itName)
+                                                    <option
+                                                        value="{{ ucwords(strtolower($itName->empIt->first_name)) }} {{ ucwords(strtolower($itName->empIt->last_name)) }} {{ $itName->empIt->emp_id }}">
+                                                        {{ ucwords(strtolower($itName->empIt->first_name)) }}
+                                                        {{ ucwords(strtolower($itName->empIt->last_name)) }}
+                                                        ({{ $itName->empIt->emp_id }})
+                                                    </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-3 mb-3 d-flex justify-content-center">
+                                                <button wire:click.prevent="clearFilters"
+                                                    class="btn btn-secondary mt-3 me-2">Clear</button>
+
+                                                <button wire:click.prevent="exportRequests(16)"
+                                                    class="btn btn-primary mt-3">Download</button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="row">
+                                        @if($checkboxClosingModal)
+
+                                        <div class="d-flex justify-content-between mb-3">
+
+                                            <!-- Bulk Status Dropdown -->
+                                            <div class="col-md-4">
+                                                <label for="" class="" style="white-space: nowrap;"> Please select the
+                                                    status for multi-selection</label>
+                                                <select wire:change="handleBulkInprogressStatus($event.target.value)"
+                                                    class="req-selected-status">
+                                                    <option value="" selected disabled hidden>Select Status</option>
+                                                    <option value="5">Pending</option>
+                                                    <option value="11">Completed</option>
+                                                </select>
+                                                @error('selectedStatus')
+                                                <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+
+                                        </div>
+                                        @endif
+                                    </div>
+
+                                    @if($showBulkPendingModal)
+                                    <div class="modal fade show d-block" tabindex="-1" role="dialog"
+                                        style="background-color: rgba(0, 0, 0, 0.5);">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">
+                                                        Reason for Pending
+                                                    </h5>
+                                                    <button type="button" class="btn-close"
+                                                        wire:click="closeBulkPendingModal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body flex-column">
+                                                    <label for="reason" class="form-label">Reason <span
+                                                            class="text-danger">*</span></label>
+                                                    <textarea id="reason" class="form-control"
+                                                        wire:model.defer="pendingReason" rows="3"></textarea>
+                                                    @error('pendingReason')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                    @enderror
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        wire:click="closeBulkPendingModal">Close</button>
+                                                    <button type="button" class="btn btn-primary"
+                                                        wire:click="bulkPendingForDesks">Submit</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endif
+
+                                    @if($showBulkClosedModal)
+                                    <div class="modal fade show d-block" tabindex="-1" role="dialog"
+                                        style="background-color: rgba(0, 0, 0, 0.5);">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">
+                                                        Reason for Closed
+                                                    </h5>
+                                                    <button type="button" class="btn-close"
+                                                        wire:click="closeBulkClosedModal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body flex-column">
+                                                    <label for="reason" class="form-label">Reason <span
+                                                            class="text-danger">*</span></label>
+                                                    <textarea id="reason" class="form-control"
+                                                        wire:model.defer="pendingReason" rows="3"></textarea>
+                                                    @error('pendingReason')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                    @enderror
+                                                </div>
+
+                                                <div class="modal-body flex-column">
+                                                    <label for="reason" class="form-label">Reason
+                                                        (Customer Visible) <span class="text-danger">*</span></label>
+                                                    <textarea id="reason" class="form-control"
+                                                        wire:model.defer="customerVisibleNotes" rows="3"></textarea>
+                                                    @error('customerVisibleNotes')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                    @enderror
+                                                </div>
+
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        wire:click="closeBulkClosedModal">Close</button>
+                                                    <button type="button" class="btn btn-primary"
+                                                        wire:click="bulkCloseForDesks">Submit</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endif
+
+
+                                    <div class="col-lg-3 col-md-3 col-5 mb-5">
+                                        <div>
+                                            <label for="assignee" class="form-label">Select Assignee</label>
+                                            <select id="assignee" class="form-control"
+                                                wire:model="statusInproFilterAssigne"
+                                                wire:change="loadInprogessRecordsByAssigne">
+                                                <option value="" disabled selected>-- Select Assignee --</option>
+                                                <option value="">All</option>
+                                                @foreach ($itAssigneMemebers as $member)
+                                                <option
+                                                    value="{{ $member['first_name'] }} {{ $member['last_name'] }} {{ $member['emp_id'] }}">
+                                                    {{ $member['first_name'] }} {{ $member['last_name'] }}
+                                                </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
+
                                     <div class="table-responsive req-table-res">
 
                                         <table class="custom-table">
-                                            @if($forIT->where('status_code', '16')->count() > 0)
+                                            @if($catalogInprogressDetails->count() > 0)
                                             <thead>
 
                                                 <tr>
-
+                                                    <th class="req-table-head">Select</th>
                                                     <th scope="col" class="req-table-head">Employee ID
                                                         <span wire:click.debounce.500ms="toggleSortOrder('emp_id')"
                                                             style="cursor: pointer;">
@@ -1536,7 +3534,7 @@
 
                                                     </th>
 
-                                                    <th class="req-table-head">Catologue Request
+                                                    <th class="req-table-head">Catalog Request
                                                         <span wire:click.debounce.500ms="toggleSortOrder('category')"
                                                             style="cursor: pointer;">
                                                             @if($sortColumn == 'category')
@@ -1644,10 +3642,13 @@
                                                         </span>
                                                     </th>
 
-                                                    <th class="req-table-head-Remarks">
-                                                        Remarks</th>
+
                                                     <th class="req-table-head">Time tracker</th>
+                                                    <th class="req-table-head">Response time</th>
                                                     <th class="req-table-head">Change Status</th>
+                                                    <th class="req-table-head"> Files Upload</th>
+                                                    <th class="req-table-head">IT Uploaded Files</th>
+                                                    <th class="req-table-head">Created At</th>
                                                     <th class="req-table-head">Logs</th>
 
                                                 </tr>
@@ -1656,13 +3657,18 @@
                                             @endif
                                             <tbody>
 
-                                                @if($forIT->where('status_code', '16')->count() > 0)
-                                                @foreach ($forIT->where('status_code', '16') as $index =>$record)
+                                                @if($catalogInprogressDetails->count() > 0)
+                                                @foreach ($catalogInprogressDetails as $index =>$record)
                                                 @php
                                                 $ccToArray = explode(',', $record->cc_to);
                                                 @endphp
                                                 <tr>
 
+                                                    <td>
+                                                        <input type="checkbox" wire:model="selectedRequests"
+                                                            wire:click='checkboxClosingMultiSelection'
+                                                            value="{{ $record->id }}" wire:key=rcrdID-{{ $record->id}}>
+                                                    </td>
                                                     <td scope="row">{{ $record->emp_id }}</td>
 
                                                     <td>{{ $record->emp->first_name }} {{ $record->emp->last_name }}
@@ -1683,62 +3689,184 @@
                                                     <td>{{ $record->mail ??'N/A' }}</td>
 
 
-                                                    <td class="view-td">
-                                                        @if($record->image_url)
-                                                        <a href="#" data-toggle="modal" class="requestAttachments"
-                                                            data-target="#attachmentsModal-{{ $record->id }}">
-                                                            <i class="fas fa-eye"></i> View Attachments
+
+
+                                                    <!-- emp file paths -->
+
+                                                    <td>
+                                                        @php
+                                                        $empImages = [];
+                                                        $empFiles = [];
+
+                                                        // Check if $record->file_paths is a string, array, or null
+                                                        $fileDataArray = null;
+
+                                                        if (isset($record->file_paths) &&
+                                                        is_string($record->file_paths))
+                                                        {
+                                                        $fileDataArray = json_decode($record->file_paths, true);
+                                                        } elseif (isset($record->file_paths) &&
+                                                        is_array($record->file_paths)) {
+                                                        $fileDataArray = $record->file_paths;
+                                                        }
+
+                                                        // Ensure $fileDataArray is a valid array before looping
+                                                        if (is_array($fileDataArray)) {
+                                                        // Separate empImages and files
+                                                        foreach ($fileDataArray as $fileData) {
+                                                        if (isset($fileData['mime_type'])) {
+                                                        if (strpos($fileData['mime_type'], 'image/') === 0) {
+                                                        $empImages[] = $fileData;
+                                                        } else {
+                                                        $empFiles[] = $fileData;
+                                                        }
+                                                        }
+                                                        }
+                                                        }
+                                                        @endphp
+
+
+
+
+                                                        @php
+
+                                                        $empImages = $empImages ?? [];
+                                                        $empFiles = $empFiles ?? [];
+                                                        @endphp
+                                                        <!-- Trigger Links -->
+                                                        @if (count($empImages) > 1)
+                                                        <a href="#"
+                                                            wire:click.prevent="showViewEmpImage({{ $record->id }})"
+                                                            style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                            View Images
                                                         </a>
-                                                        @else
-                                                        <span>-</span>
+                                                        @elseif (count($empImages) == 1)
+                                                        <a href="#"
+                                                            wire:click.prevent="showViewEmpImage({{ $record->id }})"
+                                                            style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                            View Image
+                                                        </a>
+                                                        @endif
+
+                                                        @if (count($empFiles) > 1)
+                                                        <a href="#"
+                                                            wire:click.prevent="showViewEmpFile({{ $record->id }})"
+                                                            style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                            View Files
+                                                        </a>
+                                                        @elseif (count($empFiles) == 1)
+                                                        <a href="#"
+                                                            wire:click.prevent="showViewEmpFile({{ $record->id }})"
+                                                            style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                            View File
+                                                        </a>
+                                                        @endif
+
+                                                        @if (count($empImages) == 0 && count($empFiles) == 0)
+                                                        <label for="">N/A</label>
+                                                        @endif
+
+
+                                                        {{-- view file popup --}}
+                                                        @if ($showViewEmpImageDialog && $currentImageRequesId ===
+                                                        $record->id)
+                                                        <div class="modal custom-modal" tabindex="-1" role="dialog"
+                                                            style="display: block;">
+                                                            <div class="modal-dialog custom-modal-dialog custom-modal-dialog-centered modal-lg"
+                                                                role="document">
+                                                                <div class="modal-content custom-modal-content">
+                                                                    <div class="modal-header custom-modal-header">
+                                                                        <h5 class="modal-title view-file">Attached
+                                                                            Images</h5>
+                                                                    </div>
+                                                                    <div class="modal-body custom-modal-body">
+
+                                                                        <div class="swiper-container">
+
+                                                                            <div class="swiper-wrapper">
+                                                                                @foreach ($empImages as $eImage)
+                                                                                @php
+                                                                                $base64FileE = $eImage['data'];
+                                                                                $mimeTypeE = $eImage['mime_type'];
+                                                                                @endphp
+                                                                                <div class="swiper-slide">
+                                                                                    <img src="data:{{ $mimeTypeE }};base64,{{ $base64FileE }}"
+                                                                                        class="img-fluid" alt="Image">
+                                                                                </div>
+                                                                                @endforeach
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="modal-footer custom-modal-footer">
+                                                                        <button type="button" class="submit-btn"
+                                                                            wire:click.prevent="downloadImages({{ $record->id }})">Download</button>
+                                                                        <button type="button" class="cancel-btn1"
+                                                                            wire:click="closeViewEmpImage">Close</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-backdrop fade show blurred-backdrop"></div>
+                                                        @endif
+
+
+                                                        @if ($showViewEmpFileDialog && $currentImageRequesId ===
+                                                        $record->id)
+                                                        <div class="modal" tabindex="-1" role="dialog"
+                                                            style="display: block;">
+                                                            <div class="modal-dialog modal-dialog-centered modal-md"
+                                                                role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title viewfile">View Files</h5>
+                                                                    </div>
+                                                                    <div class="modal-body"
+                                                                        style="max-height: 400px; overflow-y: auto;">
+                                                                        <ul class="list-group list-group-flush">
+
+                                                                            @foreach ($empFiles as $fileE)
+
+                                                                            @php
+
+                                                                            $base64FileE = $fileE['data'];
+
+                                                                            $mimeTypeE = $fileE['mime_type'];
+
+                                                                            $originalNameE = $fileE['original_name'];
+
+                                                                            @endphp
+
+                                                                            <li>
+
+                                                                                <a href="data:{{ $mimeTypeE }};base64,{{ $base64FileE }}"
+                                                                                    download="{{ $originalNameE }}"
+                                                                                    style="text-decoration: none; color: #007BFF; margin: 10px;">
+
+                                                                                    {{ $originalNameE}} <i
+                                                                                        class="fas fa-download"
+                                                                                        style="margin-left:5px"></i>
+
+                                                                                </a>
+
+                                                                            </li>
+
+                                                                            @endforeach
+                                                                        </ul>
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="cancel-btn1"
+                                                                            wire:click="closeViewEmpFile">Close</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-backdrop fade show blurred-backdrop"></div>
                                                         @endif
 
                                                     </td>
 
 
-                                                    <!-- Modal -->
-                                                    <div class="modal fade" id="attachmentsModal-{{ $record->id }}"
-                                                        tabindex="-1" role="dialog"
-                                                        aria-labelledby="attachmentsModalLabel-{{ $record->id }}"
-                                                        aria-hidden="true">
-                                                        <div class="modal-dialog modal-dialog-centered modal-lg"
-                                                            role="document">
-                                                            <div class="modal-content">
-                                                                <div class="modal-header">
-                                                                    <h5 class="modal-title"
-                                                                        id="attachmentsModalLabel-{{ $record->id }}">
-                                                                        Attachments</h5>
-                                                                    <button type="button" class="close"
-                                                                        data-dismiss="modal" aria-label="Close">
-
-                                                                    </button>
-                                                                </div>
-                                                                <div class="modal-body">
-                                                                    <!-- Swiper -->
-                                                                    <div class="swiper-container">
-                                                                        <div class="swiper-wrapper">
-
-                                                                            <div class="swiper-slide reqResSwiper">
-
-                                                                                <img src="{{ $record->image_url }}"
-                                                                                    class="req-Res-Image" alt="Image">
-                                                                            </div>
-                                                                        </div>
-                                                                        <!-- Add Pagination -->
-                                                                        <div class="swiper-pagination"></div>
-                                                                        <!-- Add Navigation -->
-                                                                        <div class="swiper-button-next"></div>
-                                                                        <div class="swiper-button-prev"></div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="modal-footer">
-                                                                    <button type="button" class="btn text-white"
-                                                                        style="background-color: #02114f;"
-                                                                        data-dismiss="modal">Close</button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
 
 
                                                     <td>{{ $record->priority?? 'N/A' }}</td>
@@ -1757,29 +3885,6 @@
 
 
 
-                                                    <td>
-                                                        <form
-                                                            wire:submit.prevent="postInprogressRemarks('{{ $record->id }}')">
-                                                            <div class="row">
-                                                                <div class="col-12 d-flex align-items-center">
-                                                                    <!-- Textarea takes most of the width -->
-                                                                    <textarea
-                                                                        wire:model.lazy="remarks.{{ $record->id }}"
-                                                                        class="form-control me-2 req-remarks-textarea"
-                                                                        style="flex-grow: 1;"></textarea>
-
-                                                                    <!-- Button is small and aligned to the right -->
-                                                                    <button type="submit"
-                                                                        style="background-color: #02114f;"
-                                                                        class="btn text-white p-2"
-                                                                        style="height: fit-content;" @if($loading ||
-                                                                        empty($remarks[$record->id]))
-                                                                        disabled @endif>Post</button>
-                                                                </div>
-                                                            </div>
-
-                                                        </form>
-                                                    </td>
 
                                                     <td>
 
@@ -1787,14 +3892,14 @@
 
 
                                                             @if($record->status_code == '16' &&
-                                                            $record->in_progress_since)
+                                                            $record->cat_progress_since)
                                                             @php
 
                                                             $totalElapsedMinutes =
-                                                            \Carbon\Carbon::parse($record->in_progress_since)->diffInMinutes(now());
+                                                            \Carbon\Carbon::parse($record->cat_progress_since)->diffInMinutes(now());
 
-                                                            if (isset($record->total_in_progress_time)) {
-                                                            $totalElapsedMinutes += $record->total_in_progress_time;
+                                                            if (isset($record->total_cat_progress_time)) {
+                                                            $totalElapsedMinutes += $record->total_cat_progress_time;
                                                             }
 
                                                             $days = floor($totalElapsedMinutes / 1440);
@@ -1838,14 +3943,480 @@
                                                         </div>
                                                     </td>
 
-                                                    <td style="white-space: nowrap;">
-                                                        <button wire:click="pendingForDesks('{{$record->id}}')"
-                                                            class="btn btn-white border-black text-black" @if($loading)
-                                                            disabled @endif>Pending </button>
 
-                                                        <button wire:click="openForDesks('{{$record->id}}')"
-                                                            class="btn btn-white border-black text-black" @if($loading)
-                                                            disabled @endif>Close </button>
+                                                    <td>
+                                                        <div class="req-timebar">
+                                                            @if($record->created_at)
+                                                            @php
+                                                            // Parse the start and end dates
+                                                            $startDate = \Carbon\Carbon::parse($record->created_at);
+
+                                                            // If 'req_end_date' exists, use it; otherwise, use current
+
+                                                            $endDate = $record->req_end_date ?
+                                                            \Carbon\Carbon::parse($record->req_end_date) :
+                                                            \Carbon\Carbon::now();
+
+                                                            // Calculate total elapsed time in minutes
+                                                            $totalElapsedMinutes = $startDate->diffInMinutes($endDate);
+
+                                                            // If there is additional service progress time, add it
+                                                            if (isset($record->total_ser_progress_time)) {
+                                                            $totalElapsedMinutes += $record->total_ser_progress_time;
+                                                            }
+
+                                                            // Calculate years, days, hours, and minutes from the
+
+                                                            $years = floor($totalElapsedMinutes / 525600);
+
+
+                                                            $remainingMinutes = $totalElapsedMinutes % 525600;
+
+                                                            $days = floor($remainingMinutes / 1440);
+                                                            $remainingMinutes %= 1440;
+
+                                                            $hours = floor($remainingMinutes / 60);
+                                                            $minutes = $remainingMinutes % 60;
+
+                                                            $maxTime = 30 * 1440; // 30 days * 1440 minutes
+                                                            $percentage = min(($totalElapsedMinutes / $maxTime) * 100,
+                                                            100);
+                                                            @endphp
+
+                                                            <!-- Display elapsed time with conditions -->
+                                                            @if ($totalElapsedMinutes < 60) <span>{{ $minutes }}
+                                                                minute{{ $minutes != 1 ? 's' : '' }}</span>
+                                                                @elseif ($totalElapsedMinutes < 1440) <span>{{ $hours }}
+                                                                    hour{{ $hours != 1 ? 's' : '' }} {{ $minutes }}
+                                                                    minute{{ $minutes != 1 ? 's' : '' }}</span>
+                                                                    @elseif ($totalElapsedMinutes < 525600) <span>
+                                                                        {{ $days }}
+                                                                        day{{ $days != 1 ? 's' : '' }} {{ $hours }}
+                                                                        hour{{ $hours != 1 ? 's' : '' }} {{ $minutes }}
+                                                                        minute{{ $minutes != 1 ? 's' : '' }}</span>
+                                                                        @else
+                                                                        <span>{{ $years }}
+                                                                            year{{ $years != 1 ? 's' : '' }}
+                                                                            {{ $days }} day{{ $days != 1 ? 's' : '' }}
+                                                                            {{ $hours }}
+                                                                            hour{{ $hours != 1 ? 's' : '' }}
+                                                                            {{ $minutes }}
+                                                                            minute{{ $minutes != 1 ? 's' : '' }}</span>
+                                                                        @endif
+
+
+
+                                                                        @else
+                                                                        <span>No time tracked</span>
+                                                                        @endif
+                                                        </div>
+                                                    </td>
+
+                                                    <td>
+                                                        <div class="req-changeStatus ">
+                                                            <button wire:click="selectedPending('{{ $record->id }}')"
+                                                                wire:key="pending-desks-{{ $record->id}}"
+                                                                class="btn btn-white border-black text-black"
+                                                                @if($loading) disabled @endif>Pending</button>
+
+
+                                                            @if($showPendingModal)
+                                                            <div class="modal fade show d-block" tabindex="-1"
+                                                                role="dialog"
+                                                                style="background-color: rgba(0, 0, 0, 0.5);">
+                                                                <div class="modal-dialog modal-dialog-centered">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title">
+                                                                                Reason for Pending
+                                                                            </h5>
+                                                                            <button type="button" class="btn-close"
+                                                                                wire:click="closePendingModal"
+                                                                                aria-label="Close"></button>
+                                                                        </div>
+                                                                        <div class="modal-body flex-column">
+                                                                            <label for="reason"
+                                                                                class="form-label">Reason <span
+                                                                                    class="text-danger">*</span></label>
+                                                                            <textarea id="reason" class="form-control"
+                                                                                wire:model.defer="pendingReason"
+                                                                                rows="3"></textarea>
+                                                                            @error('pendingReason')
+                                                                            <span
+                                                                                class="text-danger">{{ $message }}</span>
+                                                                            @enderror
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button type="button"
+                                                                                class="btn btn-secondary"
+                                                                                wire:click="closePendingModal">Close</button>
+                                                                            <button type="button"
+                                                                                class="btn btn-primary"
+                                                                                wire:click="pendingForDesks({{ $selectedTaskId }})">Submit</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            @endif
+
+
+                                                            <button wire:click="selectedClosed('{{ $record->id }}')"
+                                                                wire:key="close-desks-{{ $record->id}}"
+                                                                class="btn btn-white border-black text-black"
+                                                                @if($loading) disabled @endif>Close</button>
+
+
+                                                            @if($showClosedModal)
+                                                            <div class="modal fade show d-block" tabindex="-1"
+                                                                role="dialog"
+                                                                style="background-color: rgba(0, 0, 0, 0.5);">
+                                                                <div class="modal-dialog modal-dialog-centered">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title">
+                                                                                Reason for Closed
+                                                                            </h5>
+                                                                            <button type="button" class="btn-close"
+                                                                                wire:click="closeClosedModal"
+                                                                                aria-label="Close"></button>
+                                                                        </div>
+                                                                        <div class="modal-body flex-column">
+                                                                            <label for="reason"
+                                                                                class="form-label">Reason <span
+                                                                                    class="text-danger">*</span></label>
+                                                                            <textarea id="reason" class="form-control"
+                                                                                wire:model.defer="pendingReason"
+                                                                                rows="3"></textarea>
+                                                                            @error('pendingReason')
+                                                                            <span
+                                                                                class="text-danger">{{ $message }}</span>
+                                                                            @enderror
+                                                                        </div>
+
+                                                                        <div class="modal-body flex-column">
+                                                                            <label for="reason"
+                                                                                class="form-label">Reason
+                                                                                (Customer Visible) <span
+                                                                                    class="text-danger">*</span></label>
+                                                                            <textarea id="reason" class="form-control"
+                                                                                wire:model.defer="customerVisibleNotes"
+                                                                                rows="3"></textarea>
+                                                                            @error('customerVisibleNotes')
+                                                                            <span
+                                                                                class="text-danger">{{ $message }}</span>
+                                                                            @enderror
+                                                                        </div>
+
+                                                                        <div class="modal-footer">
+                                                                            <button type="button"
+                                                                                class="btn btn-secondary"
+                                                                                wire:click="closeClosedModal">Close</button>
+                                                                            <button type="button"
+                                                                                class="btn btn-primary"
+                                                                                wire:click="closeForDesks({{ $selectedTaskId }})">Submit</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            @endif
+
+                                                        </div>
+
+                                                    </td>
+
+
+
+                                                    <td>
+                                                        <!-- Attachments -->
+                                                        <div class="row mb-3">
+                                                            <div class="col-md-6">
+                                                                <div class="row">
+                                                                    <div class="col-4">
+                                                                        <p class="text-primary">
+                                                                            <label for="file"
+                                                                                class="vendor-asset-label">Attachments</label>
+
+                                                                        </p>
+                                                                    </div>
+                                                                    <div class="col-8">
+                                                                        <!-- File input hidden -->
+                                                                        <input id="fileInput-{{ $record->id }}"
+                                                                            type="file"
+                                                                            wire:model="cat_file_paths.{{ $record->id }}"
+                                                                            class="form-control-file" multiple
+                                                                            style="font-size: 12px; display: none;" />
+
+                                                                        <!-- Label triggers file input -->
+                                                                        <div class="d-flex"
+                                                                            style="align-items: baseline; gap: 5px;">
+                                                                            <button class="btn btn-outline-secondary"
+                                                                                type="button"
+                                                                                for="fileInput-{{ $record->id }}"
+                                                                                onclick="document.getElementById('fileInput-{{ $record->id }}').click();">
+                                                                                <i class="fa-solid fa-paperclip"></i>
+                                                                            </button>
+                                                                        </div>
+
+
+                                                                        <div wire:loading
+                                                                            wire:target="cat_file_paths.{{ $record->id }}"
+                                                                            class="mt-2">
+                                                                            <i class="fas fa-spinner fa-spin"></i>
+                                                                            Uploading...
+                                                                        </div>
+
+                                                                        @error('cat_file_paths.' . $record->id . '.*')
+                                                                        <span class="text-danger">{{ $message }}</span>
+                                                                        @enderror
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+
+                                                    </td>
+
+                                                    <!-- File Preview Modal -->
+                                                    @if($showFilePreviewModal)
+
+                                                    <div class="modal fade show d-block" tabindex="-1" role="dialog"
+                                                        style="background-color: rgba(0, 0, 0, 0.5);">
+                                                        <div class="modal-dialog modal-dialog-centered  modal-lg">
+                                                            <div class="modal-content">
+
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title" id="filePreviewModalLabel">
+                                                                        File
+                                                                        Preview</h5>
+                                                                    <button type="button" class="btn-close"
+                                                                        wire:click="hideFilePreviewModal"
+                                                                        aria-label="Close"></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <div class="d-flex flex-column align-items-center">
+                                                                        <h6>Selected Files</h6>
+                                                                        <div class="d-flex flex-wrap gap-3">
+                                                                            <!-- Loop through files and display previews -->
+                                                                            @foreach ($previews as $index => $preview)
+                                                                            <div class="file-preview-container text-center"
+                                                                                style="padding: 5px; border: 1px solid black; width: 120px; height: 120px; border-radius: 5px; position: relative; overflow: hidden;">
+                                                                                @if ($preview['type'] == 'image')
+                                                                                <img src="{{ $preview['url'] }}"
+                                                                                    alt="Preview" class="img-thumbnail"
+                                                                                    style="width: 75px; height: 75px;" />
+                                                                                <span class="mt-1 uploaded-file-name"
+                                                                                    style="display: block; width: 100%;">{{ $preview['name'] }}</span>
+                                                                                @else
+                                                                                <div
+                                                                                    class="d-flex flex-column align-items-center">
+                                                                                    <i class="fas fa-file fa-3x"
+                                                                                        style="width: 75px; height: 75px;"></i>
+                                                                                    <span
+                                                                                        class="mt-1 uploaded-file-name"
+                                                                                        style="display: block; width: 100%;">{{ $preview['name'] }}</span>
+                                                                                </div>
+                                                                                @endif
+
+                                                                                <!-- Delete icon -->
+                                                                                <button type="button"
+                                                                                    class="delete-icon btn btn-danger"
+                                                                                    wire:click="removeFile({{ $index }})"
+                                                                                    style="position: absolute; top: 5%; right: 5%; z-index: 5; font-size: 12px;">
+                                                                                    <i class="fas fa-times"></i>
+                                                                                </button>
+                                                                            </div>
+                                                                            @endforeach
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary"
+                                                                        wire:click="hideFilePreviewModal">Close</button>
+                                                                    <button type="button" class="btn btn-primary"
+                                                                        wire:click="uploadFiles({{ $selectedRecordId }})">Upload
+                                                                        Files</button>
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    @endif
+
+                                                    <!-- it file Paths -->
+
+                                                    <td>
+                                                        @php
+                                                        $images = [];
+                                                        $files = [];
+
+
+                                                        // Check if $record->cat_file_paths is a string, array, or null
+                                                        $fileDataArray = null;
+
+                                                        if (isset($record->cat_file_paths) &&
+                                                        is_string($record->cat_file_paths))
+                                                        {
+                                                        $fileDataArray = json_decode($record->cat_file_paths, true);
+                                                        } elseif (isset($record->cat_file_paths) &&
+                                                        is_array($record->cat_file_paths)) {
+                                                        $fileDataArray = $record->cat_file_paths;
+                                                        }
+
+                                                        // Ensure $fileDataArray is a valid array before looping
+                                                        if (is_array($fileDataArray)) {
+                                                        // Separate images and files
+                                                        foreach ($fileDataArray as $fileData) {
+                                                        if (isset($fileData['mime_type'])) {
+                                                        if (strpos($fileData['mime_type'], 'image/') === 0) {
+                                                        $images[] = $fileData;
+                                                        } else {
+                                                        $files[] = $fileData;
+                                                        }
+                                                        }
+                                                        }
+                                                        }
+                                                        @endphp
+
+
+
+
+                                                        @php
+
+                                                        $images = $images ?? [];
+                                                        $files = $files ?? [];
+                                                        @endphp
+                                                        <!-- Trigger Links -->
+                                                        @if (count($images) > 1)
+                                                        <a href="#"
+                                                            wire:click.prevent="showViewImage({{ $record->id }})"
+                                                            style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                            View Images
+                                                        </a>
+                                                        @elseif (count($images) == 1)
+                                                        <a href="#"
+                                                            wire:click.prevent="showViewImage({{ $record->id }})"
+                                                            style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                            View Image
+                                                        </a>
+                                                        @endif
+
+                                                        @if (count($files) > 1)
+                                                        <a href="#" wire:click.prevent="showViewFile({{ $record->id }})"
+                                                            style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;margin-left:2px;">
+                                                            View Files
+                                                        </a>
+                                                        @elseif (count($files) == 1)
+                                                        <a href="#" wire:click.prevent="showViewFile({{ $record->id }})"
+                                                            style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                            View File
+                                                        </a>
+                                                        @endif
+
+                                                        @if (count($images) == 0 && count($files) == 0)
+                                                        <label for="">N/A</label>
+                                                        @endif
+
+                                                        {{-- view file popup --}}
+                                                        @if ($showViewImageDialog && $currentImageRequesId ===
+                                                        $record->id)
+                                                        <div class="modal custom-modal" tabindex="-1" role="dialog"
+                                                            style="display: block;">
+                                                            <div class="modal-dialog custom-modal-dialog custom-modal-dialog-centered modal-lg"
+                                                                role="document">
+                                                                <div class="modal-content custom-modal-content">
+                                                                    <div class="modal-header custom-modal-header">
+                                                                        <h5 class="modal-title view-file">Attached
+                                                                            Images</h5>
+                                                                    </div>
+                                                                    <div class="modal-body custom-modal-body">
+                                                                        <div class="swiper-container">
+                                                                            <div class="swiper-wrapper">
+                                                                                @foreach ($images as $image)
+                                                                                @php
+                                                                                $base64File = $image['data'];
+                                                                                $mimeType = $image['mime_type'];
+                                                                                @endphp
+                                                                                <div class="swiper-slide">
+                                                                                    <img src="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                                                        class="img-fluid" alt="Image">
+                                                                                </div>
+                                                                                @endforeach
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="modal-footer custom-modal-footer">
+                                                                        <button type="button" class="submit-btn"
+                                                                            wire:click.prevent="downloadITImages({{ $record->id }})">Download</button>
+                                                                        <button type="button" class="cancel-btn1"
+                                                                            wire:click="closeViewImage">Close</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-backdrop fade show blurred-backdrop"></div>
+                                                        @endif
+
+
+                                                        @if ($showViewFileDialog && $currentImageRequesId ===
+                                                        $record->id)
+                                                        <div class="modal" tabindex="-1" role="dialog"
+                                                            style="display: block;">
+                                                            <div class="modal-dialog modal-dialog-centered modal-md"
+                                                                role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title viewfile">View Files</h5>
+                                                                    </div>
+                                                                    <div class="modal-body"
+                                                                        style="max-height: 400px; overflow-y: auto;">
+                                                                        <ul class="list-group list-group-flush">
+
+                                                                            @foreach ($files as $file)
+
+                                                                            @php
+
+                                                                            $base64File = $file['data'];
+
+                                                                            $mimeType = $file['mime_type'];
+
+                                                                            $originalName = $file['original_name'];
+
+                                                                            @endphp
+
+                                                                            <li>
+
+                                                                                <a href="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                                                    download="{{ $originalName }}"
+                                                                                    style="text-decoration: none; color: #007BFF; margin: 10px;">
+
+                                                                                    {{ $originalName }} <i
+                                                                                        class="fas fa-download"
+                                                                                        style="margin-left:5px"></i>
+
+                                                                                </a>
+
+                                                                            </li>
+
+                                                                            @endforeach
+                                                                        </ul>
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="cancel-btn1"
+                                                                            wire:click="closeViewFile">Close</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-backdrop fade show blurred-backdrop"></div>
+                                                        @endif
+
+                                                    </td>
+
+                                                    <td class="text-nowrap">
+                                                        {{ \Carbon\Carbon::parse($record->created_at)->format('d-M-Y') ?? 'N/A' }}
+
                                                     </td>
 
                                                     <td>
@@ -1860,7 +4431,7 @@
 
 
                                                 <tr class="req-cc-tr">
-                                                    <td colspan="19" class="req-cc-td">
+                                                    <td colspan="20" class="req-cc-td">
                                                         <div class="req-cc-div">
                                                             <strong style="margin-left: 5px;">CC TO: </strong>
                                                             {{ (empty($ccToArray) || (count($ccToArray) === 1 && $ccToArray[0] === '-')) ? 'N/A' : implode(', ', $ccToArray) }}
@@ -1903,12 +4474,112 @@
 
                                 <div class="col-12 mt-2">
 
+                                    <div class="container export-main">
+                                        <h5 class="mb-4">Export Catalog</h5>
+
+                                        <div class="row"
+                                            style="display: flex;justify-content: space-evenly;align-items: center;">
+                                            <!-- Export Format -->
+                                            <div class="col-md-4 mb-3">
+                                                <label for="format" class="form-label">Export Format:</label>
+                                                <select id="format" wire:model="exportFormat" class="form-select">
+                                                    <option value="" selected disabled hidden>Select Export Format
+                                                    </option>
+                                                    <option value="excel">Excel</option>
+                                                    <option value="csv">CSV</option>
+                                                    <option value="pdf">PDF</option>
+                                                </select>
+                                            </div>
+
+                                            <!-- Request ID -->
+                                            <div class="col-md-4 mb-3">
+                                                <label for="requestId" class="form-label">Catalog ID:</label>
+                                                <input id="requestId" type="text" wire:model="requestId"
+                                                    class="form-control" placeholder="Enter Request ID (Optional)">
+                                            </div>
+
+                                            <!-- Assignee -->
+                                            <div class="col-md-4 mb-3">
+                                                <label for="assignee" class="form-label">Select Assignee:</label>
+                                                <select class="form-select" wire:model="assignee">
+                                                    <!-- Default option with empty value (shown when no selection is made) -->
+                                                    <option value="" disabled hidden>Select Assignee (Optional)</option>
+
+                                                    <!-- Loop through IT data -->
+                                                    @foreach($itData as $itName)
+                                                    <option
+                                                        value="{{ ucwords(strtolower($itName->empIt->first_name)) }} {{ ucwords(strtolower($itName->empIt->last_name)) }} {{ $itName->empIt->emp_id }}">
+                                                        {{ ucwords(strtolower($itName->empIt->first_name)) }}
+                                                        {{ ucwords(strtolower($itName->empIt->last_name)) }}
+                                                        ({{ $itName->empIt->emp_id }})
+                                                    </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+
+                                            <div class="col-md-12 d-flex justify-content-between align-items-center">
+
+                                                <button wire:click.prevent="clearFilters"
+                                                    class="btn btn-secondary mt-3 me-2"
+                                                    style="font-size: 11px;">Clear</button>
+                                                <button wire:click.prevent="exportRequests('11')"
+                                                    class="btn btn-primary mt-3" style="font-size: 11px;">Download
+                                                    Completed Requests</button>
+                                                <button wire:click.prevent="exportRequests('15')"
+                                                    class="btn btn-primary mt-3" style="font-size: 11px;">Download
+                                                    Cancelled Requests</button>
+                                                <button wire:click.prevent="exportRequests('11,15')"
+                                                    class="btn btn-primary mt-3" style="font-size: 11px;">Download
+                                                    All</button>
+
+                                            </div>
+
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="row d-flex">
+                                        <!-- Assignee Filter -->
+                                        <div class="col-lg-3 col-md-3 col-5 mb-5">
+                                            <div>
+                                                <label for="assignee" class="form-label">Select Assignee</label>
+                                                <select id="assignee" class="form-control"
+                                                    wire:model="statusClsdFilterAssigne"
+                                                    wire:change="loadClosedRecordsByAssigne">
+                                                    <option value="" disabled selected>-- Select Assignee --</option>
+                                                    <option value="">All</option>
+                                                    @foreach ($itAssigneMemebers as $member)
+                                                    <option
+                                                        value="{{ $member['first_name'] }} {{ $member['last_name'] }} {{ $member['emp_id'] }}">
+                                                        {{ $member['first_name'] }} {{ $member['last_name'] }}
+                                                    </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Status Filter -->
+                                        <div class="col-lg-3 col-md-3 col-5 mb-5">
+                                            <label for="statusFilter" class="form-label">Filter by Status</label>
+                                            <select wire:model="statusFilter" wire:change="loadClosedRecordsByAssigne"
+                                                id="statusFilter" class="form-select">
+                                                <option value="">All</option>
+                                                <option value="15">Cancelled</option>
+                                                <option value="11">Completed</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+
 
                                     <div class="table-responsive  req-closed-table-res">
 
 
                                         <table class="custom-table">
-                                            @if($forIT->whereIn('status_code', ['11', '15'])->count() > 0)
+                                            @if($catalogClosedDetails->count() > 0)
                                             <thead>
 
                                                 <tr>
@@ -1927,7 +4598,7 @@
 
                                                     <th class="req-closed-th">Requested By</th>
 
-                                                    <th class="req-closed-th">Catologue Request
+                                                    <th class="req-closed-th">Catalog Request
                                                         <span wire:click.debounce.500ms="toggleSortOrder('category')"
                                                             style="cursor: pointer;">
                                                             @if($sortColumn == 'category')
@@ -1939,7 +4610,9 @@
                                                         </span>
                                                     </th>
                                                     <th class="req-closed-th">Status</th>
+                                                    <th class="req-closed-th">Response time</th>
                                                     <th class="req-closed-th">View</th>
+                                                    <th class="req-table-head">Created At</th>
                                                     <th class="req-closed-th">Logs</th>
 
                                                 </tr>
@@ -1948,8 +4621,8 @@
                                             @endif
                                             <tbody>
 
-                                                @if($forIT->whereIn('status_code', ['11', '15'])->count() > 0)
-                                                @foreach ($forIT as $record)
+                                                @if($catalogClosedDetails->count() > 0)
+                                                @foreach ($catalogClosedDetails as $record)
                                                 @php
                                                 $ccToArray = explode(',', $record->cc_to);
                                                 @endphp
@@ -1980,11 +4653,82 @@
                                                     </td>
 
                                                     <td>
+                                                        <div class="req-timebar">
+                                                            @if($record->created_at)
+                                                            @php
+                                                            // Parse the start and end dates
+                                                            $startDate = \Carbon\Carbon::parse($record->created_at);
+
+                                                            // If 'req_end_date' exists, use it; otherwise, use current
+
+                                                            $endDate = $record->req_end_date ?
+                                                            \Carbon\Carbon::parse($record->req_end_date) :
+                                                            \Carbon\Carbon::now();
+
+                                                            // Calculate total elapsed time in minutes
+                                                            $totalElapsedMinutes = $startDate->diffInMinutes($endDate);
+
+                                                            // If there is additional service progress time, add it
+                                                            if (isset($record->total_ser_progress_time)) {
+                                                            $totalElapsedMinutes += $record->total_ser_progress_time;
+                                                            }
+
+                                                            // Calculate years, days, hours, and minutes from the
+
+                                                            $years = floor($totalElapsedMinutes / 525600);
+
+                                                            $remainingMinutes = $totalElapsedMinutes % 525600;
+
+                                                            $days = floor($remainingMinutes / 1440);
+                                                            $remainingMinutes %= 1440;
+
+                                                            $hours = floor($remainingMinutes / 60);
+                                                            $minutes = $remainingMinutes % 60;
+
+                                                            $maxTime = 30 * 1440; // 30 days * 1440 minutes
+                                                            $percentage = min(($totalElapsedMinutes / $maxTime) * 100,
+                                                            100);
+                                                            @endphp
+
+                                                            <!-- Display elapsed time with conditions -->
+                                                            @if ($totalElapsedMinutes < 60) <span>{{ $minutes }}
+                                                                minute{{ $minutes != 1 ? 's' : '' }}</span>
+                                                                @elseif ($totalElapsedMinutes < 1440) <span>{{ $hours }}
+                                                                    hour{{ $hours != 1 ? 's' : '' }} {{ $minutes }}
+                                                                    minute{{ $minutes != 1 ? 's' : '' }}</span>
+                                                                    @elseif ($totalElapsedMinutes < 525600) <span>
+                                                                        {{ $days }}
+                                                                        day{{ $days != 1 ? 's' : '' }} {{ $hours }}
+                                                                        hour{{ $hours != 1 ? 's' : '' }} {{ $minutes }}
+                                                                        minute{{ $minutes != 1 ? 's' : '' }}</span>
+                                                                        @else
+                                                                        <span>{{ $years }}
+                                                                            year{{ $years != 1 ? 's' : '' }}
+                                                                            {{ $days }} day{{ $days != 1 ? 's' : '' }}
+                                                                            {{ $hours }}
+                                                                            hour{{ $hours != 1 ? 's' : '' }}
+                                                                            {{ $minutes }}
+                                                                            minute{{ $minutes != 1 ? 's' : '' }}</span>
+                                                                        @endif
+
+
+                                                                        @else
+                                                                        <span>No time tracked</span>
+                                                                        @endif
+                                                        </div>
+                                                    </td>
+
+                                                    <td>
                                                         <button class="btn"
                                                             style="background-color: #02114f;color:white"
                                                             wire:click="viewRecord({{ $record->id }})">
                                                             <i class="fas fa-eye"></i>
                                                         </button>
+                                                    </td>
+
+                                                    <td class="text-nowrap">
+                                                        {{ \Carbon\Carbon::parse($record->created_at)->format('d-M-Y') ?? 'N/A' }}
+
                                                     </td>
 
                                                     <td>
@@ -1998,7 +4742,7 @@
 
                                                 <tr class="req-cc-tr">
 
-                                                    <td colspan="19" class="req-cc-td">
+                                                    <td colspan="20" class="req-cc-td">
                                                         <div class="req-cc-div">
                                                             <strong style="margin-left: 5px;">CC TO: </strong>
                                                             {{ (empty($ccToArray) || (count($ccToArray) === 1 && $ccToArray[0] === '-')) ? 'N/A' : implode(', ', $ccToArray) }}</u>
@@ -2045,19 +4789,19 @@
                                                 <div class="modal-body">
                                                     <div class="service-details">
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>Employee ID:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>{{ $selectedRecord->emp_id ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
 
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>Requested By:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>
                                                                     {{ $selectedRecord->emp->first_name ?? 'N/A' }}
                                                                     {{ $selectedRecord->emp->last_name ?? 'N/A' }}</span>
@@ -2065,189 +4809,471 @@
                                                         </div>
 
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
-                                                                <strong>Catologue Request:</strong>
+                                                            <div class="col-12 col-sm-6">
+                                                                <strong>Catalog Request:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>{{ $selectedRecord->category ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>Subject:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>{{ $selectedRecord->subject ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>Description:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>{{ $selectedRecord->description ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>Distributor:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>{{ $selectedRecord->distributor_name ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>Phone:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>{{ $selectedRecord->mobile ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>MailBox:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>{{ $selectedRecord->mail ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>Priority:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>{{ $selectedRecord->priority ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>Selected Equipment:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>{{ $selectedRecord->selected_equipment ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>Status:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>{{ $selectedRecord->status_code ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>Assigned to:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>{{ $selectedRecord->assign_to ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
-                                                        <div class="row service-detail-item">
-                                                            <div class="col-6">
-                                                                <strong>Comments:</strong>
-                                                            </div>
-                                                            <div class="col-6">
-                                                                <span>{{ $selectedRecord->active_comment ?? 'N/A' }}</span>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row service-detail-item">
-                                                            <div class="col-6">
-                                                                <strong>Remarks:</strong>
-                                                            </div>
-                                                            <div class="col-6">
-                                                                <span>{{ $selectedRecord->inprogress_remarks ?? 'N/A' }}</span>
-                                                            </div>
-                                                        </div>
-
 
                                                         <div class="row service-detail-item">
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>CC to:</strong>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12 col-sm-6">
                                                                 <span>{{ $selectedRecord->cc_to ?? 'N/A' }}</span>
                                                             </div>
                                                         </div>
 
 
-
                                                         <!-- Display files if available -->
+
+
+
                                                         <div id="modalFiles" class="row service-detail-item">
                                                             <div class="col-6">
                                                                 <strong>Attachments:</strong>
                                                             </div>
+
                                                             <div class="col-6">
-                                                                @if (isset($selectedRecord->file_path))
-                                                                <!-- Button to trigger the modal -->
-                                                                <button type="button" class="btn btn-link"
-                                                                    data-toggle="modal" data-target="#attachmentsModal">
-                                                                    View Attachments
-                                                                </button>
-                                                                @else
-                                                                <p>No files attached.</p>
+                                                                @php
+                                                                $empImages = [];
+                                                                $empFiles = [];
+
+                                                                $fileDataArray = null;
+
+                                                                if (isset($selectedRecord->file_paths) &&
+                                                                is_string($selectedRecord->file_paths)) {
+                                                                $fileDataArray =
+                                                                json_decode($selectedRecord->file_paths, true);
+                                                                } elseif (isset($selectedRecord->file_paths) &&
+                                                                is_array($selectedRecord->file_paths)) {
+                                                                $fileDataArray = $selectedRecord->file_paths;
+                                                                }
+
+                                                                // Separate empImages and files
+                                                                if (is_array($fileDataArray)) {
+                                                                foreach ($fileDataArray as $fileData) {
+                                                                if (isset($fileData['mime_type'])) {
+                                                                if (strpos($fileData['mime_type'], 'image/') === 0) {
+                                                                $empImages[] = $fileData;
+                                                                } else {
+                                                                $empFiles[] = $fileData;
+                                                                }
+                                                                }
+                                                                }
+                                                                }
+                                                                @endphp
+
+                                                                <!-- Trigger Links -->
+                                                                @if (count($empImages) > 1)
+                                                                <a href="#"
+                                                                    wire:click.prevent="showViewEmpImage({{ $selectedRecord->id }})"
+                                                                    style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                                    View Images
+                                                                </a>
+                                                                @elseif (count($empImages) === 1)
+                                                                <a href="#"
+                                                                    wire:click.prevent="showViewEmpImage({{ $selectedRecord->id }})"
+                                                                    style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                                    View Image
+                                                                </a>
+                                                                @endif
+
+                                                                @if (count($empFiles) > 1)
+                                                                <a href="#"
+                                                                    wire:click.prevent="showViewEmpFile({{ $selectedRecord->id }})"
+                                                                    style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                                    View Files
+                                                                </a>
+                                                                @elseif (count($empFiles) === 1)
+                                                                <a href="#"
+                                                                    wire:click.prevent="showViewEmpFile({{ $selectedRecord->id }})"
+                                                                    style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                                    View File
+                                                                </a>
+                                                                @endif
+
+                                                                @if (count($empImages) === 0 && count($empFiles) === 0)
+                                                                <label for="">N/A</label>
+                                                                @endif
+
+                                                                {{-- View Images Modal --}}
+                                                                @if ($showViewEmpImageDialog && $currentImageRequesId
+                                                                === $selectedRecord->id)
+                                                                <div class="modal custom-modal" tabindex="-1"
+                                                                    role="dialog" style="display: block;">
+                                                                    <div class="modal-dialog custom-modal-dialog custom-modal-dialog-centered modal-lg"
+                                                                        role="document">
+                                                                        <div class="modal-content custom-modal-content">
+                                                                            <div
+                                                                                class="modal-header custom-modal-header">
+                                                                                <h5 class="modal-title view-file">
+                                                                                    Attached Images</h5>
+                                                                            </div>
+                                                                            <div class="modal-body custom-modal-body">
+                                                                                <div class="swiper-container">
+                                                                                    <div class="swiper-wrapper">
+                                                                                        @foreach ($empImages as $eImage)
+                                                                                        <div class="swiper-slide">
+                                                                                            <img src="data:{{ $eImage['mime_type'] }};base64,{{ $eImage['data'] }}"
+                                                                                                class="img-fluid"
+                                                                                                alt="Image">
+                                                                                        </div>
+                                                                                        @endforeach
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div
+                                                                                class="modal-footer custom-modal-footer">
+                                                                                <button type="button" class="submit-btn"
+                                                                                    wire:click.prevent="downloadImages({{ $selectedRecord->id }})">Download</button>
+                                                                                <button type="button"
+                                                                                    class="cancel-btn1"
+                                                                                    wire:click="closeViewEmpImage">Close</button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-backdrop fade show blurred-backdrop">
+                                                                </div>
+                                                                @endif
+
+                                                                {{-- View Files Modal --}}
+                                                                @if ($showViewEmpFileDialog && $currentImageRequesId ===
+                                                                $selectedRecord->id)
+                                                                <div class="modal" tabindex="-1" role="dialog"
+                                                                    style="display: block;">
+                                                                    <div class="modal-dialog modal-dialog-centered modal-md"
+                                                                        role="document">
+                                                                        <div class="modal-content">
+                                                                            <div class="modal-header">
+                                                                                <h5 class="modal-title viewfile">View
+                                                                                    Files</h5>
+                                                                            </div>
+                                                                            <div class="modal-body"
+                                                                                style="max-height: 400px; overflow-y: auto;">
+                                                                                <ul class="list-group list-group-flush">
+                                                                                    @foreach ($empFiles as $fileE)
+                                                                                    <li>
+                                                                                        <a href="data:{{ $fileE['mime_type'] }};base64,{{ $fileE['data'] }}"
+                                                                                            download="{{ $fileE['original_name'] }}"
+                                                                                            style="text-decoration: none; color: #007BFF; margin: 10px;font-size:13px">
+                                                                                            {{ $fileE['original_name'] }}
+                                                                                            <i class="fas fa-download"
+                                                                                                style="margin-left:5px"></i>
+                                                                                        </a>
+                                                                                    </li>
+                                                                                    @endforeach
+                                                                                </ul>
+                                                                            </div>
+                                                                            <div class="modal-footer">
+                                                                                <button type="button"
+                                                                                    class="cancel-btn1"
+                                                                                    wire:click="closeViewEmpFile">Close</button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-backdrop fade show blurred-backdrop">
+                                                                </div>
                                                                 @endif
                                                             </div>
                                                         </div>
 
 
-                                                        <div class="modal fade stack-modal" id="attachmentsModal" tabindex="-1"
-                                                            role="dialog" aria-labelledby="attachmentsModalLabel"
-                                                            aria-hidden="true">
-                                                            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-                                                                <div class="modal-content"  style="border: 2px solid #02114f;">
-                                                                    <div class="modal-header">
-                                                                        <h5 class="modal-title"
-                                                                            id="attachmentsModalLabel">Attachments
-                                                                        </h5>
-                                                                        <button type="button" class="close p-2"
-                                                                            data-dismiss="modal" aria-label="Close">
-                                                                            <span aria-hidden="true">&times;</span>
-                                                                        </button>
-                                                                    </div>
-                                                                    <div class="modal-body">
-                                                                        @if (isset($selectedRecord->file_path))
-                                                                        @php
-                                                                        // Convert the BLOB data to base64
-                                                                        $base64Image =
-                                                                        base64_encode($selectedRecord->file_path);
-                                                                        @endphp
 
-                                                                        <!-- Render the BLOB image directly if it's base64 -->
-                                                                        <div class="mb-3">
-                                                                            <img src="data:image/jpeg;base64,{{ $base64Image }}"
-                                                                                class="img-fluid" alt="Attachment" />
+
+                                                        <div id="modalFiles" class="row service-detail-item">
+                                                            <div class="col-12 col-sm-6">
+                                                                <strong>IT Uploaded Files:</strong>
+                                                            </div>
+
+
+                                                            <div class="col-12 col-sm-6">
+                                                                <!-- it file Paths -->
+                                                                <td>
+                                                                    @php
+                                                                    $images = [];
+                                                                    $files = [];
+
+
+
+                                                                    $fileDataArray = null;
+
+                                                                    if (isset($selectedRecord->cat_file_paths) &&
+                                                                    is_string($selectedRecord->cat_file_paths))
+                                                                    {
+                                                                    $fileDataArray =
+                                                                    json_decode($selectedRecord->cat_file_paths,
+                                                                    true);
+                                                                    } elseif (isset($selectedRecord->cat_file_paths) &&
+                                                                    is_array($selectedRecord->cat_file_paths)) {
+                                                                    $fileDataArray = $selectedRecord->cat_file_paths;
+                                                                    }
+
+
+                                                                    if (is_array($fileDataArray)) {
+                                                                    foreach ($fileDataArray as $fileData) {
+                                                                    if (isset($fileData['mime_type'])) {
+                                                                    if (strpos($fileData['mime_type'], 'image/') === 0)
+                                                                    {
+                                                                    $images[] = $fileData;
+                                                                    } else {
+                                                                    $files[] = $fileData;
+                                                                    }
+                                                                    }
+                                                                    }
+                                                                    }
+                                                                    @endphp
+
+
+
+
+                                                                    @php
+
+                                                                    $images = $images ?? [];
+                                                                    $files = $files ?? [];
+                                                                    @endphp
+                                                                    <!-- Trigger Links -->
+                                                                    @if (count($images) > 1)
+                                                                    <a href="#"
+                                                                        wire:click.prevent="showViewImage({{ $selectedRecord->id }})"
+                                                                        style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                                        View Images
+                                                                    </a>
+                                                                    @elseif (count($images) == 1)
+                                                                    <a href="#"
+                                                                        wire:click.prevent="showViewImage({{ $selectedRecord->id }})"
+                                                                        style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                                        View Image
+                                                                    </a>
+                                                                    @endif
+
+                                                                    @if (count($files) > 1)
+                                                                    <a href="#"
+                                                                        wire:click.prevent="showViewFile({{ $selectedRecord->id }})"
+                                                                        style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;margin-left:15px;">
+                                                                        View Files
+                                                                    </a>
+                                                                    @elseif (count($files) == 1)
+                                                                    <a href="#"
+                                                                        wire:click.prevent="showViewFile({{ $selectedRecord->id }})"
+                                                                        style="text-decoration: none; color: #007BFF; font-size: 12px; text-transform: capitalize;">
+                                                                        View File
+                                                                    </a>
+                                                                    @endif
+
+                                                                    @if (count($images) == 0 && count($files) == 0)
+                                                                    <label for="">N/A</label>
+                                                                    @endif
+
+                                                                    {{-- view file popup --}}
+                                                                    @if ($showViewImageDialog && $currentImageRequesId
+                                                                    ===
+                                                                    $selectedRecord->id)
+                                                                    <div class="modal custom-modal" tabindex="-1"
+                                                                        role="dialog" style="display: block;">
+                                                                        <div class="modal-dialog custom-modal-dialog custom-modal-dialog-centered modal-lg"
+                                                                            role="document">
+                                                                            <div
+                                                                                class="modal-content custom-modal-content">
+                                                                                <div
+                                                                                    class="modal-header custom-modal-header">
+                                                                                    <h5 class="modal-title view-file">
+                                                                                        Attached
+                                                                                        Images</h5>
+                                                                                </div>
+                                                                                <div
+                                                                                    class="modal-body custom-modal-body">
+                                                                                    <div class="swiper-container">
+                                                                                        <div class="swiper-wrapper">
+                                                                                            @foreach ($images as $image)
+                                                                                            @php
+                                                                                            $base64File =
+                                                                                            $image['data'];
+                                                                                            $mimeType =
+                                                                                            $image['mime_type'];
+                                                                                            @endphp
+                                                                                            <div class="swiper-slide">
+                                                                                                <img src="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                                                                    class="img-fluid"
+                                                                                                    alt="Image">
+                                                                                            </div>
+                                                                                            @endforeach
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div
+                                                                                    class="modal-footer custom-modal-footer">
+                                                                                    <button type="button"
+                                                                                        class="submit-btn"
+                                                                                        wire:click.prevent="downloadITImages({{ $selectedRecord->id }})">Download</button>
+                                                                                    <button type="button"
+                                                                                        class="cancel-btn1"
+                                                                                        wire:click="closeViewImage">Close</button>
+                                                                                </div>
+                                                                            </div>
                                                                         </div>
-                                                                        @else
-                                                                        <p>No attachments available.</p>
-                                                                        @endif
                                                                     </div>
+                                                                    <div
+                                                                        class="modal-backdrop fade show blurred-backdrop">
+                                                                    </div>
+                                                                    @endif
 
 
+                                                                    @if ($showViewFileDialog && $currentImageRequesId
+                                                                    ===
+                                                                    $selectedRecord->id)
+                                                                    <div class="modal" tabindex="-1" role="dialog"
+                                                                        style="display: block;">
+                                                                        <div class="modal-dialog modal-dialog-centered modal-md"
+                                                                            role="document">
+                                                                            <div class="modal-content">
+                                                                                <div class="modal-header">
+                                                                                    <h5 class="modal-title viewfile">
+                                                                                        View Files
+                                                                                    </h5>
+                                                                                </div>
+                                                                                <div class="modal-body"
+                                                                                    style="max-height: 400px; overflow-y: auto;">
+                                                                                    <ul
+                                                                                        class="list-group list-group-flush">
 
-                                                                </div>
+                                                                                        @foreach ($files as $file)
+
+                                                                                        @php
+
+                                                                                        $base64File = $file['data'];
+
+                                                                                        $mimeType = $file['mime_type'];
+
+                                                                                        $originalName =
+                                                                                        $file['original_name'];
+
+                                                                                        @endphp
+
+                                                                                        <li>
+
+                                                                                            <a href="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                                                                download="{{ $originalName }}"
+                                                                                                style="text-decoration: none; color: #007BFF; margin: 10px;">
+
+                                                                                                {{ $originalName }} <i
+                                                                                                    class="fas fa-download"
+                                                                                                    style="margin-left:5px"></i>
+
+                                                                                            </a>
+
+                                                                                        </li>
+
+                                                                                        @endforeach
+                                                                                    </ul>
+                                                                                </div>
+                                                                                <div class="modal-footer">
+                                                                                    <button type="button"
+                                                                                        class="cancel-btn1"
+                                                                                        wire:click="closeViewFile">Close</button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div
+                                                                        class="modal-backdrop fade show blurred-backdrop">
+                                                                    </div>
+                                                                    @endif
+
+                                                                </td>
+
+
                                                             </div>
                                                         </div>
 
 
-                                                        <div class="row service-detail-item">
-                                                            <div class="col-6">
-                                                                <strong>Reason</strong>
+
+                                                        <div id="modalFiles" class="row service-detail-item">
+                                                            <div class="col-12 col-sm-6">
                                                             </div>
-                                                            <div class="col-6">
-                                                                <span>{{ $selectedRecord->rejection_reason ?? 'N/A' }}</span>
+                                                            <div class="col-12 col-sm-6">
                                                             </div>
                                                         </div>
 
-                                                        <div class="row service-detail-item">
-                                                            <div class="col-6">
-                                                                <strong></strong>
-                                                            </div>
-                                                            <div class="col-6">
-                                                                <span></span>
-                                                            </div>
-                                                        </div>
+
+
 
 
                                                     </div>
@@ -2395,7 +5421,8 @@
                         <!-- Header with Activity Count -->
                         <div class="activity-header d-flex justify-content-between mb-4">
                             <h5 class="text-lg font-semibold">Activities: {{ count($activityLogs) }}</h5>
-                            <button wire:click="filterLogs('field-change')" class="filter-btn text-sm text-gray-500">
+                            <button wire:click="filterLogs('field-change')" class="filter-btn text-sm text-gray-500"
+                                style="font-size: 13px;">
                                 <i class="fas fa-filter"></i> Filter by Field Change
                             </button>
 
@@ -2405,7 +5432,7 @@
                         <div class="d-flex flex-column">
                             @foreach ($activityLogs as $index => $log)
                             <div class="activity-entry bg-white p-4 rounded-lg shadow-md mb-4">
-                                <div class="log-header d-flex justify-content-between align-items-center">
+                                <div class="log-header">
                                     <div class="log-user d-flex align-items-center">
                                         <!-- Display initials -->
                                         <span class="initials text-lg font-bold">
@@ -2424,20 +5451,20 @@
                                 <!-- Log Details -->
                                 <div class="log-details mt-2">
                                     @if ($log->action && $log->details)
-                                    <div class="log-action text-sm text-gray-800 d-flex">
-                                        <div class="log-label" style="width: 150px; font-weight: bold;">
+                                    <div class="logAction text-sm text-gray-800">
+                                        <div class="logLabel">
                                             {{ $log->action }}
                                         </div>
-                                        <div class="log-value" style="width: calc(100% - 150px);">
+                                        <div class="logValue">
                                             {{ $log->details }}
                                         </div>
                                     </div>
                                     @endif
                                     @if ($log->assigned_to)
                                     <div class="log-sub-details mt-2 text-sm">
-                                        <div class="log-label" style="width: 150px; font-weight: bold;">Assigned to
+                                        <div class="logLabel">Assigned to
                                         </div>
-                                        <div class="log-value" style="width: calc(100% - 150px);">
+                                        <div class="logValue">
                                             {{ $log->assigned_to }}
                                         </div>
                                     </div>
@@ -2445,8 +5472,8 @@
 
                                     @if ($log->impact)
                                     <div class="log-sub-details mt-2 text-sm">
-                                        <div class="log-label" style="width: 150px; font-weight: bold;">Impact</div>
-                                        <div class="log-value" style="width: calc(100% - 150px);">
+                                        <div class="logLabel">Impact</div>
+                                        <div class="logValue">
                                             {{ $log->impact }}
                                         </div>
                                     </div>
@@ -2454,8 +5481,8 @@
 
                                     @if ($log->opened_by)
                                     <div class="log-sub-details mt-2 text-sm">
-                                        <div class="log-label" style="width: 150px; font-weight: bold;">Opened by</div>
-                                        <div class="log-value" style="width: calc(100% - 150px);">
+                                        <div class="logLabel">Opened by</div>
+                                        <div class="logValue">
                                             {{ $log->opened_by }}
                                         </div>
                                     </div>
@@ -2463,8 +5490,8 @@
 
                                     @if ($log->priority)
                                     <div class="log-sub-details mt-2 text-sm">
-                                        <div class="log-label" style="width: 150px; font-weight: bold;">Priority</div>
-                                        <div class="log-value" style="width: calc(100% - 150px);">
+                                        <div class="logLabel">Priority</div>
+                                        <div class="logValue">
                                             {{ $log->priority }}
                                         </div>
                                     </div>
@@ -2472,10 +5499,81 @@
 
                                     @if ($log->state)
                                     <div class="log-sub-details mt-2 text-sm">
-                                        <div class="log-label" style="width: 150px; font-weight: bold;">State</div>
-                                        <div class="log-value" style="width: calc(100% - 150px);">
+                                        <div class="logLabel">State</div>
+                                        <div class="logValue">
                                             {{ $log->state }}
                                         </div>
+                                    </div>
+                                    @endif
+
+
+
+                                    @if (!empty($log->attachments))
+                                    <div class="mt-2 text-sm">
+                                        @php
+                                        $images = [];
+                                        $files = [];
+                                        $fileDataArray = null;
+
+                                        // Check if attachments are a JSON string or an array
+                                        if (is_string($log->attachments)) {
+                                        $fileDataArray = json_decode($log->attachments, true);
+                                        } elseif (is_array($log->attachments)) {
+                                        $fileDataArray = $log->attachments;
+                                        }
+
+                                        // Ensure it's an array before processing
+                                        if (is_array($fileDataArray)) {
+                                        // Separate images and files
+                                        foreach ($fileDataArray as $fileData) {
+                                        if (isset($fileData['mime_type'])) {
+                                        if (strpos($fileData['mime_type'], 'image/') === 0) {
+                                        $images[] = $fileData;
+                                        } else {
+                                        $files[] = $fileData;
+                                        }
+                                        }
+                                        }
+                                        }
+                                        @endphp
+
+                                        <!-- Display Images in 3 per row -->
+                                        <div class="row">
+                                            @foreach ($images as $image)
+                                            @php
+                                            $base64File = $image['data'];
+                                            $mimeType = $image['mime_type'];
+                                            @endphp
+                                            <div class="col-4 mb-3">
+                                                <img src="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                    class="img-fluid" alt="Image" style="width: 100%; height: auto;">
+                                            </div>
+                                            @endforeach
+                                        </div>
+
+                                        <!-- Display Files in 3 per row -->
+                                        <div class="row mt-4">
+                                            @foreach ($files as $file)
+                                            @php
+                                            $base64File = $file['data'];
+                                            $mimeType = $file['mime_type'];
+                                            $originalName = $file['original_name'];
+                                            @endphp
+                                            <div class="col-4 mb-3">
+                                                <a href="data:{{ $mimeType }};base64,{{ $base64File }}"
+                                                    download="{{ $originalName }}"
+                                                    style="text-decoration: none; color: #007BFF; display: block;">
+                                                    {{ $originalName }} <i class="fas fa-download"
+                                                        style="margin-left: 5px;"></i>
+                                                </a>
+                                            </div>
+                                            @endforeach
+                                        </div>
+
+                                        <!-- Display N/A if no images or files -->
+                                        @if (count($images) == 0 && count($files) == 0)
+                                        <label for="">N/A</label>
+                                        @endif
                                     </div>
                                     @endif
                                     <!-- Add more log details as needed -->

@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\ticket_notifications;
 use Livewire\Component;
 
 class MainLayout extends Component
@@ -27,6 +28,7 @@ class MainLayout extends Component
     public function mount()
     {
 
+        $this->fetchUnreadCount();
         $employee = auth()->guard('it')->user();
 
         if ($employee) {
@@ -37,6 +39,26 @@ class MainLayout extends Component
             $this->employeeName = 'N/A';
         }
     }
+
+    public $isVisible = false;
+
+    public function toggleNotifications()
+    {
+        $this->isVisible = !$this->isVisible;
+    }
+
+
+    public $unreadCount;
+
+    protected $listeners = ['notificationMarkedAsRead' => 'fetchUnreadCount'];
+
+
+    public function fetchUnreadCount()
+    {
+        $this->unreadCount = ticket_notifications::where('is_read', false)->count();
+
+    }
+
 
     public function incRequest(){
         return redirect()->route('incidentRequests');
@@ -52,9 +74,11 @@ class MainLayout extends Component
         $tabs = [
             'dashboard' => 'dashboard',
             'requests' => 'itRequest',
+            'incidentRequests' => 'incRequest',
+            'serviceRequests' => 'serRequest',
             'itMembers' => 'itMembers',
             'oldItMembers' => 'oldRecords',
-            'vendor' => 'vendor',
+            'vendors' => 'vendor',
             'vendorAssets' => 'vendorAssets',
         ];
 
@@ -84,13 +108,18 @@ class MainLayout extends Component
 
     public function vendor()
     {
-        return redirect()->route('vendor');
+        return redirect()->route('vendors');
     }
 
     public function vendorAssets()
     {
         return redirect()->route('vendorAssets');
     }
+    public function assets()
+    {
+        return redirect()->route('assetsList');
+    }
+
 
     public function assignAsset()
     {

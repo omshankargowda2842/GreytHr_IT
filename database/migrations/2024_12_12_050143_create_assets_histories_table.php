@@ -1,23 +1,17 @@
 <?php
 
-namespace App\Models;
-
-use App\Models\Vendor;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-
 
 return new class extends Migration
 {
     /**
      * Run the migrations.
      */
-    protected $primaryKey = 'asset_id';
     public function up(): void
     {
-        Schema::create('vendor_assets', function (Blueprint $table) {
+        Schema::create('assets_histories', function (Blueprint $table) {
             $table->smallInteger('id')->autoIncrement();
             $table->string('vendor_id', 10)->nullable();
             $table->string('asset_id', 10)->unique()->nullable();
@@ -41,41 +35,26 @@ return new class extends Migration
             $table->string('end_of_life', 30)->nullable();
             $table->json('file_paths')->nullable();
             $table->string('delete_asset_reason', 200)->nullable();
-            $table->boolean('is_active')->default(true);
-            $table->foreign('vendor_id')
-                ->references('vendor_id')
-                ->on('vendors')
+            $table->boolean('is_active');
+            $table->string('assign_or_un_assign', 30);
+            $table->string('created_by', 30);
+            $table->string('action', 10);
+            $table->foreign('asset_id')
+                ->references('asset_id')
+                ->on('vendor_assets')
                 ->onDelete('restrict')
                 ->onUpdate('cascade');
 
             $table->timestamps();
+
         });
-
-        $triggerSQL = <<<SQL
-        CREATE TRIGGER generate_asset_id BEFORE INSERT ON vendor_assets
-        FOR EACH ROW
-        BEGIN
-            -- Check if asset_id is NULL
-            IF NEW.asset_id IS NULL THEN
-                -- Find the maximum asset_id value in the vendor_assets table
-                SET @max_id := IFNULL((SELECT MAX(CAST(SUBSTRING(asset_id, 5) AS UNSIGNED)) + 1 FROM vendor_assets), 10000);
-
-                -- Increment the max_id and assign it to the new asset_id
-                SET NEW.asset_id = CONCAT('ASS-', LPAD(@max_id , 5, '0'));
-            END IF;
-        END;
-        SQL;
-
-        DB::unprepared($triggerSQL);
     }
 
     /**
      * Reverse the migrations.
      */
-
     public function down(): void
     {
-        DB::unprepared('DROP TRIGGER IF EXISTS generate_asset_id');
-        Schema::dropIfExists('vendor_assets');
+        Schema::dropIfExists('assets_histories');
     }
 };

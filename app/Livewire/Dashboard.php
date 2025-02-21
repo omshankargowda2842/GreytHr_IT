@@ -16,6 +16,7 @@ use Livewire\Component;
 class Dashboard extends Component
 {
     public $activeCount;
+    public $newCount;
     public $activeServiceCount;
     public $activeIncidentCount;
     public $categories;
@@ -79,6 +80,11 @@ class Dashboard extends Component
                 ->pluck('category');
 
             // Fetch counts based on categories for various statuses in HelpDesks
+
+            $this->newCount = HelpDesks::where('status_code', '8')
+            ->whereIn('category', $requestCategories)->count();
+
+
             $this->activeCount = HelpDesks::where('status_code', '10')
                 ->whereIn('category', $requestCategories)->count();
 
@@ -141,7 +147,7 @@ class Dashboard extends Component
 
     public function vendorMod()
     {
-         return redirect()->route('vendor');
+         return redirect()->route('vendors');
     }
 
     public function assetMod()

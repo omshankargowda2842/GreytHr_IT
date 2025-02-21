@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Exports\CatalogExport;
 use App\Helpers\FlashMessageHelper;
 use App\Mail\ApproveRequestMail;
 use App\Mail\assigneRequestMail;
@@ -14,17 +15,22 @@ use App\Models\HelpDesks;
 use App\Models\HolidayCalendar;
 use App\Models\Request;
 use App\Models\IT;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 // use Illuminate\Http\Client\Request;
 use Livewire\Component;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Livewire\Features\SupportFileUploads\WithFileUploads;
+use Maatwebsite\Excel\Facades\Excel;
+use PHPUnit\TextUI\Help;
 
 use function Termwind\render;
 
 class RequestProcess extends Component
 {
+    use WithFileUploads;
     public $activeTab = 'active';
     public $requests = [];
     public $viewingDetails = false;
@@ -44,9 +50,11 @@ class RequestProcess extends Component
     public $rejectedRequest;
     public $showOverview = false;
     public $showRejectionModal = false;
+    public $showRejectionBulkRqsModal = false;
     public $showCancelModal = false;
     public $attachments;
     public $currentRequestId;
+    public $currentCatalogId;
     public $newRequestCount;
     public $newRejectionCount;
     public $activeCount;
@@ -55,9 +63,11 @@ class RequestProcess extends Component
     public $closedCount;
     public $file_path;
     public $pendingReason;
+    public $selectedStatus;
+    public $selectedAssigne;
 
 
-
+    protected $queryString = ['currentCatalogId'];
 
 
     protected $rules = [
@@ -85,11 +95,20 @@ class RequestProcess extends Component
 
     public $employee ;
 
-    public function mount()
+    public function mount($id = null)
     {
+
         try {
             // Get the authenticated user
             $employee = auth()->user();
+
+            if ($id) {
+                $this->currentCatalogId = $id;
+            }
+
+            if ($this->currentCatalogId) {
+                $this->viewApproveDetails($this->currentCatalogId);
+            }
 
             // Set flags based on user role
             if (auth()->check() && (auth()->user()->hasRole('admin') || auth()->user()->hasRole('super_admin'))) {
@@ -130,6 +149,941 @@ class RequestProcess extends Component
             $this->viewEmpRequest = true; // Default to showing employee requests
         }
     }
+
+
+
+    public $exportFormat = 'excel'; // Default format
+    public $requestId=''; // Filter for a specific request ID
+    public $assignee = '';  // Filter by assignee
+    public $category;
+
+
+    public function  exportRequests($statusCodes)
+    {
+
+        $requestCategories = Request::select('Request', 'category')
+        ->where('Request', 'IT') // Adjust this to match the condition for IT requests
+        ->pluck('category');
+
+    // Fetch HelpDesk records based on the category and companyId
+
+        $statusCodes = explode(',', $statusCodes);
+        // Build the query with mandatory filters
+        $query = HelpDesks::query()
+            ->whereIn('category',  $requestCategories)
+            ->whereIn('status_code', $statusCodes); // Mandatory filter: Status Code
+
+
+        // Apply optional filters for request ID and assignee
+        if ($this->requestId) {
+            $query->where('request_id', $this->requestId); // Filter by Request ID (assuming 'snow_id' is correct field)
+        }
+
+        if ($this->assignee) {
+            $query->where('assign_to', $this->assignee); // Filter by Assignee
+        }
+
+        // Retrieve the filtered records
+        $records = $query->get();
+        // Check if records exist
+        if ($records->isEmpty()) {
+            session()->flash('message', 'No records found for the selected filters.');
+            return;
+        }
+
+        // Export data based on selected format
+        if (in_array($this->exportFormat, ['excel', 'csv'])) {
+            return Excel::download(new CatalogExport($records), "catalog." . ($this->exportFormat === 'excel' ? 'xlsx' : 'csv'));
+        }
+
+        if ($this->exportFormat === 'pdf') {
+            $pdf = Pdf::loadView('exports.catalog', ['records' => $records]);
+
+            return response()->streamDownload(function () use ($pdf) {
+                echo $pdf->output();
+            }, 'catalog.pdf');
+        }
+
+        $this->reset(['requestId', 'assignee', 'exportFormat']);
+    }
+
+
+    public function clearFilters()
+    {
+        $this->reset(['exportFormat', 'requestId', 'assignee']);
+    }
+
+
+    public $selectedRequests = []; // Stores selected request IDs
+    public $bulkAssignee = '';   // Tracks selected Assignee
+    public $bulkStatus = null;     // Tracks selected Status
+
+    public $checkboxModal = false;
+    public $checkboxNewRqsModal = false;
+    public $checkboxPendingModal = false;
+    public $checkboxClosingModal = false;
+    public function checkboxMultiSelection(){
+
+        $this->checkboxModal = count($this->selectedRequests) > 0;
+    }
+
+    public function checkboxPendingMultiSelection(){
+
+        $this->checkboxPendingModal = count($this->selectedRequests) > 0;
+    }
+
+    public function checkboxClosingMultiSelection(){
+
+        $this->checkboxClosingModal = count($this->selectedRequests) > 0;
+    }
+
+    public function checkboxNewRqsMultiSelection(){
+
+        $this->checkboxNewRqsModal = count($this->selectedRequests) > 0;
+    }
+
+
+
+
+        public function handleBulkNewRqsStatusChange()
+    {
+        if ($this->selectedStatus == '10') {
+            $this->approveBulkNewRqsStatus();
+        } elseif ($this->selectedStatus == '3') {
+            $this->rejectionBulkRqsModal();
+        }
+    }
+
+
+
+    public function rejectBulkRqsStatus()
+{
+    $this->validate([
+        'reason' => 'required|string|max:255', // Validate the remark input
+    ], [
+        'reason.required' => 'Reason is required.',
+    ]);
+
+    try {
+        foreach ($this->selectedRequests as $requestId) {
+            $recentRequest = HelpDesks::with('emp')->where('id', $requestId)->first();
+
+            if ($recentRequest) {
+                // Update the request with rejection reason and status
+                $recentRequest->update([
+                    'rejection_reason' => $this->reason,
+                    'status_code' => '3'
+                ]);
+
+                $employee = auth()->guard('it')->user();
+                $employeeEmail = $recentRequest->mail;
+
+                $employeeName = $recentRequest->emp->first_name . ' ' . $recentRequest->emp->last_name;
+                $shortDescription = $recentRequest->description;
+                $RejetedEmployeeName = ucwords(strtolower($employee->employee_name));
+
+                // Send rejection email
+                Mail::to($employeeEmail)->send(new RejectRequestMail(
+                    $employeeName,
+                    $this->reason,
+                    $recentRequest->request_id,
+                    $shortDescription,
+                    $RejetedEmployeeName,
+                    $recentRequest->category
+                ));
+
+                // Log the activity
+                $activityDetails = "Request was Rejected by {$RejetedEmployeeName} for Request ID - {$recentRequest->request_id}";
+                FlashMessageHelper::flashSuccess("Request {$recentRequest->request_id} has been rejected, and email has been sent!");
+
+                ActivityLog::create([
+                    'action' => 'State',
+                    'details' => $activityDetails,
+                    'performed_by' => $RejetedEmployeeName,
+                    'request_type' => 'Catalog Request',
+                    'request_id' => $recentRequest->request_id,
+                ]);
+
+                // Update counts after each iteration
+                $this->updateCounts();
+            } else {
+                // Handle case when the request is not found
+                FlashMessageHelper::flashError("Request with ID {$requestId} not found.");
+            }
+        }
+
+        // Reset the selection and reason after processing
+        $this->selectedRequests = [];
+        $this->selectedStatus = '';
+        $this->reason = '';
+        $this->updateCounts();
+        $this->showRejectionBulkRqsModal = false;
+    } catch (\Exception $e) {
+        // Log the exception for debugging
+        Log::error("Error occurred in rejectBulkRqsStatus method", [
+            'exception' => $e,
+        ]);
+
+        // Flash an error message for the user
+        FlashMessageHelper::flashError("An error occurred while rejecting the requests.");
+    }
+}
+
+
+    public function rejectionBulkRqsModal()
+    {
+
+        $this->showRejectionBulkRqsModal =true;
+
+    }
+
+
+    public function approveBulkNewRqsStatus()
+{
+    if (empty($this->selectedRequests)) {
+        FlashMessageHelper::flashError("No requests selected for approval.");
+        return back()->withErrors(['error' => 'No requests selected for approval.']);
+    }
+
+
+
+    foreach ($this->selectedRequests as $requestId) {
+        // Fetch the task with its associated employee
+        $task = HelpDesks::with('emp')->find($requestId);
+
+        if (!$task) {
+            Log::error("Request with ID {$requestId} not found.");
+            continue; // Skip this iteration if task not found
+        }
+
+        // Fetch admin details
+        $admindetails = EmployeeDetails::with('its')
+            ->whereHas('its', function ($query) {
+                $query->where('role', 'admin');
+            })
+            ->get();
+
+        if ($admindetails->isEmpty()) {
+            Log::error("No admin details found for request ID: {$requestId}");
+            FlashMessageHelper::flashError("No admin details available for some requests.");
+            continue; // Skip this iteration if no admin details found
+        }
+
+        // Validate admin email
+        $adminEmail = preg_replace('/\s+/', '', $admindetails[0]->email);
+        if (!filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
+            Log::error("Invalid admin email address for request ID: {$requestId}");
+            FlashMessageHelper::flashError("Invalid email address for some requests.");
+            continue; // Skip this iteration if invalid email
+        }
+
+        // Construct email details
+        $employeeName = $task->emp->first_name . ' ' . $task->emp->last_name;
+        $employee = auth()->guard('it')->user();
+        $requestId = $task->request_id;
+        $category = $task->category;
+        $shortDescription = $task->description ?? 'N/A';
+        $approvedBy = ucwords(strtolower($employee->employee_name));
+
+        // Send approval email
+        try {
+            Mail::to($adminEmail)->send(new ApproveRequestMail(
+                $employeeName,
+                $approvedBy,
+                $requestId,
+                $shortDescription,
+                $category
+            ));
+        } catch (\Exception $e) {
+            Log::error("Failed to send approval email for request ID: {$requestId}. Error: {$e->getMessage()}");
+            FlashMessageHelper::flashError("Failed to send approval email for some requests.");
+            continue; // Skip this iteration if email fails
+        }
+
+        // Update request status and log activity
+        $task->update(['status_code' => '10']); // Status 10 for Approved
+        $activityDetails = "Request was Approved by {$approvedBy} for Request ID - {$task->request_id}";
+        ActivityLog::create([
+            'action' => 'State',
+            'details' => $activityDetails,
+            'performed_by' => $approvedBy,
+            'request_type' => 'Catalog Request',
+            'request_id' => $task->request_id,
+        ]);
+    }
+
+    // Update counts and reset selected requests
+    $this->updateCounts();
+    $this->selectedRequests = [];
+
+    FlashMessageHelper::flashSuccess("Selected requests have been approved successfully!");
+    return redirect()->route('requests');
+}
+
+
+
+    public function bulkSubmitStatusReason()
+    {
+
+        if (count($this->selectedRequests) === 0) {
+            FlashMessageHelper::flashError( 'No requests selected.');
+            return;
+        }
+
+        $this->validate([
+            'pendingReason' => 'required|string|max:255',
+        ]);
+
+        foreach ($this->selectedRequests as $requestId) {
+            $task = HelpDesks::find($requestId);
+
+            if ($task && $this->modalPurpose) {
+                if ($this->modalPurpose === 'Pending') {
+                    $task->update(['pending_notes' => $this->pendingReason]);
+
+                    $employee = auth()->guard('it')->user();
+                    $assignedAssignee = EmployeeDetails::where('emp_id', $task->emp_id)->first();
+                    $employeeEmail = $assignedAssignee->email;
+                    $employeeName = $task->emp->first_name . ' ' . $task->emp->last_name;
+                    $shortDescription = $task->description;
+
+                    Mail::to($employeeEmail)->send(new statusRequestMail(
+                        $employeeName,
+                        $task->request_id,
+                        $this->pendingReason,
+                        $shortDescription,
+                        $task->category,
+                        'Pending'
+                    ));
+
+                    $activityDetails = "Work in Progress was Pending for Request ID - {$task->request_id}";
+
+                    ActivityLog::create([
+                        'action' => 'State',
+                        'details' => $activityDetails,
+                        'performed_by' => $employee->employee_name,
+                        'request_type' => 'Catalogue Request',
+                        'request_id' => $task->request_id,
+                    ]);
+                } elseif ($this->modalPurpose === 'Cancel') {
+                    $task->update([
+                        'cancel_notes' => $this->pendingReason,
+                        'req_end_date' => now(),
+                    ]);
+
+                    $employee = auth()->guard('it')->user();
+                    $assignedAssignee = EmployeeDetails::where('emp_id', $task->emp_id)->first();
+                    $activityDetails = "Work in Progress was Cancelled for Request ID - {$task->request_id}";
+
+                    ActivityLog::create([
+                        'action' => 'State',
+                        'details' => $activityDetails,
+                        'performed_by' => $employee->employee_name,
+                        'request_type' => 'Catalogue Request',
+                        'request_id' => $task->request_id,
+                    ]);
+
+                } elseif ($this->modalPurpose === 'Completed') {
+                    $task->update([
+                        'closed_notes' => $this->pendingReason,
+                        'req_end_date' => now(),
+                    ]);
+
+                    $employee = auth()->guard('it')->user();
+                    $assignedAssignee = EmployeeDetails::where('emp_id', $task->emp_id)->first();
+
+                    $activityDetails = "Work in Progress was Completed for Request ID - {$task->request_id}";
+
+                    ActivityLog::create([
+                        'action' => 'State',
+                        'details' => $activityDetails,
+                        'performed_by' => $employee->employee_name,
+                        'request_type' => 'Catalogue Request',
+                        'request_id' => $task->request_id,
+                    ]);
+                }
+
+                // Common Activity Log for all statuses
+                ActivityLog::create([
+                    'action' => $this->modalPurpose,
+                    'details' => $this->pendingReason,
+                    'performed_by' => $employee->employee_name,
+                    'request_type' => 'Catalogue Request',
+                    'request_id' => $task->request_id,
+                ]);
+            } else {
+                FlashMessageHelper::flashError("Task not found or invalid status for Request ID: $requestId");
+            }
+        }
+
+        if ($this->modalPurpose === 'Pending') {
+            FlashMessageHelper::flashSuccess("Status has been set to Pending");
+
+        }elseif ($this->modalPurpose === 'Completed') {
+
+            FlashMessageHelper::flashSuccess("Status has been set to Completed");
+
+        }elseif ($this->modalPurpose === 'Cancel') {
+            FlashMessageHelper::flashSuccess("Status has been set to Cancelled");
+
+        }
+
+        $this->closeStatusModal();
+        $this->updateCounts();
+    }
+
+
+    public function applyBulkActions()
+{
+
+    if (count($this->selectedRequests) === 0) {
+        FlashMessageHelper::flashError( 'No requests selected.');
+        return;
+    }
+
+
+    if (!$this->bulkAssignee) {
+        FlashMessageHelper::flashError( 'Please select an assignee .');
+        return;
+    }
+    if (!$this->selectedStatus) {
+        FlashMessageHelper::flashError( 'Please select an status.');
+        return;
+    }
+
+    $this->loading = true;
+
+    try {
+        // Perform bulk operations here (e.g., updating the database)
+        foreach ($this->selectedRequests as $requestId) {
+            $request = HelpDesks::find($requestId); // Replace with your model
+
+            if ($this->bulkAssignee) {
+                $request->assign_to = $this->bulkAssignee;
+            }
+            if ($this->selectedStatus) {
+                $request->status_code = $this->selectedStatus;
+            }
+            $request->save();
+
+
+        }
+        $this->selectedAssigne ='';
+        $this->selectedStatus ='';
+        $this->selectedRecord=[];
+        $this->selectedRequests = [];
+        $this->checkboxModal = false;
+        FlashMessageHelper::flashSuccess('Requests updated successfully.');
+        $this->resetSelection();
+    } catch (\Exception $e) {
+        FlashMessageHelper::flashError('Failed to update requests: ' . $e->getMessage());
+    } finally {
+        $this->loading = false;
+    }
+}
+
+    public function resetSelection()
+    {
+        $this->selectedRequests = [];
+        $this->selectedStatus = null;
+        $this->bulkStatus = null;
+    }
+
+
+
+    // PENDING TAB............................
+
+    public $showBulkInprogressModal = false;
+
+    public function bulkSelectedInprogress()
+    {
+
+
+        $this->showBulkInprogressModal =true;
+        $this->updateCounts();
+    }
+
+    public function closeBulkInprogressModal()
+    {
+        $this->showBulkInprogressModal = false;
+        $this->reset(['pendingReason', 'pendingRequestId','modalPurpose']);
+    }
+
+    public function bulkSubmitReason()
+    {
+
+        if (count($this->selectedRequests) === 0) {
+            FlashMessageHelper::flashError( 'No requests selected.');
+            return;
+        }
+
+        $this->validate([
+            'pendingReason' => 'required|string|max:255',
+            ]);
+
+
+            foreach ($this->selectedRequests as $requestId) {
+
+                $task = HelpDesks::find($requestId);
+
+                if (!$task) {
+                    continue; // Skip this iteration if task is not found
+                }
+
+                $employee = auth()->guard('it')->user();
+
+                if($this->pendingReason){
+
+                    ActivityLog::create([
+                        'action' => "Inprogress Notes",
+                        'details' => $this->pendingReason,
+                        'performed_by' => $employee->employee_name,
+                        'request_type' => 'Catalogue Request',
+                        'request_id' => $task->request_id,
+                        ]);
+
+                }
+
+                if ($task) {
+                    if ($task->cat_progress_since === null) {
+                        // If it's the first time switching to InProgress, set the current time
+                        $task->cat_progress_since = now();
+                    }
+
+                    $task->update([
+                        'inprogress_notes' => $this->pendingReason,
+                        'status_code' => 16
+                        ]);
+
+                        $employee = auth()->guard('it')->user();
+
+                        $activityDetails = '';
+                        // Flash a success message based on the selected status
+                        $activityDetails = "Work in Progress was Inprogress for Request ID - {$task->request_id}";
+
+                        $assigneName = $employee->employee_name;
+                        ActivityLog::create([
+                        'action' => 'State',
+                        'details' => $activityDetails,
+                        'performed_by' => $assigneName,
+                        'request_type' => 'Catalogue Request',
+                        'request_id' => $task->request_id,
+                        ]);
+                    }
+                }
+
+                if ($task) {
+                    FlashMessageHelper::flashSuccess("Status has been set to Inprogress");
+
+                }
+
+                $this->selectedStatus='';
+                $this->selectedRequests = [];
+                $this->checkboxPendingModal = false;
+                $this->closeBulkInprogressModal();
+                $this->updateCounts();
+
+    }
+
+ // INPROGRESS TAB............................
+
+    public $showBulkPendingModal = false;
+    public $showBulkClosedModal = false;
+
+    public function handleBulkInprogressStatus($value){
+
+
+        if($value == 5){
+
+        $this->showBulkPendingModal = true;
+
+        }
+        elseif($value == 11){
+            $this->showBulkClosedModal = true;
+
+        }
+    }
+
+    public function closeBulkPendingModal()
+    {
+        $this->showBulkPendingModal = false;
+        $this->reset(['pendingReason', 'pendingRequestId','modalPurpose']);
+    }
+
+    public function closeBulkClosedModal()
+    {
+        $this->showBulkClosedModal = false;
+        $this->reset(['pendingReason', 'pendingRequestId','modalPurpose','customerVisibleNotes']);
+    }
+
+    public function bulkPendingForDesks()
+        {
+
+            if (count($this->selectedRequests) === 0) {
+                FlashMessageHelper::flashError( 'No requests selected.');
+                return;
+            }
+
+            $this->validate([
+                'pendingReason' => 'required|string|max:255',
+                ]);
+
+        foreach ($this->selectedRequests as $requestId) {
+            $task = HelpDesks::find($requestId);
+
+            $employee = auth()->guard('it')->user();
+
+            if($this->pendingReason){
+
+                ActivityLog::create([
+                    'action' => "Pending Notes",
+                    'details' => $this->pendingReason,
+                    'performed_by' => $employee->employee_name,
+                    'request_type' => 'Catalogue Request',
+                    'request_id' => $task->request_id,
+                    ]);
+
+            }
+
+            if ($task) {
+                $elapsedTime = \Carbon\Carbon::parse($task->cat_progress_since)->diffInMinutes(now());
+
+                // Update the total in-progress time and set status to Pending
+                $task->total_cat_progress_time += $elapsedTime;  // Add elapsed time to total
+
+                $task->update([
+                    'pending_notes' => $this->pendingReason,
+                    'status_code' => 5,
+                    'cat_progress_since' => null,
+                    ]);
+
+                    $employee = auth()->guard('it')->user();
+
+                    $activityDetails = '';
+                    // Flash a success message based on the selected status
+                    $activityDetails = "Work in Progress was Pending for Request ID - {$task->request_id}";
+
+                    $assigneName = $employee->employee_name;
+                    ActivityLog::create([
+                    'action' => 'State',
+                    'details' => $activityDetails,
+                    'performed_by' => $assigneName,
+                    'request_type' => 'Catalogue Request',
+                    'request_id' => $task->request_id,
+                    ]);
+
+
+            }
+        }
+        $this->checkboxPendingModal = false;
+        $this->selectedRecord ='';
+        $this->selectedRequests = [];
+        $this->selectedRecord=[];
+
+        $this->checkboxClosingModal = false;
+
+        $this->closeBulkPendingModal();
+        $this->updateCounts();
+
+        if($task){
+            FlashMessageHelper::flashSuccess("Status has been set to Pending");
+        }
+
+
+    }
+
+    public function bulkCloseForDesks()
+    {
+
+        if (count($this->selectedRequests) === 0) {
+            FlashMessageHelper::flashError( 'No requests selected.');
+            return;
+        }
+
+            $this->validate([
+                'pendingReason' => 'required|string|max:255',
+                'customerVisibleNotes' => 'required|string|max:255',
+                ]);
+        foreach ($this->selectedRequests as $requestId) {
+
+            $task = HelpDesks::find($requestId);
+
+            $employee = auth()->guard('it')->user();
+
+            if($this->pendingReason && $this->customerVisibleNotes){
+
+                ActivityLog::create([
+                    'action' => "Closed Notes",
+                    'details' => "Closed Notes: {$this->pendingReason} ||| Customer Visible Notes: {$this->customerVisibleNotes}",
+                    'performed_by' => $employee->employee_name,
+                    'request_type' => 'Catalogue Request',
+                    'request_id' => $task->request_id,
+                    ]);
+
+            }
+
+            if ($task) {
+
+                $totalElapsedMinutes = 0;
+
+                if ($task->cat_progress_since) {
+                    $totalElapsedMinutes = \Carbon\Carbon::parse($task->cat_progress_since)->diffInMinutes(now());
+                }
+
+                // Add the previously tracked progress time if exists
+                if (isset($task->total_cat_progress_time)) {
+                    $totalElapsedMinutes += $task->total_cat_progress_time;
+                }
+
+                $task->update([
+                    'status_code' => '11', // Closed
+                    'total_cat_progress_time' => $totalElapsedMinutes, // Store the total progress time
+                    'cat_progress_since' => null, // Reset the progress start time
+                    'req_end_date' => now(),
+                    'closed_notes' => $this->pendingReason,
+                    'customer_visible_notes' => $this->customerVisibleNotes,
+                    ]);
+
+                    $employee = auth()->guard('it')->user();
+
+                    $activityDetails = '';
+                    // Flash a success message based on the selected status
+                    $activityDetails = "Work in Progress was Closed for Request ID - {$task->request_id}";
+
+
+                    $assigneName = $employee->employee_name;
+                    ActivityLog::create([
+                    'action' => 'State',
+                    'details' => $activityDetails,
+                    'performed_by' => $assigneName,
+                    'request_type' => 'Catalogue Request',
+                    'request_id' => $task->request_id,
+                    ]);
+
+            }
+        }
+        $this->selectedRecord ='';
+        $this->selectedRequests = [];
+        $this->checkboxClosingModal = false;
+        $this->closeBulkClosedModal();
+        $this->updateCounts();
+
+            if($task){
+                FlashMessageHelper::flashSuccess("Status has been set to Closed");
+            }
+
+
+    }
+
+
+    // END INPROGRESS............................................
+
+
+    public $statusFilter = '';
+
+
+
+    public $catalogPendingDetails = '';
+    public $catalogInprogressDetails = '';
+    public $catalogClosedDetails = '';
+    public $statusPenFilterAssigne = '';
+    public $statusInproFilterAssigne = '';
+    public $statusClsdFilterAssigne = '';
+    public $itAssigneMemebers = [];
+
+
+
+
+
+    public function loadPendingRecordsByAssigne()
+    {
+        // Fetch the assignee members based on department and status
+
+        try {
+
+            $requestCategories = Request::select('Request', 'category')
+            ->where('Request', 'IT') // Adjust this to match the condition for IT requests
+            ->pluck('category');
+
+            // Fetch IT data (empIt related data)
+            $this->itData = IT::with('empIt')->get();
+
+            // Start the query to load Catalogue details with status code 16
+
+                $query = HelpDesks::with('emp')
+                    ->where('status_code', '5')
+                    ->whereIn('category', $requestCategories)
+                    ->orderBy($this->sortColumn, $this->sortDirection)
+                    ->orderBy('created_at', 'desc');
+
+
+            // Apply filter by the selected assignee if provided
+            if ($this->statusPenFilterAssigne) {
+
+                $query->where('assign_to', $this->statusPenFilterAssigne); // Filter by the selected Employee ID
+            } else {
+                // If no filter is selected, default to showing records with status code 16
+                $query->where('status_code', 5);
+            }
+
+            // Execute the query and fetch the records
+            $this->catalogPendingDetails = $query->get();
+
+        } catch (\Exception $e) {
+            // Log any error that occurs during the query execution
+            Log::error("Error loading Catalog details: " . $e->getMessage(), ['exception' => $e]);
+            FlashMessageHelper::flashError('An error occurred while loading Catalog details.');
+            $this->catalogPendingDetails = collect(); // Set to an empty collection in case of an error
+        }
+    }
+
+
+    public function loadInprogessRecordsByAssigne()
+    {
+        // Fetch the assignee members based on department and status
+
+        try {
+
+            $requestCategories = Request::select('Request', 'category')
+            ->where('Request', 'IT') // Adjust this to match the condition for IT requests
+            ->pluck('category');
+
+            // Fetch IT data (empIt related data)
+            $this->itData = IT::with('empIt')->get();
+
+            // Start the query to load Catalogue details with status code 16
+
+                $query =  $this->forIT = HelpDesks::with('emp')
+                ->where('status_code', '16')
+                ->whereIn('category', $requestCategories)
+                ->orderBy($this->sortColumn, $this->sortDirection)
+                ->orderBy('created_at', 'desc');
+
+
+
+            // Apply filter by the selected assignee if provided
+            if ($this->statusInproFilterAssigne) {
+
+                $query->where('assign_to', $this->statusInproFilterAssigne); // Filter by the selected Employee ID
+            } else {
+                // If no filter is selected, default to showing records with status code 16
+                $query->where('status_code', 16);
+            }
+
+            // Execute the query and fetch the records
+            $this->catalogInprogressDetails = $query->get();
+
+        } catch (\Exception $e) {
+            // Log any error that occurs during the query execution
+            Log::error("Error loading Catalog details: " . $e->getMessage(), ['exception' => $e]);
+            FlashMessageHelper::flashError('An error occurred while loading Catalog details.');
+            $this->catalogInprogressDetails = collect(); // Set to an empty collection in case of an error
+        }
+    }
+
+
+
+    public function loadClosedRecordsByAssigne()
+    {
+        // Fetch the assignee members based on department and status
+
+        try {
+
+            $requestCategories = Request::select('Request', 'category')
+            ->where('Request', 'IT') // Adjust this to match the condition for IT requests
+            ->pluck('category');
+
+            // Fetch IT data (empIt related data)
+            $this->itData = IT::with('empIt')->get();
+
+            // Start the query to load Catalogue details with status code 16
+
+                $query = HelpDesks::with('emp')
+                ->whereIn('status_code', ['11', '15'])
+                    ->whereIn('category',  $requestCategories)
+                    ->orderBy($this->sortColumn, $this->sortDirection)
+                    ->orderBy('created_at', 'desc')
+                   ;
+
+
+                   if ($this->statusFilter) {
+                    if ($this->statusFilter == '11') {
+                        $query->where('status_code', 11); // Completed
+                    } elseif ($this->statusFilter == '15') {
+                        $query->where('status_code', 15); // Cancelled
+                    }
+                }
+
+
+            // Apply filter by the selected assignee if provided
+            if ($this->statusClsdFilterAssigne) {
+                $query->where('assign_to', $this->statusClsdFilterAssigne); // Filter by the selected Employee ID
+            }
+
+            // Execute the query and fetch the records
+            $this->catalogClosedDetails = $query->get();
+
+        } catch (\Exception $e) {
+            // Log any error that occurs during the query execution
+            Log::error("Error loading Catalog details: " . $e->getMessage(), ['exception' => $e]);
+            FlashMessageHelper::flashError('An error occurred while loading Catalog details.');
+            $this->catalogClosedDetails = collect();  // Set to an empty collection in case of an error
+        }
+    }
+
+
+
+
+
+    public function updatedCurrentCatalogId($id)
+    {
+        $this->viewApproveDetails($id);
+    }
+
+    public function viewApproveDetails($id)
+    {
+        try {
+            $this->comments = '';
+            $this->recentRequest = HelpDesks::find($id);
+
+            // Check if the selected request exists
+            if (!$this->recentRequest) {
+                abort(404, 'Request not found');
+            }
+
+            $this->recentrequestDetails = true;
+
+            $requestedBy= EmployeeDetails::where('emp_id' ,  $this->recentRequest->emp_id)->first();
+            $fullName = ucwords(strtolower($requestedBy->first_name . ' ' . $requestedBy->last_name));
+               ActivityLog::create([
+                   'impact' => 'High',
+                   'opened_by' =>  $fullName ,
+                   'priority' =>  $this->recentRequest->priority,
+                   'state' => "Recent",
+                   'performed_by' =>  $fullName,
+                   'request_type' => $this->recentRequest->category,
+                   'request_id' => $this->recentRequest->request_id,
+               ]);
+
+
+        } catch (\Exception $e) {
+            // Log the exception for debugging
+            Log::error("Error occurred in viewApproveDetails method", [
+                'exception' => $e,
+                'index' => $id,
+            ]);
+
+            // Flash an error message for the user
+            FlashMessageHelper::flashError("An error occurred while viewing the approved request.");
+
+            // Optionally, reset properties in case of error
+            $this->recentrequestDetails = false;
+            $this->currentCatalogId = null;
+        }
+    }
+
+
+
 
 
     public function showAllRequest() {
@@ -200,48 +1154,8 @@ class RequestProcess extends Component
         }
     }
 
-    public function viewApproveDetails($index)
-    {
-        try {
-            $this->comments = '';
-            $this->recentRequest = $this->recentDetails->where('status_code', '8')->values()->get($index);
-
-            // Check if the selected request exists
-            if (!$this->recentRequest) {
-                abort(404, 'Request not found');
-            }
-
-            $this->recentrequestDetails = true;
-            $this->currentRequestId = $this->recentRequest->id;
-
-            $requestedBy= EmployeeDetails::where('emp_id' ,  $this->recentRequest->emp_id)->first();
-            $fullName = ucwords(strtolower($requestedBy->first_name . ' ' . $requestedBy->last_name));
-               ActivityLog::create([
-                   'impact' => 'High',
-                   'opened_by' =>  $fullName ,
-                   'priority' =>  $this->recentRequest->priority,
-                   'state' => "Recent",
-                   'performed_by' =>  $fullName,
-                   'request_type' => $this->recentRequest->category,
-                   'request_id' => $this->recentRequest->request_id,
-               ]);
 
 
-        } catch (\Exception $e) {
-            // Log the exception for debugging
-            Log::error("Error occurred in viewApproveDetails method", [
-                'exception' => $e,
-                'index' => $index,
-            ]);
-
-            // Flash an error message for the user
-            FlashMessageHelper::flashError("An error occurred while viewing the approved request.");
-
-            // Optionally, reset properties in case of error
-            $this->recentrequestDetails = false;
-            $this->currentRequestId = null;
-        }
-    }
 
     public function viewDetails($index)
     {
@@ -299,6 +1213,7 @@ class RequestProcess extends Component
         $this->recentrequestDetails = false;
 
         $this->mount();
+        return redirect()->route('requests');
         // $this->selectedRequest = true;
     }
 
@@ -316,45 +1231,15 @@ class RequestProcess extends Component
         // $this->selectedRequest = true;
     }
 
-    public function redirectBasedOnStatus()
-    {
-
-        $this->validate([
-            'selectedStatus' => 'required',
-
-            'selectedAssigne' => 'required',
-        ], [
-            'selectedStatus.required' => 'Status is required.',
-            'selectedAssigne.required' => 'Assign to is required.',
-        ]);
-
-
-        if ($this->selectedStatus === '5') {
-
-            $this->setActiveTab('pending');
-
-        } elseif ($this->selectedStatus === '11') {
-
-            $this->setActiveTab('closed');
-
-        }
-        $this->reset(['selectedStatus', 'selectedAssigne']);
-        $this->resetErrorBag();
-        $this->updateCounts();
-    }
-
-
-
-
-
-
 
     public function openForDesks($taskId)
     {
         $task = HelpDesks::find($taskId);
 
         if ($task) {
-            $task->update(['status_code' => '11']);
+            $task->update(['status_code' => '11',
+                  'req_end_date' => now(),
+                ]);
             FlashMessageHelper::flashSuccess("Status Closed successfully!");
 
             $employee = auth()->guard('it')->user(); // Get the logged-in user
@@ -362,7 +1247,7 @@ class RequestProcess extends Component
         'action' => 'State',
         'details' => "Work in Progress was Closed for Request ID - {$task->request_id}",
         'performed_by' => $employee->employee_name,
-        'request_type' => 'Catologue Request',
+        'request_type' => 'Catalog Request',
         'request_id' => $task->request_id,
     ]);
 
@@ -372,28 +1257,6 @@ class RequestProcess extends Component
     }
     public $error = '';
     public $loading = false;
-    public function closeForDesks($taskId)
-    {
-        $this->loading = true;
-        sleep(3);
-        $task = HelpDesks::find($taskId);
-        try {
-        if ($task) {
-            $task->update(['status_code' => '10']);
-            FlashMessageHelper::flashSuccess("Status Reopened successfully!");
-
-        }
-    }catch (\Exception $e) {
-        // Handle exception
-        $this->error = "An unexpected error occurred. Please try again.";
-    } finally {
-        $this->loading = false;
-
-    }
-        $this->updateCounts();
-    }
-
-
 
     public function approveStatus($taskId)
     {
@@ -459,7 +1322,7 @@ class RequestProcess extends Component
                 'action' => 'State',
                 'details' => $activityDetails,
                 'performed_by' => $RejetedEmployeeName,
-                'request_type' => 'Catologue Request',
+                'request_type' => 'Catalog Request',
                 'request_id' => $task->request_id,
             ]);
             $this->updateCounts();
@@ -486,31 +1349,39 @@ class RequestProcess extends Component
     }
 
     public $priority;
-    public function selectPriority($value)
-    {
-        // Update the priority field in the database
 
-        $activityDetails = '';
+    public function selectPriority($id, $value)
+{
+    try {
+        // Find the request by ID
+        $this->recentRequest = HelpDesks::findOrFail($id);
+
+        // Update the priority field in the database
         $this->recentRequest->priority = $value;
         $this->recentRequest->save();
 
-
+        // Log the activity
         $employee = auth()->guard('it')->user();
-        $RejetedEmployeeName =  ucwords(strtolower($employee->employee_name));
+        $RejetedEmployeeName = ucwords(strtolower($employee->employee_name));
 
         $activityDetails = "Priority has been changed to {$value} for Request ID - {$this->recentRequest->request_id}";
         ActivityLog::create([
             'action' => 'State',
             'details' => $activityDetails,
             'performed_by' => $RejetedEmployeeName,
-            'request_type' => 'Catologue Request',
+            'request_type' => 'Catalog Request',
             'priority' => $value,
             'request_id' => $this->recentRequest->request_id,
         ]);
-        FlashMessageHelper::flashSuccess("Priority updated successfully!!");
 
-        // Optionally, you can flash a success message or notify the user
+        // Flash a success message
+        FlashMessageHelper::flashSuccess("Priority updated successfully!");
+    } catch (\Exception $e) {
+        FlashMessageHelper::flashError("Failed to update priority.");
+        Log::error("Error updating priority: " . $e->getMessage());
     }
+}
+
 
 
          public $showPendingModal = false;
@@ -528,77 +1399,8 @@ class RequestProcess extends Component
         }
     }
 
-        public function closePendingModal()
-    {
-        $this->showPendingModal = false;
-        $this->reset(['pendingReason', 'pendingRequestId']);
-    }
 
 
-    public function submitPendingReason()
-    {
-        $this->validate([
-            'pendingReason' => 'required|string|max:255',
-        ]);
-        // Update the request status and reason
-
-        $task = HelpDesks::find($this->pendingRequestId);
-
-        if ($task && $this->selectedStatus) {
-
-            $employee = auth()->guard('it')->user();
-            $employeeEmail = $task->mail;  // The input string
-
-            $employeeName = $task->emp->first_name . ' ' . $task->emp->last_name;
-
-            $requestId = $task->request_id;
-            $shortDescription = $task->description; // Assuming this field exists
-
-            if ($this->selectedStatus === '5') {
-                // Send Pending email
-                Mail::to($employeeEmail)->send(new StatusRequestMail(
-                    $employeeName,
-                    $requestId,
-                    $shortDescription,
-                    $task->category,
-                    'Pending'  // Passing a flag for Pending
-                ));
-            }
-
-            // Update the task status
-            $task->update(['status_code' => $this->selectedStatus,
-                            'pending_reason' => $this->pendingReason]);
-
-
-            // Flash a success message based on the selected status
-            if ($this->selectedStatus === '5') {
-                $activityDetails = "Work in Progress was Pending for Request ID - {$task->request_id}";
-                FlashMessageHelper::flashSuccess("Status has been set to Pending, and email has been sent!");
-            }
-             else {
-                FlashMessageHelper::flashSuccess("Status Updated successfully!");
-            }
-        } else {
-            // Handle case where the task was not found or no status is selected
-            FlashMessageHelper::flashError("Task not found or invalid status.");
-        }
-
-
-        $assigneName =  ucwords(strtolower($employee->employee_name));
-        ActivityLog::create([
-            'action' => 'State',
-            'details' => $activityDetails,
-            'performed_by' => $assigneName,
-            'request_type' => 'Catologue Request',
-            'request_id' => $task->request_id,
-        ]);
-
-
-
-
-        $this->closePendingModal();
-        
-    }
 
 
     public function cancelStatus()
@@ -621,6 +1423,8 @@ class RequestProcess extends Component
                     $cancelRequest->update([
                         'status_code' => '15',
                         'rejection_reason' => $this->reason,
+                        'req_end_date' => now(),
+
                     ]);
                 }
 
@@ -630,10 +1434,11 @@ class RequestProcess extends Component
                 $employee = auth()->guard('it')->user();
                 $employeeEmail = $cancelRequest->mail;  // The input string
                 $rejectionReason = $this->reason;
-
+                $Id = $cancelRequest->request_id;
             // Send rejection email
                Mail::to($employeeEmail)->send(new cancelRequestMail(
                $cancelRequest,
+               $Id,
                $employee,
                $rejectionReason,
             ));
@@ -724,7 +1529,7 @@ class RequestProcess extends Component
                 'action' => 'State',
                 'details' => $activityDetails,
                 'performed_by' => $RejetedEmployeeName,
-                'request_type' => 'Catologue Request',
+                'request_type' => 'Catalog Request',
                 'request_id' => $recentRequest->request_id,
             ]);
 
@@ -756,288 +1561,680 @@ class RequestProcess extends Component
     {
 
         $this->showRejectionModal = false;
+        $this->showRejectionBulkRqsModal = false;
         $this->showCancelModal = false;
     }
 
 
-    public function inprogressForDesks($taskId)
+
+    public $modalPurpose = '';
+    public $showStatusModal = false;
+
+
+
+
+    public function handleSelectedAssigneChange()
     {
+        // Reset validation for the field
+        $this->resetValidationForField('selectedAssigne');
 
-        $task = HelpDesks::find($taskId);
+        // Call the SelectedAssigne method
+        $this->SelectedAssigne();
+    }
 
-        if ($task) {
-            if ($task->in_progress_since === null) {
 
-                $task->in_progress_since = now();
-            }
+    public function handleSelectedStatusChange()
+    {
+        // Reset validation for the field
+        $this->resetValidationForField('selectedStatus');
 
-            $task->status_code = '16';  // Set status to InProgress
-            $task->save();
+        // Call the SelectedStatus method
+        $this->SelectedStatus();
+    }
 
-            $activityDetails = "Work in Progress was Inprogress for Request ID - {$task->request_id}";
+    public function resetValidationForField($field)
+    {
+        // Reset error for the specific field when typing
+        $this->resetErrorBag($field);
+    }
 
-            $employee = auth()->guard('it')->user(); // Get the logged-in user
-            ActivityLog::create([
-                'action' => 'State',
-                'details' => "$activityDetails",
-                'performed_by' => $employee->employee_name,
-                'request_type' => 'Catologue Request',
-                'request_id' => $task->request_id,
-            ]);
-
-            FlashMessageHelper::flashSuccess("Status Changed to inprogress!");
-            $this->updateCounts();
+    public function SelectedAssigne()
+    {
+        if ($this->selectedAssigne) {
+            FlashMessageHelper::flashSuccess("Assignee selected: {$this->selectedAssigne}");
         }
+    }
+
+    public function SelectedStatus()
+    {
+         if ($this->selectedStatus === '5') {
+
+            $this->modalPurpose = 'Pending';
+            $this->showStatusModal = true;
+
+                }elseif ($this->selectedStatus === '16') {
+
+                    FlashMessageHelper::flashSuccess("Status has been set to Inprogress");
+                }
+                 elseif ($this->selectedStatus === '11') {
+                    $this->modalPurpose = 'Completed';
+                    $this->showStatusModal = true;
+
+                } elseif ($this->selectedStatus === '15') {
+                    $this->modalPurpose = 'Cancel';
+                    $this->showStatusModal = true;
+
+                }
+
+                $this->updateCounts();
+    }
+
+
+
+
+    public function closeStatusModal()
+    {
+        $this->showStatusModal = false;
+        $this->reset(['pendingReason', 'pendingRequestId','modalPurpose']);
 
     }
 
 
 
 
-    public function pendingForDesks($taskId)
+    public function submitStatusReason($requestId)
     {
+        $this->validate([
+        'pendingReason' => 'required|string|max:255',
+        ]);
+        // Update the request status and reason
+        $this->pendingRequestId = $requestId;
+        $task = HelpDesks::find($this->pendingRequestId);
 
-        $task = HelpDesks::find($taskId);
+        if ($task && $this->modalPurpose) {
 
-        if ($task) {
-           // Calculate elapsed time since "InProgress" state started
-    $elapsedTime = \Carbon\Carbon::parse($task->in_progress_since)->diffInMinutes(now());
+        if ($this->modalPurpose === 'Pending') {
 
-    // Update the total in-progress time and set status to Pending
-    $task->total_in_progress_time += $elapsedTime;  // Add elapsed time to total
-    $task->update([
-        'status_code' => '5',  // Set status to Pending
-        'in_progress_since' => null,  // Stop the timer
-    ]);
+        $task->update([
+        'pending_notes' => $this->pendingReason
+        ]);
 
-    $employee = auth()->guard('it')->user(); // Get the logged-in user
-    ActivityLog::create([
+        $employee = auth()->guard('it')->user();
+
+        $assignedAssigne = EmployeeDetails::where('emp_id' , $task->emp_id )->get();
+
+        $employeeEmail = $assignedAssigne[0]->email;
+
+        $employeeName = $task->emp->first_name . ' ' . $task->emp->last_name;
+
+        $requestId = $task->request_id;
+        $shortDescription = $task->description; // Assuming this field exists
+        $pendingReason = $this->pendingReason;
+
+        // Send Pending email
+        Mail::to($employeeEmail)->send(new statusRequestMail(
+        $employeeName,
+        $requestId,
+        $pendingReason,
+        $shortDescription,
+        $task->category,
+        'Pending' // Passing a flag for Pending
+        ));
+
+        $activityDetails = '';
+        // Flash a success message based on the selected status
+        $activityDetails = "Work in Progress was Pending for Request ID - {$task->request_id}";
+        FlashMessageHelper::flashSuccess("Status has been set to Pending");
+
+
+        $assigneName = $employee->employee_name;
+        ActivityLog::create([
         'action' => 'State',
-        'details' => "Work in Progress was changed from Inprogress to Pending for Request ID - {$task->request_id}",
-        'performed_by' => $employee->employee_name,
-        'request_type' => 'Catologue Request',
+        'details' => $activityDetails,
+        'performed_by' => $assigneName,
+        'request_type' => 'Catalog Request',
         'request_id' => $task->request_id,
-    ]);
-
-            FlashMessageHelper::flashSuccess("Status Changed to pending!");
-            $this->updateCounts();
+        ]);
 
         }
+
+        elseif ($this->modalPurpose === 'Cancel') {
+        // Logic for Cancel
+        $cancelRequest = HelpDesks::with('emp')->where('id', $this->pendingRequestId)->first();
+
+        $task->update(['cancel_notes' => $this->pendingReason,
+                        'req_end_date' => now()]);
+
+        $employee = auth()->guard('it')->user();
+
+        $assignedAssigne = EmployeeDetails::where('emp_id' , $task->emp_id )->get();
+
+        $employeeEmail = $assignedAssigne[0]->email;
+
+        $employeeName = $task->emp->first_name . ' ' . $task->emp->last_name;
+
+        $requestId = $task->request_id;
+        $shortDescription = $task->description; // Assuming this field exists
+        $pendingReason = $this->pendingReason;
+
+
+        Mail::to($employeeEmail)->send(new statusRequestMail(
+            $employeeName,
+            $requestId,
+            $pendingReason,
+            $shortDescription,
+            $task->category,
+            'Cancel' // Passing a flag for Pending
+            ));
+
+
+        $activityDetails = '';
+        // Flash a success message based on the selected status
+
+
+        $activityDetails = "Work in Progress was Cancelled for Request ID - {$task->request_id}";
+
+        $employee = auth()->guard('it')->user();
+        $assigneName = $employee->employee_name;
+        ActivityLog::create([
+        'action' => 'State',
+        'details' => $activityDetails,
+        'performed_by' => $assigneName,
+        'request_type' => 'Catalog Request',
+        'request_id' => $task->request_id,
+        ]);
+
+        FlashMessageHelper::flashSuccess("Status has been set to Cancelled");
+
+        } elseif ($this->modalPurpose === 'Completed') {
+
+
+        $task->update([
+        'closed_notes' => $this->pendingReason,
+        'req_end_date' => now(),
+        ]);
+
+        $employee = auth()->guard('it')->user();
+
+        $assignedAssigne = EmployeeDetails::where('emp_id' , $task->emp_id )->get();
+
+        $employeeEmail = $assignedAssigne[0]->email;
+
+        $employeeName = $task->emp->first_name . ' ' . $task->emp->last_name;
+
+        $requestId = $task->request_id;
+        $shortDescription = $task->description; // Assuming this field exists
+        $pendingReason = $this->pendingReason;
+
+        Mail::to($employeeEmail)->send(new statusRequestMail(
+            $employeeName,
+            $requestId,
+            $pendingReason,
+            $shortDescription,
+            $task->category,
+            'Closed' // Passing a flag for Pending
+            ));
+
+
+        $activityDetails = '';
+        // Flash a success message based on the selected status
+        $activityDetails = "Work in Progress was Completed for Request ID - {$task->request_id}";
+        FlashMessageHelper::flashSuccess("Status has been set to Completed");
+
+
+        $assigneName = $employee->employee_name;
+        ActivityLog::create([
+        'action' => 'State',
+        'details' => $activityDetails,
+        'performed_by' => $assigneName,
+        'request_type' => 'Catalog Request',
+        'request_id' => $task->request_id,
+        ]);
+
+        }
+
+
+
+
+        ActivityLog::create([
+        'action' => $this->modalPurpose,
+        'details' => $this->pendingReason,
+        'performed_by' => $employee->employee_name,
+        'request_type' => 'Catalog Request',
+        'request_id' => $task->request_id,
+        ]);
+
+
+        $this->closeStatusModal();
+
+
+        } else {
+        // Handle case where the task was not found or no status is selected
+        FlashMessageHelper::flashError("Task not found or invalid status.");
+        }
+
+
 
     }
 
 
-    public $selectedStatus;
 
-    public function updateStatus($taskId)
+    public function activeCatalogSubmit($taskId)
     {
 
-        $this->validateOnly('selectedStatus');
+        $this->validate([
+            'selectedStatus' => 'required',
 
-        try {
-
-            $this->resetErrorBag('selectedStatus');
-
-            // Find the task by ID
-            $task = HelpDesks::find($taskId);
-            // Check if the task exists and a valid status is selected
-            if ($task && $this->selectedStatus) {
-
-                $employee = auth()->guard('it')->user();
-                $employeeEmail = $task->mail;  // The input string
-
-                $employeeName = $task->emp->first_name . ' ' . $task->emp->last_name;
-
-                $requestId = $task->request_id;
-                $shortDescription = $task->description; // Assuming this field exists
-
-                if ($this->selectedStatus === '5') {
-                    // Send Pending email
-                    Mail::to($employeeEmail)->send(new StatusRequestMail(
-                        $employeeName,
-                        $requestId,
-                        $shortDescription,
-                        $task->category,
-                        'Pending'  // Passing a flag for Pending
-                    ));
-                } elseif ($this->selectedStatus === '11') {
-                    // Send Completed email
-                    Mail::to($employeeEmail)->send(new StatusRequestMail(
-                        $employeeName,
-                        $requestId,
-                        $shortDescription,
-                        $task->category,
-                        'Completed'  // Passing a flag for Completed
-                    ));
-                }
-
-                // Update the task status
-                $task->update(['status_code' => $this->selectedStatus]);
+            'selectedAssigne' => 'required',
+        ], [
+            'selectedStatus.required' => 'Status is required.',
+            'selectedAssigne.required' => 'Assign to is required.',
+        ]);
 
 
-                // Flash a success message based on the selected status
-                if ($this->selectedStatus === '5') {
-                    $activityDetails = "Work in Progress was Pending for Request ID - {$task->request_id}";
-                    FlashMessageHelper::flashSuccess("Status has been set to Pending, and email has been sent!");
-                }  elseif ($this->selectedStatus === '16') {
-                    $task->in_progress_since = now();  // Set the current timestamp
-                    $task->save();
-                    $activityDetails = "Work in Progress was Inprogress for Request ID - {$task->request_id}";
-                    FlashMessageHelper::flashSuccess("Status has been set to Inprogress, and email has been sent!");
-                } elseif ($this->selectedStatus === '11') {
-                    $activityDetails = "Work in Progress was Completed for Request ID - {$task->request_id}";
-                    FlashMessageHelper::flashSuccess("Status has been set to Completed, and email has been sent!");
-                }elseif ($this->selectedStatus === '15') {
-                    $activityDetails = "Work in Progress was Cancelled for Request ID - {$task->request_id}";
-                    FlashMessageHelper::flashSuccess("Status has been set to Cancelled, and email has been sent!");
-                }
-                 else {
-                    FlashMessageHelper::flashSuccess("Status Updated successfully!");
-                }
-            } else {
-                // Handle case where the task was not found or no status is selected
-                FlashMessageHelper::flashError("Task not found or invalid status.");
-            }
+        $task = HelpDesks::find($taskId);
+        $employee = auth()->guard('it')->user();
+        $snowId = $task->request_id;
+
+        if ($this->selectedAssigne) {
+            // Update the task with the selected assignee
+
+            $fullNameAndEmpId = $this->selectedAssigne;
+
+            // Split the string by space
+            $parts = explode(' ', $fullNameAndEmpId);
+
+            // Extract emp_id (last element in the array)
+            $empId = array_pop($parts);
+
+            // Join the remaining parts to get the full name
+            $fullName = implode(' ', $parts);
+
+            $employee = auth()->guard('it')->user();
 
 
-            $assigneName =  ucwords(strtolower($employee->employee_name));
+         $assignedAssigne = EmployeeDetails::where('emp_id' ,   $empId )->get();
+
+            $fullName = $assignedAssigne[0]->first_name . ' ' . $assignedAssigne[0]->last_name;  // Concatenate first and last name
+            $email = $assignedAssigne[0]->email;
+
+
+        $employeeName = $fullName;
+        $requestId =  $snowId;
+        $shortDescription = $task->description; // Assuming this field exists
+        $assigneName = $employee->employee_name;
+
+
+            // Send Pending email
+            Mail::to($email)->send(new assigneRequestMail(
+                $assigneName,
+                $requestId,
+                $shortDescription,
+                $task->category,
+
+            ));
+
+
+            $task->update(['assign_to' => $this->selectedAssigne]);
+
+
             ActivityLog::create([
-                'action' => 'State',
-                'details' => $activityDetails,
-                'performed_by' => $assigneName,
-                'request_type' => 'Catologue Request',
-                'request_id' => $task->request_id,
-            ]);
-        } catch (\Exception $e) {
-            // Log the exception for debugging
-            Log::error("Error occurred in updateStatus method", [
-                'exception' => $e,
-                'taskId' => $taskId,
-                'selectedStatus' => $this->selectedStatus,
+                'action' => 'Assigned to',
+                'details' => "{$fullName}",
+                'performed_by' => $assigneName , // Assuming user is logged in
+                'request_type' => 'Catalog Request',
+                'request_id' =>   $snowId ,
             ]);
 
-            // Flash an error message for the user
-            FlashMessageHelper::flashError("An error occurred while updating the task status.");
+            // Optionally, you can add a success message here
+            // session()->flash('message', 'Task assigned successfully!');
+        } else {
+            // Handle case where task was not found or no assignee selected
+            FlashMessageHelper::flashError("Task not found or invalid assignee.");
         }
-    }
 
 
 
+        if ($this->selectedStatus) {
 
-
-
-    public $selectedAssigne;
-
-
-    public function updateAssigne($taskId)
-    {
-        try {
-            // Validate the selected assignee
-            $this->validateOnly('selectedAssigne');
-            $this->resetErrorBag('selectedAssigne');
-
-            // Find the task by ID
+            // Update the task status
+            $task->update(['status_code' => $this->selectedStatus]);
             $task = HelpDesks::find($taskId);
 
-
-
-            // Check if the task exists and a valid assignee is selected
-            if ($task && $this->selectedAssigne) {
-                // Update the task with the selected assignee
-
-                $fullNameAndEmpId = $this->selectedAssigne;
-
-                // Split the string by space
-                $parts = explode(' ', $fullNameAndEmpId);
-
-                // Extract emp_id (last element in the array)
-                $empId = array_pop($parts);
-
-
-                // Join the remaining parts to get the full name
-                $fullName = implode(' ', $parts);
-
-                $employee = auth()->guard('it')->user();
-
-             $assignedAssigne = EmployeeDetails::where('emp_id' ,   $empId )->get();
-
-                $fullName = $assignedAssigne[0]->first_name . ' ' . $assignedAssigne[0]->last_name;  // Concatenate first and last name
-                $email = $assignedAssigne[0]->email;
-
-
-            $employeeName = $fullName;
+            $employee = auth()->guard('it')->user();
             $requestId = $task->request_id;
             $shortDescription = $task->description; // Assuming this field exists
-            $assigneName =  ucwords(strtolower($employee->employee_name));
+            $activityDetails = '';
+            // Flash a success message based on the selected status
+            if ($this->selectedStatus === '5') {
+                $activityDetails = "Work in Progress was Pending for Request ID - {$task->request_id}";
+            }elseif ($this->selectedStatus === '16') {
 
+                $task->cat_progress_since = now();  // Set the current timestamp
+                $task->save();
+                $activityDetails = "Work in Progress was Inprogress for Request ID - {$task->request_id}";
 
-                // Send Pending email
-                Mail::to($email)->send(new assigneRequestMail(
-                    $assigneName,
-                    $requestId,
-                    $shortDescription,
-                    $task->category,
-
-                ));
-
-
-                $task->update(['assign_to' => $this->selectedAssigne]);
-
-                ActivityLog::create([
-                    'action' => 'Assigned to',
-                    'details' => "{$fullName}",
-                    'performed_by' => $assigneName , // Assuming user is logged in
-                    'request_type' => 'Catologue Request',
-                    'request_id' =>   $task->request_id ,
-                ]);
-
-                FlashMessageHelper::flashSuccess("Task assigned successfully, and email has been sent!");
-                // Optionally, you can add a success message here
-                // session()->flash('message', 'Task assigned successfully!');
-            } else {
-                // Handle case where task was not found or no assignee selected
-                FlashMessageHelper::flashError("Task not found or invalid assignee.");
             }
-        } catch (\Exception $e) {
-            // Log the exception for debugging
-            Log::error("Error occurred in updateAssigne method", [
-                'exception' => $e,
-                'taskId' => $taskId,
-                'selectedAssigne' => $this->selectedAssigne,
+             elseif ($this->selectedStatus === '11') {
+
+            } elseif ($this->selectedStatus === '15') {
+
+            }
+
+
+        $assigneName = $employee->employee_name;
+        ActivityLog::create([
+            'action' => 'State',
+            'details' => $activityDetails,
+            'performed_by' => $assigneName,
+            'request_type' => 'Catalog Request',
+            'request_id' => $task->request_id,
+        ]);
+
+            $this->updateCounts();
+        } else {
+            // Handle case where the task was not found or no status is selected
+            FlashMessageHelper::flashError("Task not found or invalid status.");
+        }
+
+        FlashMessageHelper::flashSuccess("Request submitted successfully");
+        $this->viewRecentRequests = false;
+        $this->recentrequestDetails = false;
+        $this->viewingDetails = false;
+        $this->reset(['selectedStatus', 'selectedAssigne']);
+        $this->resetErrorBag();
+        $this->updateCounts();
+    }
+
+
+
+
+
+    public function selectedInprogress($taskId)
+    {
+        $this->selectedTaskId = $taskId;
+
+        $this->showInprogressModal =true;
+        $this->updateCounts();
+    }
+
+        public $showInprogressModal = false;
+
+
+        public function closeInprogressModal()
+        {
+        $this->showInprogressModal = false;
+        $this->reset(['pendingReason', 'pendingRequestId','modalPurpose']);
+        }
+
+
+
+
+        public $selectedTaskId;
+        public function inprogressForDesks()
+        {
+
+            $this->validate([
+                'pendingReason' => 'required|string|max:255',
             ]);
 
-            // Flash an error message for the user
-            FlashMessageHelper::flashError("An error occurred while assigning the task.");
+            try {
+
+                $task = HelpDesks::find($this->selectedTaskId);
+
+                if (!$task) {
+                    throw new \Exception('Task not found');
+                }
+
+                $employee = auth()->guard('it')->user();
+
+                if ($this->pendingReason) {
+                    ActivityLog::create([
+                        'action' => "Inprogress Notes",
+                        'details' => $this->pendingReason,
+                        'performed_by' => $employee->employee_name,
+                        'request_type' => 'Catalog Request',
+                        'request_id' => $task->request_id,
+                    ]);
+                }
+
+                if ($task) {
+                    if ($task->cat_progress_since === null) {
+                        // If it's the first time switching to InProgress, set the current time
+                        $task->cat_progress_since = now();
+                    }
+
+                    $task->update([
+                        'inprogress_notes' => $this->pendingReason,
+                        'status_code' => 16,
+                    ]);
+
+
+                    $employee = auth()->guard('it')->user();
+
+                    $activityDetails = '';
+                    // Flash a success message based on the selected status
+                    $activityDetails = "Work in Progress was Inprogress for Request ID - {$task->request_id}";
+                    FlashMessageHelper::flashSuccess("Status has been set to Inprogress");
+
+                    $assigneName = $employee->employee_name;
+                    ActivityLog::create([
+                        'action' => 'State',
+                        'details' => $activityDetails,
+                        'performed_by' => $assigneName,
+                        'request_type' => 'Catalog Request',
+                        'request_id' => $task->request_id,
+                    ]);
+
+                    $this->closeInprogressModal();
+                    $this->updateCounts();
+                }
+            } catch (\Exception $e) {
+                // Log the error or handle it as needed
+                Log::error("Error in inprogressForDesks method: " . $e->getMessage());
+
+                // Optionally flash an error message
+                FlashMessageHelper::flashError("An error occurred while updating the task status.");
+            }
         }
-    }
 
 
 
-    public $showModal = false;
 
-    public function viewRecord($id)
-    {
-
-        $requestCategories = Request::select('Request', 'category')
-        ->where('Request', 'IT') // Adjust this to match the condition for IT requests
-        ->pluck('category');
-        // Fetch the record based on the ID
-        $this->selectedRecord = HelpDesks::with('emp')
-        ->whereIn('category',  $requestCategories)
-        ->orderBy($this->sortColumn, $this->sortDirection)
-        ->orderBy('created_at', 'desc')
-        ->find($id);
-
-        $this->showModal = true;
-
-
-    }
-
-    public function closeModal()
+        public function selectedPending($taskId)
         {
-            $this->showModal = false; // Hide the modal
-            $this->selectedRecord = null; // Reset the selected record
+            $this->selectedTaskId = $taskId;
+            $this->showPendingModal =true;
+            $this->updateCounts();
         }
+
+
+        public function closePendingModal()
+        {
+            $this->showPendingModal = false;
+            $this->reset(['pendingReason', 'pendingRequestId','modalPurpose']);
+        }
+
+
+
+        public function pendingForDesks($taskId)
+        {
+
+            $this->validate([
+                'pendingReason' => 'required|string|max:255',
+                ]);
+
+
+            $task = HelpDesks::find( $this->selectedTaskId );
+
+            $employee = auth()->guard('it')->user();
+
+            if($this->pendingReason){
+
+                ActivityLog::create([
+                    'action' => "Pending Notes",
+                    'details' => $this->pendingReason,
+                    'performed_by' => $employee->employee_name,
+                    'request_type' => 'Catalog Request',
+                    'request_id' => $task->request_id,
+                    ]);
+
+            }
+
+            if ($task) {
+                $elapsedTime = \Carbon\Carbon::parse($task->cat_progress_since)->diffInMinutes(now());
+
+                // Update the total in-progress time and set status to Pending
+                $task->total_cat_progress_time += $elapsedTime;  // Add elapsed time to total
+
+                $task->update([
+                    'pending_notes' => $this->pendingReason,
+                    'status_code' => 5,
+                    'cat_progress_since' => null,
+                    ]);
+
+                    $employee = auth()->guard('it')->user();
+
+                    $activityDetails = '';
+                    // Flash a success message based on the selected status
+                    $activityDetails = "Work in Progress was Pending for Request ID - {$task->request_id}";
+                    FlashMessageHelper::flashSuccess("Status has been set to Pending");
+
+
+                    $assigneName = $employee->employee_name;
+                    ActivityLog::create([
+                    'action' => 'State',
+                    'details' => $activityDetails,
+                    'performed_by' => $assigneName,
+                    'request_type' => 'Catalog Request',
+                    'request_id' => $task->request_id,
+                    ]);
+
+                $this->closePendingModal();
+                $this->updateCounts();
+            }
+
+
+        }
+
+
+
+        public function selectedClosed($taskId)
+        {
+            $this->selectedTaskId = $taskId;
+            $this->showClosedModal =true;
+            $this->updateCounts();
+        }
+
+        public $showClosedModal = false;
+
+
+        public function closeClosedModal()
+        {
+            $this->showClosedModal = false;
+            $this->reset(['pendingReason', 'pendingRequestId','modalPurpose','customerVisibleNotes']);
+        }
+
+
+        public $customerVisibleNotes;
+        public function closeForDesks($taskId)
+        {
+
+
+            $this->validate([
+                'pendingReason' => 'required|string|max:255',
+                'customerVisibleNotes' => 'required|string|max:255',
+                ]);
+
+
+            $task = HelpDesks::find( $this->selectedTaskId );
+
+            $employee = auth()->guard('it')->user();
+
+            if($this->pendingReason && $this->customerVisibleNotes){
+
+                ActivityLog::create([
+                    'action' => "Closed Notes",
+                    'details' => "Closed Notes: {$this->pendingReason} ||| Customer Visible Notes: {$this->customerVisibleNotes}",
+                    'performed_by' => $employee->employee_name,
+                    'request_type' => 'Catalog Request',
+                    'request_id' => $task->request_id,
+                    ]);
+
+            }
+
+            if ($task) {
+
+                $totalElapsedMinutes = 0;
+
+                if ($task->cat_progress_since) {
+                    $totalElapsedMinutes = \Carbon\Carbon::parse($task->cat_progress_since)->diffInMinutes(now());
+                }
+
+                // Add the previously tracked progress time if exists
+                if (isset($task->total_cat_progress_time)) {
+                    $totalElapsedMinutes += $task->total_cat_progress_time;
+                }
+
+                $task->update([
+                    'status_code' => '11', // Closed
+                    'total_cat_progress_time' => $totalElapsedMinutes, // Store the total progress time
+                    'cat_progress_since' => null, // Reset the progress start time
+                    'req_end_date' => now(),
+                    'closed_notes' => $this->pendingReason,
+                    'customer_visible_notes' => $this->customerVisibleNotes,
+                    ]);
+
+                    $employee = auth()->guard('it')->user();
+
+                    $activityDetails = '';
+                    // Flash a success message based on the selected status
+                    $activityDetails = "Work in Progress was Closed for Request ID - {$task->request_id}";
+                    FlashMessageHelper::flashSuccess("Status has been set to Closed");
+
+
+                    $assigneName = $employee->employee_name;
+                    ActivityLog::create([
+                    'action' => 'State',
+                    'details' => $activityDetails,
+                    'performed_by' => $assigneName,
+                    'request_type' => 'Catalog Request',
+                    'request_id' => $task->request_id,
+                    ]);
+
+                $this->closeClosedModal();
+                $this->updateCounts();
+            }
+
+
+        }
+
+
+            public $showModal = false;
+
+            public function viewRecord($id)
+            {
+
+                $requestCategories = Request::select('Request', 'category')
+                ->where('Request', 'IT') // Adjust this to match the condition for IT requests
+                ->pluck('category');
+                // Fetch the record based on the ID
+                $this->selectedRecord = HelpDesks::with('emp')
+                ->whereIn('category',  $requestCategories)
+                ->orderBy($this->sortColumn, $this->sortDirection)
+                ->orderBy('created_at', 'desc')
+                ->find($id);
+
+                $this->showModal = true;
+
+
+            }
+
+            public function closeModal()
+                {
+                    $this->showModal = false; // Hide the modal
+                    $this->selectedRecord = null; // Reset the selected record
+                }
 
 
 
@@ -1060,7 +2257,7 @@ class RequestProcess extends Component
                 'action' => 'Active Comment',
                 'details' => "$this->comments",
                 'performed_by' => $employee->employee_name,
-                'request_type' => 'Catologue Request',
+                'request_type' => 'Catalog Request',
                 'request_id' => $task->request_id,
             ]);
 
@@ -1068,7 +2265,7 @@ class RequestProcess extends Component
             FlashMessageHelper::flashSuccess("Comment posted successfully!");
         } else {
             // Handle case where task not found or no comment provided
-            FlashMessageHelper::flashError("Task not found or no comment provided.");
+            FlashMessageHelper::flashError("Please Provide the Comments.");
         }
     } catch (\Exception $e) {
         // Log the exception for debugging
@@ -1107,7 +2304,7 @@ public function postPendingRemarks($taskId)
                 'action' => 'Pending Comment',
                 'details' =>  $remarks,
                 'performed_by' => $employee->employee_name,
-                'request_type' => 'Catologue Request',
+                'request_type' => 'Catalog Request',
                 'request_id' => $task->request_id,
             ]);
 
@@ -1148,14 +2345,14 @@ public function postInprogressRemarks($taskId)
             }
 
             // Update the task with the remarks
-            $task->update(['inprogress_remarks' => $remarks]);
+            $task->update(['inprogress_notes' => $remarks]);
 
             $employee = auth()->guard('it')->user(); // Get the logged-in user
             ActivityLog::create([
                 'action' => 'Inprogress Comment',
                 'details' => $remarks,
                 'performed_by' => $employee->employee_name,
-                'request_type' => 'Catologue Request',
+                'request_type' => 'Catalog Request',
                 'request_id' => $task->request_id,
             ]);
 
@@ -1277,7 +2474,7 @@ public function updateCounts()
             ->whereIn('category', $requestCategories)->count();
 
         // Count closed requests (Completed)
-        $this->closedCount = HelpDesks::where('status_code', ['11', '15'])
+        $this->closedCount = HelpDesks::whereIn('status_code', ['11', '15'])
         ->whereIn('category', $requestCategories)->count();
 
     } catch (\Exception $e) {
@@ -1329,11 +2526,445 @@ public function updateCounts()
     }
 
 
+
+
+    public $previews=[];
+    public $all_files = [];
+    public $cat_file_paths = [];
+    public $showSuccessMsg=false;
+
+    public function updatedCatFilePaths($value, $recordId)
+{
+
+    // Assuming cat_file_paths is an array of files for a specific request ID
+    foreach ($this->cat_file_paths[$recordId] as $file) {
+        // Ensure no duplicate files are added
+        $existingFileNames = array_map(function ($existingFile) {
+            return $existingFile->getClientOriginalName();
+        }, $this->all_files);
+
+        // Check if the file is already in the list
+        if (!in_array($file->getClientOriginalName(), $existingFileNames)) {
+            // Append only new files to all_files
+            $this->all_files[] = $file;
+
+            try {
+                // Generate previews only for the new file
+                if (in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'])) {
+                    $base64Image = base64_encode(file_get_contents($file->getRealPath()));
+                    $this->previews[] = [
+                        'url' => 'data:' . $file->getMimeType() . ';base64,' . $base64Image,
+                        'type' => 'image',
+                        'name' => $file->getClientOriginalName(),
+                    ];
+                } else {
+                    $this->previews[] = [
+                        'type' => 'file',
+                        'name' => $file->getClientOriginalName(),
+                    ];
+                }
+            } catch (\Throwable $th) {
+                Log::error('Error generating preview:', [
+                    'file' => $file->getClientOriginalName(),
+                    'error' => $th->getMessage(),
+                ]);
+            }
+        }
+    }
+
+    $this->showSuccessMsg = true;
+    $this->showFilePreviewModal = true;
+    $this->selectedRecordId = $recordId;
+
+}
+
+    public $showFilePreviewModal = false;
+
+
+
+        public function hideFilePreviewModal()
+    {
+        // Hide the modal by setting the property to false
+        $this->showFilePreviewModal = false;
+    }
+
+    public function  hideSuccessMsg(){
+        $this->showSuccessMsg=false;
+    }
+
+    public function removeFile($index)
+    {
+        if (isset($this->all_files[$index])) {
+            unset($this->all_files[$index]);
+            unset($this->previews[$index]);
+            $this->all_files = array_values($this->all_files);
+            $this->previews = array_values($this->previews);
+        }
+
+    }
+
+
+    public $selectedRecordId = null;  // Add this to store the selected record's ID
+
+// When opening the file preview modal
+
+
+    public function uploadFiles($selectedRecordId)
+    {
+
+
+
+        $this->cat_file_paths = $this->all_files;
+
+        $attachments = HelpDesks::find($selectedRecordId);
+
+        // Initialize fileDataArray
+        $fileDataArray = [];
+
+
+        if ($this->cat_file_paths) {
+            foreach ($this->cat_file_paths as $file) {
+                $mimeType = $file->getMimeType();
+
+                // Check if the file is an image
+                if (strpos($mimeType, 'image/') === 0) {
+                    // Validate image file size
+                    if ($file->getSize() > 1024 * 1024) { // 1 MB in bytes
+                        FlashMessageHelper::flashError("The image {$file->getClientOriginalName()} exceeds the 1 MB size limit.");
+                        return; // Stop further processing
+                    }
+                } else {
+                    // Validate non-image file size
+                    if ($file->getSize() >  100 * 1024 * 1024) { // 500 MB in bytes
+                        FlashMessageHelper::flashError("The file {$file->getClientOriginalName()} exceeds the 500 MB size limit.");
+                        return; // Stop further processing
+                    }
+                }
+            }
+
+            // Validate files based on their types
+            $this->validate([
+                'cat_file_paths.*' => [
+                    'nullable',
+                    'file',
+                    'mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif',
+                    'max:512000', // Maximum size in KB (500 MB for general validation)
+                ],
+            ]);
+        }
+
+        if ($this->cat_file_paths) {
+            // Validate files
+            $this->validate([
+                'cat_file_paths.*' => 'nullable|file|mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif|max:40960',
+            ]);
+
+
+            // Process each file
+            foreach ($this->cat_file_paths as $file) {
+                try {
+                    if ($file->isValid()) {
+                        $fileContent = file_get_contents($file->getRealPath());
+                        $mimeType = $file->getMimeType();
+                        $base64File = base64_encode($fileContent);
+
+                        // Add new file to the array
+                        $fileDataArray[] = [
+                            'data' => $base64File,
+                            'mime_type' => $mimeType,
+                            'original_name' => $file->getClientOriginalName(),
+                        ];
+                    } else {
+                        Log::error('File is not valid:', ['file' => $file->getClientOriginalName()]);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Error processing file:', [
+                        'file' => $file->getClientOriginalName(),
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+        }
+
+
+        // If the record exists, update the file paths
+
+        if ($attachments) {
+            try {
+                // Log before update
+                Log::info('Attempting to update attachments', [
+                    'attachment_id' => $attachments->id ?? null, // Log the ID if available
+                    'existing_cat_file_paths' => $attachments->cat_file_paths, // Log existing file paths
+                    'new_cat_file_paths' => $fileDataArray, // Log the new file data array
+                ]);
+
+                // Perform the update
+                // dd(json_encode($fileDataArray));
+
+                $existingFiles = json_decode($attachments->cat_file_paths, true) ?? [];
+                $allFiles = array_merge($existingFiles, $fileDataArray);
+
+                $attachments->cat_file_paths=json_encode($allFiles);
+                $attachments->save();
+
+
+                $employee = auth()->guard('it')->user();
+                $assigneName = $employee->employee_name;
+                ActivityLog::create([
+                    'request_id' => $attachments->request_id, // Assuming this is the request ID
+                    'description' => "Uploaded file: {$file->getClientOriginalName()}",
+                    'performed_by' => $assigneName,
+                    'attachments' => json_encode($fileDataArray)
+                ]);
+
+                // Log successful update
+                Log::info('Attachments updated successfully', [
+                    'attachment_id' => $attachments->id ?? null,
+                    'updated_cat_file_paths' => json_encode($fileDataArray),
+                ]);
+
+                $this->previews=[];
+                $this->all_files = [];
+            } catch (\Exception $e) {
+                // Log any errors
+                Log::error('Error updating attachments', [
+                    'error_message' => $e->getMessage(),
+                    'attachment_id' => $attachments->id ?? null,
+                    'new_cat_file_paths' => $fileDataArray,
+                ]);
+
+                // Optionally, rethrow the exception if needed
+                throw $e;
+            }
+        }
+
+
+
+        // Optional: return a success message or redirect
+        FlashMessageHelper::flashSuccess("Files uploaded successfully!");
+        $this->showFilePreviewModal = false;
+
+    }
+
+
+
+
+public $showViewImageDialog = false;
+public $currentImageRequesId;
+public $showViewFileDialog = false;
+public function closeViewFile()
+{
+    $this->showViewFileDialog = false;
+}
+public function showViewImage($imgRequestId)
+{
+    $this->currentImageRequesId = $imgRequestId;
+    $this->showViewImageDialog = true;
+}
+
+
+public function showViewFile($imgRequestId)
+{
+    $this->currentImageRequesId = $imgRequestId;
+    $this->showViewFileDialog = true;
+}
+
+
+public function closeViewImage()
+{
+    $this->showViewImageDialog = false;
+}
+
+
+public $showViewEmpImageDialog = false;
+public $showViewEmpFileDialog = false;
+
+
+
+public function showViewEmpImage($imgRequestId)
+{
+    $this->currentImageRequesId = $imgRequestId;
+    $this->showViewEmpImageDialog = true;
+}
+
+
+
+public function showViewEmpFile($imgRequestId)
+{
+    $this->currentImageRequesId = $imgRequestId;
+    $this->showViewEmpFileDialog = true;
+}
+
+
+public function closeViewEmpImage()
+{
+    $this->showViewEmpImageDialog = false;
+}
+
+public function closeViewEmpFile()
+{
+    $this->showViewEmpFileDialog = false;
+}
+
+
+
+public function downloadITImages($imgRequestId)
+{
+    try {
+        $catalog = collect($this->allRequestDetails)->firstWhere('id', $imgRequestId);
+
+        if (!$catalog) {
+            // catalog not found
+            return response()->json(['message' => 'catalog not found'], 404);
+        }
+
+        $fileDataArray = is_string($catalog->cat_file_paths)
+            ? json_decode($catalog->cat_file_paths, true)
+            : $catalog->cat_file_paths;
+
+        // Filter images
+        $images = array_filter(
+            $fileDataArray,
+            function ($fileData) {
+                // Ensure 'mime_type' key exists and is valid
+                return isset($fileData['mime_type']) && strpos($fileData['mime_type'], 'image') !== false;
+            }
+        );
+
+        // If only one image, provide direct download
+        if (count($images) === 1) {
+            $image = reset($images); // Get the single image
+            $base64File = $image['data'];
+            $mimeType = $image['mime_type'];
+            $originalName = $image['original_name'];
+
+            // Decode base64 content
+            $fileContent = base64_decode($base64File);
+
+            // Return the image directly
+            return response()->stream(
+                function () use ($fileContent) {
+                    echo $fileContent;
+                },
+                200,
+                [
+                    'Content-Type' => $mimeType,
+                    'Content-Disposition' => 'attachment; filename="' . $originalName . '"',
+                ]
+            );
+        }
+
+        // If multiple images, create a ZIP file
+        if (count($images) > 1) {
+            $zipFileName = 'images.zip';
+            $zip = new \ZipArchive();
+            $zip->open(storage_path($zipFileName), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+
+            foreach ($images as $image) {
+                $base64File = $image['data'];
+                $mimeType = $image['mime_type'];
+                $extension = explode('/', $mimeType)[1];
+                $imageName = uniqid() . '.' . $extension;
+
+                $zip->addFromString($imageName, base64_decode($base64File));
+            }
+
+            $zip->close();
+
+            return response()->download(storage_path($zipFileName))->deleteFileAfterSend(true);
+        }
+
+        // If no images, return an appropriate response
+        return response()->json(['message' => 'No images found'], 404);
+    } catch (\Exception $e) {
+        // Handle any exception that occurs and return a proper response
+        return response()->json(['message' => 'An error occurred while processing the images', 'error' => $e->getMessage()], 500);
+    }
+}
+
+
+
+public function downloadImages($imgRequestId)
+{
+    try {
+        $imgRequest = collect($this->allRequestDetails)->firstWhere('id', $imgRequestId);
+
+        if (!$imgRequest) {
+            // imgRequest not found
+            return response()->json(['message' => 'imgRequest not found'], 404);
+        }
+
+        $fileDataArray = is_string($imgRequest->file_paths)
+            ? json_decode($imgRequest->file_paths, true)
+            : $imgRequest->file_paths;
+
+        // Filter images
+        $images = array_filter(
+            $fileDataArray,
+            function ($fileData) {
+                // Ensure 'mime_type' key exists and is valid
+                return isset($fileData['mime_type']) && strpos($fileData['mime_type'], 'image') !== false;
+            }
+        );
+
+        // If only one image, provide direct download
+        if (count($images) === 1) {
+            $image = reset($images); // Get the single image
+            $base64File = $image['data'];
+            $mimeType = $image['mime_type'];
+            $originalName = $image['original_name'];
+
+            // Decode base64 content
+            $fileContent = base64_decode($base64File);
+
+            // Return the image directly
+            return response()->stream(
+                function () use ($fileContent) {
+                    echo $fileContent;
+                },
+                200,
+                [
+                    'Content-Type' => $mimeType,
+                    'Content-Disposition' => 'attachment; filename="' . $originalName . '"',
+                ]
+            );
+        }
+
+        // If multiple images, create a ZIP file
+        if (count($images) > 1) {
+            $zipFileName = 'images.zip';
+            $zip = new \ZipArchive();
+            $zip->open(storage_path($zipFileName), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+
+            foreach ($images as $image) {
+                $base64File = $image['data'];
+                $mimeType = $image['mime_type'];
+                $extension = explode('/', $mimeType)[1];
+                $imageName = uniqid() . '.' . $extension;
+
+                $zip->addFromString($imageName, base64_decode($base64File));
+            }
+
+            $zip->close();
+
+            return response()->download(storage_path($zipFileName))->deleteFileAfterSend(true);
+        }
+
+        // If no images, return an appropriate response
+        return response()->json(['message' => 'No images found'], 404);
+    } catch (\Exception $e) {
+        // Handle any exception that occurs and return a proper response
+        return response()->json(['message' => 'An error occurred while processing the images', 'error' => $e->getMessage()], 500);
+    }
+}
+
+
+
+
+
+
+    public $allRequestDetails;
     public $selectedRecord = null;
-
-
-
-
     public $forIT;
     public $recentDetails;
     public $rejectDetails;
@@ -1343,6 +2974,15 @@ public function updateCounts()
   public function render()
 {
     try {
+
+        $this->loadPendingRecordsByAssigne();
+        $this->loadInprogessRecordsByAssigne();
+        $this->loadClosedRecordsByAssigne();
+        $this->itAssigneMemebers = EmployeeDetails::where('sub_dept_id', '9915')
+        ->where('dept_id', '8803')
+        ->where('status', 1)
+        ->orderBy('first_name', 'asc')
+        ->get();
         // Fetch IT request categories
         $requestCategories = Request::select('Request', 'category')
             ->where('Request', 'IT') // Adjust this to match the condition for IT requests
@@ -1363,12 +3003,20 @@ public function updateCounts()
             ->get();
 
         // Fetch recent, rejected, and active details based on status
+
+        $this->allRequestDetails = HelpDesks::with('emp')
+        ->orderBy('created_at', 'desc')
+        ->orderBy($this->sortColumn, $this->sortDirection)
+        ->whereIn('category',  $requestCategories)
+        ->get();
+
         $this->recentDetails = HelpDesks::with('emp')
             ->where('status_code', '8')
             ->orderBy('created_at', 'desc')
             ->orderBy($this->sortColumn, $this->sortDirection)
             ->whereIn('category',  $requestCategories)
             ->get();
+
 
         $this->rejectDetails = HelpDesks::with('emp')
             ->where('status_code', '3')
@@ -1385,29 +3033,31 @@ public function updateCounts()
                 ->orderBy($this->sortColumn, $this->sortDirection)
                 ->whereIn('category',  $requestCategories)
                 ->get();
-        } elseif ($this->activeTab == 'pending') {
-            $this->forIT = HelpDesks::with('emp')
-                ->where('status_code', '5')
-                ->whereIn('category', $requestCategories)
-                ->orderBy($this->sortColumn, $this->sortDirection)
-                ->orderBy('created_at', 'desc')
-                ->get();
-        }elseif ($this->activeTab == 'inprogress') {
-            $this->forIT = HelpDesks::with('emp')
-                ->where('status_code', '16')
-                ->whereIn('category', $requestCategories)
-                ->orderBy($this->sortColumn, $this->sortDirection)
-                ->orderBy('created_at', 'desc')
-                ->get();
         }
-        elseif ($this->activeTab == 'closed') {
-            $this->forIT = HelpDesks::with('emp')
-            ->whereIn('status_code', ['11', '15'])
-                ->whereIn('category',  $requestCategories)
-                ->orderBy($this->sortColumn, $this->sortDirection)
-                ->orderBy('created_at', 'desc')
-                ->get();
-        }
+        //  elseif ($this->activeTab == 'pending') {
+        //     $this->forIT = HelpDesks::with('emp')
+        //         ->where('status_code', '5')
+        //         ->whereIn('category', $requestCategories)
+        //         ->orderBy($this->sortColumn, $this->sortDirection)
+        //         ->orderBy('created_at', 'desc')
+        //         ->get();
+        // }
+        // elseif ($this->activeTab == 'inprogress') {
+        //     $this->forIT = HelpDesks::with('emp')
+        //         ->where('status_code', '16')
+        //         ->whereIn('category', $requestCategories)
+        //         ->orderBy($this->sortColumn, $this->sortDirection)
+        //         ->orderBy('created_at', 'desc')
+        //         ->get();
+        // }
+        // elseif ($this->activeTab == 'closed') {
+        //     $this->forIT = HelpDesks::with('emp')
+        //     ->whereIn('status_code', ['11', '15'])
+        //         ->whereIn('category',  $requestCategories)
+        //         ->orderBy($this->sortColumn, $this->sortDirection)
+        //         ->orderBy('created_at', 'desc')
+        //         ->get();
+        // }
 
         // Handling IT requests after 7 days to update status
         if (auth()->guard('it')->check()) {

@@ -27,7 +27,7 @@
         <div class="col-11 col-md-11 mb-2 mb-md-0">
             <div class="row d-flex justify-content-start">
                 <!-- Employee ID Search Input -->
-                <div class="col-4">
+                <div class="col-lg-4 col-md-4 col-8">
                     <div class="input-group task-input-group-container">
                         <input type="text" class="form-control" placeholder="Search..."
                             wire:model="searchEmp" wire:input="filter">

@@ -19,5 +19,6 @@ class ActivityLog extends Model
         'opened_by',
         'priority',
         'state',
+        'attachments',
     ];
 }

@@ -688,35 +688,37 @@ public function getLocationFromIndiaPost($pinCode)
     {
         try {
             // Trim the search input
-            $trimmedEmpId = trim($this->searchVendor);
+            $trimmedSearch = trim($this->searchVendor);
 
-            // Start the query for filtering and sorting
+            // Initialize the query
             $query = Vendor::query();
+
+            // Filter by active vendors
             $query->where('is_active', 1);
 
-            // Apply filtering if there's a search term
-            if ($trimmedEmpId) {
-                $query->where(function ($query) use ($trimmedEmpId) {
-                    $query->where('vendor_id', 'like', '%' . $trimmedEmpId . '%')
-                        ->orWhere('vendor_name', 'like', '%' . $trimmedEmpId . '%')
-                        ->orWhere('contact_name', 'like', '%' . $trimmedEmpId . '%')
-                        ->orWhere('gst', 'like', '%' . $trimmedEmpId . '%')
-                        ->orWhere('contact_email', 'like', '%' . $trimmedEmpId . '%');
+            // Apply search filters dynamically
+            if (!empty($trimmedSearch)) {
+                $query->where(function ($query) use ($trimmedSearch) {
+                    $query->where('vendor_id', 'like', '%' . $trimmedSearch . '%')
+                        ->orWhere('vendor_name', 'like', '%' . $trimmedSearch . '%')
+                        ->orWhere('contact_name', 'like', '%' . $trimmedSearch . '%')
+                        ->orWhere('gst', 'like', '%' . $trimmedSearch . '%')
+                        ->orWhere('contact_email', 'like', '%' . $trimmedSearch . '%');
                 });
             }
 
             // Apply sorting based on selected column and direction
             $query->orderBy($this->sortColumn, $this->sortDirection);
 
-            // Execute the query and get the results
+            // Fetch and return the results
             return $query->get();
 
         } catch (\Exception $e) {
-            // Log the error message for debugging purposes
+            // Log error for debugging
             Log::error('Error during vendor filter: ' . $e->getMessage());
 
-            // Optionally, return an empty collection or null to indicate an error
-            return collect(); // Returning an empty collection
+            // Return an empty collection in case of an error
+            return collect();
         }
     }
 
