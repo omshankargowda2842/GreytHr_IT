@@ -83,19 +83,19 @@
             @foreach($records as $index => $record)
             <tr>
                 <td>{{ $index + 1 }}</td>
-                <td>{{ $record->request_id }}</td>
-                <td>{{ $record->emp_id }}</td>
-                <td>{{ $record->category }}</td>
-                <td>{{ $record->subject }}</td>
-                <td>{{ $record->cc_to }}</td>
-                <td>{{ $record->priority }}</td>
-                <td>{{ $record->status_code }}</td>
-                <td>{{ $record->mail }}</td>
-                <td>{{ $record->mobile }}</td>
-                <td>{{ $record->distributor_name }}</td>
-                <td>{{ $record->selected_equipment }}</td>
-                <td>{{ $record->req_end_date }}</td>
-                <td>{{ $record->assign_to }}</td>
+                <td>{{ $record->request_id ?? '-' }}</td>
+                <td>{{ $record->emp_id ?? '-' }}</td>
+                <td>{{ $record->category ?? '-' }}</td>
+                <td>{{ $record->subject ?? '-' }}</td>
+                <td>{{ $record->cc_to ?? '-' }}</td>
+                <td>{{ $record->priority ?? '-' }}</td>
+                <td>{{ $record->status_code ?? '-' }}</td>
+                <td>{{ $record->mail ?? '-' }}</td>
+                <td>{{ $record->mobile ?? '-' }}</td>
+                <td>{{ $record->distributor_name ?? '-' }}</td>
+                <td>{{ $record->selected_equipment ?? '-' }}</td>
+                <td>{{ $record->req_end_date ?? '-'  }}</td>
+                <td>{{ $record->assign_to ?? '-'  }}</td>
                 <td>{{ $record->created_at ? $record->created_at->format('d F, Y') : '-' }}</td>
                 <td>{{ $record->updated_at ? $record->updated_at->format('d F, Y') : '-' }}</td>
             </tr>
