@@ -1,8 +1,6 @@
 <div class="main">
-
-
     <div wire:loading
-        wire:target="submit,setActiveTab,viewRecord,closeServiceDetails,closePopup,loadClosedRecordsByAssigne,loadInprogessRecordsByAssigne,loadPendingRecordsByAssigne,filterLogs,updateAssigne,handleSelectedAssigneChange,handleSelectedStatusChange,selectedStatus,closeInprogressModal,selectedInprogress,closeStatusModal,submitStatusReason,selectedAssigne,closeModal,set,toggleSortOrder,pendingForDesks,loadLogs,inprogressForDesks,viewServiceDetails,handleStatusChange,updateStatus,postComment,activeServiceSubmit,closeForDesks,showViewImage,showViewFile,closeViewFile,downloadImages,closeViewImage,selectedPending,closePendingModal,selectedClosed,closeClosedModal,set,showViewEmpImage,showViewEmpFile,closeViewEmpImage,closeViewEmpFile,downloadITImages">
+        wire:target="exportRequests,clearFilters,closeBulkPendingModal,closeBulkClosedModal,bulkPendingForDesks,bulkCloseForDesks,submit,setActiveTab,viewRecord,closeServiceDetails,closeBulkInprogressModal,bulkSubmitReason,closePopup,bulkSubmitStatusReason,applyBulkActions,loadClosedRecordsByAssigne,loadInprogessRecordsByAssigne,loadPendingRecordsByAssigne,filterLogs,updateAssigne,handleSelectedAssigneChange,handleSelectedStatusChange,selectedStatus,closeInprogressModal,selectedInprogress,closeStatusModal,submitStatusReason,selectedAssigne,closeModal,set,toggleSortOrder,pendingForDesks,loadLogs,inprogressForDesks,viewServiceDetails,handleStatusChange,updateStatus,postComment,activeServiceSubmit,closeForDesks,showViewImage,showViewFile,closeViewFile,downloadImages,closeViewImage,selectedPending,closePendingModal,selectedClosed,closeClosedModal,set,showViewEmpImage,showViewEmpFile,closeViewEmpImage,closeViewEmpFile,downloadITImages">
         <div class="loader-overlay">
             <div>
                 <div class="logo">
@@ -117,6 +115,39 @@
 
                         </div>
 
+
+                        <div class="container export-main">
+                            <h5 class="mb-4">Export Services</h5>
+
+                            <div class="row" style="display: flex;justify-content: space-evenly;align-items: center;">
+                                <!-- Export Format -->
+                                <div class="col-md-4 mb-3">
+                                    <label for="format" class="form-label">Export Format:</label>
+                                    <select id="format" wire:model="exportFormat" class="form-select">
+                                        <option value="" selected disabled hidden>Select Export Format</option>
+                                        <option value="excel">Excel</option>
+                                        <option value="csv">CSV</option>
+                                        <option value="pdf">PDF</option>
+                                    </select>
+                                </div>
+
+                                <!-- Request ID -->
+                                <div class="col-md-4 mb-3">
+                                    <label for="requestId" class="form-label">Service ID:</label>
+                                    <input id="requestId" type="text" wire:model="requestId" class="form-control"
+                                        placeholder="Enter Request ID (Optional)">
+                                </div>
+
+
+                                <div class="col-md-3 mb-3 d-flex justify-content-center">
+                                    <button wire:click.prevent="clearFilters"
+                                        class="btn btn-secondary mt-3 me-2">Clear</button>
+                                    <button wire:click.prevent="exportRequests(10)"
+                                        class="btn btn-primary mt-3">Download</button>
+                                </div>
+                            </div>
+
+                        </div>
 
                         @if($serviceRequestDetails && $serviceRequest)
 
@@ -551,7 +582,7 @@
                                                                     <img src="{{ $preview['url'] }}" alt="Preview"
                                                                         class="img-thumbnail"
                                                                         style="width: 75px; height: 75px;" />
-                                                                        <span class="mt-1 uploaded-file-name"
+                                                                    <span class="mt-1 uploaded-file-name"
                                                                         style="display: block; width: 100%;">{{ $preview['name'] }}</span>
                                                                     @else
                                                                     <div class="d-flex flex-column align-items-center">
@@ -783,51 +814,122 @@
 
                         @if($serviceDetails->count() > 0)
 
+
                         <div class="scrollable-container">
+
+                            @if($checkboxModal)
+
+                            <div class="d-flex justify-content-between mb-3">
+                                <!-- Bulk Assign Dropdown -->
+                                <div class="col-md-4">
+                                    <select class="req-selected-status" wire:model="bulkAssignee"
+                                        wire:change="handleSelectedAssigneChange">
+                                        <option value="" disabled hidden>Select Assignee</option>
+                                        @foreach($itData as $itName)
+                                        <option
+                                            value="{{ $itName->empIt->first_name }} {{ $itName->empIt->last_name }} {{ $itName->empIt->emp_id }}">
+                                            {{ ucwords(strtolower($itName->empIt->first_name)) }}
+                                            {{ ucwords(strtolower($itName->empIt->last_name)) }}
+                                            ({{ ucwords(strtolower($itName->empIt->emp_id)) }})
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <!-- Bulk Status Dropdown -->
+                                <div class="col-md-4">
+                                    <select wire:model="selectedStatus" class="req-selected-status"
+                                        wire:change="handleSelectedStatusChange">
+                                        <option value="" disabled hidden>Select Status</option>
+                                        <option value="5">Pending</option>
+                                        <option value="16">Inprogress</option>
+                                        <option value="11">Completed</option>
+                                        <option value="15">Cancel</option>
+                                    </select>
+                                    @error('selectedStatus')
+                                    <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <!-- Apply Button -->
+                                <button class="btn text-white" style="background-color: #02114f;"
+                                    wire:click="applyBulkActions">
+                                    Apply
+                                </button>
+                            </div>
+
+                            @endif
+                            <!-- Request Cards -->
                             <div class="req-pro-card">
-
                                 @foreach ($serviceDetails as $request)
-
                                 <div class="request-card">
-
-                                    <div class="req-pro-card-body">
-
+                                    <div class="req-pro-card-body d-flex align-items-center justify-content-between">
+                                        <!-- Checkbox for Selection -->
                                         <div>
+                                            <input type="checkbox" wire:model="selectedRequests"
+                                                wire:click="checkboxMultiSelection" value="{{ $request->id }}"
+                                                wire:key=rsetID-{{ $request->id}}>
+                                        </div>
+                                        <div class="ms-3">
                                             <p class="req-reqBy-Dep">Service ID:
-                                                <span class="req-res-depart1">
-
-                                                    {{ $request->snow_id }}
-
-                                                </span>
+                                                <span class="req-res-depart1">{{ $request->snow_id }}</span>
                                             </p>
-
                                             <p class="req-reqBy-Dep">Requested By:
                                                 <span class="req-res-depart1">
-                                                    {{ $request->emp->first_name }}
-                                                    {{ $request->emp->last_name }}
+                                                    {{ $request->emp->first_name }} {{ $request->emp->last_name }}
                                                 </span>
                                             </p>
-
-
                                         </div>
-
-                                        <div class="p-3">
-                                            <!-- View Button: Triggers the viewincidentDetails method with the current request ID -->
+                                        <div class=" d-flex align-items-center">
+                                            <!-- View Button -->
                                             <button wire:click="$set('currentRequestId', {{ $request->id }})"
-                                                class="req-pro-view-details-btn" @if($loading) disabled @endif>
+                                                class="req-pro-view-details-btn">
                                                 View
                                             </button>
                                         </div>
-
-
                                     </div>
-
                                 </div>
-
                                 @endforeach
-
                             </div>
+
+                            <!-- Modal for Reason -->
+                            @if($showStatusModal)
+                            <div class="modal fade show d-block" tabindex="-1" role="dialog"
+                                style="background-color: rgba(0, 0, 0, 0.5);">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Reason for {{ $modalPurpose }}</h5>
+                                            <button type="button" class="btn-close" wire:click="closeStatusModal"
+                                                aria-label="Close"></button>
+                                        </div>
+
+                                        <div class="d-flex justify-content-center flex-column m-3">
+                                            <label for="reason" class="form-label">Reason <span
+                                                    class="text-danger">*</span></label>
+                                            <textarea id="reason" class="form-control" wire:model.defer="pendingReason"
+                                                rows="3"></textarea>
+                                            @error('pendingReason')
+                                            <span class="text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                wire:click="closeStatusModal">Close</button>
+                                            <button type="button" class="btn btn-primary"
+                                                wire:click="bulkSubmitStatusReason">
+                                                Submit
+                                            </button>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
                         </div>
+
+
 
                         @else
                         <div class="req-requestnotfound">
@@ -881,6 +983,114 @@
                     <div class="row">
                         <div class="col-12 mt-2">
 
+
+                            <div class="container export-main">
+                                <h5 class="mb-4">Export Services</h5>
+
+                                <div class="row"
+                                    style="display: flex;justify-content: space-evenly;align-items: center;">
+                                    <!-- Export Format -->
+                                    <div class="col-md-2 mb-3">
+                                        <label for="format" class="form-label">Export Format:</label>
+                                        <select id="format" wire:model="exportFormat" class="form-select">
+                                            <option value="" selected disabled hidden>Select Export Format</option>
+                                            <option value="excel">Excel</option>
+                                            <option value="csv">CSV</option>
+                                            <option value="pdf">PDF</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Request ID -->
+                                    <div class="col-md-3 mb-3">
+                                        <label for="requestId" class="form-label">Service ID:</label>
+                                        <input id="requestId" type="text" wire:model="requestId" class="form-control"
+                                            placeholder="Enter Request ID (Optional)">
+                                    </div>
+
+                                    <!-- Assignee -->
+                                    <div class="col-md-4 mb-3">
+                                        <label for="assignee" class="form-label">Select Assignee:</label>
+                                        <select class="form-select" wire:model="assignee">
+                                            <!-- Default option with empty value (shown when no selection is made) -->
+                                            <option value="" disabled hidden>Select Assignee (Optional)</option>
+
+                                            <!-- Loop through IT data -->
+                                            @foreach($itData as $itName)
+                                            <option
+                                                value="{{ ucwords(strtolower($itName->empIt->first_name)) }} {{ ucwords(strtolower($itName->empIt->last_name)) }} {{ $itName->empIt->emp_id }}">
+                                                {{ ucwords(strtolower($itName->empIt->first_name)) }}
+                                                {{ ucwords(strtolower($itName->empIt->last_name)) }}
+                                                ({{ $itName->empIt->emp_id }})
+                                            </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-3 mb-3 d-flex justify-content-center">
+                                        <button wire:click.prevent="clearFilters"
+                                            class="btn btn-secondary mt-3 me-2">Clear</button>
+
+                                        <button wire:click.prevent="exportRequests(5)"
+                                            class="btn btn-primary mt-3">Download</button>
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <div class="row">
+                                @if($checkboxModal)
+
+                                <div class="d-flex justify-content-between mb-3">
+
+                                    <!-- Bulk Status Dropdown -->
+                                    <div class="col-md-4">
+                                        <label for=""> Please select the status for multi selection</label>
+                                        <select wire:model="selectedStatus" class="req-selected-status"
+                                            wire:click="bulkSelectedInprogress">
+                                            <option value="" disabled hidden>Select Status</option>
+                                            <option value="16">Inprogress</option>
+                                        </select>
+                                        @error('selectedStatus')
+                                        <span class="text-danger">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+                                @endif
+
+                                @if($showBulkInprogressModal)
+                                <div class="modal fade show d-block" tabindex="-1" role="dialog"
+                                    style="background-color: rgba(0, 0, 0, 0.5);">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">
+                                                    Reason for Inprogress
+                                                </h5>
+                                                <button type="button" class="btn-close"
+                                                    wire:click="closeBulkInprogressModal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body flex-column">
+                                                <label for="reason" class="form-label">Reason <span
+                                                        class="text-danger">*</span></label>
+                                                <textarea id="reason" class="form-control"
+                                                    wire:model.defer="pendingReason" rows="3"></textarea>
+                                                @error('pendingReason')
+                                                <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    wire:click="closeBulkInprogressModal">Close</button>
+                                                <button type="button" class="btn btn-primary"
+                                                    wire:click="bulkSubmitReason">Submit</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
+                            </div>
+
                             <div class="col-lg-3 col-md-3 col-5 mb-5">
                                 <div>
                                     <label for="assignee" class="form-label">Select Assignee</label>
@@ -900,10 +1110,13 @@
 
 
                             <div class="table-responsive req-table-res">
+
                                 <table class="custom-table">
                                     @if($servicePendingDetails->count() > 0)
                                     <thead>
                                         <tr>
+                                            <th class="req-table-head">Select
+                                            </th>
                                             <th scope="col" class="req-table-head">Service ID
                                                 <span wire:click.debounce.500ms="toggleSortOrder('snow_id')"
                                                     style="cursor: pointer;">
@@ -969,6 +1182,12 @@
                                         $record)
 
                                         <tr>
+                                            <td>
+                                                <input type="checkbox" wire:model="selectedRequests"
+                                                    wire:click='checkboxMultiSelection' value="{{ $record->id }}"
+                                                    wire:key=recdID-{{ $record->id}}>
+                                            </td>
+
                                             <td>{{ $record->snow_id }}</td>
                                             <td>{{ $record->category ?? 'N/A' }}</td>
                                             <td>{{ $record->short_description ?? 'N/A' }}</td>
@@ -1334,7 +1553,7 @@
                                                                         <img src="{{ $preview['url'] }}" alt="Preview"
                                                                             class="img-thumbnail"
                                                                             style="width: 75px; height: 75px;" />
-                                                                            <span class="mt-1 uploaded-file-name"
+                                                                        <span class="mt-1 uploaded-file-name"
                                                                             style="display: block; width: 100%;">{{ $preview['name'] }}</span>
                                                                         @else
                                                                         <div
@@ -1540,7 +1759,9 @@
 
                                             </td>
 
-                                            <td class="text-nowrap">{{ \Carbon\Carbon::parse($record->created_at)->format('d-M-Y') ?? 'N/A' }} </td>
+                                            <td class="text-nowrap">
+                                                {{ \Carbon\Carbon::parse($record->created_at)->format('d-M-Y') ?? 'N/A' }}
+                                            </td>
 
 
 
@@ -1596,8 +1817,159 @@
 
                     </div>
 
+                    <div class="container export-main">
+                        <h5 class="mb-4">Export Services</h5>
+
+                        <div class="row" style="display: flex;justify-content: space-evenly;align-items: center;">
+                            <!-- Export Format -->
+                            <div class="col-md-2 mb-3">
+                                <label for="format" class="form-label">Export Format:</label>
+                                <select id="format" wire:model="exportFormat" class="form-select">
+                                    <option value="" selected disabled hidden>Select Export Format</option>
+                                    <option value="excel">Excel</option>
+                                    <option value="csv">CSV</option>
+                                    <option value="pdf">PDF</option>
+                                </select>
+                            </div>
+
+                            <!-- Request ID -->
+                            <div class="col-md-3 mb-3">
+                                <label for="requestId" class="form-label">Service ID:</label>
+                                <input id="requestId" type="text" wire:model="requestId" class="form-control"
+                                    placeholder="Enter Request ID (Optional)">
+                            </div>
+
+                            <!-- Assignee -->
+                            <div class="col-md-4 mb-3">
+                                <label for="assignee" class="form-label">Select Assignee:</label>
+                                <select class="form-select" wire:model="assignee">
+                                    <!-- Default option with empty value (shown when no selection is made) -->
+                                    <option value="" disabled hidden>Select Assignee (Optional)</option>
+
+                                    <!-- Loop through IT data -->
+                                    @foreach($itData as $itName)
+                                    <option
+                                        value="{{ ucwords(strtolower($itName->empIt->first_name)) }} {{ ucwords(strtolower($itName->empIt->last_name)) }} {{ $itName->empIt->emp_id }}">
+                                        {{ ucwords(strtolower($itName->empIt->first_name)) }}
+                                        {{ ucwords(strtolower($itName->empIt->last_name)) }}
+                                        ({{ $itName->empIt->emp_id }})
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-3 mb-3 d-flex justify-content-center">
+                                <button wire:click.prevent="clearFilters"
+                                    class="btn btn-secondary mt-3 me-2">Clear</button>
+
+                                <button wire:click.prevent="exportRequests(16)"
+                                    class="btn btn-primary mt-3">Download</button>
+                            </div>
+                        </div>
+
+                    </div>
+
                     <div class="row">
                         <div class="col-12 mt-2">
+
+
+                            <div class="row">
+                                @if($checkboxModal)
+
+                                <div class="d-flex justify-content-between mb-3">
+
+                                    <!-- Bulk Status Dropdown -->
+                                    <div class="col-md-4">
+                                        <label for=""> Please select the status for multi-selection</label>
+                                        <select wire:change="handleBulkInprogressStatus($event.target.value)"
+                                            class="req-selected-status">
+                                            <option value="" selected disabled hidden>Select Status</option>
+                                            <option value="5">Pending</option>
+                                            <option value="11">Completed</option>
+                                        </select>
+                                        @error('selectedStatus')
+                                        <span class="text-danger">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                </div>
+                                @endif
+                            </div>
+
+                            @if($showBulkPendingModal)
+                            <div class="modal fade show d-block" tabindex="-1" role="dialog"
+                                style="background-color: rgba(0, 0, 0, 0.5);">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">
+                                                Reason for Pending
+                                            </h5>
+                                            <button type="button" class="btn-close" wire:click="closeBulkPendingModal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body flex-column">
+                                            <label for="reason" class="form-label">Reason <span
+                                                    class="text-danger">*</span></label>
+                                            <textarea id="reason" class="form-control" wire:model.defer="pendingReason"
+                                                rows="3"></textarea>
+                                            @error('pendingReason')
+                                            <span class="text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                wire:click="closeBulkPendingModal">Close</button>
+                                            <button type="button" class="btn btn-primary"
+                                                wire:click="bulkPendingForDesks">Submit</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+
+                            @if($showBulkClosedModal)
+                            <div class="modal fade show d-block" tabindex="-1" role="dialog"
+                                style="background-color: rgba(0, 0, 0, 0.5);">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">
+                                                Reason for Closed
+                                            </h5>
+                                            <button type="button" class="btn-close" wire:click="closeBulkClosedModal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body flex-column">
+                                            <label for="reason" class="form-label">Reason <span
+                                                    class="text-danger">*</span></label>
+                                            <textarea id="reason" class="form-control" wire:model.defer="pendingReason"
+                                                rows="3"></textarea>
+                                            @error('pendingReason')
+                                            <span class="text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+
+                                        <div class="modal-body flex-column">
+                                            <label for="reason" class="form-label">Reason
+                                                (Customer Visible) <span class="text-danger">*</span></label>
+                                            <textarea id="reason" class="form-control"
+                                                wire:model.defer="customerVisibleNotes" rows="3"></textarea>
+                                            @error('customerVisibleNotes')
+                                            <span class="text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                wire:click="closeBulkClosedModal">Close</button>
+                                            <button type="button" class="btn btn-primary"
+                                                wire:click="bulkCloseForDesks">Submit</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
 
                             <div class="col-lg-3 col-md-3 col-5 mb-5">
                                 <div>
@@ -1621,6 +1993,7 @@
                                     @if($serviceInprogressDetails->count() > 0)
                                     <thead>
                                         <tr>
+                                            <th class="req-table-head">Select</th>
                                             <th scope="col" class="req-table-head">Service ID
                                                 <span wire:click.debounce.500ms="toggleSortOrder('snow_id')"
                                                     style="cursor: pointer;">
@@ -1688,6 +2061,11 @@
                                         $record)
 
                                         <tr>
+                                            <td>
+                                                <input type="checkbox" wire:model="selectedRequests"
+                                                    wire:click='checkboxMultiSelection' value="{{ $record->id }}"
+                                                    wire:key=rcrdID-{{ $record->id}}>
+                                            </td>
                                             <td>{{ $record->snow_id }}</td>
                                             <td>{{ $record->category ?? 'N/A' }}</td>
                                             <td>{{ $record->short_description ?? 'N/A' }}</td>
@@ -2177,7 +2555,7 @@
                                                                         <img src="{{ $preview['url'] }}" alt="Preview"
                                                                             class="img-thumbnail"
                                                                             style="width: 75px; height: 75px;" />
-                                                                            <span class="mt-1 uploaded-file-name"
+                                                                        <span class="mt-1 uploaded-file-name"
                                                                             style="display: block; width: 100%;">{{ $preview['name'] }}</span>
                                                                         @else
                                                                         <div
@@ -2383,7 +2761,9 @@
 
                                             </td>
 
-                                            <td class="text-nowrap">{{ \Carbon\Carbon::parse($record->created_at)->format('d-M-Y') ?? 'N/A' }} </td>
+                                            <td class="text-nowrap">
+                                                {{ \Carbon\Carbon::parse($record->created_at)->format('d-M-Y') ?? 'N/A' }}
+                                            </td>
 
 
                                             <td>
@@ -2444,6 +2824,65 @@
 
                         <div class="col-12 mt-2">
 
+                            <div class="container export-main">
+                                <h5 class="mb-4">Export Services</h5>
+
+                                <div class="row"
+                                    style="display: flex;justify-content: space-evenly;align-items: center;">
+                                    <!-- Export Format -->
+                                    <div class="col-md-4 mb-3">
+                                        <label for="format" class="form-label">Export Format:</label>
+                                        <select id="format" wire:model="exportFormat" class="form-select">
+                                            <option value="" selected disabled hidden>Select Export Format</option>
+                                            <option value="excel">Excel</option>
+                                            <option value="csv">CSV</option>
+                                            <option value="pdf">PDF</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Request ID -->
+                                    <div class="col-md-4 mb-3">
+                                        <label for="requestId" class="form-label">Service ID:</label>
+                                        <input id="requestId" type="text" wire:model="requestId" class="form-control"
+                                            placeholder="Enter Request ID (Optional)">
+                                    </div>
+
+                                    <!-- Assignee -->
+                                    <div class="col-md-4 mb-3">
+                                        <label for="assignee" class="form-label">Select Assignee:</label>
+                                        <select class="form-select" wire:model="assignee">
+                                            <!-- Default option with empty value (shown when no selection is made) -->
+                                            <option value="" disabled hidden>Select Assignee (Optional)</option>
+
+                                            <!-- Loop through IT data -->
+                                            @foreach($itData as $itName)
+                                            <option
+                                                value="{{ ucwords(strtolower($itName->empIt->first_name)) }} {{ ucwords(strtolower($itName->empIt->last_name)) }} {{ $itName->empIt->emp_id }}">
+                                                {{ ucwords(strtolower($itName->empIt->first_name)) }}
+                                                {{ ucwords(strtolower($itName->empIt->last_name)) }}
+                                                ({{ $itName->empIt->emp_id }})
+                                            </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+
+                                    <div class="col-md-12 d-flex justify-content-between align-items-center">
+
+                                        <button wire:click.prevent="clearFilters" class="btn btn-secondary mt-3 me-2"
+                                            style="font-size: 11px;">Clear</button>
+                                        <button wire:click.prevent="exportRequests('11')" class="btn btn-primary mt-3"
+                                            style="font-size: 11px;">Download Completed Requests</button>
+                                        <button wire:click.prevent="exportRequests('15')" class="btn btn-primary mt-3"
+                                            style="font-size: 11px;">Download Cancelled Requests</button>
+                                        <button wire:click.prevent="exportRequests('11,15')"
+                                            class="btn btn-primary mt-3" style="font-size: 11px;">Download All</button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
 
                             <div class="row d-flex">
                                 <!-- Assignee Filter -->
@@ -2611,7 +3050,9 @@
                                                         class="fas fa-eye"></i></button>
                                             </td>
 
-                                            <td class="text-nowrap">{{ \Carbon\Carbon::parse($record->created_at)->format('d-M-Y') ?? 'N/A' }} </td>
+                                            <td class="text-nowrap">
+                                                {{ \Carbon\Carbon::parse($record->created_at)->format('d-M-Y') ?? 'N/A' }}
+                                            </td>
 
 
                                             <td>

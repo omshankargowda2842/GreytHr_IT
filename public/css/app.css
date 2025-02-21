@@ -2527,3 +2527,14 @@ w
     overflow-y: auto;
     height: calc(100% - 50px);
 }
+
+
+.export-main {
+    background-color: #f9f9f9;
+    color: black;
+    margin: 50px 4px;
+    padding: 12px;
+    border-radius: 20px;
+    border: 1px solid black;
+
+}
