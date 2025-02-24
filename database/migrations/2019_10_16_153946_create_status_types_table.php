@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('emp_experiences', function (Blueprint $table) {
-            $table->smallInteger('id')->autoIncrement();
-            $table->string('emp_id',10);
-            $table->json('experience');
+        Schema::create('status_types', function (Blueprint $table) {
+            $table->mediumIncrements('id');
+            $table->string('status_name', 20)->unique();
+            $table->tinyInteger('status_code')->unique();
             $table->timestamps();
-            $table->foreign('emp_id')->references('emp_id')->on('employee_details')->onDelete('cascade');
         });
     }
 
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('emp_experiences');
+        Schema::dropIfExists('status_types');
     }
 };
