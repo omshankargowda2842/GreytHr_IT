@@ -27,6 +27,7 @@ class AssignAssetEmp extends Model
         'one_drive',
         'screenshot_programs',
         'mac_address',
+        'assigned_at',
         'laptop_received',
         'deleted_at',
         'delete_reason',

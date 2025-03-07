@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('one_drive',10)->nullable();
             $table->string('screenshot_programs',10)->nullable();
             $table->string('mac_address',100)->nullable();
+            $table->date('assigned_at')->nullable();
             $table->date('laptop_received')->nullable();
             $table->string('delete_reason',200)->nullable();
             $table->boolean('is_active')->default(true);

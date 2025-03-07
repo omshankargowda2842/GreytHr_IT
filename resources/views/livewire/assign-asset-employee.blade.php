@@ -352,6 +352,15 @@
                     </div>
                 </div>
 
+                <div class="row" style="margin-bottom: 30px;">
+                    <div class="form-group col-md-4 mb-3">
+
+                        <label>Assigned At (Date):</label>
+                        <input type="date" class="form-control" wire:model="assignedAt">
+                    </div>
+
+                </div>
+
 
             </div>
             @endif

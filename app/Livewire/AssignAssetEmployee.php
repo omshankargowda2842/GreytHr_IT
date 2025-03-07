@@ -46,6 +46,7 @@ class AssignAssetEmployee extends Component
     public $systemName;
     public $macAddress;
     public $laptopReceived;
+    public $assignedAt;
     public $sophosAntivirus = "";
     public $vpnCreation = "";
     public $teramind = "";
@@ -221,6 +222,7 @@ class AssignAssetEmployee extends Component
         $this->screenshotPrograms = null;
         $this->macAddress = '';
         $this->laptopReceived = null;
+        $this->assignedAt = null;
         $this->selectedAsset = null;
         $this->selectedEmployee = null;
         $this->assetDetails = null;
@@ -905,6 +907,7 @@ public function downloadITImages($assetID)
             $this->screenshotPrograms = $assignment->screenshot_programs;
             $this->macAddress = $assignment->mac_address;
             $this->laptopReceived = $assignment->laptop_received;
+            $this->assignedAt = $assignment->assigned_at;
 
             $this->validateOnly('selectedAsset');
             $this->validateOnly('selectedEmployee');
@@ -923,7 +926,7 @@ public function downloadITImages($assetID)
 
             FlashMessageHelper::flashError('An error occurred while fetching or updating the asset assignment.');
 
-            $this->reset(['selectedAsset', 'selectedEmployee', 'sophosAntivirus', 'vpnCreation', 'teramind', 'systemUpgradation', 'oneDrive', 'screenshotPrograms', 'macAddress', 'laptopReceived']);
+            $this->reset(['selectedAsset', 'selectedEmployee', 'sophosAntivirus', 'vpnCreation', 'teramind', 'systemUpgradation', 'oneDrive', 'screenshotPrograms', 'macAddress', 'laptopReceived','assignedAt']);
         }
     }
 
@@ -1078,6 +1081,7 @@ public function downloadITImages($assetID)
                         'screenshot_programs' => $this->screenshotPrograms,
                         'mac_address' => $this->macAddress,
                         'laptop_received' => $this->laptopReceived,
+                        'assigned_at' => $this->assignedAt,
                         'is_active' => true,
                     ]);
 
@@ -1099,6 +1103,7 @@ public function downloadITImages($assetID)
                         'screenshot_programs' => $this->screenshotPrograms,
                         'mac_address' => $this->macAddress,
                         'laptop_received' => $this->laptopReceived,
+                        'assigned_at' => $this->assignedAt,
                         'is_active' => true,
                     ]);
 
@@ -1131,6 +1136,7 @@ public function downloadITImages($assetID)
                     'screenshot_programs' => $this->screenshotPrograms,
                     'mac_address' => $this->macAddress,
                     'laptop_received' => $this->laptopReceived,
+                    'assigned_at' => $this->assignedAt,
                     'is_active' => true,
                 ]);
 
