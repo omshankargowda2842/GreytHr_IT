@@ -109,7 +109,7 @@
             </div>
 
             <div class="row">
-            <div class="col-md-7" style="margin-left: 4%;">
+                <div class="col-md-7" style="margin-left: 4%;">
                     <div class="row mt-2">
                         <div class="col">
                             <label for="fileInput"
@@ -347,16 +347,17 @@
                         <input type="text" class="form-control" wire:model="macAddress">
                     </div>
                     <div class="form-group col-md-4 mb-3">
-                        <label>Laptop Received (Date):</label>
-                        <input type="date" class="form-control" wire:model="laptopReceived">
+
+                        <label>Assigned At (Date):</label>
+                        <input type="date" class="form-control" wire:model="assignedAt">
                     </div>
+
                 </div>
 
                 <div class="row" style="margin-bottom: 30px;">
                     <div class="form-group col-md-4 mb-3">
-
-                        <label>Assigned At (Date):</label>
-                        <input type="date" class="form-control" wire:model="assignedAt">
+                        <label>Laptop Received (Date):</label>
+                        <input type="date" class="form-control" wire:model="laptopReceived">
                     </div>
 
                 </div>
@@ -1161,7 +1162,7 @@
 
 
                     <tr>
-                        <td >Active Uploaded Files</td>
+                        <td>Active Uploaded Files</td>
 
 
                         <td>
@@ -1581,25 +1582,24 @@
                                                     </div>
                                                     <div class="col-8">
 
-                                                      <!-- File input hidden -->
-                                                      <input id="fileInput-{{ $recordId }}" type="file"
-                                                                wire:model="it_file_paths.{{ $recordId }}"
-                                                                class="form-control-file" multiple
-                                                                style="font-size: 12px; display: none;" />
+                                                        <!-- File input hidden -->
+                                                        <input id="fileInput-{{ $recordId }}" type="file"
+                                                            wire:model="it_file_paths.{{ $recordId }}"
+                                                            class="form-control-file" multiple
+                                                            style="font-size: 12px; display: none;" />
 
-                                                            <!-- Label triggers file input -->
-                                                            <div class="req-attachmentsIcon d-flex"
-                                                                style="align-items: baseline; gap: 5px;">
-                                                                <button class="btn btn-outline-secondary" type="button"
-                                                                    for="fileInput-{{ $recordId }}"
-                                                                    onclick="document.getElementById('fileInput-{{ $recordId}}').click();">
-                                                                    <i class="fa-solid fa-paperclip"></i>
-                                                                </button>
-                                                            </div>
+                                                        <!-- Label triggers file input -->
+                                                        <div class="req-attachmentsIcon d-flex"
+                                                            style="align-items: baseline; gap: 5px;">
+                                                            <button class="btn btn-outline-secondary" type="button"
+                                                                for="fileInput-{{ $recordId }}"
+                                                                onclick="document.getElementById('fileInput-{{ $recordId}}').click();">
+                                                                <i class="fa-solid fa-paperclip"></i>
+                                                            </button>
+                                                        </div>
 
 
-                                                        <div wire:loading
-                                                            wire:target="it_file_paths.{{ $recordId }}"
+                                                        <div wire:loading wire:target="it_file_paths.{{ $recordId }}"
                                                             class="mt-2">
                                                             <i class="fas fa-spinner fa-spin"></i>
                                                             Uploading...
@@ -1670,7 +1670,8 @@
                                                     <button type="button" class="btn btn-secondary"
                                                         wire:click="hideFilePreviewModal">Close</button>
                                                     <button type="button" class="btn btn-primary"
-                                                        wire:click="uploadFiles({{ $recordId }})" wire:key='upload-{{ $recordId }}'>Upload
+                                                        wire:click="uploadFiles({{ $recordId }})"
+                                                        wire:key='upload-{{ $recordId }}'>Upload
                                                         Files</button>
                                                 </div>
 
