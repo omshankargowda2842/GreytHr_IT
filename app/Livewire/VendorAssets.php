@@ -442,6 +442,7 @@ class VendorAssets extends Component
         try {
 
 
+
             $this->resetErrorBag();
 
             $vendormember = VendorAsset::find($this->recordId);
@@ -463,6 +464,7 @@ class VendorAssets extends Component
                     'action' => 'update'
                 ]);
 
+
                 FlashMessageHelper::flashSuccess("Asset deactivated successfully!");
                 $this->showLogoutModal = false;
 
@@ -470,6 +472,7 @@ class VendorAssets extends Component
                 $this->vendorAssets = VendorAsset::get();
                 $this->recordId = null;
                 $this->reason = '';
+               
             } else {
                 return response()->json(['message' => 'Vendor asset not found'], 404);
             }

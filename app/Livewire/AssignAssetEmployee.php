@@ -1151,6 +1151,8 @@ public function downloadITImages($assetID)
             return redirect()->route('employeeAssetList');
         } catch (\Exception $e) {
 
+            dd('Error while assigning asset: ' . $e->getMessage());
+
             Log::error('Error while assigning asset: ' . $e->getMessage());
 
             FlashMessageHelper::flashError("An error occurred while saving the details. Please try again!");
@@ -1254,10 +1256,12 @@ public function downloadITImages($assetID)
                     'assign_or_un_assign' => $assigned_emp_id,
                     'created_by' =>  $emp_id,
                     'action' => 'un_assign',
-                    'status' => $this->selectedStatus
+                    'status' => $this->selectedStatus,
+
                 ]);
                 // Success flash message
                 FlashMessageHelper::flashSuccess("Asset deactivated successfully!");
+                $employeeAssetLists = AssignAssetEmp::where('is_active', 1)->get();
 
                 // Reset modal state and input values
                 $this->showLogoutModal = false;

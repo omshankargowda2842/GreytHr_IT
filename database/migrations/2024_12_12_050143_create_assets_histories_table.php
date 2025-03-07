@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('assets_histories', function (Blueprint $table) {
             $table->smallInteger('id')->autoIncrement();
             $table->string('vendor_id', 10)->nullable();
-            $table->string('asset_id', 10)->unique()->nullable();
+            $table->string('asset_id', 10)->nullable();
             $table->string('manufacturer', 100)->nullable();
             $table->integer('asset_type')->nullable();
             $table->string('asset_model', 100)->nullable();
@@ -35,8 +35,8 @@ return new class extends Migration
             $table->string('end_of_life', 30)->nullable();
             $table->json('file_paths')->nullable();
             $table->string('delete_asset_reason', 200)->nullable();
-            $table->boolean('is_active');
-            $table->string('assign_or_un_assign', 30);
+            $table->boolean('is_active')->default(true);
+            $table->string('assign_or_un_assign', 30)->nullable();
             $table->string('created_by', 30);
             $table->string('action', 10);
             $table->foreign('asset_id')

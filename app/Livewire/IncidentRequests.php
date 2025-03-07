@@ -612,7 +612,6 @@ public function handleSelectedStatusChange()
 
     public function bulkSubmitReason()
     {
-
         if (count($this->selectedRequests) === 0) {
             FlashMessageHelper::flashError( 'No requests selected.');
             return;
@@ -620,15 +619,12 @@ public function handleSelectedStatusChange()
         $this->validate([
             'pendingReason' => 'required|string|max:255',
             ]);
-
                 try {
 
+                    $employee = auth()->guard('it')->user();
                     foreach ($this->selectedRequests as $requestId) {
                     $task = IncidentRequest::find($requestId);
 
-                    $employee = auth()->guard('it')->user();
-
-                    if ($this->pendingReason) {
                         ActivityLog::create([
                             'action' => "Inprogress Notes",
                             'details' => $this->pendingReason,
@@ -636,7 +632,6 @@ public function handleSelectedStatusChange()
                             'request_type' => 'Incident Request',
                             'request_id' => $task->snow_id,
                         ]);
-                    }
 
                     if ($task) {
                         if ($task->in_progress_since === null) {
@@ -665,9 +660,9 @@ public function handleSelectedStatusChange()
                             'request_id' => $task->snow_id,
                         ]);
 
-                        $this->closeInprogressModal();
-                        $this->updateCounts();
                     }
+                    $this->closeInprogressModal();
+                    $this->updateCounts();
                 }
 
                 } catch (\Exception $e) {
@@ -678,10 +673,8 @@ public function handleSelectedStatusChange()
                     FlashMessageHelper::flashError("An error occurred while updating the task status.");
                 }
 
-
                 if ($task) {
                     FlashMessageHelper::flashSuccess("Status has been set to Inprogress");
-
                 }
                 $this->selectedStatus='';
                 $this->selectedRequests = [];
