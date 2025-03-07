@@ -173,7 +173,6 @@ class RequestProcess extends Component
             ->whereIn('category',  $requestCategories)
             ->whereIn('status_code', $statusCodes); // Mandatory filter: Status Code
 
-
         // Apply optional filters for request ID and assignee
         if ($this->requestId) {
             $query->where('request_id', $this->requestId); // Filter by Request ID (assuming 'snow_id' is correct field)
@@ -434,6 +433,7 @@ class RequestProcess extends Component
             'pendingReason' => 'required|string|max:255',
         ]);
 
+
         foreach ($this->selectedRequests as $requestId) {
             $task = HelpDesks::find($requestId);
 
@@ -621,7 +621,6 @@ class RequestProcess extends Component
             'pendingReason' => 'required|string|max:255',
             ]);
 
-
             foreach ($this->selectedRequests as $requestId) {
 
                 $task = HelpDesks::find($requestId);
@@ -631,29 +630,34 @@ class RequestProcess extends Component
                 }
 
                 $employee = auth()->guard('it')->user();
+                Log::info("Found Task for Request ID: {$requestId}, Pending Reason: {$this->pendingReason}");
 
-                if($this->pendingReason){
-
-                    ActivityLog::create([
-                        'action' => "Inprogress Notes",
-                        'details' => $this->pendingReason,
-                        'performed_by' => $employee->employee_name,
-                        'request_type' => 'Catalogue Request',
-                        'request_id' => $task->request_id,
-                        ]);
-
-                }
 
                 if ($task) {
+
                     if ($task->cat_progress_since === null) {
                         // If it's the first time switching to InProgress, set the current time
                         $task->cat_progress_since = now();
                     }
 
-                    $task->update([
+                    $updated = $task->update([
                         'inprogress_notes' => $this->pendingReason,
-                        'status_code' => 16
-                        ]);
+                        'status_code' => 16,
+                    ]);
+
+                    Log::info("Update Result for Request ID {$task->request_id}: " . ($updated ? 'Success' : 'Failed'));
+
+                    $task->refresh();
+                    Log::info("Inprogress Notes after Refresh for Request ID {$task->request_id}: {$task->inprogress_notes}");
+
+
+                        ActivityLog::create([
+                            'action' => "Inprogress Notes",
+                            'details' =>  $task->inprogress_notes,
+                            'performed_by' => $employee->employee_name,
+                            'request_type' => 'Catalogue Request',
+                            'request_id' => $task->request_id,
+                            ]);
 
                         $employee = auth()->guard('it')->user();
 
