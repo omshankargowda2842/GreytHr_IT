@@ -29,10 +29,10 @@ return new class extends Migration
 
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->string('user_id', 10)->index();
+            $table->foreignId('user_id')->nullable()->index();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
-            $table->longText('payload')->nullable();
+            $table->longText('payload');
             $table->string('country', 20)->nullable();
             $table->string('city', 20)->nullable();
             $table->string('iso_code', 10)->nullable();
@@ -44,9 +44,9 @@ return new class extends Migration
             $table->string('currency', 10)->nullable();
             $table->decimal('latitude', 10, 7)->nullable();
             $table->decimal('longitude', 10, 7)->nullable();
-            $table->integer('last_activity')->index();
             $table->string('device_type', 20)->nullable();
             $table->string('user_type', 20)->nullable();
+            $table->integer('last_activity')->index();
             $table->timestamps();
         });
     }
