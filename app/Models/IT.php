@@ -13,6 +13,9 @@ class IT extends Authenticatable
     use HasFactory;
 
     protected $table = 'it_employees'; // Adjust the table name accordingly
+    protected $primaryKey = 'it_emp_id'; // Use `it_emp_id`, but Laravel still needs an integer primary key
+    public $incrementing = false; // Since it's a string, it's NOT auto-incrementing
+    protected $keyType = 'string'; // Define it as a string key
     const ROLE_USER = 'user';
     const ROLE_ADMIN = 'admin';
     const ROLE_SUPER_ADMIN = 'super_admin';
@@ -145,4 +148,3 @@ class IT extends Authenticatable
             ->delete();
     }
 }
-

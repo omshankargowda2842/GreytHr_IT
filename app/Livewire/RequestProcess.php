@@ -776,7 +776,6 @@ class RequestProcess extends Component
                     'request_id' => $task->request_id,
                     ]);
 
-
             }
         }
         $this->checkboxPendingModal = false;
