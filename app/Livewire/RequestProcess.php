@@ -875,7 +875,6 @@ class RequestProcess extends Component
                 FlashMessageHelper::flashSuccess("Status has been set to Closed");
             }
 
-
     }
 
 
