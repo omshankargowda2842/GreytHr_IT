@@ -1,5 +1,5 @@
 <?php
-
+use Illuminate\Support\Facades\Route;
 use App\Livewire\AssetsList;
 use App\Livewire\AssignAssetEmployee;
 use App\Livewire\Dashboard;
@@ -17,28 +17,16 @@ use App\Livewire\TestPurpose;
 use App\Livewire\VendorAssets;
 use App\Livewire\Vendors;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
 
 // Route::get('/', function () {
 //     return view('welcome');
 // });
-
-Route::middleware(['checkauth'])->group(function () {
+Route::middleware(['guest'])->group(function () {
     Route::get('/itlogin', ItLogin::class)->name('itlogin');
 });
 
-Route::middleware(['auth:it', 'handleSession'])->group(function () {
+Route::middleware(['auth', 'auth.session'])->group(function () {
     // Root route, protected by auth:it middleware
     Route::get('/', Dashboard::class)->name('dashboard');
 
