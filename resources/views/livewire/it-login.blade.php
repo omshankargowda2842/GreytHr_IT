@@ -102,10 +102,8 @@
         <div class="text-center pt-4">
             <small>
                 © Xsilica Software Solutions Pvt.Ltd |
-                <a href="https://xsilicasoftwaresolutions.greythr.com/v2/static-content/privacy-policy"
-                    class="text-decoration-none" target="_blank">Privacy Policy</a> |
-                <a href="https://xsilicasoftwaresolutions.greythr.com/v2/static-content/terms-of-use"
-                    class="text-decoration-none" target="_blank">Terms of Service</a>
+                <a href="/Privacy&Policy" target="_blank" style="color: rgb(2, 17, 79);">Privacy Policy</a> |
+                <a href="/Terms&Services" target="_blank" style="color: rgb(2, 17, 79);">Terms of Service</a>
             </small>
         </div>
     </div>
@@ -306,28 +304,28 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    Livewire.on('inactive-user-alert', event => {
-        // Show SweetAlert with a timer
-        Swal.fire({
-            icon: 'error',
-            title: 'Account Inactive',
-            text: event[0].message || 'No message available',
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#d33',
-            timer: 5000, // Alert will auto-close after 5 seconds
-            timerProgressBar: true, // Show timer progress bar
-            willClose: () => {
-                Livewire.dispatch('refreshComponent'); // Call refresh when alert closes
-            }
-        }).then((result) => {
-            // Refresh the component if the user clicks "OK"
-            if (result.isConfirmed) {
-                Livewire.dispatch('refreshComponent');
-            }
+    document.addEventListener('DOMContentLoaded', function() {
+        Livewire.on('inactive-user-alert', event => {
+            // Show SweetAlert with a timer
+            Swal.fire({
+                icon: 'error',
+                title: 'Account Inactive',
+                text: event[0].message || 'No message available',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#d33',
+                timer: 5000, // Alert will auto-close after 5 seconds
+                timerProgressBar: true, // Show timer progress bar
+                willClose: () => {
+                    Livewire.dispatch('refreshComponent'); // Call refresh when alert closes
+                }
+            }).then((result) => {
+                // Refresh the component if the user clicks "OK"
+                if (result.isConfirmed) {
+                    Livewire.dispatch('refreshComponent');
+                }
+            });
         });
     });
-});
 </script>
 
 

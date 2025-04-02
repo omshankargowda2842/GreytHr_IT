@@ -94,3 +94,10 @@ Route::get('/clear', function () {
 
     return 'Log contents cleared, and caches have been cleared and optimized!';
 });
+Route::get('/Privacy&Policy', function () {
+    return view('privacy_poliy_view');
+});
+
+Route::get('/Terms&Services', function () {
+    return view('terms_services_view');
+});
