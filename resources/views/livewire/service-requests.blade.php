@@ -303,6 +303,9 @@
                                                     <div class="col-10">
                                                         <textarea wire:model.lazy="comments"
                                                             class="form-control"></textarea>
+                                                            @error('comments')
+                                                        <span class="text-danger">{{ $message }}</span>
+                                                        @enderror
                                                     </div>
                                                     <div class="col-2 d-flex align-items-center">
                                                         <button class="btn text-white"

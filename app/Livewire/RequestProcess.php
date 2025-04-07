@@ -186,7 +186,7 @@ class RequestProcess extends Component
         $records = $query->get();
         // Check if records exist
         if ($records->isEmpty()) {
-            session()->flash('message', 'No records found for the selected filters.');
+            FlashMessageHelper::flashError('No data found ');
             return;
         }
 
@@ -1636,8 +1636,13 @@ class RequestProcess extends Component
 
     public function closeStatusModal()
     {
+
         $this->showStatusModal = false;
-        $this->reset(['pendingReason', 'pendingRequestId','modalPurpose']);
+        $this->selectedStatus = "";
+
+
+        $this->reset(['pendingReason', 'pendingRequestId','modalPurpose','selectedStatus']);
+
 
     }
 
@@ -2244,6 +2249,10 @@ class RequestProcess extends Component
 
     public function postComment($taskId)
 {
+    $this->validate([
+        'comments' => 'required|string|max:500',
+    ]);
+
     try {
         // Find the task by taskId
         $task = HelpDesks::find($taskId);
@@ -2265,9 +2274,9 @@ class RequestProcess extends Component
 
             // Flash a success message
             FlashMessageHelper::flashSuccess("Comment posted successfully!");
-        } else {
-            // Handle case where task not found or no comment provided
-            FlashMessageHelper::flashError("Please Provide the Comments.");
+            $this->resetValidation();
+        }  else {
+            FlashMessageHelper::flashError("Task not found.");
         }
     } catch (\Exception $e) {
         // Log the exception for debugging

@@ -259,8 +259,10 @@
                                             <div>
                                                 <div class="row req-comments">
                                                     <div class="col-10">
-                                                        <textarea wire:model.lazy="comments"
-                                                            class="form-control"></textarea>
+                                                        <textarea wire:model.lazy="comments" class="form-control"></textarea>
+                                                        @error('comments')
+                                                        <span class="text-danger">{{ $message }}</span>
+                                                        @enderror
                                                     </div>
                                                     <div class="col-2 d-flex align-items-center">
                                                         <button class="btn text-white"
@@ -272,6 +274,7 @@
                                             </div>
                                         </td>
                                     </tr>
+
                                     <tr>
                                         <td>Created At</td>
                                         <td class="view-td">
@@ -3765,43 +3768,43 @@
 
 
         <script>
-        function showTab(tab) {
+            function showTab(tab) {
 
-            document.querySelectorAll('.req-pro-tab-content').forEach(el => el.style.display = 'none');
+                document.querySelectorAll('.req-pro-tab-content').forEach(el => el.style.display = 'none');
 
-            document.getElementById(tab).style.display = 'block';
+                document.getElementById(tab).style.display = 'block';
 
-        }
-
-
-
-        document.addEventListener("DOMContentLoaded", () => {
-            showTab('{{ $activeTab }}'); // Show the initially active tab
-        });
-
-        Livewire.on('tabSwitched', tab => {
-            showTab(tab);
-        });
+            }
 
 
 
-
-        document.addEventListener('livewire:load', function() {
-            var swiper = new Swiper('.swiper-container', {
-                loop: true,
-                pagination: {
-                    el: '.swiper-pagination',
-                    clickable: true,
-                },
-                navigation: {
-                    nextEl: '.swiper-button-next',
-                    prevEl: '.swiper-button-prev',
-                },
+            document.addEventListener("DOMContentLoaded", () => {
+                showTab('{{ $activeTab }}'); // Show the initially active tab
             });
-        });
+
+            Livewire.on('tabSwitched', tab => {
+                showTab(tab);
+            });
 
 
-        //for to remove the space after session message
+
+
+            document.addEventListener('livewire:load', function() {
+                var swiper = new Swiper('.swiper-container', {
+                    loop: true,
+                    pagination: {
+                        el: '.swiper-pagination',
+                        clickable: true,
+                    },
+                    navigation: {
+                        nextEl: '.swiper-button-next',
+                        prevEl: '.swiper-button-prev',
+                    },
+                });
+            });
+
+
+            //for to remove the space after session message
         </script>
 
 

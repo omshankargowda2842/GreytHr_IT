@@ -1639,7 +1639,7 @@
                                             <td class="view-td">
                                                 <select wire:model="selectedStatus" class="req-selected-status"
                                                     wire:change="handleSelectedStatusChange">
-                                                    <option value="" disabled hidden>Select Status </option>
+                                                    <option value="" selected disabled>Select Status</option>
                                                     <option value="5">Pending</option>
                                                     <option value="16">Inprogress</option>
                                                     <option value="11">Completed</option>
@@ -1651,6 +1651,7 @@
 
                                             </td>
                                         </tr>
+
 
                                         @if($showStatusModal)
                                         <div class="modal fade show d-block" tabindex="-1" role="dialog"
@@ -1695,6 +1696,9 @@
                                                         <div class="col-10">
                                                             <textarea wire:model.lazy="comments"
                                                                 class="form-control"></textarea>
+                                                            @error('comments')
+                                                            <span class="text-danger">{{ $message }}</span>
+                                                            @enderror
                                                         </div>
                                                         <div class="col-2 d-flex align-items-center">
                                                             <button class="btn text-white"
@@ -5611,42 +5615,42 @@
 
 
         <script>
-        function showTab(tab) {
+            function showTab(tab) {
 
-            document.querySelectorAll('.req-pro-tab-content').forEach(el => el.style.display = 'none');
+                document.querySelectorAll('.req-pro-tab-content').forEach(el => el.style.display = 'none');
 
-            document.getElementById(tab).style.display = 'block';
+                document.getElementById(tab).style.display = 'block';
 
-        }
-
-
-
-        document.addEventListener("DOMContentLoaded", () => {
-            showTab('{{ $activeTab }}'); // Show the initially active tab
-        });
-
-        Livewire.on('tabSwitched', tab => {
-            showTab(tab);
-        });
+            }
 
 
 
-
-        document.addEventListener('livewire:load', function() {
-            var swiper = new Swiper('.swiper-container', {
-                loop: true,
-                pagination: {
-                    el: '.swiper-pagination',
-                    clickable: true,
-                },
-                navigation: {
-                    nextEl: '.swiper-button-next',
-                    prevEl: '.swiper-button-prev',
-                },
+            document.addEventListener("DOMContentLoaded", () => {
+                showTab('{{ $activeTab }}'); // Show the initially active tab
             });
-        });
 
-        //for to remove the space after session message
+            Livewire.on('tabSwitched', tab => {
+                showTab(tab);
+            });
+
+
+
+
+            document.addEventListener('livewire:load', function() {
+                var swiper = new Swiper('.swiper-container', {
+                    loop: true,
+                    pagination: {
+                        el: '.swiper-pagination',
+                        clickable: true,
+                    },
+                    navigation: {
+                        nextEl: '.swiper-button-next',
+                        prevEl: '.swiper-button-prev',
+                    },
+                });
+            });
+
+            //for to remove the space after session message
         </script>
 
     </div>
