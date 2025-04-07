@@ -295,11 +295,12 @@
                     <!-- Notification Icon with Unread Count -->
                     <a class="notify position-relative" href="#" wire:click="toggleNotifications">
                         <i class="fa-regular fa-bell" style="font-size: 23px;"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill
-        bg-danger" style="font-size: 10px;">
+                        @if($unreadCount > 0)
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 10px;">
                             {{ $unreadCount }}
                             <span class="visually-hidden">unread messages</span>
                         </span>
+                        @endif
                     </a>
 
 

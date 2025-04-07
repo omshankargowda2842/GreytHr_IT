@@ -102,7 +102,7 @@ class ServiceRequests extends Component
 
         // Check if records exist
         if ($records->isEmpty()) {
-            session()->flash('message', 'No records found for the selected filters.');
+            FlashMessageHelper::flashError('No data found ');
             return;
         }
 
@@ -129,7 +129,7 @@ class ServiceRequests extends Component
 
         $this->reset(['exportFormat', 'requestId', 'assignee']);
     }
-    
+
 
     public function bulkSubmitStatusReason()
     {
@@ -817,7 +817,7 @@ class ServiceRequests extends Component
     public function closeStatusModal()
     {
         $this->showStatusModal = false;
-        $this->reset(['pendingReason', 'pendingRequestId','modalPurpose']);
+        $this->reset(['pendingReason', 'pendingRequestId','modalPurpose','selectedStatus']);
         // $this->selectedStatus = '';
     }
 
@@ -1115,6 +1115,9 @@ class ServiceRequests extends Component
 
     public function postComment($taskId)
 {
+    $this->validate([
+        'comments' => 'required|string|max:500',
+    ]);
     try {
         // Find the task by taskId
         $task = IncidentRequest::find($taskId);
@@ -1136,10 +1139,9 @@ class ServiceRequests extends Component
             ]);
 
             FlashMessageHelper::flashSuccess("Comment posted successfully!");
-
-        } else {
-            // Handle case where task not found or no comment provided
-            FlashMessageHelper::flashError("Task not found or no comment provided.");
+            $this->resetValidation();
+        }  else {
+            FlashMessageHelper::flashError("Task not found.");
         }
     } catch (\Exception $e) {
         // Log the exception for debugging
@@ -1283,7 +1285,7 @@ class ServiceRequests extends Component
         public function closePendingModal()
         {
             $this->showPendingModal = false;
-            $this->reset(['pendingReason', 'pendingRequestId','modalPurpose']);
+            $this->reset(['pendingReason', 'pendingRequestId','modalPurpose','selectedStatus']);
         }
 
 
