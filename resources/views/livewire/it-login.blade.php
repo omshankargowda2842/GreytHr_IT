@@ -110,10 +110,6 @@
         </div>
     </div>
 
-
-
-
-
     @if ($showDialog)
         <div class="modal itlogin11" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-dialog-centered" role="document">

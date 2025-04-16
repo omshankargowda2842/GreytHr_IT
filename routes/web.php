@@ -58,9 +58,6 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
 
 });
 
-
-
-
 Route::get('password/reset/{token}', PasswordResetComponent::class)->name('password.reset');
 
 Route::get('/clear', function () {
