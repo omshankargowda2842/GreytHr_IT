@@ -528,7 +528,7 @@ class RequestProcess extends Component
 
         }
 
-        $this->closeStatusModal();
+        $this->closeStatusModal1();
         $this->updateCounts();
     }
 
@@ -1638,10 +1638,20 @@ class RequestProcess extends Component
     {
 
         $this->showStatusModal = false;
-        $this->selectedStatus = "";
 
-
+        
         $this->reset(['pendingReason', 'pendingRequestId','modalPurpose','selectedStatus']);
+
+
+    }
+
+
+    public function closeStatusModal1()
+    {
+
+        $this->showStatusModal = false;
+
+        $this->reset(['pendingReason', 'pendingRequestId','modalPurpose']);
 
 
     }
@@ -1812,7 +1822,7 @@ class RequestProcess extends Component
         ]);
 
 
-        $this->closeStatusModal();
+        $this->closeStatusModal1();
 
 
         } else {

@@ -285,7 +285,7 @@
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary"
                                                         wire:click="closeStatusModal">Close</button>
-                                                    <button type="button" class="btn btn-primary"
+                                                    <but ton type="button" class="btn btn-primary"
                                                         wire:click="submitStatusReason({{ $serviceRequest->id }})">Submit</button>
                                                 </div>
                                             </div>

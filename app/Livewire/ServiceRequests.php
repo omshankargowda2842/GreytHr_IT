@@ -237,7 +237,7 @@ class ServiceRequests extends Component
 
         }
 
-        $this->closeStatusModal();
+        $this->closeStatusModal1();
     }
 
 
@@ -821,6 +821,14 @@ class ServiceRequests extends Component
         // $this->selectedStatus = '';
     }
 
+    public function closeStatusModal1()
+    {
+        $this->showStatusModal = false;
+        $this->reset(['pendingReason', 'pendingRequestId','modalPurpose']);
+        // $this->selectedStatus = '';
+    }
+
+
 
 
 
@@ -963,7 +971,7 @@ class ServiceRequests extends Component
         ]);
 
 
-        $this->closeStatusModal();
+        $this->closeStatusModal1();
 
 
         } else {

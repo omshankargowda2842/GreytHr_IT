@@ -681,6 +681,13 @@ class IncidentRequests extends Component
         // $this->selectedStatus = '';
     }
 
+    public function closeStatusModal1()
+    {
+        $this->showStatusModal = false;
+        $this->reset(['pendingReason', 'pendingRequestId', 'modalPurpose']);
+        // $this->selectedStatus = '';
+    }
+
 
     public function bulkSubmitStatusReason()
     {
@@ -784,7 +791,7 @@ class IncidentRequests extends Component
             FlashMessageHelper::flashSuccess("Status has been set to Cancelled");
         }
 
-        $this->closeStatusModal();
+        $this->closeStatusModal1();
     }
 
 
@@ -1103,7 +1110,7 @@ class IncidentRequests extends Component
                 'request_id' => $task->snow_id,
             ]);
 
-            $this->closeStatusModal();
+            $this->closeStatusModal1();
         } else {
             // Handle case where the task was not found or no status is selected
             FlashMessageHelper::flashError("Task not found or invalid status.");
